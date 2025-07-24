@@ -2,41 +2,43 @@ extends Node2D
 
 @onready var http = $HTTPRequest
 
-const AIRTABLE_BASE_ID = Global.AIRTABLE_BASE_ID
-const AIRTABLE_TOKEN = Global.AIRTABLE_TOKEN
-const AIRTABLE_TABLE_NAME = "Characters"
-const API_URL = "https://api.airtable.com/v0/" + AIRTABLE_BASE_ID + "/" + AIRTABLE_TABLE_NAME
-
 func _ready():
-	pass
+	# Capture Enter key for login
+	set_process_input(true)
+
+func _input(event):
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			$Container/LoginButton.emit_signal("pressed")
 
 func get_airtable_data():
-	var headers = ["Authorization: Bearer " + AIRTABLE_TOKEN]
-	var error = http.request(API_URL, headers)
+	var email = $Container/UserEmailField.text.strip_edges().to_lower()
+	var table = "Items"  # Replace with your actual target table
+	var url = "https://godot-airtable-backend.onrender.com/get_table?table=%s&email=%s" % [table, email]
+	var error = http.request(url)
 	if error != OK:
 		print("Request failed with error: ", error)
 
 func _on_http_request_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	print("Response code: ", response_code)
+	var raw = body.get_string_from_utf8()
+
 	if response_code == 200:
-		var response = JSON.parse_string(body.get_string_from_utf8())
-		var matchingrecord = 0
+		var response = JSON.parse_string(raw)
 		if response:
-			for record in response["records"]:
-				var fields = record["fields"]
-				if fields.get("Email") == $Container/UserEmailField.text:
-					$Container/ErrorMessageLabel.text = ""
-					matchingrecord = 1
-					print (record)
-			if matchingrecord == 0:
-				$Container/ErrorMessageLabel.text = "No Matching Records Found, please try again."
-				print ("No Records match")
-				#self.text = fields.get("Email")
+			var records = response["records"]
+			$Container/ErrorMessageLabel.text = ""
+			for record in records:
+				print("✔ Record: ", record)
 		else:
-			print("Failed to parse JSON")
+			print("⚠ Failed to parse JSON")
+	elif response_code == 403:
+		print("❌ Invalid email – not in Characters table")
+		$Container/ErrorMessageLabel.text = "Email not recognized."
 	else:
-		print("Error: ", response_code)
+		print("❌ Request failed with code: ", response_code)
 
 
-func _on_button_pressed() -> void:
+func _on_login_button_pressed() -> void:
 	get_airtable_data()
 	pass # Replace with function body.

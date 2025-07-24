@@ -55,7 +55,7 @@ grow_vertical = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 
-[node name="Button" type="Button" parent="Container"]
+[node name="LoginButton" type="Button" parent="Container"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.429186
@@ -84,5 +84,5 @@ horizontal_alignment = 1
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 
-[connection signal="pressed" from="Container/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Container/LoginButton" to="." method="_on_login_button_pressed"]
 [connection signal="request_completed" from="HTTPRequest" to="." method="_on_http_request_request_completed"]
