@@ -1,3 +1,10 @@
-# Godot 4+ specific ignores
+# Godot engine folders
+.import/
+.export/
 .godot/
-/android/
+
+# Godot build files
+*.import
+*.pck
+*.exe
+*.zip
