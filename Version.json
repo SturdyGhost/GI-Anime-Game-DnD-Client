@@ -4,10 +4,6 @@
     {
       "name": "Genshin DnD Client.exe",
       "url": "https://github.com/yourname/yourrepo/releases/latest/download/Genshin.DnD.Client.exe"
-    },
-    {
-      "name": "Version.json",
-      "url": "https://github.com/yourname/yourrepo/releases/latest/download/Version.json"
     }
   ]
 }
