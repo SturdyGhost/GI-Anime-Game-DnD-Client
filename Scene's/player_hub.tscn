@@ -1,0 +1,234 @@
+[gd_scene load_steps=4 format=3 uid="uid://ch1tr8oe3rt8i"]
+
+[ext_resource type="Script" uid="uid://xh2i8c1bi3ff" path="res://Scene's/player_hub.gd" id="1_ki6c4"]
+[ext_resource type="PackedScene" uid="uid://dph7ujhc7bwgv" path="res://UI/Stat Button Dark.tscn" id="2_ki6c4"]
+[ext_resource type="PackedScene" uid="uid://jbqsvww1jvk6" path="res://UI/Weapon Button.tscn" id="3_a5jjv"]
+
+[node name="Player_Hub" type="Node2D"]
+script = ExtResource("1_ki6c4")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+metadata/_edit_use_anchors_ = true
+
+[node name="BackgroundImage" type="TextureRect" parent="UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="NamePanel" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 435.0
+offset_top = 12.0
+offset_right = 1181.0
+offset_bottom = 247.0
+
+[node name="NameLabel" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 448.0
+offset_top = 20.0
+offset_right = 1171.0
+offset_bottom = 240.0
+theme_override_font_sizes/font_size = 40
+text = "Your Character Info"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Test" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 1417.0
+offset_top = 13.0
+offset_right = 2163.0
+offset_bottom = 248.0
+
+[node name="test" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 1430.0
+offset_top = 21.0
+offset_right = 2153.0
+offset_bottom = 241.0
+theme_override_font_sizes/font_size = 40
+text = "Your Party Info"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Test2" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 410.0
+offset_top = 1192.0
+offset_right = 2165.0
+offset_bottom = 1427.0
+
+[node name="test6" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 423.0
+offset_top = 1200.0
+offset_right = 2156.0
+offset_bottom = 1420.0
+theme_override_font_sizes/font_size = 40
+text = "Action items (i.e.Market, combat, gather materials, research, etc.)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Test3" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 416.0
+offset_top = 259.0
+offset_right = 2171.0
+offset_bottom = 1178.0
+
+[node name="test7" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 429.0
+offset_top = 267.0
+offset_right = 2162.0
+offset_bottom = 1175.0
+theme_override_font_sizes/font_size = 40
+text = "This panel isn't permanent, and isn't always this size, the middle by default will have no panel but depending upon where you click on any of the outer panels it will trigger a temporary panel to appear here with additional info. I.e. hitting one of your stats on the left triggers a panel here that will give you a breakdown/more in-depth look at that stat. Hitting the market button will trigger a temporary panel here with all the shops and what are available for you to buy, etc."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="test2" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 1190.0
+offset_top = 11.0
+offset_right = 1413.0
+offset_bottom = 246.0
+
+[node name="test3" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 1187.0
+offset_top = 9.0
+offset_right = 1417.0
+offset_bottom = 247.0
+theme_override_font_sizes/font_size = 40
+text = "Your 
+Portrait"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="test4" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 2177.0
+offset_top = 255.0
+offset_right = 2548.0
+offset_bottom = 1425.0
+
+[node name="test5" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 2182.0
+offset_top = 258.0
+offset_right = 2541.0
+offset_bottom = 1424.0
+theme_override_font_sizes/font_size = 40
+text = "Your Artifacts"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StatsPanel" type="Panel" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -446.0
+offset_top = -254.5
+offset_right = 446.0
+offset_bottom = 254.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatsLabel" type="Label" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -442.5
+offset_top = -252.0
+offset_right = 442.5
+offset_bottom = 252.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 40
+text = " Base Health: 10
+ Base Attack: 22
+ Base Defense: 11
+ Base Elemental Mastery: 12
+ Base Energy Recharge: 15
+ Base Critical Damage: 10"
+vertical_alignment = 1
+
+[node name="StatButtonsContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 2
+offset_left = 11.0
+offset_top = 9.0
+offset_right = 391.0
+offset_bottom = 1429.0
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Health Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="Attack Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="Defense Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="Elemental Mastery Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="Energy Recharge Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="Critical Damage Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
+custom_minimum_size = Vector2(380, 230)
+layout_mode = 2
+
+[node name="GearContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 0
+offset_left = 2170.0
+offset_top = 10.0
+offset_right = 2270.0
+offset_bottom = 50.0
+
+[node name="Weapon Button" parent="UI/GearContainer" instance=ExtResource("3_a5jjv")]
+layout_mode = 2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+volume_db = 1.75
+autoplay = true
+
+[connection signal="pressed" from="UI/StatButtonsContainer/Health Button" to="." method="_on_health_button_pressed"]
+[connection signal="pressed" from="UI/StatButtonsContainer/Attack Button" to="." method="_on_attack_button_pressed"]
+[connection signal="pressed" from="UI/StatButtonsContainer/Defense Button" to="." method="_on_defense_button_pressed"]
+[connection signal="pressed" from="UI/StatButtonsContainer/Elemental Mastery Button" to="." method="_on_elemental_mastery_button_pressed"]
+[connection signal="pressed" from="UI/StatButtonsContainer/Energy Recharge Button" to="." method="_on_energy_recharge_button_pressed"]
+[connection signal="pressed" from="UI/StatButtonsContainer/Critical Damage Button" to="." method="_on_critical_damage_button_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Weapon Button" to="." method="_on_weapon_button_pressed"]
+[connection signal="finished" from="AudioStreamPlayer2D" to="." method="_on_audio_stream_player_2d_finished"]

@@ -1,0 +1,170 @@
+[gd_scene load_steps=10 format=3 uid="uid://jbqsvww1jvk6"]
+
+[ext_resource type="Script" uid="uid://08v5377sko8a" path="res://UI/weapon_button.gd" id="1_p08xd"]
+[ext_resource type="StyleBox" uid="uid://bgm8gjw8210j0" path="res://UI/Blue Panel.tres" id="2_1uuue"]
+[ext_resource type="Theme" uid="uid://d0dwdlayg7sfd" path="res://UI/Gold Panel.tres" id="3_m7a4o"]
+[ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="3_yxkfb"]
+[ext_resource type="Theme" uid="uid://bbbii7whnfq7m" path="res://UI/White Panel.tres" id="4_fj54i"]
+[ext_resource type="Texture2D" uid="uid://clbu72ptk5std" path="res://UI/Weapon Icon.png" id="5_p08xd"]
+[ext_resource type="Texture2D" uid="uid://dmyuta7gaguit" path="res://UI/Weapon Icons/festering-desire.png" id="6_1uuue"]
+[ext_resource type="Texture2D" uid="uid://ckp0frl303t50" path="res://UI/Info Icon.png" id="8_fj54i"]
+[ext_resource type="PackedScene" uid="uid://b6c2x4b6aau4o" path="res://UI/Tooltip Panel.tscn" id="9_fj54i"]
+
+[node name="Weapon Button" type="TextureButton"]
+custom_minimum_size = Vector2(100, 0)
+anchors_preset = -1
+anchor_right = 0.148
+anchor_bottom = 0.16
+offset_right = 0.119995
+offset_bottom = -1.40001
+script = ExtResource("1_p08xd")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_top = -1.0
+offset_right = 380.0
+offset_bottom = 229.0
+theme_override_styles/panel = ExtResource("2_1uuue")
+
+[node name="Stat1GoldPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 45.0
+offset_right = 244.0
+offset_bottom = 65.0
+scale = Vector2(2, 2)
+theme = ExtResource("3_m7a4o")
+
+[node name="Stat1WhitePanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 143.0
+offset_top = 48.0
+offset_right = 254.0
+offset_bottom = 65.0
+scale = Vector2(2, 2)
+theme = ExtResource("4_fj54i")
+
+[node name="Stat2GoldPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 92.0
+offset_right = 244.0
+offset_bottom = 112.0
+scale = Vector2(2, 2)
+theme = ExtResource("3_m7a4o")
+
+[node name="Stat2WhitePanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 143.0
+offset_top = 95.0
+offset_right = 254.0
+offset_bottom = 112.0
+scale = Vector2(2, 2)
+theme = ExtResource("4_fj54i")
+
+[node name="Stat3GoldPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 142.0
+offset_right = 244.0
+offset_bottom = 162.0
+scale = Vector2(2, 2)
+theme = ExtResource("3_m7a4o")
+
+[node name="Stat3WhitePanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 143.0
+offset_top = 145.0
+offset_right = 254.0
+offset_bottom = 162.0
+scale = Vector2(2, 2)
+theme = ExtResource("4_fj54i")
+
+[node name="BackgroundCircleIcon" type="Sprite2D" parent="."]
+position = Vector2(102, 129)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("5_p08xd")
+
+[node name="WeaponIcon" type="Sprite2D" parent="."]
+position = Vector2(102, 125)
+scale = Vector2(0.675781, 0.675781)
+texture = ExtResource("6_1uuue")
+
+[node name="WeaponLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = -6.0
+offset_right = 749.0
+offset_bottom = 93.0
+scale = Vector2(0.5, 0.5)
+theme = ExtResource("3_yxkfb")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 60
+text = "Weapon Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat1Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 161.0
+offset_top = 48.0
+offset_right = 557.0
+offset_bottom = 114.0
+scale = Vector2(0.5, 0.5)
+theme = ExtResource("3_yxkfb")
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 40
+text = "Crit. Dmg. | +2.25"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Stat2Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 161.0
+offset_top = 97.0
+offset_right = 555.0
+offset_bottom = 159.0
+scale = Vector2(0.5, 0.5)
+theme = ExtResource("3_yxkfb")
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 40
+text = "Attack | +2.25"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Stat3Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 161.0
+offset_top = 147.0
+offset_right = 553.0
+offset_bottom = 209.0
+scale = Vector2(0.5, 0.5)
+theme = ExtResource("3_yxkfb")
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 40
+text = "Attack | +2.25"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="DescriptionInfo" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 332.0
+offset_top = 182.0
+offset_right = 1356.0
+offset_bottom = 1206.0
+scale = Vector2(0.0463867, 0.0463867)
+disabled = true
+texture_normal = ExtResource("8_fj54i")
+
+[node name="Tooltip" parent="." instance=ExtResource("9_fj54i")]
+visible = false
+layout_mode = 1
+offset_left = -1709.0
+offset_top = 242.0
+offset_right = -162.0
+offset_bottom = 465.0
+
+[connection signal="mouse_entered" from="Panel" to="." method="_on_panel_mouse_entered"]
+[connection signal="mouse_exited" from="Panel" to="." method="_on_panel_mouse_exited"]
+[connection signal="mouse_entered" from="DescriptionInfo" to="." method="_on_description_info_mouse_entered"]
+[connection signal="mouse_exited" from="DescriptionInfo" to="." method="_on_description_info_mouse_exited"]

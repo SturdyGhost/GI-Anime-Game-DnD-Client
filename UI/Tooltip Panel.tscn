@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6c2x4b6aau4o"]
+
+[ext_resource type="StyleBox" uid="uid://bgm8gjw8210j0" path="res://UI/Blue Panel.tres" id="1_o3h7w"]
+[ext_resource type="Script" uid="uid://bg0ikqwums0dv" path="res://UI/tooltip_panel.gd" id="2_huql7"]
+
+[node name="Panel" type="Panel"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 174.0
+offset_top = 208.0
+offset_right = -741.0
+offset_bottom = 431.0
+grow_horizontal = 2
+theme_override_styles/panel = ExtResource("1_o3h7w")
+script = ExtResource("2_huql7")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_right = 1641.0
+offset_bottom = 225.0
+text = "Lower the requirement to crit (20) by 3. After using any type of attack, gain 1 stack (max 4) that lasts until the end of battle. You may only gain 1 stack per attack type (i.e. normal attack, charged attack, etc.)  At max stacks gain 50% more Att + EM."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

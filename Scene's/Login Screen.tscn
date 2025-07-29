@@ -1,0 +1,88 @@
+[gd_scene load_steps=2 format=3 uid="uid://ejjstot0uurx"]
+
+[ext_resource type="Script" uid="uid://c5f3puws460ja" path="res://Scene's/login_screen.gd" id="1_8rsda"]
+
+[node name="LoginScreen" type="Node2D"]
+script = ExtResource("1_8rsda")
+
+[node name="Container" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1278.0
+offset_bottom = 720.0
+
+[node name="BackgroundPanel" type="Panel" parent="Container"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -639.0
+offset_top = -360.5
+offset_right = 641.0
+offset_bottom = 359.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="UserEmailLabel" type="Label" parent="Container"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 335.0
+offset_top = -12.0
+offset_right = 426.0
+offset_bottom = 11.0
+grow_vertical = 2
+text = "User Email: "
+
+[node name="UserEmailField" type="LineEdit" parent="Container"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -207.5
+offset_top = -15.5
+offset_right = 207.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+
+[node name="LoginButton" type="Button" parent="Container"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.429186
+anchor_top = 0.623611
+anchor_right = 0.570814
+anchor_bottom = 0.690278
+grow_horizontal = 2
+grow_vertical = 0
+text = "Login"
+metadata/_edit_use_anchors_ = true
+
+[node name="ErrorMessageLabel" type="Label" parent="Container"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -214.0
+offset_top = 41.0
+offset_right = 210.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[connection signal="pressed" from="Container/LoginButton" to="." method="_on_login_button_pressed"]
+[connection signal="request_completed" from="HTTPRequest" to="." method="_on_http_request_request_completed"]

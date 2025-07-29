@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://dv2p5sdu7kb11"]
+
+[ext_resource type="Script" uid="uid://d3gtyh57ht1xv" path="res://Scene's/dungeon_master_hub.gd" id="1_lb5pd"]
+
+[node name="DungeonMasterHub" type="Node2D"]
+script = ExtResource("1_lb5pd")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 492.0
+offset_top = 266.0
+offset_right = 1242.0
+offset_bottom = 706.0
+text = "Dungeon Master HUB"
