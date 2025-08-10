@@ -1,0 +1,228 @@
+[gd_scene load_steps=5 format=3 uid="uid://dohghwl7d14b4"]
+
+[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="1_mpqos"]
+[ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="2_8kb87"]
+[ext_resource type="Texture2D" uid="uid://clbu72ptk5std" path="res://UI/Weapon Icon.png" id="3_41ybt"]
+[ext_resource type="Texture2D" uid="uid://d145xkrxen8bo" path="res://UI/Weapon Icons/a-thousand-floating-dreams.png" id="4_684r6"]
+
+[node name="WeaponPreview" type="Panel"]
+offset_left = 43.0
+offset_top = 27.0
+offset_right = 1419.0
+offset_bottom = 507.0
+
+[node name="WeaponStatsBackground" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 419.204
+offset_top = 3.87075
+offset_right = 790.204
+offset_bottom = 285.871
+theme_override_styles/panel = ExtResource("1_mpqos")
+
+[node name="WeaponEffectBackground" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 794.204
+offset_top = 4.87077
+offset_right = 1371.2
+offset_bottom = 286.871
+theme_override_styles/panel = ExtResource("1_mpqos")
+
+[node name="CurrentStatsBackground" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 419.0
+offset_top = 290.0
+offset_right = 1371.0
+offset_bottom = 475.0
+theme_override_styles/panel = ExtResource("1_mpqos")
+
+[node name="WeaponName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_right = 413.0
+offset_bottom = 172.0
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 30
+theme_override_font_sizes/font_size = 40
+text = "Mistsplitter Reforged"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="WeaponDescription" type="Label" parent="."]
+layout_mode = 0
+offset_left = 799.204
+offset_top = 64.8708
+offset_right = 1370.2
+offset_bottom = 285.871
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 25
+text = "\"After using any type of attack, gain 1 stack (max 4) that lasts until the end of battle. You may only gain 1 stack per attack type (i.e. normal attack, charged attack, etc.) At max stacks deal 50% more damage.\" "
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="WeaponEffectLabel" type="Label" parent="."]
+layout_mode = 2
+offset_left = 800.204
+offset_top = 9.87077
+offset_right = 1367.2
+offset_bottom = 53.8708
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Weapon Effect:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="WeaponStatsContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 429.204
+offset_top = 8.87077
+offset_right = 790.204
+offset_bottom = 283.871
+theme_override_constants/separation = 30
+
+[node name="WeaponStatsLabel" type="Label" parent="WeaponStatsContainer"]
+layout_mode = 2
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Weapon Stats:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Stat1Info" type="Label" parent="WeaponStatsContainer"]
+layout_mode = 2
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 25
+text = "Elemental_Mastery: +7.25"
+autowrap_mode = 2
+
+[node name="Stat2Info" type="Label" parent="WeaponStatsContainer"]
+layout_mode = 2
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 25
+text = "Elemental_Mastery: +7.25"
+autowrap_mode = 2
+
+[node name="Stat3Info" type="Label" parent="WeaponStatsContainer"]
+layout_mode = 2
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 25
+text = "Elemental_Mastery: +7.25"
+autowrap_mode = 2
+
+[node name="IconBackground" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -5.29252
+offset_top = 103.619
+offset_right = 414.707
+offset_bottom = 523.619
+texture = ExtResource("3_41ybt")
+
+[node name="WeaponIcon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 116.0
+offset_right = 396.0
+offset_bottom = 481.0
+texture = ExtResource("4_684r6")
+
+[node name="CurrentStats" type="Label" parent="."]
+layout_mode = 2
+offset_left = 423.102
+offset_top = 291.898
+offset_right = 1367.1
+offset_bottom = 335.898
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Current Stats:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="CurrentStatsContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 434.0
+offset_top = 342.0
+offset_right = 1370.0
+offset_bottom = 472.0
+columns = 2
+
+[node name="Health" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Attack" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Defense" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Elemental_Mastery" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Energy_Recharge" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Critical_Damage" type="RichTextLabel" parent="CurrentStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_8kb87")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/normal_font_size = 30
+text = "test test"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1

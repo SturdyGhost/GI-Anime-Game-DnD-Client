@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3 uid="uid://bapdo2ev5ol3q"]
+
+[ext_resource type="Texture2D" uid="uid://ulla5nqocuyn" path="res://UI/Portrait Icon.png" id="1_ipo3g"]
+[ext_resource type="Script" uid="uid://ogsywo0ghs7e" path="res://UI/character_portrait.gd" id="2_vcv23"]
+[ext_resource type="Texture2D" uid="uid://b0u0h27bm71sw" path="res://UI/Element Icons/Wind.png" id="3_ikstb"]
+[ext_resource type="Texture2D" uid="uid://dchtnte68oxm2" path="res://UI/Emotes/paimon-s-paintings-set-3-13.png" id="4_sqro1"]
+[ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="5_7swx4"]
+
+[node name="CharacterPortrait" type="TextureButton"]
+offset_right = 1024.0
+offset_bottom = 1024.0
+texture_normal = ExtResource("1_ipo3g")
+stretch_mode = 0
+script = ExtResource("2_vcv23")
+
+[node name="PortraitTexture" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 138.0
+offset_top = 110.0
+offset_right = 876.0
+offset_bottom = 747.0
+texture = ExtResource("4_sqro1")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ElementTexture" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 724.0
+offset_top = 726.0
+offset_right = 980.0
+offset_bottom = 982.0
+texture = ExtResource("3_ikstb")
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 179.0
+offset_top = 769.0
+offset_right = 687.0
+offset_bottom = 939.0
+theme = ExtResource("5_7swx4")
+theme_override_constants/outline_size = 60
+theme_override_font_sizes/font_size = 100
+text = "Sangomiya Kokomi"
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 1

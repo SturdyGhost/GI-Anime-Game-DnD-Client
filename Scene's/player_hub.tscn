@@ -1,8 +1,69 @@
-[gd_scene load_steps=4 format=3 uid="uid://ch1tr8oe3rt8i"]
+[gd_scene load_steps=57 format=3 uid="uid://ch1tr8oe3rt8i"]
 
 [ext_resource type="Script" uid="uid://xh2i8c1bi3ff" path="res://Scene's/player_hub.gd" id="1_ki6c4"]
+[ext_resource type="StyleBox" uid="uid://bgm8gjw8210j0" path="res://UI/Blue Panel.tres" id="2_c8kkq"]
+[ext_resource type="Texture2D" uid="uid://xkgg5glslu6q" path="res://Background Images/Player HUB/Inazuma.jpg" id="2_gone6"]
 [ext_resource type="PackedScene" uid="uid://dph7ujhc7bwgv" path="res://UI/Stat Button Dark.tscn" id="2_ki6c4"]
 [ext_resource type="PackedScene" uid="uid://jbqsvww1jvk6" path="res://UI/Weapon Button.tscn" id="3_a5jjv"]
+[ext_resource type="Texture2D" uid="uid://dcl1l87iwrrhh" path="res://UI/Market Button Icon.png" id="3_i5t6k"]
+[ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="3_iub4p"]
+[ext_resource type="PackedScene" uid="uid://cwc4jtruxklvd" path="res://UI/ArtifactButton.tscn" id="4_a0tjc"]
+[ext_resource type="Theme" uid="uid://bbbii7whnfq7m" path="res://UI/White Panel.tres" id="4_iub4p"]
+[ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="4_ndkhv"]
+[ext_resource type="PackedScene" uid="uid://bapdo2ev5ol3q" path="res://UI/character_portrait.tscn" id="4_semx8"]
+[ext_resource type="Texture2D" uid="uid://dr1dh05xey5ik" path="res://UI/Market Button Pressed Icon.png" id="5_1xwfl"]
+[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="5_qvs07"]
+[ext_resource type="Texture2D" uid="uid://dqjxy2md8q1sv" path="res://UI/Combat Button Icon.png" id="5_twm1r"]
+[ext_resource type="Texture2D" uid="uid://b0u0h27bm71sw" path="res://UI/Element Icons/Wind.png" id="5_y7hru"]
+[ext_resource type="Texture2D" uid="uid://cajsqgsddv6f2" path="res://UI/Gather Button Icon.png" id="6_gone6"]
+[ext_resource type="FontFile" uid="uid://vyr8kiirh8lc" path="res://UI/zh-cn.ttf" id="6_mj37b"]
+[ext_resource type="Texture2D" uid="uid://ca75b07at4n7s" path="res://UI/Element Icons/Earth.png" id="6_mn6i2"]
+[ext_resource type="Texture2D" uid="uid://boxhvinlu1to8" path="res://UI/Market Button Hover Icon.png" id="6_semx8"]
+[ext_resource type="Texture2D" uid="uid://cec41qp86r56m" path="res://UI/Market Button Disabled Icon.png" id="7_jemdo"]
+[ext_resource type="Texture2D" uid="uid://br5oyqj50y8ct" path="res://UI/Element Icons/Electric.png" id="7_mj37b"]
+[ext_resource type="Texture2D" uid="uid://b1mkmh1cvnfqn" path="res://UI/Minigames Button Icon.png" id="7_x5hun"]
+[ext_resource type="Texture2D" uid="uid://bi16ayppmc5r4" path="res://UI/Element Icons/Nature.png" id="8_0bk0q"]
+[ext_resource type="Texture2D" uid="uid://c0jn443t7kgur" path="res://UI/Research Button Icon.png" id="8_pitbg"]
+[ext_resource type="Texture2D" uid="uid://240yfhdyt5dv" path="res://UI/Element Icons/Water.png" id="9_iub4p"]
+[ext_resource type="Texture2D" uid="uid://cx17d1grey5yt" path="res://UI/Crafting Button Icon.png" id="9_xr106"]
+[ext_resource type="Texture2D" uid="uid://dluc3ho1gshsp" path="res://UI/PracticeTraining Button Icon.png" id="10_1a32j"]
+[ext_resource type="Texture2D" uid="uid://6hlhyvw5rwsx" path="res://UI/Minigames Button Pressed Icon.png" id="10_obn3f"]
+[ext_resource type="Texture2D" uid="uid://cl4pew40oldhh" path="res://UI/Element Icons/Fire.png" id="10_qvs07"]
+[ext_resource type="Texture2D" uid="uid://cgxs0fojgit30" path="res://UI/Element Icons/Welkin Moon.png" id="11_mi0iq"]
+[ext_resource type="Texture2D" uid="uid://4hlt5ttsmcg4" path="res://UI/Combat Button Clicked Icon.png" id="11_x5hun"]
+[ext_resource type="Texture2D" uid="uid://4qefrtff6lq5" path="res://UI/Minigames Button Hover Icon.png" id="11_xprst"]
+[ext_resource type="Texture2D" uid="uid://dpwug2knce5ua" path="res://UI/Exit Button Icon.png" id="11_y3c3m"]
+[ext_resource type="Texture2D" uid="uid://bihdsecbsie6j" path="res://UI/Combat Button Hover Icon.png" id="12_pitbg"]
+[ext_resource type="Texture2D" uid="uid://bjco82vx52uri" path="res://UI/Minigames Button Disabled Icon.png" id="12_rm25k"]
+[ext_resource type="Texture2D" uid="uid://uyy3355eiphr" path="res://UI/Combat Button Disabled Icon.png" id="13_x5hun"]
+[ext_resource type="Texture2D" uid="uid://uyndt1g64q68" path="res://UI/Crafting Button Pressed Icon.png" id="14_l4lo8"]
+[ext_resource type="Texture2D" uid="uid://w1qqq4pdqmhl" path="res://UI/Element Icons/Ice.png" id="14_mi0iq"]
+[ext_resource type="Texture2D" uid="uid://c2sp3n163r82v" path="res://UI/Crafting Button Hover Icon.png" id="15_solx2"]
+[ext_resource type="Texture2D" uid="uid://bdpjg3dxiwqhn" path="res://UI/Crafting Button Disabled Icon.png" id="16_y7hru"]
+[ext_resource type="Texture2D" uid="uid://bwi7ssu27ghbv" path="res://UI/Research Button Pressed Icon.png" id="18_mn6i2"]
+[ext_resource type="Texture2D" uid="uid://doxq744bu5on2" path="res://UI/Research Button Hover Icon.png" id="19_mj37b"]
+[ext_resource type="Texture2D" uid="uid://crdkhjrv5xlq5" path="res://UI/Research Button Disabled Icon.png" id="20_0bk0q"]
+[ext_resource type="Texture2D" uid="uid://b8nry7rw8h155" path="res://UI/Gather Button Pressed Icon.png" id="22_iub4p"]
+[ext_resource type="Texture2D" uid="uid://dk3nr5ydeh354" path="res://UI/Gather Button Hover Icon.png" id="23_qvs07"]
+[ext_resource type="Texture2D" uid="uid://b5gmtji7brtu1" path="res://UI/Gather Button Disabled Icon.png" id="24_mi0iq"]
+[ext_resource type="Texture2D" uid="uid://bnjnvqnnsmfub" path="res://UI/PracticeTraining Button Pressed Icon.png" id="30_co81y"]
+[ext_resource type="Texture2D" uid="uid://bvhwcvc4roeme" path="res://UI/PracticeTraining Button Hover Icon.png" id="31_w2u2a"]
+[ext_resource type="Texture2D" uid="uid://dmglm88fr06ms" path="res://UI/PracticeTraining Button Disabled Icon.png" id="32_h8r3h"]
+[ext_resource type="Texture2D" uid="uid://b2t4cyn55gf8s" path="res://UI/Exit Button Pressed Icon.png" id="34_r3y0c"]
+[ext_resource type="Texture2D" uid="uid://c4x5jlnxkvv23" path="res://UI/Exit Button Hover Icon.png" id="35_e576x"]
+[ext_resource type="Texture2D" uid="uid://be8tsnq5l5nhh" path="res://UI/Exit Button Disabled Icon.png" id="36_wmlbm"]
+
+[sub_resource type="FontVariation" id="FontVariation_mj37b"]
+base_font = ExtResource("6_mj37b")
+
+[sub_resource type="FontVariation" id="FontVariation_0bk0q"]
+base_font = ExtResource("6_mj37b")
+spacing_glyph = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mj37b"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="Theme" id="Theme_i5t6k"]
 
 [node name="Player_Hub" type="Node2D"]
 script = ExtResource("1_ki6c4")
@@ -10,8 +71,8 @@ script = ExtResource("1_ki6c4")
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 1280.0
-offset_bottom = 720.0
+offset_right = 2560.0
+offset_bottom = 1440.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 metadata/_edit_use_anchors_ = true
@@ -21,120 +82,428 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 1280.0
-offset_bottom = 720.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("2_gone6")
 expand_mode = 1
-stretch_mode = 6
 
-[node name="NamePanel" type="Panel" parent="UI"]
+[node name="TopHotbar" type="Panel" parent="UI"]
 layout_mode = 0
-offset_left = 435.0
-offset_top = 12.0
-offset_right = 1181.0
-offset_bottom = 247.0
-
-[node name="NameLabel" type="Label" parent="UI"]
-layout_mode = 0
-offset_left = 448.0
-offset_top = 20.0
-offset_right = 1171.0
-offset_bottom = 240.0
-theme_override_font_sizes/font_size = 40
-text = "Your Character Info"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Test" type="Panel" parent="UI"]
-layout_mode = 0
-offset_left = 1417.0
-offset_top = 13.0
+offset_left = 399.0
+offset_top = 8.0
 offset_right = 2163.0
-offset_bottom = 248.0
+offset_bottom = 238.0
+theme_override_styles/panel = ExtResource("2_c8kkq")
 
-[node name="test" type="Label" parent="UI"]
+[node name="Button" type="Button" parent="UI/TopHotbar"]
+custom_minimum_size = Vector2(250, 75)
 layout_mode = 0
-offset_left = 1430.0
-offset_top = 21.0
-offset_right = 2153.0
-offset_bottom = 241.0
-theme_override_font_sizes/font_size = 40
-text = "Your Party Info"
-horizontal_alignment = 1
+offset_left = 41.0
+offset_top = 30.0
+offset_right = 291.0
+offset_bottom = 105.0
+text = "Abilities"
+
+[node name="Button2" type="Button" parent="UI/TopHotbar"]
+custom_minimum_size = Vector2(250, 75)
+layout_mode = 0
+offset_left = 306.0
+offset_top = 31.0
+offset_right = 556.0
+offset_bottom = 106.0
+text = "Constellations"
+
+[node name="Button3" type="Button" parent="UI/TopHotbar"]
+custom_minimum_size = Vector2(250, 75)
+layout_mode = 0
+offset_left = 307.0
+offset_top = 116.0
+offset_right = 557.0
+offset_bottom = 191.0
+text = "Talents"
+
+[node name="Button6" type="Button" parent="UI/TopHotbar"]
+custom_minimum_size = Vector2(250, 75)
+layout_mode = 0
+offset_left = 43.0
+offset_top = 116.0
+offset_right = 293.0
+offset_bottom = 191.0
+text = "Inventory"
+
+[node name="RegionBackgroundPanel" type="Panel" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 1024.0
+offset_top = 195.0
+offset_right = 1306.0
+offset_bottom = 225.0
+theme_override_styles/panel = ExtResource("3_iub4p")
+
+[node name="RegionPanel" type="Panel" parent="UI/TopHotbar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1211.0
+offset_top = 195.0
+offset_right = -390.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_iub4p")
+theme_override_styles/panel = ExtResource("5_qvs07")
+
+[node name="RegionLabel" type="Label" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 1030.0
+offset_top = 196.0
+offset_right = 1273.0
+offset_bottom = 225.0
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = SubResource("FontVariation_mj37b")
+theme_override_font_sizes/font_size = 20
+text = "Current Region:"
 vertical_alignment = 1
 
-[node name="Test2" type="Panel" parent="UI"]
+[node name="RegionButton" type="OptionButton" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 410.0
-offset_top = 1192.0
-offset_right = 2165.0
-offset_bottom = 1427.0
+offset_left = 1211.0
+offset_top = 195.0
+offset_right = 1539.0
+offset_bottom = 256.0
+scale = Vector2(0.5, 0.5)
+theme_override_constants/outline_size = 20
+theme_override_fonts/font = SubResource("FontVariation_0bk0q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_mj37b")
+alignment = 1
+expand_icon = true
+selected = 2
+item_count = 7
+popup/item_0/text = "Mondstadt"
+popup/item_0/icon = ExtResource("5_y7hru")
+popup/item_0/id = 0
+popup/item_1/text = "Liyue"
+popup/item_1/icon = ExtResource("6_mn6i2")
+popup/item_1/id = 1
+popup/item_2/text = "Inazuma"
+popup/item_2/icon = ExtResource("7_mj37b")
+popup/item_2/id = 2
+popup/item_3/text = "Sumeru"
+popup/item_3/icon = ExtResource("8_0bk0q")
+popup/item_3/id = 3
+popup/item_4/text = "Fontaine"
+popup/item_4/icon = ExtResource("9_iub4p")
+popup/item_4/id = 4
+popup/item_5/text = "Natlan"
+popup/item_5/icon = ExtResource("10_qvs07")
+popup/item_5/id = 5
+popup/item_6/text = "Nod Krai"
+popup/item_6/icon = ExtResource("11_mi0iq")
+popup/item_6/id = 6
 
-[node name="test6" type="Label" parent="UI"]
+[node name="ElementBackgroundPanel" type="Panel" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 423.0
+offset_left = 1392.0
+offset_top = 195.0
+offset_right = 1674.0
+offset_bottom = 225.0
+theme_override_styles/panel = ExtResource("3_iub4p")
+
+[node name="ElementPanel" type="Panel" parent="UI/TopHotbar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1591.0
+offset_top = 195.0
+offset_right = -10.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_iub4p")
+theme_override_styles/panel = ExtResource("5_qvs07")
+
+[node name="ElementLabel" type="Label" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 1398.0
+offset_top = 196.0
+offset_right = 1641.0
+offset_bottom = 225.0
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = SubResource("FontVariation_mj37b")
+theme_override_font_sizes/font_size = 20
+text = "Current Element:"
+vertical_alignment = 1
+
+[node name="ElementButton" type="OptionButton" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 1591.0
+offset_top = 195.0
+offset_right = 1919.0
+offset_bottom = 256.0
+scale = Vector2(0.5, 0.5)
+theme_override_constants/outline_size = 20
+theme_override_fonts/font = SubResource("FontVariation_0bk0q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_mj37b")
+alignment = 1
+expand_icon = true
+selected = 2
+item_count = 7
+popup/item_0/text = "Wind"
+popup/item_0/icon = ExtResource("5_y7hru")
+popup/item_0/id = 0
+popup/item_1/text = "Earth"
+popup/item_1/icon = ExtResource("6_mn6i2")
+popup/item_1/id = 1
+popup/item_2/text = "Electric"
+popup/item_2/icon = ExtResource("7_mj37b")
+popup/item_2/id = 2
+popup/item_3/text = "Nature"
+popup/item_3/icon = ExtResource("8_0bk0q")
+popup/item_3/id = 3
+popup/item_4/text = "Water"
+popup/item_4/icon = ExtResource("9_iub4p")
+popup/item_4/id = 4
+popup/item_5/text = "Fire"
+popup/item_5/icon = ExtResource("10_qvs07")
+popup/item_5/id = 5
+popup/item_6/text = "Ice"
+popup/item_6/icon = ExtResource("14_mi0iq")
+popup/item_6/id = 6
+
+[node name="CharacterPortrait" parent="UI/TopHotbar" instance=ExtResource("4_semx8")]
+layout_mode = 0
+offset_left = 774.0
+offset_top = -8.0
+offset_right = 1798.0
+offset_bottom = 1016.0
+scale = Vector2(0.23, 0.23)
+
+[node name="Party1Portrait" parent="UI/TopHotbar" instance=ExtResource("4_semx8")]
+layout_mode = 0
+offset_left = 1041.0
+offset_top = -6.0
+offset_right = 2065.0
+offset_bottom = 1018.0
+scale = Vector2(0.2, 0.2)
+
+[node name="Party2Portrait" parent="UI/TopHotbar" instance=ExtResource("4_semx8")]
+layout_mode = 0
+offset_left = 1281.0
+offset_top = -6.0
+offset_right = 2305.0
+offset_bottom = 1018.0
+scale = Vector2(0.2, 0.2)
+
+[node name="CompanionPortrait" parent="UI/TopHotbar" instance=ExtResource("4_semx8")]
+layout_mode = 0
+offset_left = 1521.0
+offset_top = -6.0
+offset_right = 2545.0
+offset_bottom = 1018.0
+scale = Vector2(0.2, 0.2)
+
+[node name="BottomHotbar" type="Panel" parent="UI"]
+layout_mode = 0
+offset_left = 400.0
 offset_top = 1200.0
-offset_right = 2156.0
-offset_bottom = 1420.0
-theme_override_font_sizes/font_size = 40
-text = "Action items (i.e.Market, combat, gather materials, research, etc.)"
+offset_right = 2163.0
+offset_bottom = 1430.0
+theme = SubResource("Theme_i5t6k")
+theme_override_styles/panel = ExtResource("2_c8kkq")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/BottomHotbar"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 218.0
+offset_bottom = 214.0
+theme_override_constants/separation = 16
+
+[node name="Market Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+texture_normal = ExtResource("3_i5t6k")
+texture_pressed = ExtResource("5_1xwfl")
+texture_hover = ExtResource("6_semx8")
+texture_disabled = ExtResource("7_jemdo")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Market Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Market"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Test3" type="Panel" parent="UI"]
-layout_mode = 0
-offset_left = 416.0
-offset_top = 259.0
-offset_right = 2171.0
-offset_bottom = 1178.0
+[node name="Minigames Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+disabled = true
+texture_normal = ExtResource("7_x5hun")
+texture_pressed = ExtResource("10_obn3f")
+texture_hover = ExtResource("11_xprst")
+texture_disabled = ExtResource("12_rm25k")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="test7" type="Label" parent="UI"]
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Minigames Button"]
 layout_mode = 0
-offset_left = 429.0
-offset_top = 267.0
-offset_right = 2162.0
-offset_bottom = 1175.0
-theme_override_font_sizes/font_size = 40
-text = "This panel isn't permanent, and isn't always this size, the middle by default will have no panel but depending upon where you click on any of the outer panels it will trigger a temporary panel to appear here with additional info. I.e. hitting one of your stats on the left triggers a panel here that will give you a breakdown/more in-depth look at that stat. Hitting the market button will trigger a temporary panel here with all the shops and what are available for you to buy, etc."
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-
-[node name="test2" type="Panel" parent="UI"]
-layout_mode = 0
-offset_left = 1190.0
-offset_top = 11.0
-offset_right = 1413.0
-offset_bottom = 246.0
-
-[node name="test3" type="Label" parent="UI"]
-layout_mode = 0
-offset_left = 1187.0
-offset_top = 9.0
-offset_right = 1417.0
-offset_bottom = 247.0
-theme_override_font_sizes/font_size = 40
-text = "Your 
-Portrait"
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 25
+text = "Minigames"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="test4" type="Panel" parent="UI"]
-layout_mode = 0
-offset_left = 2177.0
-offset_top = 255.0
-offset_right = 2548.0
-offset_bottom = 1425.0
+[node name="Crafting Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+texture_normal = ExtResource("9_xr106")
+texture_pressed = ExtResource("14_l4lo8")
+texture_hover = ExtResource("15_solx2")
+texture_disabled = ExtResource("16_y7hru")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="test5" type="Label" parent="UI"]
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Crafting Button"]
 layout_mode = 0
-offset_left = 2182.0
-offset_top = 258.0
-offset_right = 2541.0
-offset_bottom = 1424.0
-theme_override_font_sizes/font_size = 40
-text = "Your Artifacts"
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Crafting"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Research Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+texture_normal = ExtResource("8_pitbg")
+texture_pressed = ExtResource("18_mn6i2")
+texture_hover = ExtResource("19_mj37b")
+texture_disabled = ExtResource("20_0bk0q")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Research Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Research"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Gather Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+texture_normal = ExtResource("6_gone6")
+texture_pressed = ExtResource("22_iub4p")
+texture_hover = ExtResource("23_qvs07")
+texture_disabled = ExtResource("24_mi0iq")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Gather Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Gather"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Combat Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+disabled = true
+texture_normal = ExtResource("5_twm1r")
+texture_pressed = ExtResource("11_x5hun")
+texture_hover = ExtResource("12_pitbg")
+texture_disabled = ExtResource("13_x5hun")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Combat Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Combat"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Practice Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+disabled = true
+texture_normal = ExtResource("10_1a32j")
+texture_pressed = ExtResource("30_co81y")
+texture_hover = ExtResource("31_w2u2a")
+texture_disabled = ExtResource("32_h8r3h")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Practice Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Practice"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Exit Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
+custom_minimum_size = Vector2(202, 198)
+layout_mode = 2
+texture_normal = ExtResource("11_y3c3m")
+texture_pressed = ExtResource("34_r3y0c")
+texture_hover = ExtResource("35_e576x")
+texture_disabled = ExtResource("36_wmlbm")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Exit Button"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 133.0
+offset_right = 182.0
+offset_bottom = 172.0
+theme = ExtResource("4_ndkhv")
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 30
+text = "Exit"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -211,24 +580,53 @@ custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
 
 [node name="GearContainer" type="VBoxContainer" parent="UI"]
-layout_mode = 0
-offset_left = 2170.0
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -389.0
 offset_top = 10.0
-offset_right = 2270.0
-offset_bottom = 50.0
+offset_right = -9.0
+offset_bottom = 10.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 8
 
-[node name="Weapon Button" parent="UI/GearContainer" instance=ExtResource("3_a5jjv")]
+[node name="WeaponButton" parent="UI/GearContainer" instance=ExtResource("3_a5jjv")]
+layout_mode = 2
+
+[node name="Flower of Life" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
+layout_mode = 2
+
+[node name="Feather of Death" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
+layout_mode = 2
+
+[node name="Sands of Time" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
+layout_mode = 2
+
+[node name="Goblet of Space" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
+layout_mode = 2
+
+[node name="Circlet of Principles" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
-volume_db = 1.75
 autoplay = true
 
+[connection signal="item_selected" from="UI/TopHotbar/RegionButton" to="." method="_on_region_button_item_selected"]
+[connection signal="item_selected" from="UI/TopHotbar/ElementButton" to="." method="_on_element_button_item_selected"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Exit Button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Health Button" to="." method="_on_health_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Attack Button" to="." method="_on_attack_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Defense Button" to="." method="_on_defense_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Elemental Mastery Button" to="." method="_on_elemental_mastery_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Energy Recharge Button" to="." method="_on_energy_recharge_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Critical Damage Button" to="." method="_on_critical_damage_button_pressed"]
-[connection signal="pressed" from="UI/GearContainer/Weapon Button" to="." method="_on_weapon_button_pressed"]
+[connection signal="pressed" from="UI/GearContainer/WeaponButton" to="." method="_on_weapon_button_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Flower of Life" to="." method="_on_flower_of_life_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Feather of Death" to="." method="_on_feather_of_death_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Sands of Time" to="." method="_on_sands_of_time_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Goblet of Space" to="." method="_on_goblet_of_space_pressed"]
+[connection signal="pressed" from="UI/GearContainer/Circlet of Principles" to="." method="_on_circlet_of_principles_pressed"]
 [connection signal="finished" from="AudioStreamPlayer2D" to="." method="_on_audio_stream_player_2d_finished"]

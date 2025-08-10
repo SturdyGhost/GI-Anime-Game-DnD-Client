@@ -48,10 +48,11 @@ func apply_hover_style():
 
 	# Duplicate the style so we don't modify the shared one
 	var unique_style := original_style.duplicate()
-	unique_style.border_width_bottom = 10
-	unique_style.border_width_top = 10
-	unique_style.border_width_left = 10
-	unique_style.border_width_right = 10
+	unique_style.border_width_bottom = 6
+	unique_style.border_width_top = 6
+	unique_style.border_width_left = 6
+	unique_style.border_width_right = 6
+
 	panel.set("theme_override_styles/panel", unique_style)
 
 func clear_hover_style():
@@ -63,4 +64,5 @@ func clear_hover_style():
 	unique_style.border_width_top = 0
 	unique_style.border_width_left = 0
 	unique_style.border_width_right = 0
+
 	panel.set("theme_override_styles/panel", unique_style)

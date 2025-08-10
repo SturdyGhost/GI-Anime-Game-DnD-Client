@@ -1,14 +1,14 @@
 extends Control
 
-var Player_Data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
-var Weapon = Player_Data["Current Weapon"]
+var Player_Data 
+var Weapon 
 var StatValue = 25
 var AddedRoll = 20
 var MultipliedRoll = 1.2
 var AddedDamage = 15
 var MultipliedDamage = 1.3
 var is_hovered = false
-var Weapon_Data = Global.WEAPONS[Global.WEAPONS_NAME[Weapon]]
+var Weapon_Data 
 
 @onready var panel = $Panel
 
@@ -53,10 +53,10 @@ func apply_hover_style():
 
 	# Duplicate the style so we don't modify the shared one
 	var unique_style := original_style.duplicate()
-	unique_style.border_width_bottom = 10
-	unique_style.border_width_top = 10
-	unique_style.border_width_left = 10
-	unique_style.border_width_right = 10
+	unique_style.border_width_bottom = 6
+	unique_style.border_width_top = 6
+	unique_style.border_width_left = 6
+	unique_style.border_width_right = 6
 	panel.set("theme_override_styles/panel", unique_style)
 
 func clear_hover_style():
@@ -71,98 +71,102 @@ func clear_hover_style():
 	panel.set("theme_override_styles/panel", unique_style)
 
 func set_weapon():
-	Weapon = "Thundering Pulse"
-	Weapon_Data = Global.WEAPONS[Global.WEAPONS_NAME[Weapon]]
+	Player_Data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
+	for record in Global.CHARACTER_WEAPONS.values():
+		if record.get("Owner") == Global.ACTIVE_USER_NAME and record.get("Equipped") == true:
+			Weapon_Data = record
+			Weapon = record.get("Weapon")
+
 	shrink_text_to_fit($WeaponLabel)
 	var WeaponIconPath = "res://UI/Weapon Icons/" + Global.normalize_text_filename(str(Weapon))
 	$WeaponIcon.texture = load(WeaponIconPath)
-	if Weapon_Data.has("Effect"):
+	if Weapon_Data.has("Effect") and Weapon_Data.get("Effect") != null:
 		var WeaponEffect = Weapon_Data["Effect"]
 		$Tooltip/Label.text = WeaponEffect
 	else:
 		var WeaponEffect = ""
 		$Tooltip/Label.text = WeaponEffect
-	if Weapon_Data.has("Stat 1 Type"):
-		match Weapon_Data["Stat 1 Type"]:
+	if Weapon_Data.has("Stat_1_Type") and Weapon_Data["Stat_1_Type"] != null:
+		match Weapon_Data["Stat_1_Type"]:
 			"Health":
-				var Stat1Type = Weapon_Data["Stat 1 Type"]
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Type = Weapon_Data["Stat_1_Type"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
 			"Attack":
-				var Stat1Type = Weapon_Data["Stat 1 Type"]
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Type = Weapon_Data["Stat_1_Type"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
 			"Defense":
-				var Stat1Type = Weapon_Data["Stat 1 Type"]
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Type = Weapon_Data["Stat_1_Type"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
-			"Elemental Mastery":
+			"Elemental_Mastery":
 				var Stat1Type = "E.M."
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
-			"Energy Recharge":
+			"Energy_Recharge":
 				var Stat1Type = "E.R."
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
-			"Critical Damage":
+			"Critical_Damage":
 				var Stat1Type = "Crit. Dmg."
-				var Stat1Value = Weapon_Data["Stat 1 Value"]
+				var Stat1Value = Weapon_Data["Stat_1_Value"]
 				$Stat1Label.text = Stat1Type +" | +" + str(Stat1Value)
 	else:
 		$Stat1Label.text = ""
-	if Weapon_Data.has("Stat 2 Type"):
-		match Weapon_Data["Stat 2 Type"]:
+	if Weapon_Data.has("Stat_2_Type") and Weapon_Data["Stat_2_Type"] != null:
+		match Weapon_Data["Stat_2_Type"]:
 			"Health":
-				var Stat2Type = Weapon_Data["Stat 2 Type"]
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Type = Weapon_Data["Stat_2_Type"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
 			"Attack":
-				var Stat2Type = Weapon_Data["Stat 2 Type"]
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Type = Weapon_Data["Stat_2_Type"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
 			"Defense":
-				var Stat2Type = Weapon_Data["Stat 2 Type"]
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Type = Weapon_Data["Stat_2_Type"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
-			"Elemental Mastery":
+			"Elemental_Mastery":
 				var Stat2Type = "E.M."
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
-			"Energy Recharge":
+			"Energy_Recharge":
 				var Stat2Type = "E.R."
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
-			"Critical Damage":
+			"Critical_Damage":
 				var Stat2Type = "Crit. Dmg."
-				var Stat2Value = Weapon_Data["Stat 2 Value"]
+				var Stat2Value = Weapon_Data["Stat_2_Value"]
 				$Stat2Label.text = Stat2Type +" | +" + str(Stat2Value)
 	else:
 		$Stat2Label.text = ""
-	if Weapon_Data.has("Stat 3 Type"):
-		match Weapon_Data["Stat 3 Type"]:
+	if Weapon_Data.has("Stat_3_Type") and Weapon_Data["Stat_3_Type"] != null:
+		match Weapon_Data["Stat_3_Type"]:
 			"Health":
-				var Stat3Type = Weapon_Data["Stat 3 Type"]
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Type = Weapon_Data["Stat_3_Type"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
 			"Attack":
-				var Stat3Type = Weapon_Data["Stat 3 Type"]
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Type = Weapon_Data["Stat_3_Type"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
 			"Defense":
-				var Stat3Type = Weapon_Data["Stat 3 Type"]
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Type = Weapon_Data["Stat_3_Type"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
-			"Elemental Mastery":
+			"Elemental_Mastery":
 				var Stat3Type = "E.M."
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
-			"Energy Recharge":
+			"Energy_Recharge":
 				var Stat3Type = "E.R."
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
-			"Critical Damage":
+			"Critical_Damage":
 				var Stat3Type = "Crit. Dmg."
-				var Stat3Value = Weapon_Data["Stat 3 Value"]
+				var Stat3Value = Weapon_Data["Stat_3_Value"]
 				$Stat3Label.text = Stat3Type +" | +" + str(Stat3Value)
 	else:
 		$Stat3Label.text = ""

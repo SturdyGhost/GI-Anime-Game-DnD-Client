@@ -6,11 +6,13 @@
 script = ExtResource("1_vr8pi")
 
 [node name="Label" type="Label" parent="."]
-offset_left = 506.0
-offset_top = 19.0
-offset_right = 989.0
-offset_bottom = 289.0
-text = "Player HUB"
+offset_left = 102.0
+offset_top = 1113.0
+offset_right = 2455.0
+offset_bottom = 1383.0
+text = "Loading Data..."
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 use_threads = true
@@ -18,11 +20,11 @@ use_threads = true
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 1281.0
-offset_bottom = 721.0
+offset_right = 2560.0
+offset_bottom = 1440.0
 
 [node name="LoadingProgress" type="ProgressBar" parent="Control"]
-custom_minimum_size = Vector2(1000, 0)
+custom_minimum_size = Vector2(2360, 100)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
