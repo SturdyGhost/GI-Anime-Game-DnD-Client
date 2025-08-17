@@ -1,0 +1,171 @@
+[gd_scene load_steps=3 format=3 uid="uid://8jfdqy6mftvu"]
+
+[ext_resource type="Script" uid="uid://bdaj5x43un4ff" path="res://UI/ability_table_row.gd" id="1_3qxl6"]
+[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="2_hcvnk"]
+
+[node name="Row" type="HBoxContainer"]
+custom_minimum_size = Vector2(1740, 150)
+offset_right = 1745.0
+offset_bottom = 75.0
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+script = ExtResource("1_3qxl6")
+
+[node name="Panel2" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Ability" type="Label" parent="Panel2"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -27.0
+offset_right = 65.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 25
+text = "Ability"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel3" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Type" type="Label" parent="Panel3"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -29.0
+offset_right = 64.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "Type"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel4" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Movement" type="Label" parent="Panel4"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -27.0
+offset_right = 65.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Move"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel5" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Range" type="Label" parent="Panel5"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -63.0
+offset_top = -29.0
+offset_right = 64.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Range"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel6" type="Panel" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="CD" type="Label" parent="Panel6"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -29.0
+offset_right = 62.0
+offset_bottom = 29.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "CD"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel7" type="Panel" parent="."]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Charges" type="Label" parent="Panel7"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -73.0
+offset_top = -29.0
+offset_right = 76.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Charges"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_hcvnk")
+
+[node name="Description" type="Label" parent="Panel"]
+layout_mode = 2
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 888.0
+offset_bottom = 141.0
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Description"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

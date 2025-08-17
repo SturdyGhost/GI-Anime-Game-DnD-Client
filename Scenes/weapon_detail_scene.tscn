@@ -1,0 +1,206 @@
+[gd_scene load_steps=5 format=3 uid="uid://b7lu7g22xrwxu"]
+
+[ext_resource type="Script" uid="uid://cvgwr0ifmqlpx" path="res://Scenes/weapon_detail_scene.gd" id="2_y106x"]
+[ext_resource type="PackedScene" uid="uid://dohghwl7d14b4" path="res://Scenes/weapon_preview.tscn" id="3_y106x"]
+[ext_resource type="Script" uid="uid://d2lu8f8hnf5hn" path="res://Scenes/weapon_preview.gd" id="4_3uuwh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l38dg"]
+bg_color = Color(0, 0, 0, 0.509804)
+
+[node name="WeaponDetailScene" type="Control"]
+custom_minimum_size = Vector2(3000, 1600)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 3000.0
+offset_bottom = 1600.0
+scale = Vector2(0.588, 0.588)
+script = ExtResource("2_y106x")
+
+[node name="PauseBackground" type="Panel" parent="."]
+custom_minimum_size = Vector2(3000, 1600)
+layout_mode = 0
+offset_left = -1386.0
+offset_top = -740.0
+offset_right = 4626.0
+offset_bottom = 2604.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_l38dg")
+
+[node name="PauseBackground2" type="Panel" parent="."]
+custom_minimum_size = Vector2(3000, 1600)
+layout_mode = 0
+offset_right = 3000.0
+offset_bottom = 1600.0
+
+[node name="StatPreviewPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 919.0
+offset_top = 5.0
+offset_right = 1232.0
+offset_bottom = 266.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.391
+anchor_right = 0.953
+anchor_bottom = 0.962
+offset_left = 25.0
+offset_top = -51.9811
+offset_right = 112.0
+offset_bottom = 39.3308
+
+[node name="SearchBar" type="LineEdit" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="WeaponHeaderRow" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="NameButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+text = "Name"
+
+[node name="TypeButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(175, 0)
+layout_mode = 2
+text = "Type"
+
+[node name="RegionButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(175, 0)
+layout_mode = 2
+text = "Region"
+
+[node name="RefinementButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(175, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Refinement"
+
+[node name="Stat1Button" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 1"
+
+[node name="Stat1ValueButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 1 
+Value"
+
+[node name="Stat2Button" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 2"
+
+[node name="Stat2ValueButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 2 
+Value"
+
+[node name="Stat3Button" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 3"
+
+[node name="Stat3ValueButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Stat 3 
+Value"
+
+[node name="EffectButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Effect"
+
+[node name="EquippedButton" type="Button" parent="VBoxContainer/WeaponHeaderRow"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Equipped"
+
+[node name="WeaponListContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="WeaponListContainer" type="VBoxContainer" parent="VBoxContainer/WeaponListContainer"]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="ExitButton" type="Button" parent="."]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.955
+anchor_top = 0.03
+anchor_right = 0.981
+anchor_bottom = 0.083
+offset_left = 0.401978
+offset_top = -0.137367
+offset_right = 20.1936
+offset_bottom = 24.229
+grow_horizontal = 0
+scale = Vector2(0.6, 0.6)
+text = "X"
+icon_alignment = 1
+
+[node name="Error Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 515.912
+offset_right = 2969.0
+offset_bottom = 560.912
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SearchDebounce" type="Timer" parent="."]
+
+[node name="CurrentWeaponPreview" parent="." instance=ExtResource("3_y106x")]
+layout_mode = 0
+offset_left = 10.2041
+offset_top = 10.2041
+offset_right = 1386.2
+offset_bottom = 490.204
+script = ExtResource("4_3uuwh")
+
+[node name="SelectedWeaponPreview" parent="." instance=ExtResource("3_y106x")]
+layout_mode = 0
+offset_left = 1444.36
+offset_top = 10.2041
+offset_right = 2820.36
+offset_bottom = 490.204
+script = ExtResource("4_3uuwh")
+
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/NameButton" to="." method="_on_name_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/TypeButton" to="." method="_on_type_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/RegionButton" to="." method="_on_region_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/RefinementButton" to="." method="_on_refinement_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat1Button" to="." method="_on_stat_1_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat1ValueButton" to="." method="_on_stat_1_value_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat2Button" to="." method="_on_stat_2_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat2ValueButton" to="." method="_on_stat_2_value_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat3Button" to="." method="_on_stat_3_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/Stat3ValueButton" to="." method="_on_stat_3_value_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/EffectButton" to="." method="_on_effect_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/EquippedButton" to="." method="_on_equipped_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

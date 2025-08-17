@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3 uid="uid://brwylbbudu4pu"]
+
+[ext_resource type="Script" uid="uid://c0yec118dsaja" path="res://UI/tabs.gd" id="1_hgfb5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hgfb5"]
+bg_color = Color(0, 0, 0, 0.501961)
+
+[node name="Tabs" type="Panel"]
+custom_minimum_size = Vector2(1765, 940)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -20.0
+offset_right = -795.0
+offset_bottom = -520.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hgfb5")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = -590.0
+offset_top = -495.0
+offset_right = 2724.0
+offset_bottom = 1603.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hgfb5")
+
+[node name="TabContainer" type="TabContainer" parent="."]
+custom_minimum_size = Vector2(1765, 80)
+layout_mode = 0
+offset_top = 9.0
+offset_right = 1765.0
+offset_bottom = 89.0
+tab_focus_mode = 0
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -46.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = 63.0
+grow_horizontal = 0
+text = "X"
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

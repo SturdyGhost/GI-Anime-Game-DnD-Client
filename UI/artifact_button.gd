@@ -68,7 +68,7 @@ func set_artifact():
 	for artifact in Global.CHARACTER_ARTIFACTS.values():
 		if artifact.get("Owner") == Global.ACTIVE_USER_NAME and artifact.get("Equipped") == true and artifact.get("Type") == artifact_type:
 			var set_name = artifact.get("Artifact_Set")
-			var hyphen_set = set_name.replace(" ", "-")
+			var hyphen_set = set_name.replace(" ", "-").to_lower()
 			var icon_path = "res://UI/Artifact Icons/" + hyphen_set + abbreviated + ".png"
 			var artifact_tex = load(icon_path)
 			
@@ -77,8 +77,12 @@ func set_artifact():
 			# Update stats
 			$Stat1Name.text = artifact.get("Stat_1_Type", "")
 			$Stat1Value.text = str(artifact.get("Stat_1_Value", ""))
-			$Stat2Name.text = artifact.get("Stat_2_Type", "")
-			$Stat2Value.text = str(artifact.get("Stat_2_Value", ""))
+			if artifact.get("Stat_2_Type") == null:
+				$Stat2Name.text = ""
+				$Stat2Value.text = ""
+			else:
+				$Stat2Name.text = artifact.get("Stat_2_Type", "")
+				$Stat2Value.text = str(artifact.get("Stat_2_Value", ""))
 
 			# Update set name label
 			$SetNameLabel.text = "(" + set_name + ": " + str(Global.set_count[set_name]) + ")"
@@ -120,23 +124,7 @@ func _on_panel_mouse_exited() -> void:
 	pass # Replace with function body.
 
 func apply_hover_style():
-	var original_style = panel.get("theme_override_styles/panel") as StyleBoxFlat
-
-	# Duplicate the style so we don't modify the shared one
-	var unique_style := original_style.duplicate()
-	unique_style.border_width_bottom = 6
-	unique_style.border_width_top = 6
-	unique_style.border_width_left = 6
-	unique_style.border_width_right = 6
-	panel.set("theme_override_styles/panel", unique_style)
+	panel.theme_type_variation = "HoverPanel"
 
 func clear_hover_style():
-	var original_style = panel.get("theme_override_styles/panel") as StyleBoxFlat
-
-	# Duplicate the style so we don't modify the shared one
-	var unique_style := original_style.duplicate()
-	unique_style.border_width_bottom = 0
-	unique_style.border_width_top = 0
-	unique_style.border_width_left = 0
-	unique_style.border_width_right = 0
-	panel.set("theme_override_styles/panel", unique_style)
+	panel.theme_type_variation = ""

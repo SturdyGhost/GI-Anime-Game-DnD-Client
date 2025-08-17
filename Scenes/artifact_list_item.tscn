@@ -1,0 +1,121 @@
+[gd_scene load_steps=3 format=3 uid="uid://bwhtaold2x4py"]
+
+[ext_resource type="Script" uid="uid://c67tb6cfctdh7" path="res://Scenes/artifact_list_item.gd" id="1_tw8f8"]
+[ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="2_bp5ip"]
+
+[node name="ArtifactListItem" type="GridContainer"]
+offset_right = 2929.0
+offset_bottom = 96.0
+size_flags_horizontal = 3
+columns = 12
+script = ExtResource("1_tw8f8")
+
+[node name="NameLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "SetName"
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TypeLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(275, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "Type"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat1TypeLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "Stat Type"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat1ValueLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "Stat Value"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat2TypeLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "Stat Type"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stat2ValueLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "Stat value"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="2PieceSetLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "2-Piece Set Bonus"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="4PieceSetLabel" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+bbcode_enabled = true
+text = "4-Piece Set Bonus"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EquipCheck" type="CheckBox" parent="."]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_stretch_ratio = 8.94
+theme = ExtResource("2_bp5ip")
+theme_override_constants/outline_size = 20
+text = "Equipped?"
+icon_alignment = 1
+expand_icon = true
+
+[connection signal="pressed" from="EquipCheck" to="." method="_on_equip_check_pressed"]

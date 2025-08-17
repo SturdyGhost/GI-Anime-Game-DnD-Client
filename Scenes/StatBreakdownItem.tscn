@@ -1,0 +1,61 @@
+[gd_scene load_steps=5 format=3 uid="uid://kuh32th7e0bs"]
+
+[ext_resource type="Script" uid="uid://io8rxknefeto" path="res://Scenes/stat_breakdown_item.gd" id="2_qv32g"]
+[ext_resource type="FontFile" uid="uid://vyr8kiirh8lc" path="res://UI/zh-cn.ttf" id="2_x4bf3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x4bf3"]
+bg_color = Color(0.235294, 0.266667, 0.360784, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.886275, 0.760784, 0.564706, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="FontVariation" id="FontVariation_qv32g"]
+spacing_glyph = 2
+
+[node name="StatBreakdownItem" type="Panel"]
+custom_minimum_size = Vector2(1500, 100)
+anchors_preset = -1
+anchor_right = 0.376
+anchor_bottom = 0.05
+offset_right = 321.44
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.75, 0.75)
+theme_override_styles/panel = SubResource("StyleBoxFlat_x4bf3")
+script = ExtResource("2_qv32g")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 0.333333
+offset_right = 755.0
+offset_bottom = 50.3333
+scale = Vector2(2, 2)
+columns = 2
+
+[node name="SourceLabel" type="Label" parent="GridContainer"]
+custom_minimum_size = Vector2(600, 50)
+layout_mode = 2
+theme_override_constants/outline_size = 20
+theme_override_fonts/font = ExtResource("2_x4bf3")
+text = "Elemental_Mastery Stat Source: "
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 4
+
+[node name="AmountLabel" type="Label" parent="GridContainer"]
+custom_minimum_size = Vector2(125, 45)
+layout_mode = 2
+theme_override_constants/outline_size = 15
+theme_override_fonts/font = SubResource("FontVariation_qv32g")
+theme_override_font_sizes/font_size = 35
+text = "3.0"
+horizontal_alignment = 2

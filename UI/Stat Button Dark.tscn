@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://dph7ujhc7bwgv"]
 
 [ext_resource type="Script" uid="uid://nofv2u21173o" path="res://UI/stat_button_dark.gd" id="1_tyvbw"]
-[ext_resource type="StyleBox" uid="uid://bgm8gjw8210j0" path="res://UI/Blue Panel.tres" id="2_m8jhr"]
+[ext_resource type="Theme" uid="uid://dgfy4yirbqrg7" path="res://themes/generated/ElegantFantasy.tres" id="2_m8jhr"]
 [ext_resource type="Theme" uid="uid://d0dwdlayg7sfd" path="res://UI/Gold Panel.tres" id="2_wtcwg"]
 [ext_resource type="Theme" uid="uid://bbbii7whnfq7m" path="res://UI/White Panel.tres" id="3_m8jhr"]
 [ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="3_wtcwg"]
@@ -21,7 +21,7 @@ layout_mode = 0
 offset_top = -1.0
 offset_right = 380.0
 offset_bottom = 229.0
-theme_override_styles/panel = ExtResource("2_m8jhr")
+theme = ExtResource("2_m8jhr")
 
 [node name="RollGoldPanel" type="Panel" parent="."]
 layout_mode = 0

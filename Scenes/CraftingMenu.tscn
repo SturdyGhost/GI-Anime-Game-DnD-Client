@@ -1,0 +1,282 @@
+[gd_scene load_steps=3 format=3 uid="uid://d26cpxh2w46rm"]
+
+[ext_resource type="Script" uid="uid://cxd0x86veagl8" path="res://Scenes/CraftingMenu.gd" id="1_0ka71"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ka71"]
+bg_color = Color(0, 0, 0, 0.52549)
+
+[node name="CraftingMenu" type="Control"]
+custom_minimum_size = Vector2(1765, 940)
+layout_mode = 3
+anchor_right = 0.689
+anchor_bottom = 0.639
+offset_right = 1.15991
+offset_bottom = -20.1601
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_0ka71")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = -1733.0
+offset_top = -927.0
+offset_right = 3124.0
+offset_bottom = 2067.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_0ka71")
+
+[node name="HSplit" type="HSplitContainer" parent="."]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 360
+dragger_visibility = 1
+
+[node name="LeftPanel" type="PanelContainer" parent="HSplit"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LeftVBox" type="VBoxContainer" parent="HSplit/LeftPanel"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LeftHeader" type="HBoxContainer" parent="HSplit/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="HSplit/LeftPanel/LeftVBox/LeftHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Craftable Recipes"
+
+[node name="Search" type="LineEdit" parent="HSplit/LeftPanel/LeftVBox/LeftHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search… (product/region)"
+clear_button_enabled = true
+
+[node name="Scroll" type="ScrollContainer" parent="HSplit/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+follow_focus = true
+
+[node name="RecipeList" type="VBoxContainer" parent="HSplit/LeftPanel/LeftVBox/Scroll"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RightPanel" type="PanelContainer" parent="HSplit"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RightVBox" type="VBoxContainer" parent="HSplit/RightPanel"]
+custom_minimum_size = Vector2(680, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="TopPreview" type="PanelContainer" parent="HSplit/RightPanel/RightVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TopHBox" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/TopPreview"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Icon" type="TextureRect" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MetaVBox" type="VBoxContainer" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ProductLabel" type="Label" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox"]
+layout_mode = 2
+text = "Product: —"
+uppercase = true
+
+[node name="RegionLabel" type="Label" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox"]
+layout_mode = 2
+text = "Region: —"
+
+[node name="Desc" type="RichTextLabel" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
+
+[node name="MidSep" type="HSeparator" parent="HSplit/RightPanel/RightVBox"]
+layout_mode = 2
+
+[node name="IngredientsVBox" type="VBoxContainer" parent="HSplit/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Rows" type="VBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Row1" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req1" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 1"
+clip_text = true
+
+[node name="Opt1" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed1" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row1"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="Row2" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req2" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 2"
+clip_text = true
+
+[node name="Opt2" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed2" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row2"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="Row3" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req3" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 3"
+clip_text = true
+
+[node name="Opt3" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row3"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed3" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row3"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="Row4" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req4" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row4"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 4"
+clip_text = true
+
+[node name="Opt4" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row4"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed4" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row4"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="Row5" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req5" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row5"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 5"
+clip_text = true
+
+[node name="Opt5" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row5"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed5" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row5"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="Row6" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"]
+visible = false
+layout_mode = 2
+
+[node name="Req6" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row6"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Material 6"
+clip_text = true
+
+[node name="Opt6" type="OptionButton" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row6"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HaveNeed6" type="Label" parent="HSplit/RightPanel/RightVBox/IngredientsVBox/Rows/Row6"]
+layout_mode = 2
+text = "0 / 0"
+
+[node name="BottomBar" type="HBoxContainer" parent="HSplit/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TargetLabel" type="Label" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+text = "Craft for:"
+
+[node name="TargetSelect" type="OptionButton" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QtyLabel" type="Label" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+text = "Qty:"
+
+[node name="QtySpin" type="SpinBox" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+min_value = 1.0
+max_value = 999.0
+value = 1.0
+allow_greater = true
+
+[node name="Filler" type="Control" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Confirm" type="Button" parent="HSplit/RightPanel/RightVBox/BottomBar"]
+layout_mode = 2
+disabled = true
+text = "Confirm Craft"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1708.0
+offset_top = 7.0
+offset_right = 1751.0
+offset_bottom = 67.0
+text = "X"
+
+[connection signal="pressed" from="HSplit/RightPanel/RightVBox/BottomBar/Confirm" to="." method="_on_confirm_pressed"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

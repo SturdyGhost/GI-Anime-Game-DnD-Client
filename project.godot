@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Genshin DnD Client"
-config/version="0.0.1"
+config/version="0.0.5"
 run/main_scene="uid://ejjstot0uurx"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -32,12 +32,20 @@ window/stretch/mode="viewport"
 version_control/plugin_name="GitPlugin"
 version_control/autoload_on_startup=true
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/theme_gen_save_sync/plugin.cfg")
+
 [gui]
 
 theme/default_theme_scale=2.0
+theme/custom="uid://dgfy4yirbqrg7"
 theme/default_font_generate_mipmaps=true
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_2d=3
+anti_aliasing/quality/screen_space_aa=1
+anti_aliasing/quality/use_debanding=true

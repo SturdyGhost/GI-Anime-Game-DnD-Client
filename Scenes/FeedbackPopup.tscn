@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://cju5fonm6uayn"]
+
+[ext_resource type="Script" uid="uid://disr6xutitcid" path="res://text_submit_dialog.gd" id="1_nxa75"]
+
+[node name="TextSubmitDialog" type="AcceptDialog"]
+title = "Please Enter Feedback Below!"
+size = Vector2i(1000, 600)
+visible = true
+ok_button_text = "Submit Feedback"
+script = ExtResource("1_nxa75")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 968.0
+offset_bottom = 488.0
+
+[node name="Editor" type="TextEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+wrap_mode = 1
+scroll_fit_content_width = true
+
+[connection signal="canceled" from="." to="." method="_on_canceled"]
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]

@@ -1,0 +1,256 @@
+[gd_scene load_steps=3 format=3 uid="uid://2sixqbb8jt6v"]
+
+[ext_resource type="Script" uid="uid://dpevjmwe3a8cb" path="res://Scenes/stat_summary.gd" id="1_lduix"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lduix"]
+bg_color = Color(0, 0, 0, 0.654902)
+
+[node name="StatSummary" type="Control"]
+custom_minimum_size = Vector2(3025, 1600)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.5
+offset_right = 452.5
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.582, 0.59)
+script = ExtResource("1_lduix")
+
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(3025, 1600)
+layout_mode = 0
+offset_left = -1527.0
+offset_top = -831.0
+offset_right = 4578.0
+offset_bottom = 2598.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lduix")
+
+[node name="Panel2" type="Panel" parent="."]
+custom_minimum_size = Vector2(3025, 1600)
+layout_mode = 0
+offset_right = 3025.0
+offset_bottom = 1600.0
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 0
+offset_left = 228.0
+offset_top = 2.0
+offset_right = 1082.0
+offset_bottom = 33.0
+scale = Vector2(3, 3)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
+theme_override_font_sizes/font_size = 22
+text = "Elemental_Mastery Stat Summary"
+horizontal_alignment = 1
+
+[node name="UnspentSkillPointsLabel" type="RichTextLabel" parent="."]
+layout_mode = 2
+offset_left = 1308.0
+offset_top = 178.0
+offset_right = 1614.0
+offset_bottom = 270.0
+scale = Vector2(2, 2)
+text = "Unspent Skill Points: 10"
+horizontal_alignment = 1
+metadata/_edit_group_ = true
+
+[node name="UnspentSkillPointsLabel2" type="RichTextLabel" parent="."]
+layout_mode = 2
+offset_left = 2047.0
+offset_top = 172.0
+offset_right = 2361.0
+offset_bottom = 266.0
+scale = Vector2(2, 2)
+text = "Unspent Base Points: 10"
+horizontal_alignment = 1
+metadata/_edit_group_ = true
+
+[node name="PointsHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1781.0
+offset_top = 94.0
+offset_right = 1919.0
+offset_bottom = 120.0
+scale = Vector2(3, 3)
+theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
+theme_override_font_sizes/font_size = 18
+text = "Point Allocation"
+
+[node name="RowPoints" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 1299.0
+offset_top = 388.0
+offset_right = 2022.0
+offset_bottom = 449.0
+scale = Vector2(2, 2)
+theme_override_constants/separation = 12
+metadata/_edit_group_ = true
+
+[node name="SkillPtsLabel" type="Label" parent="RowPoints"]
+layout_mode = 2
+text = "Skill Points"
+metadata/_edit_group_ = true
+
+[node name="SkillPts" type="SpinBox" parent="RowPoints"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99.0
+alignment = 1
+metadata/_edit_group_ = true
+
+[node name="StatPtsLabel" type="Label" parent="RowPoints"]
+layout_mode = 2
+text = "Base Points"
+metadata/_edit_group_ = true
+
+[node name="StatPts" type="SpinBox" parent="RowPoints"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99.0
+alignment = 1
+metadata/_edit_group_ = true
+
+[node name="OverridesHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1415.0
+offset_top = 515.0
+offset_right = 1501.0
+offset_bottom = 541.0
+scale = Vector2(3, 3)
+theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
+theme_override_font_sizes/font_size = 18
+text = "Overrides"
+
+[node name="OverridesMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1510.31
+offset_top = 611.864
+offset_right = -831.691
+offset_bottom = -612.136
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+metadata/_edit_group_ = true
+
+[node name="OverridesGrid" type="GridContainer" parent="OverridesMargin"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 2
+metadata/_edit_group_ = true
+
+[node name="AddedLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Added Amount Override"
+
+[node name="AddedEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 10"
+
+[node name="MultLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Multiplier Amount Override"
+
+[node name="MultEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 0.25"
+
+[node name="RollAddedLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Roll Added Amount Override"
+
+[node name="RollAddedEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 3"
+
+[node name="RollMultLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Roll Multiplier Override"
+
+[node name="RollMultEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 0.10"
+
+[node name="DmgAddedLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Damage Added Override"
+
+[node name="DmgAddedEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 5"
+
+[node name="DmgMultLabel" type="Label" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+text = "Damage Multiplier Override"
+
+[node name="DmgMultEdit" type="LineEdit" parent="OverridesMargin/OverridesGrid"]
+layout_mode = 2
+placeholder_text = "e.g. 0.50"
+
+[node name="BreakdownHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 240.962
+offset_top = 152.0
+offset_right = 379.962
+offset_bottom = 178.0
+scale = Vector2(3, 3)
+theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
+theme_override_font_sizes/font_size = 18
+text = "Contributions"
+
+[node name="BreakdownContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 84.0
+offset_top = 306.0
+offset_right = 1211.0
+offset_bottom = 1695.0
+scale = Vector2(0.75, 0.75)
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 25
+
+[node name="TotalHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 658.075
+offset_top = 1232.2
+offset_right = 958.075
+offset_bottom = 1355.2
+theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
+theme_override_constants/outline_size = 30
+theme_override_font_sizes/font_size = 100
+text = "Total:"
+
+[node name="TotalAmountLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 964.842
+offset_top = 1232.2
+offset_right = 1195.84
+offset_bottom = 1355.2
+theme_override_constants/outline_size = 30
+theme_override_font_sizes/font_size = 100
+text = "23.6"
+
+[node name="ConfirmButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2555.0
+offset_top = 1454.0
+offset_right = 2946.0
+offset_bottom = 1549.0
+text = "Confirm"
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2902.0
+offset_top = 32.0
+offset_right = 2960.0
+offset_bottom = 93.0
+text = "X"
+
+[connection signal="pressed" from="ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

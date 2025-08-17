@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://b1i5nrbwghvxj"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0, 0, 0, 0.498039)
+
+[node name="Control" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+layout_mode = 2
+
+[node name="Contents" type="VBoxContainer" parent="Control/PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TargetNodeInput" type="VBoxContainer" parent="Control/PanelContainer/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Control/PanelContainer/Contents/TargetNodeInput"]
+layout_mode = 2
+text = "Target Node:"
+
+[node name="InputDivider" type="HBoxContainer" parent="Control/PanelContainer/Contents/TargetNodeInput"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="Control/PanelContainer/Contents/TargetNodeInput/InputDivider"]
+layout_mode = 2
+size_flags_vertical = 3
+stretch_mode = 6
+
+[node name="LineEdit" type="LineEdit" parent="Control/PanelContainer/Contents/TargetNodeInput/InputDivider"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Select a node before running Iconify"
+editable = false
+caret_blink = true
+
+[node name="TargetPropertyInput" type="VBoxContainer" parent="Control/PanelContainer/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Control/PanelContainer/Contents/TargetPropertyInput"]
+layout_mode = 2
+text = "Target Property:"
+
+[node name="OptionButton" type="OptionButton" parent="Control/PanelContainer/Contents/TargetPropertyInput"]
+layout_mode = 2
+
+[node name="IconInput" type="VBoxContainer" parent="Control/PanelContainer/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Control/PanelContainer/Contents/IconInput"]
+layout_mode = 2
+text = "Icon:"
+
+[node name="InputDivider" type="HBoxContainer" parent="Control/PanelContainer/Contents/IconInput"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control/PanelContainer/Contents/IconInput/InputDivider"]
+layout_mode = 2
+size_flags_vertical = 3
+stretch_mode = 6
+
+[node name="LineEdit" type="LineEdit" parent="Control/PanelContainer/Contents/IconInput/InputDivider"]
+layout_mode = 2
+size_flags_horizontal = 3
+caret_blink = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Control/PanelContainer/Contents/IconInput"]
+layout_mode = 2
+
+[node name="IconGrid" type="GridContainer" parent="Control/PanelContainer/Contents/IconInput/ScrollContainer"]
+layout_mode = 2
+columns = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/PanelContainer/Contents"]
+layout_mode = 2
+
+[node name="Cancel" type="Button" parent="Control/PanelContainer/Contents/HBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
+[node name="Apply" type="Button" parent="Control/PanelContainer/Contents/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Apply"

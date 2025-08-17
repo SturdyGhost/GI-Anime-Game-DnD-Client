@@ -2,14 +2,14 @@ extends Node
 
 var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Battle_Log","Talents","Constellations"]
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","battle_log","Talents","Constellations"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
 var WEAPONS: Dictionary = {}
 var ABILITIES: Dictionary = {}
 var COMPANIONS: Dictionary = {}
-var CRAFTINGRECIPES: Dictionary = {}
+var CRAFTING_RECIPES: Dictionary = {}
 var ITEMS: Dictionary = {}
 var ENEMIES: Dictionary = {}
 var CHARACTERS: Dictionary = {}
@@ -28,7 +28,7 @@ var ITEMS_NAME = {}
 var ENEMIES_NAME = {}
 var CHARACTERS_NAME = {}
 var BATTLEENEMIES_NAME = {}
-var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_Weapons", "Character_Artifacts","Battle_Log", "Companions"] #When you save also force a manual re-sync
+var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_Weapons", "Character_Artifacts","battle_log", "Companions"] #When you save also force a manual re-sync
 var TABLES_TO_SYNC_OFTEN = ["Characters","BattleEnemies"] #Resycnc often while in battles.
 var BATTLE_TURN_ORDER = []
 var _current_region = ""
@@ -74,6 +74,14 @@ signal table_loaded(table_name: String, records_loaded: int)
 signal data_load_complete
 
 const API_BASE: String = "https://api.mydndbackend.party"
+var scaling = {
+	"Health": 2.0,
+	"Attack": 1.0,
+	"Defense": 1.0,
+	"Elemental_Mastery": 1.0,
+	"Energy_Recharge": 0.1,
+	"Critical_Damage": 0.1,
+}
 
 
 
@@ -102,21 +110,19 @@ func calculate_all_stats() -> void:
 	var ACTIVE_CHARACTER_ID = CHARACTERS_NAME[ACTIVE_USER_NAME]
 	var character = CHARACTERS[ACTIVE_CHARACTER_ID]
 	Current_Region = CHARACTERS[CHARACTERS_NAME[ACTIVE_USER_NAME]].get("Current_Region")
-	var scaling = {
-		"Health": 2.0,
-		"Attack": 1.0,
-		"Defense": 1.0,
-		"Elemental_Mastery": 1.0,
-		"Energy_Recharge": 0.1,
-		"Critical_Damage": 0.1,
-	}
 	var bonus_suffixes = [
 		"Added_Stat_Bonus",
 		"Multiplier_Stat_Bonus",
 		"Added_Roll_Bonus",
 		"Multiplier_Roll_Bonus",
 		"Added_Damage_Bonus",
-		"Multiplier_Damage_Bonus"
+		"Multiplier_Damage_Bonus",
+		"Manual_Added_Amount_Override",
+		"Manual_Multiplier_Amount_Override",
+		"Manual_Roll_Added_Amount_Override",
+		"Manual_Roll_Multiplier_Amount_Override",
+		"Manual_Damage_Added_Amount_Override",
+		"Manual_Damage_Multiplier_Amount_Override"
 	]
 	# STEP 1: Reset old set bonuses (clear all known artifact-related bonus fields)
 	if known_bonus_fields.size() == 0:
@@ -125,7 +131,8 @@ func calculate_all_stats() -> void:
 					known_bonus_fields.append("%s_%s" % [stat, suffix])
 
 	for bonus_field in known_bonus_fields:
-		character[bonus_field] = 0
+		if bonus_field.contains("Manual") == false:
+			character[bonus_field] = 0
 
 	# STEP 2: Count equipped set pieces
 	var set_pieces = {}
@@ -163,9 +170,12 @@ func calculate_all_stats() -> void:
 		var base = character.get("%s_Base_Points" % stat, 0)
 		var skill = character.get("%s_Skill_Points" % stat, 0)
 		var added = character.get("%s_Added_Stat_Bonus" % stat, 0)
-		var multiplier = character.get("%s_Multiplier_Stat_Bonus" % stat, 1.0)
+		var multiplier = character.get("%s_Multiplier_Stat_Bonus" % stat, 0.0)
+		var AddEdit = character.get("%s_Manual_Added_Amount_Override" % stat, 0)
+		var MultEdit = character.get("%s_Manual_Multiplier_Amount_Override" % stat, 0.0)
+		
 
-		var value = ((base + skill) * scaling[stat]) + added
+		var value = (((base + skill) * scaling[stat]) + added + AddEdit)
 
 		# Apply weapon bonuses
 		for weapon in CHARACTER_WEAPONS.values():
@@ -183,7 +193,7 @@ func calculate_all_stats() -> void:
 						value += artifact.get("Stat_%d_Value" % i, 0)
 
 		# Apply final multiplier
-		value *= (multiplier + 1.0)
+		value *= (multiplier + MultEdit + 1.0)
 
 		variable_name = stat.replace(" ", "_")
 		Global.set("Current_%s" % variable_name, snapped(value, 0.01))
@@ -355,6 +365,7 @@ func _on_all_tables_loaded(result: int, code: int, headers: PackedStringArray, b
 	print("Request completed in %.2f seconds" % elapsed)
 	print("Data received: %.2f KB" % (bytes_received / 1024.0))
 	print("Average speed: %.2f KB/s" % kbps)
+
 	http.queue_free()
 	if code != 200:
 		print("❌ Failed to fetch combined tables. Code:", code)
@@ -369,7 +380,6 @@ func _on_all_tables_loaded(result: int, code: int, headers: PackedStringArray, b
 		var records = data[table_name]
 		_process_table(table_name, records)
 		
-
 	calculate_all_stats()
 	Current_Region = CHARACTERS[CHARACTERS_NAME[ACTIVE_USER_NAME]].get("Current_Region")
 
@@ -416,7 +426,7 @@ func _process_table(table_name: String, records: Array) -> void:
 
 		"Crafting_Recipes":
 			for record in records:
-				CRAFTINGRECIPES[str(record["id"])] = record
+				CRAFTING_RECIPES[str(record["id"])] = record
 
 		"Items":
 			for record in records:
@@ -438,7 +448,7 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				CHARACTER_ARTIFACTS[str(record["id"])] = record
 
-		"Character Items":
+		"Character_Items":
 			for record in records:
 				CHARACTER_ITEMS[str(record["id"])] = record
 
@@ -509,6 +519,78 @@ func Update_Records(updates: Array) -> void:
 	http_request.request_completed.connect(_on_multi_update_response.bind(http_request))
 	http_request.request(url, headers, HTTPClient.METHOD_PATCH, body)
 
+func Insert(table: String, columns: Array, values: Array) -> void:
+	# Optional quick guards
+	if table.strip_edges() == "":
+		push_warning("Insert: table is empty")
+		return
+	if columns.is_empty() or values.is_empty():
+		push_warning("Insert: columns/values empty")
+		return
+	if columns.size() != values.size():
+		push_warning("Insert: columns and values length mismatch")
+		return
+
+	# Pause poller like Update_Records
+
+	Global.Polling_Timer.paused = true
+
+	var http_request := HTTPRequest.new()
+	add_child(http_request)
+
+	var url := API_BASE + "/insert_record"
+	var headers := ["Content-Type: application/json"]
+	var payload := {
+		"table": table,
+		"columns": columns,
+		"values": values
+	}
+	request_start_time = Time.get_ticks_msec() / 1000.0
+	http_request.request_completed.connect(_on_insert_response.bind(http_request, table, columns))
+	var err := http_request.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(payload))
+	if err != OK:
+		push_error("Insert: HTTP request failed to start (%s)" % str(err))
+		# resume poller if request didn't start
+		if Global.has("Polling_Timer") and Global.Polling_Timer:
+			Global.Polling_Timer.paused = false
+
+
+func _on_insert_response(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http_node: HTTPRequest, table: String, columns: Array) -> void:
+	var took = (Time.get_ticks_msec() / 1000.0) - request_start_time
+	var text = body.get_string_from_utf8()
+	var parsed = {}
+	if text != "":
+		parsed = JSON.parse_string(text)
+
+	# Clean up the node
+	if is_instance_valid(http_node):
+		http_node.queue_free()
+
+	# Unpause poller
+
+	Global.Polling_Timer.paused = false
+
+	# Basic status check
+	if result != HTTPRequest.RESULT_SUCCESS:
+		push_error("Insert: transport error (result=%s) in %.3fs" % [str(result), took])
+		return
+
+	if response_code < 200 or response_code >= 300:
+		push_error("Insert: server error %d -> %s" % [response_code, text])
+		return
+
+	# Success path — your Flask returns { ok: True/False, inserted_primary_key: [...] } or {status:"success"}
+	if typeof(parsed) == TYPE_DICTIONARY:
+		if parsed.has("ok") and parsed["ok"] == true:
+			print("Insert OK into %s cols=%s pk=%s (%.3fs)" % [table, columns, str(parsed.get("inserted_primary_key", [])), took])
+		elif parsed.has("status") and str(parsed["status"]).to_lower() == "success":
+			print("Insert OK into %s cols=%s (%.3fs)" % [table, columns, took])
+		else:
+			print("Insert response: %s (%.3fs)" % [text, took])
+	else:
+		print("Insert raw response: %s (%.3fs)" % [text, took])
+	Global.Refresh_Data([table])
+	
 func _on_multi_update_response(result, code, headers, body, request_node):
 	elapsed = (Time.get_ticks_msec() / 1000.0) - request_start_time
 	var bytes_received = body.size()
@@ -636,3 +718,93 @@ func preview_stats_with_artifact(slot_type: String, record_id: String) -> Dictio
 	Current_Critical_Damage = snapshot["Critical Damage"]
 
 	return preview
+
+func Log(category: String, action: String, related_type: String = "", related_id: String = "",
+		 old_values: Dictionary = {}, new_values: Dictionary = {}, metadata: Dictionary = {},
+		 result: String = "success", severity: String = "audit") -> void:
+	# Pause poller like other writes
+	if Global.Polling_Timer:
+		Global.Polling_Timer.paused = true
+
+	var scene_name = ""
+	if get_tree().current_scene != null:
+		scene_name = get_tree().current_scene.name
+
+	var meta: Dictionary = {
+		"scene": scene_name,
+		"client_time": Time.get_datetime_string_from_system(),
+		"client_version": ProjectSettings.get_setting("application/config/version", "dev")
+	}
+	for k in metadata.keys():
+		meta[k] = metadata[k]
+
+	var payload: Dictionary = {
+		"user_id": ACTIVE_USER_NAME,
+		"category": category,
+		"action": action,
+		"related_type": related_type,
+		"related_id": related_id,
+		"old_values": old_values,
+		"new_values": new_values,
+		"metadata": meta,
+		"result": result,
+		"severity": severity
+	}
+	_post_json("/log", payload, _on_log_response)
+
+
+func CombatLog(battle_id: int, turn_no: int, phase: String, actor_type: String, actor_id: String,
+			   action_type: String, action_name: String, target_id: String, ignores_def: bool,
+			   rolls: Dictionary, damage: int, hp_before: int, hp_after: int, energy_change: int,
+			   elements_applied: Array = [], status_changes: Dictionary = {}, misc: Dictionary = {}) -> void:
+	if Global.Polling_Timer:
+		Global.Polling_Timer.paused = true
+
+	var payload: Dictionary = {
+		"battle_id": battle_id,
+		"turn_no": turn_no,
+		"phase": phase,
+		"actor_type": actor_type,
+		"actor_id": actor_id,
+		"action_type": action_type,
+		"action_name": action_name,
+		"target_id": target_id,
+		"ignores_def": ignores_def,
+		"rolls": rolls,
+		"damage": damage,
+		"hp_before": hp_before,
+		"hp_after": hp_after,
+		"energy_change": energy_change,
+		"elements_applied": elements_applied,
+		"status_changes": status_changes,
+		"misc": misc
+	}
+	_post_json("/combat_log", payload, _on_combat_log_response)
+
+
+# ---- shared HTTP helper (same style as Update_Records) ----
+
+func _post_json(endpoint: String, data: Dictionary, callback: Callable) -> void:
+	var http_request: HTTPRequest = HTTPRequest.new()
+	add_child(http_request)
+	var url: String = API_BASE + endpoint
+	var headers: PackedStringArray = ["Content-Type: application/json"]
+	var body: String = JSON.stringify(data)
+	request_start_time = Time.get_ticks_msec() / 1000.0
+	http_request.request_completed.connect(callback.bind(http_request))
+	http_request.request(url, headers, HTTPClient.METHOD_POST, body)
+
+# ---- callbacks (resume poller, cleanup) ----
+func _on_log_response(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+	if Global.Polling_Timer:
+		Global.Polling_Timer.paused = false
+	http.queue_free()
+	if response_code < 200 or response_code >= 300:
+		push_warning("Log() failed: HTTP " + str(response_code) + " body=" + body.get_string_from_utf8())
+
+func _on_combat_log_response(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http: HTTPRequest) -> void:
+	if Global.Polling_Timer:
+		Global.Polling_Timer.paused = false
+	http.queue_free()
+	if response_code < 200 or response_code >= 300:
+		push_warning("CombatLog() failed: HTTP " + str(response_code) + " body=" + body.get_string_from_utf8())

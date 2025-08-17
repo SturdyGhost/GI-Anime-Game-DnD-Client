@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3 uid="uid://cl1kvvj5h3ay2"]
+
+[ext_resource type="Script" uid="uid://dr8b4aakgiu2d" path="res://UI/talent_table_row.gd" id="1_0thn4"]
+[ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="2_jaxu2"]
+[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="2_ycu3e"]
+
+[node name="Row" type="HBoxContainer"]
+custom_minimum_size = Vector2(1740, 150)
+offset_right = 1745.0
+offset_bottom = 75.0
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+script = ExtResource("1_0thn4")
+
+[node name="DescriptionPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1500, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_ycu3e")
+
+[node name="DescriptionLabel" type="Label" parent="DescriptionPanel"]
+layout_mode = 2
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 1491.0
+offset_bottom = 143.0
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Test LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+clip_text = true
+
+[node name="CheckboxPanel" type="Panel" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("2_jaxu2")
+
+[node name="CheckBox" type="CheckBox" parent="CheckboxPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -26.0
+offset_top = -28.0
+offset_right = 26.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+disabled = true
+text = "Equipped"
