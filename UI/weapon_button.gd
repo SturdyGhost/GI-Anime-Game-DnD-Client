@@ -16,13 +16,13 @@ var Weapon_Data
 
 func _ready() -> void:
 	set_weapon()
-	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	$Stat1GoldPanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Stat1WhitePanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Stat2GoldPanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Stat2WhitePanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Stat3GoldPanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$Stat3WhitePanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 
 
 func _process(delta):

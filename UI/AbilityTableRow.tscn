@@ -12,12 +12,13 @@ theme_override_constants/separation = 10
 script = ExtResource("1_3qxl6")
 
 [node name="Panel2" type="Panel" parent="."]
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Ability" type="Label" parent="Panel2"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -36,12 +37,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel3" type="Panel" parent="."]
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Type" type="Label" parent="Panel3"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -60,12 +62,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel4" type="Panel" parent="."]
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Movement" type="Label" parent="Panel4"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -83,12 +86,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel5" type="Panel" parent="."]
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Range" type="Label" parent="Panel5"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -106,12 +110,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel6" type="Panel" parent="."]
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="CD" type="Label" parent="Panel6"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -129,12 +134,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel7" type="Panel" parent="."]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Charges" type="Label" parent="Panel7"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -152,19 +158,20 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(900, 0)
+custom_minimum_size = Vector2(1280, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
 [node name="Description" type="Label" parent="Panel"]
+custom_minimum_size = Vector2(1280, 0)
 layout_mode = 2
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 888.0
 offset_bottom = 141.0
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 22
 text = "Description"
 horizontal_alignment = 1
 vertical_alignment = 1

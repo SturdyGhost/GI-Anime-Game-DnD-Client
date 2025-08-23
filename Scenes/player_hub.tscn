@@ -108,7 +108,10 @@ offset_left = 28.0
 offset_top = 7.0
 offset_right = 303.0
 offset_bottom = 82.0
-tooltip_text = "View your abilities for each element you have unlocked on your current weapon type. Use the tabs at the top to navigate between each element. To view another weapon's kit's please select a weapon of that weapon type."
+tooltip_text = "View your abilities for each element you have unlocked on 
+your current weapon type. Use the tabs at the top to navigate 
+between each element. To view another weapon's kit's please 
+select a weapon of that weapon type."
 text = "Abilities"
 
 [node name="ConstellationsButton" type="Button" parent="UI/TopHotbar"]
@@ -118,7 +121,11 @@ offset_left = 314.0
 offset_top = 8.0
 offset_right = 589.0
 offset_bottom = 83.0
-tooltip_text = "View all of the possible constellations for each tier. This will include any past selections you have made. Use the tabs at the top to navigate between the different tiers. When you unlock a new constellation, please consult with Paimon to get that selected."
+tooltip_text = "View all of the possible constellations for each tier. 
+This will include any past selections you have made. 
+Use the tabs at the top to navigate between the different 
+tiers. When you unlock a new constellation, please consult 
+with Paimon to get that selected."
 text = "Constellations"
 
 [node name="TalentsButton" type="Button" parent="UI/TopHotbar"]
@@ -128,7 +135,10 @@ offset_left = 315.0
 offset_top = 90.0
 offset_right = 590.0
 offset_bottom = 165.0
-tooltip_text = "View all of your talents for each of your elemental kits including the ones you selected. Use the tabs at the top to navigate between the different elements. Please consult with Paimon when you need to make a new talent selection."
+tooltip_text = "View all of your talents for each of your elemental kits,
+ including the ones you selected. Use the tabs at the top
+to navigate between the different elements. Please consult 
+with Paimon when you need to make a new talent selection."
 text = "Talents"
 
 [node name="InventoryButton" type="Button" parent="UI/TopHotbar"]
@@ -138,7 +148,9 @@ offset_left = 30.0
 offset_top = 90.0
 offset_right = 305.0
 offset_bottom = 165.0
-tooltip_text = "View all of the items (non-weapons/non-artifacts) that you own. Use the search bar and filters at the top to find things more easily. Give items to another player in the preview pane, or favorite an item you want to get more of for it to be highlighted when you go out looking to gather new materials or visit the market."
+tooltip_text = "View all of the items (non-weapons/non-artifacts) that you own. 
+Use the search bar and filters at the top to find things more easily. 
+Give items to another player in the preview pane."
 text = "Inventory"
 
 [node name="RegionBackgroundPanel" type="Panel" parent="UI/TopHotbar"]
@@ -182,7 +194,9 @@ offset_top = 195.0
 offset_right = 1539.0
 offset_bottom = 256.0
 scale = Vector2(0.5, 0.5)
-tooltip_text = "Change the party's current region from what is selected to the new option. This is only able to be done once per session unless otherwise specified by Paimon."
+tooltip_text = "Change the party's current region from what is selected to the new 
+option. This is only able to be done once per session unless otherwise 
+specified by Paimon."
 theme_override_font_sizes/font_size = 33
 alignment = 1
 expand_icon = true
@@ -251,7 +265,11 @@ offset_top = 195.0
 offset_right = 1919.0
 offset_bottom = 256.0
 scale = Vector2(0.5, 0.5)
-tooltip_text = "Change the element you currently have active. If it is your base element or the element of the region you are in this can be done anytime here with no cost. If it is another element that you'd have to visit a regional \"shrin\" to, please consult with Paimon regarding the offering you are making to switch."
+tooltip_text = "Change the element you currently have active. If it is your base 
+element or the element of the region you are in this can be done 
+anytime here with no cost. If it is another element that you'd have 
+to visit a regional \"shrin\" to, please consult with Paimon regarding 
+the offering you are making to switch."
 theme_override_font_sizes/font_size = 33
 alignment = 1
 expand_icon = true
@@ -331,6 +349,7 @@ offset_right = 673.0
 offset_bottom = 160.0
 scale = Vector2(1.1, 1.1)
 tooltip_text = "Check your Settings/Options."
+disabled = true
 texture_normal = ExtResource("19_fbdku")
 texture_pressed = ExtResource("20_d7s6e")
 texture_hover = ExtResource("21_tbfj8")
@@ -342,7 +361,8 @@ offset_top = 96.0
 offset_right = 758.0
 offset_bottom = 160.0
 scale = Vector2(1.1, 1.1)
-tooltip_text = "Check your Settings/Options."
+tooltip_text = "Check Rules/Gameplay Functions"
+disabled = true
 texture_normal = ExtResource("22_q3m0e")
 texture_pressed = ExtResource("23_7y6pu")
 texture_hover = ExtResource("24_xkwd6")
@@ -359,7 +379,7 @@ texture_normal = ExtResource("22_hoeu5")
 texture_pressed = ExtResource("23_q3m0e")
 texture_hover = ExtResource("24_7y6pu")
 
-[node name="Button" type="Button" parent="UI/TopHotbar"]
+[node name="MoraButton" type="Button" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 324.0
 offset_top = 173.0
@@ -370,7 +390,7 @@ theme_override_font_sizes/font_size = 25
 disabled = true
 text = "1000"
 
-[node name="MoraIcon" type="TextureRect" parent="UI/TopHotbar/Button"]
+[node name="MoraIcon" type="TextureRect" parent="UI/TopHotbar/MoraButton"]
 layout_mode = 0
 offset_left = -21.0
 offset_top = -7.0
@@ -379,7 +399,7 @@ offset_bottom = 57.0
 texture = ExtResource("28_glsvh")
 expand_mode = 1
 
-[node name="Button2" type="Button" parent="UI/TopHotbar"]
+[node name="LvlButton" type="Button" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 31.0
 offset_top = 173.0
@@ -387,7 +407,7 @@ offset_right = 302.0
 offset_bottom = 224.0
 theme_override_fonts/font = SubResource("FontVariation_84ies")
 theme_override_font_sizes/font_size = 25
-text = "Level: 50/50"
+text = "Level: 45/35"
 
 [node name="BottomHotbar" type="Panel" parent="UI"]
 layout_mode = 0
@@ -407,7 +427,9 @@ theme_override_constants/separation = 16
 [node name="Market Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
 custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
-tooltip_text = "Purchase items from rotating vendors using Mora with new stock after every battle. Has a small chance for a \"Sleazy\" encounter for a random player each time it refreshes. "
+tooltip_text = "Purchase items from rotating vendors using Mora with new stock 
+after every battle. Has a small chance for a \"Sleazy\" encounter for 
+a random player each time it refreshes. "
 texture_normal = ExtResource("3_i5t6k")
 texture_pressed = ExtResource("5_1xwfl")
 texture_hover = ExtResource("6_semx8")
@@ -456,7 +478,11 @@ custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
 tooltip_text = "Only available to Blacksmith's/Artisan's -
 
-Craft new materials and items based on the role you have. Search through and choose from the available recipes. The right panel will indicate what you need with each option being a dropdown that may have multiple types of items that can fit that crafting slot. Favorite an item you want to add it to your list to highlight when gathering materials or going to the market."
+Craft new materials and items based on the role you have. 
+Search through and choose from the available recipes. 
+The right panel will indicate what you need with each 
+option being a dropdown that may have multiple types 
+of items that can fit that crafting slot. "
 texture_normal = ExtResource("9_xr106")
 texture_pressed = ExtResource("14_l4lo8")
 texture_hover = ExtResource("15_solx2")
@@ -481,7 +507,9 @@ custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
 tooltip_text = "Only available to the Scribe - 
 
-Research new information, tips, and advice. Upon concluding any information you have typed as part of your research will automatically be copied into your clipboard to be pasted into your separate notes."
+Research new information, tips, and advice. Upon concluding any 
+information you have typed as part of your research will automatically 
+be copied into your clipboard to be pasted into your separate notes."
 texture_normal = ExtResource("8_pitbg")
 texture_pressed = ExtResource("18_mn6i2")
 texture_hover = ExtResource("19_mj37b")
@@ -504,7 +532,10 @@ vertical_alignment = 1
 [node name="Gather Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
 custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
-tooltip_text = "Go out and gather new materials. Requires a D4 + D12 roll, if you have the constellation that lets you pick you may skip the D4 roll and only do the D12, make sure you select your desired material from the dropdown if that is the case."
+tooltip_text = "Go out and gather new materials. Requires a D4 + D12 roll.
+If you have the constellation that lets you pick you may skip the D4 roll
+and only do the D12, make sure you select your desired material from 
+the dropdown if that is the case."
 texture_normal = ExtResource("6_gone6")
 texture_pressed = ExtResource("22_iub4p")
 texture_hover = ExtResource("23_qvs07")
@@ -527,7 +558,7 @@ vertical_alignment = 1
 [node name="Combat Button" type="TextureButton" parent="UI/BottomHotbar/HBoxContainer"]
 custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
-tooltip_text = "Not finished yet, check back later!"
+tooltip_text = "Queue up for a Dungeon/Combat Scenario."
 disabled = true
 texture_normal = ExtResource("5_twm1r")
 texture_pressed = ExtResource("11_x5hun")
@@ -595,44 +626,6 @@ text = "Exit"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StatsPanel" type="Panel" parent="UI"]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -446.0
-offset_top = -254.5
-offset_right = 446.0
-offset_bottom = 254.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="StatsLabel" type="Label" parent="UI"]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -442.5
-offset_top = -252.0
-offset_right = 442.5
-offset_bottom = 252.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 40
-text = " Base Health: 10
- Base Attack: 22
- Base Defense: 11
- Base Elemental Mastery: 12
- Base Energy Recharge: 15
- Base Critical Damage: 10"
-vertical_alignment = 1
-
 [node name="StatButtonsContainer" type="VBoxContainer" parent="UI"]
 layout_mode = 2
 offset_left = 11.0
@@ -640,38 +633,57 @@ offset_top = 9.0
 offset_right = 391.0
 offset_bottom = 1429.0
 size_flags_vertical = 3
+mouse_filter = 0
 theme_override_constants/separation = 8
 alignment = 1
 
 [node name="Health Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="Attack Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="Defense Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="Elemental Mastery Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="Energy Recharge Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="Critical Damage Button" parent="UI/StatButtonsContainer" instance=ExtResource("2_ki6c4")]
 custom_minimum_size = Vector2(380, 230)
 layout_mode = 2
-tooltip_text = "Pull up detailed information about this stat and how the client calculated this number. If there are any errors or things the system can't calculate, add your manual overrides here, Additionally spend skill + base points into the selected stat here."
+tooltip_text = "Pull up detailed information about this stat and how the client 
+calculated this number. If there are any errors or things the 
+system can't calculate, add your manual overrides here.
+Additionally spend skill + base points into the selected stat here."
 
 [node name="GearContainer" type="VBoxContainer" parent="UI"]
 layout_mode = 1
@@ -685,31 +697,52 @@ offset_right = -9.0
 offset_bottom = 10.0
 grow_horizontal = 0
 grow_vertical = 2
+mouse_filter = 0
 theme_override_constants/separation = 8
 
 [node name="WeaponButton" parent="UI/GearContainer" instance=ExtResource("3_a5jjv")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the weapon you currently have equipped as well as lists all the other weapons you own and compares them upon selection to what you currently have equipped. Search and sort your weapons easily using the tabs at the top. If there is anything wrong with your selection it will prevent you from making the change."
+tooltip_text = "Shows a detailed view of the weapon you currently have 
+equipped as well as lists all the other weapons you own 
+and compares them upon selection to what you currently 
+have equipped. Search and sort your weapons easily using 
+the tabs at the top. If there is anything wrong with your 
+selection it will prevent you from making the change."
 
 [node name="Flower of Life" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the artifact you currently have for this slot and pulls up a list of all other artifacts of this type that you have. Compare and search between new ones easily."
+tooltip_text = "Shows a detailed view of the artifact you currently have
+for this slot and pulls up a list of all other artifacts of this 
+type that you have. Compare and search between new 
+ones easily."
 
 [node name="Feather of Death" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the artifact you currently have for this slot and pulls up a list of all other artifacts of this type that you have. Compare and search between new ones easily."
+tooltip_text = "Shows a detailed view of the artifact you currently have
+for this slot and pulls up a list of all other artifacts of this 
+type that you have. Compare and search between new 
+ones easily."
 
 [node name="Sands of Time" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the artifact you currently have for this slot and pulls up a list of all other artifacts of this type that you have. Compare and search between new ones easily."
+tooltip_text = "Shows a detailed view of the artifact you currently have
+for this slot and pulls up a list of all other artifacts of this 
+type that you have. Compare and search between new 
+ones easily."
 
 [node name="Goblet of Space" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the artifact you currently have for this slot and pulls up a list of all other artifacts of this type that you have. Compare and search between new ones easily."
+tooltip_text = "Shows a detailed view of the artifact you currently have
+for this slot and pulls up a list of all other artifacts of this 
+type that you have. Compare and search between new 
+ones easily."
 
 [node name="Circlet of Principles" parent="UI/GearContainer" instance=ExtResource("4_a0tjc")]
 layout_mode = 2
-tooltip_text = "Shows a detailed view of the artifact you currently have for this slot and pulls up a list of all other artifacts of this type that you have. Compare and search between new ones easily."
+tooltip_text = "Shows a detailed view of the artifact you currently have
+for this slot and pulls up a list of all other artifacts of this 
+type that you have. Compare and search between new 
+ones easily."
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
 autoplay = true
@@ -722,7 +755,10 @@ autoplay = true
 [connection signal="item_selected" from="UI/TopHotbar/ElementButton" to="." method="_on_element_button_item_selected"]
 [connection signal="pressed" from="UI/TopHotbar/BugButton" to="." method="_on_bug_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/RefreshButton" to="." method="_on_refresh_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Market Button" to="." method="_on_market_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Crafting Button" to="." method="_on_crafting_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Research Button" to="." method="_on_research_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Gather Button" to="." method="_on_gather_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Exit Button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Health Button" to="." method="_on_health_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Attack Button" to="." method="_on_attack_button_pressed"]

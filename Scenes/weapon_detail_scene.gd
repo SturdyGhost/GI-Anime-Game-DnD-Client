@@ -48,7 +48,7 @@ func populate_weapon_list() -> void:
 	_rows_to_init = 0
 
 	for data in Global.CHARACTER_WEAPONS.values():
-		if data.get("Owner") == Global.ACTIVE_USER_NAME:
+		if data.get("Owner") == Global.ACTIVE_USER_NAME and data.get("Quantity") > 0:
 			var row = WeaponListItemScene.instantiate()
 			WeaponListVBox.add_child(row)
 			weapon_items.append(row)
@@ -201,11 +201,18 @@ func _on_confirm_button_pressed() -> void:
 	_confirm_locked = false
 	# Recalc + UI before network so the screen stays consistent
 	Global.calculate_all_stats()
-	get_parent().set_ui()
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 
 func _on_exit_button_pressed() -> void:
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 	pass # Replace with function body.
 
 func sort_weapon_list(column_name: String) -> void:

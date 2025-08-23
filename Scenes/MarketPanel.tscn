@@ -1,0 +1,126 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1ykh2qpuv16x"]
+
+[ext_resource type="Script" uid="uid://tnlsrosjsgkn" path="res://Scenes/MarketPanel.gd" id="1"]
+
+[node name="MarketPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1")
+
+[node name="HeaderBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="ModeTabs" type="TabBar" parent="HeaderBar"]
+layout_mode = 2
+clip_tabs = false
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="ShopList" type="VBoxContainer" parent="Body"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Shops" type="ItemList" parent="Body/ShopList"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+same_column_width = true
+
+[node name="ItemListPanel" type="VBoxContainer" parent="Body"]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Items" type="ItemList" parent="Body/ItemListPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+same_column_width = true
+
+[node name="Details" type="PanelContainer" parent="Body"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Contents" type="VBoxContainer" parent="Body/Details"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="NameLabel" type="Label" parent="Body/Details/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Body/Details/Contents"]
+custom_minimum_size = Vector2(0, 500)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoText" type="RichTextLabel" parent="Body/Details/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+autowrap_mode = 2
+
+[node name="QuantityRow" type="HBoxContainer" parent="Body/Details/Contents"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Quantity" type="SpinBox" parent="Body/Details/Contents/QuantityRow"]
+layout_mode = 2
+max_value = 9999.0
+
+[node name="PricePreview" type="Label" parent="Body/Details/Contents/QuantityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Total: 0"
+horizontal_alignment = 2
+
+[node name="Confirm" type="Button" parent="Body/Details/Contents"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Confirm"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2506.0
+offset_top = 71.0
+offset_right = 2549.0
+offset_bottom = 131.0
+text = "X"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

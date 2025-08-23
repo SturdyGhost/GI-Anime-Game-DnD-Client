@@ -1,0 +1,521 @@
+[gd_scene load_steps=2 format=3 uid="uid://fa2kq0nb3gdy"]
+
+[ext_resource type="Script" uid="uid://bkpba4m82qrjy" path="res://Scenes/DMHub.gd" id="1"]
+
+[node name="DMHub" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TopBarDM" type="HBoxContainer" parent="Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnSave" type="Button" parent="Layout/TopBarDM"]
+layout_mode = 2
+text = "Save"
+
+[node name="BtnLoad" type="Button" parent="Layout/TopBarDM"]
+layout_mode = 2
+text = "Load"
+
+[node name="BtnEndSession" type="Button" parent="Layout/TopBarDM"]
+layout_mode = 2
+text = "End Session"
+
+[node name="ModeLabel" type="Label" parent="Layout/TopBarDM"]
+layout_mode = 2
+text = "Mode:"
+
+[node name="ModeSwitch" type="OptionButton" parent="Layout/TopBarDM"]
+layout_mode = 2
+
+[node name="MainSplit" type="HSplitContainer" parent="Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 1800
+
+[node name="Tabs" type="TabContainer" parent="Layout/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="PartyManagement" type="Control" parent="Layout/MainSplit/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_tab_index = 0
+
+[node name="PM_HBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PartyListPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PartyListScroll" type="ScrollContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/PartyListPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PartyList" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/PartyListPanel/PartyListScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MemberPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MemberVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GiveItemBox" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GiveItemVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GiveTargetHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox"]
+layout_mode = 2
+
+[node name="GiveTargetLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveTargetHBox"]
+layout_mode = 2
+text = "Target:"
+
+[node name="GiveTarget" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveTargetHBox"]
+layout_mode = 2
+
+[node name="GiveNameHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox"]
+layout_mode = 2
+
+[node name="GiveItemLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveNameHBox"]
+layout_mode = 2
+text = "Item Name:"
+
+[node name="GiveItemName" type="LineEdit" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveNameHBox"]
+layout_mode = 2
+
+[node name="GiveQtyHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox"]
+layout_mode = 2
+
+[node name="GiveQtyLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveQtyHBox"]
+layout_mode = 2
+text = "Quantity:"
+
+[node name="GiveQty" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveQtyHBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 1.0
+
+[node name="GiveConfirm" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox"]
+layout_mode = 2
+text = "Give Item"
+
+[node name="RemoveItemBox" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RemoveItemVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RemoveTargetHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox"]
+layout_mode = 2
+
+[node name="RemoveTargetLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveTargetHBox"]
+layout_mode = 2
+text = "Target:"
+
+[node name="RemoveTarget" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveTargetHBox"]
+layout_mode = 2
+
+[node name="RemoveItemHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox"]
+layout_mode = 2
+
+[node name="RemoveItemLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveItemHBox"]
+layout_mode = 2
+text = "Item:"
+
+[node name="RemoveItemName" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveItemHBox"]
+layout_mode = 2
+
+[node name="RemoveQtyHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox"]
+layout_mode = 2
+
+[node name="RemoveQtyLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveQtyHBox"]
+layout_mode = 2
+text = "Quantity:"
+
+[node name="RemoveQty" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveQtyHBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 1.0
+
+[node name="RemoveConfirm" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox"]
+layout_mode = 2
+text = "Remove Item"
+
+[node name="ArtifactBox" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ArtifactVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ArtifactOwnerHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+
+[node name="ArtifactOwnerLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactOwnerHBox"]
+layout_mode = 2
+text = "Owner:"
+
+[node name="ArtifactOwner" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactOwnerHBox"]
+layout_mode = 2
+
+[node name="ArtifactSetHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+
+[node name="ArtifactSetLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactSetHBox"]
+layout_mode = 2
+text = "Set:"
+
+[node name="ArtifactSet" type="LineEdit" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactSetHBox"]
+layout_mode = 2
+
+[node name="ArtifactTypeHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+
+[node name="ArtifactTypeLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactTypeHBox"]
+layout_mode = 2
+text = "Type:"
+
+[node name="ArtifactType" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactTypeHBox"]
+layout_mode = 2
+
+[node name="ArtifactRarityHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+
+[node name="ArtifactRarityLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactRarityHBox"]
+layout_mode = 2
+text = "Rarity:"
+
+[node name="ArtifactRarity" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactRarityHBox"]
+layout_mode = 2
+
+[node name="ArtifactStatsHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+
+[node name="Stat1Type" type="LineEdit" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox"]
+layout_mode = 2
+placeholder_text = "Stat 1 Type"
+
+[node name="Stat1Value" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox"]
+layout_mode = 2
+max_value = 9999.0
+
+[node name="Stat2Type" type="LineEdit" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox"]
+layout_mode = 2
+placeholder_text = "Stat 2 Type"
+
+[node name="Stat2Value" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox"]
+layout_mode = 2
+max_value = 9999.0
+
+[node name="ArtifactGenerate" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox"]
+layout_mode = 2
+text = "Generate Artifact"
+
+[node name="AscendBox" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AscendVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AscendOwnerHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox"]
+layout_mode = 2
+
+[node name="AscendOwnerLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendOwnerHBox"]
+layout_mode = 2
+text = "Owner:"
+
+[node name="AscendOwner" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendOwnerHBox"]
+layout_mode = 2
+
+[node name="AscendPointsGrid" type="GridContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox"]
+layout_mode = 2
+columns = 6
+
+[node name="HP" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="ATK" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="DEF" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="EM" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="ER" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="CD" type="SpinBox" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid"]
+layout_mode = 2
+
+[node name="AscendConfirm" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox"]
+layout_mode = 2
+text = "Ascend Character"
+
+[node name="UnlockBox" type="PanelContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UnlockHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox"]
+layout_mode = 2
+
+[node name="UnlockOwnerLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox"]
+layout_mode = 2
+text = "Owner:"
+
+[node name="UnlockOwner" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox"]
+layout_mode = 2
+
+[node name="UnlockCompanionLabel" type="Label" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox"]
+layout_mode = 2
+text = "Companion:"
+
+[node name="UnlockCompanionName" type="LineEdit" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox"]
+layout_mode = 2
+
+[node name="UnlockConfirm" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox"]
+layout_mode = 2
+text = "Unlock Companion"
+
+[node name="ResearchProgression" type="Control" parent="Layout/MainSplit/Tabs"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_tab_index = 1
+
+[node name="RP_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ProjectList" type="Tree" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ResearchButtons" type="HBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
+layout_mode = 2
+
+[node name="BtnAssign" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+layout_mode = 2
+text = "Assign Player"
+
+[node name="BtnSpeedUp" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+layout_mode = 2
+text = "Speed Up"
+
+[node name="BtnComplete" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+layout_mode = 2
+text = "Complete Early"
+
+[node name="BattlePrep" type="Control" parent="Layout/MainSplit/Tabs"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_tab_index = 2
+
+[node name="BP_HBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EnemyPalettePanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EncounterPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EncounterGrid" type="GridContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 5
+
+[node name="EnemyEditorPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EnemyEditorVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EnemyNameHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+layout_mode = 2
+
+[node name="EnemyNameLabel" type="Label" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox"]
+layout_mode = 2
+text = "Name:"
+
+[node name="EnemyName" type="LineEdit" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox"]
+layout_mode = 2
+
+[node name="EnemyHPHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+layout_mode = 2
+
+[node name="EnemyHPLabel" type="Label" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyHPHBox"]
+layout_mode = 2
+text = "HP:"
+
+[node name="EnemyHP" type="SpinBox" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyHPHBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 9999.0
+value = 10.0
+
+[node name="BtnAddEnemy" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+layout_mode = 2
+text = "Add/Update Enemy"
+
+[node name="BtnPreset" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+layout_mode = 2
+text = "Load Preset"
+
+[node name="BtnSituation" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+layout_mode = 2
+text = "Trigger Battle Situation"
+
+[node name="ActiveBattle" type="Control" parent="Layout/MainSplit/Tabs"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_tab_index = 3
+
+[node name="AB_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ActiveBattle"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BattleEmbedPlaceholder" type="Label" parent="Layout/MainSplit/Tabs/ActiveBattle/AB_VBox"]
+layout_mode = 2
+text = "Battle Scene Embed (placeholder)"
+
+[node name="DMLogPanel" type="PanelContainer" parent="Layout/MainSplit"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DMLogVBox" type="VBoxContainer" parent="Layout/MainSplit/DMLogPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DMLogLabel" type="Label" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
+layout_mode = 2
+text = "DM Log"
+
+[node name="DMLog" type="RichTextLabel" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_following = true
+
+[node name="QuickBar" type="PanelContainer" parent="Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QuickHBox" type="HBoxContainer" parent="Layout/QuickBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QB_GiveItem" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Give Item"
+
+[node name="QB_RemoveItem" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Remove Item"
+
+[node name="QB_GenerateArtifact" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Generate Artifact"
+
+[node name="QB_AddEnemy" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Add Enemy"
+
+[node name="QB_TriggerSituation" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Trigger Situation"
+
+[node name="QB_UnlockCompanion" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Unlock Companion"
+
+[node name="QB_Ascend" type="Button" parent="Layout/QuickBar/QuickHBox"]
+layout_mode = 2
+text = "Ascend Character"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2138.0
+offset_top = 813.0
+offset_right = 2546.0
+offset_bottom = 873.0
+text = "Temp Research Button
+"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

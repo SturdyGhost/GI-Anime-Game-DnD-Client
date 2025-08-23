@@ -14,7 +14,7 @@ metadata/_tab_index = 0
 
 [node name="ColorRect" type="ColorRect" parent="."]
 self_modulate = Color(0.903598, 0.903598, 0.903598, 1)
-custom_minimum_size = Vector2(1750, 150)
+custom_minimum_size = Vector2(2540, 150)
 layout_mode = 2
 offset_left = 10.0
 offset_right = 1710.0
@@ -25,7 +25,7 @@ color = Color(0.8, 1, 1, 1)
 layout_mode = 2
 offset_left = 9.0
 offset_top = 3.0
-offset_right = 1774.0
+offset_right = 2541.0
 offset_bottom = 146.0
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 50
@@ -60,12 +60,13 @@ size_flags_vertical = 3
 theme_override_constants/separation = 10
 
 [node name="Panel" type="Panel" parent="VBoxContainer/Rows/Headers"]
-custom_minimum_size = Vector2(1500, 0)
+custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_mi710")
 
 [node name="Label" type="Label" parent="VBoxContainer/Rows/Headers/Panel"]
+custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 offset_left = 8.0
 offset_top = 8.0
@@ -77,11 +78,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel2" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(530, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="CheckBox" type="Label" parent="VBoxContainer/Rows/Headers/Panel2"]
+custom_minimum_size = Vector2(530, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -104,4 +107,5 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="HBoxContainer" type="VBoxContainer" parent="VBoxContainer/Rows/ScrollContainer"]
+custom_minimum_size = Vector2(2540, 0)
 layout_mode = 2

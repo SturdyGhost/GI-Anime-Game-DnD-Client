@@ -2,7 +2,7 @@ extends Node
 
 var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","battle_log","Talents","Constellations"]
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
@@ -17,6 +17,7 @@ var BATTLEENEMIES: Dictionary = {}
 var CHARACTER_ITEMS: Dictionary = {}
 var CHARACTER_WEAPONS: Dictionary = {}
 var CHARACTER_ARTIFACTS: Dictionary = {}
+var PARTY: Dictionary = {}
 var TALENTS = {}
 var CONSTELLATIONS = {}
 var BATTLE_LOG: Dictionary = {}
@@ -24,11 +25,12 @@ var ARTIFACTS_NAME = {}
 var WEAPONS_NAME = {}
 var COMPANIONS_NAME = {}
 var CRAFTINGRECIPES_NAME = {}
+var MATERIAL_CACHES = {}
 var ITEMS_NAME = {}
 var ENEMIES_NAME = {}
 var CHARACTERS_NAME = {}
 var BATTLEENEMIES_NAME = {}
-var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_Weapons", "Character_Artifacts","battle_log", "Companions"] #When you save also force a manual re-sync
+var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_Weapons", "Character_Artifacts", "Companions"] #When you save also force a manual re-sync
 var TABLES_TO_SYNC_OFTEN = ["Characters","BattleEnemies"] #Resycnc often while in battles.
 var BATTLE_TURN_ORDER = []
 var _current_region = ""
@@ -42,6 +44,7 @@ var Current_Weapon
 var Polling_Timer
 var set_count = {}
 var set_pieces 
+var Current_Party
 var total_records
 var variable_name
 var request_start_time
@@ -56,7 +59,8 @@ var watched_tables := [
 	"Character_Artifacts",
 	"Talents",
 	"Constellations",
-	"BattleEnemies"
+	"BattleEnemies",
+	"Party"
 ]
 var last_known_timestamps := {}  # Dictionary<String, String>
 var APPLIED_ARTIFACT_BONUSES := {}  # key: character name, value: list of {stat: ..., amount: ...}
@@ -460,6 +464,14 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				CONSTELLATIONS[str(record["id"])] = record
 
+		"Material_Caches":
+			for record in records:
+				MATERIAL_CACHES[str(record["id"])] = record
+
+		"Party":
+			for record in records:
+				PARTY[str(record["id"])] = record
+
 		_:
 			pass
 
@@ -595,9 +607,9 @@ func _on_multi_update_response(result, code, headers, body, request_node):
 	elapsed = (Time.get_ticks_msec() / 1000.0) - request_start_time
 	var bytes_received = body.size()
 	var kbps = (bytes_received/1024) / elapsed
-	print("Request completed in %.2f seconds" % elapsed)
-	print("Data received: %.2f KB" % (bytes_received / 1024.0))
-	print("Average speed: %.2f KB/s" % kbps)
+	#print("Request completed in %.2f seconds" % elapsed)
+	#print("Data received: %.2f KB" % (bytes_received / 1024.0))
+	#print("Average speed: %.2f KB/s" % kbps)
 	
 	request_node.queue_free()
 	if code != 200:
@@ -610,12 +622,14 @@ func _on_multi_update_response(result, code, headers, body, request_node):
 	if json and json.has("updated"):
 		for update in json["updated"]:
 			var t = String(update.get("table",""))
-			var ts = String(update.get("modified_time",""))
+			var ts
+			if update.get("modified_time") != null:
+				ts = String(update.get("modified_time",""))
 			if t != "" and not tables_to_refresh.has(t):
 				tables_to_refresh.append(t)
 				# ✅ stash; commit after refresh succeeds
 				pending_timestamps[t] = ts
-
+	print ("Tables Refreshed: " + str(tables_to_refresh))
 	Global.Refresh_Data(tables_to_refresh)
 # Put near the top of Global.gd
 const ARTIFACT_TYPE_MAP = {

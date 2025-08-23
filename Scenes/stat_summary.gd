@@ -22,6 +22,8 @@ var RollMultEdit: float = 0.0
 var DmgAddEdit: float = 0.0
 var DmgMultEdit: float = 0.0
 var _orig_vals: Dictionary
+var updates: Array = []
+var new_vals 
 
 @onready var TotalAmountLabel = $TotalAmountLabel
 
@@ -376,7 +378,7 @@ func _to_text(val) -> String:
 	return "" if val == null else str(val)
 
 # Helper: queue a single field update for the Characters table
-func _queue_update(updates: Array, char_id, field: String, value) -> void:
+func _queue_update(char_id, field: String, value) -> void:
 	var rec: Dictionary = {
 		"table": "Characters",
 		"record_id": float(char_id),
@@ -387,28 +389,32 @@ func _queue_update(updates: Array, char_id, field: String, value) -> void:
 
 
 func _on_exit_button_pressed() -> void:
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 	pass # Replace with function body.
 
 
 func _on_confirm_button_pressed() -> void:
-	var new_vals := _build_values_snapshot()
+	new_vals = _build_values_snapshot()
 	var char_id = Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]
 
 	# Build batch of updates (DB is the source of truth)
-	var updates: Array = []
+	updates = []
 	# Points
-	_queue_update(updates, char_id, "%s_Skill_Points" % SelectedStat, int(_curr_skill))
-	_queue_update(updates, char_id, "%s_Base_Points"  % SelectedStat, int(_curr_base))
-	_queue_update(updates, char_id, "Unspent_Skill_Points", int(_unspent_skill))
-	_queue_update(updates, char_id, "Unspent_Base_Points",  int(_unspent_base))
+	_queue_update(char_id, "%s_Skill_Points" % SelectedStat, int(_curr_skill))
+	_queue_update(char_id, "%s_Base_Points"  % SelectedStat, int(_curr_base))
+	_queue_update(char_id, "Unspent_Skill_Points", int(_unspent_skill))
+	_queue_update(char_id, "Unspent_Base_Points",  int(_unspent_base))
 	# Overrides
-	_queue_update(updates, char_id, "%s_Manual_Added_Amount_Override"            % SelectedStat, float(AddEdit))
-	_queue_update(updates, char_id, "%s_Manual_Multiplier_Amount_Override"       % SelectedStat, float(MultEdit))
-	_queue_update(updates, char_id, "%s_Manual_Roll_Added_Amount_Override"       % SelectedStat, float(RollAddEdit))
-	_queue_update(updates, char_id, "%s_Manual_Roll_Multiplier_Amount_Override"  % SelectedStat, float(RollMultEdit))
-	_queue_update(updates, char_id, "%s_Manual_Damage_Added_Amount_Override"     % SelectedStat, float(DmgAddEdit))
-	_queue_update(updates, char_id, "%s_Manual_Damage_Multiplier_Amount_Override"% SelectedStat, float(DmgMultEdit))
+	_queue_update(char_id, "%s_Manual_Added_Amount_Override"            % SelectedStat, float(AddEdit))
+	_queue_update(char_id, "%s_Manual_Multiplier_Amount_Override"       % SelectedStat, float(MultEdit))
+	_queue_update(char_id, "%s_Manual_Roll_Added_Amount_Override"       % SelectedStat, float(RollAddEdit))
+	_queue_update(char_id, "%s_Manual_Roll_Multiplier_Amount_Override"  % SelectedStat, float(RollMultEdit))
+	_queue_update(char_id, "%s_Manual_Damage_Added_Amount_Override"     % SelectedStat, float(DmgAddEdit))
+	_queue_update(char_id, "%s_Manual_Damage_Multiplier_Amount_Override"% SelectedStat, float(DmgMultEdit))
 
 	# Write to DB
 	Global.Update_Records(updates)
@@ -430,7 +436,7 @@ func _on_confirm_button_pressed() -> void:
 
 	# Recalculate + log
 	Global.calculate_all_stats()
-	get_parent().set_ui()
+	get_parent().get_parent().set_ui()
 	
 	Global.Log(
 	"character",                     # category
@@ -440,5 +446,9 @@ func _on_confirm_button_pressed() -> void:
 	_orig_vals,                      # old_values
 	new_vals)                         # new_values
 
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 	pass # Replace with function body.

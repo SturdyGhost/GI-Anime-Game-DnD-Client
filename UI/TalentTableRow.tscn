@@ -13,12 +13,13 @@ theme_override_constants/separation = 10
 script = ExtResource("1_0thn4")
 
 [node name="DescriptionPanel" type="Panel" parent="."]
-custom_minimum_size = Vector2(1500, 0)
+custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_ycu3e")
 
 [node name="DescriptionLabel" type="Label" parent="DescriptionPanel"]
+custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 offset_left = 8.0
 offset_top = 8.0
@@ -33,11 +34,13 @@ autowrap_mode = 2
 clip_text = true
 
 [node name="CheckboxPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(530, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_jaxu2")
 
 [node name="CheckBox" type="CheckBox" parent="CheckboxPanel"]
+custom_minimum_size = Vector2(530, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -52,3 +55,4 @@ grow_horizontal = 2
 grow_vertical = 2
 disabled = true
 text = "Equipped"
+alignment = 1

@@ -1001,7 +1001,11 @@ func _on_confirm_pressed() -> void:
 	_update_have_need_labels()
 	_validate_all_rows()
 	_refresh_confirm_enabled()
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 
 func _fallback_decrement_inventory(item_id: String, amount: int) -> bool:
 	var inv = _get_inventory_array()
@@ -1049,5 +1053,9 @@ func _show_toast(msg: String) -> void:
 
 
 func _on_button_pressed() -> void:
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 	pass # Replace with function body.

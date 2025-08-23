@@ -1,0 +1,116 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmamuogf2enas"]
+
+[ext_resource type="Script" uid="uid://di3tg74wtsktk" path="res://Scenes/gathering.gd" id="1_ud23g"]
+
+[node name="Gathering" type="Control"]
+z_index = 100
+z_as_relative = false
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_ud23g")
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(2560, 1440)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="D4Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 506.0
+offset_top = 444.0
+offset_right = 799.0
+offset_bottom = 527.0
+theme_override_font_sizes/font_size = 50
+text = "D4 Roll:"
+
+[node name="D4Input" type="LineEdit" parent="D4Label"]
+layout_mode = 0
+offset_left = 233.0
+offset_top = 5.0
+offset_right = 445.0
+offset_bottom = 61.0
+
+[node name="D12Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 506.0
+offset_top = 551.0
+offset_right = 799.0
+offset_bottom = 634.0
+theme_override_font_sizes/font_size = 50
+text = "D12 Roll:"
+
+[node name="D12Input" type="LineEdit" parent="D12Label"]
+layout_mode = 0
+offset_left = 233.0
+offset_top = 5.0
+offset_right = 445.0
+offset_bottom = 61.0
+
+[node name="ConfirmButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 376.0
+offset_top = 1115.0
+offset_right = 1063.0
+offset_bottom = 1229.0
+text = "Confirm/Gather Materials"
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2491.0
+offset_top = 24.0
+offset_right = 2534.0
+offset_bottom = 84.0
+text = "X"
+
+[node name="ChooseMaterialOption" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 396.0
+offset_top = 830.0
+offset_right = 1027.0
+offset_bottom = 923.0
+disabled = true
+
+[node name="ChooseMaterialLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 402.0
+offset_top = 736.0
+offset_right = 1023.0
+offset_bottom = 822.0
+text = "Choose Material (only enabled if you have the Constellation to do so)"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="MaterialsReceivedLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1116.0
+offset_top = 367.0
+offset_right = 1646.0
+offset_bottom = 442.0
+theme_override_font_sizes/font_size = 50
+text = "Materials Received:"
+metadata/_edit_group_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MaterialsReceivedLabel"]
+layout_mode = 0
+offset_left = 62.0
+offset_top = 113.0
+offset_right = 457.0
+offset_bottom = 463.0
+theme_override_constants/separation = 50
+
+[node name="Material1Label" type="Label" parent="MaterialsReceivedLabel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+
+[node name="Material2Label" type="Label" parent="MaterialsReceivedLabel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+
+[node name="Material3Label" type="Label" parent="MaterialsReceivedLabel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+
+[node name="Material4Label" type="Label" parent="MaterialsReceivedLabel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40

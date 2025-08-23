@@ -48,7 +48,7 @@ func _on_http_request_request_completed(result: int, response_code: int, headers
 						"Dungeon Master":
 							Global.ACTIVE_USER_EMAIL = hash_email($Container/UserEmailField.text.strip_edges().to_lower())
 							Global.ACTIVE_USER_NAME = record["Name"]
-							get_tree().change_scene_to_file("res://Scenes/dungeon_master_hub.tscn")
+							get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
 						_:
 							$Container/ErrorMessageLabel.text = "Unknown user type."
 				#print("✔ Record: ", record)

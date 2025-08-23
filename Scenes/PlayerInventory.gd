@@ -308,5 +308,9 @@ func _get_icon_for(name: String, type_val: String, rarity_val: String) -> Textur
 
 
 func _on_exit_button_pressed() -> void:
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 	pass # Replace with function body.

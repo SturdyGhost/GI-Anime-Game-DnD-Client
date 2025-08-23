@@ -276,7 +276,11 @@ func _fmt_num(v) -> String:
 
 # buttons
 func _on_exit_button_pressed() -> void:
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 
 # replace your stub with this:
 func _on_confirm_button_pressed() -> void:
@@ -311,7 +315,11 @@ func _on_confirm_button_pressed() -> void:
 				{"slot": slot, "previous": Global.CHARACTER_ARTIFACTS[previous_equipped]},
 				{"slot": slot, "current": null}
 			)
-		queue_free()
+		var p := get_parent()
+		if p is Window:
+			p.queue_free()
+		else:
+			queue_free()
 		return
 
 	var selected_id: String = str(selected_artifact.get("RecordID", ""))
@@ -372,8 +380,11 @@ func _on_confirm_button_pressed() -> void:
 		previouslogslot,
 		currentlogslot
 	)
-
-	queue_free()
+	var p := get_parent()
+	if p is Window:
+		p.queue_free()
+	else:
+		queue_free()
 
 
 func _id_num(v) -> float:

@@ -13,7 +13,7 @@ script = ExtResource("1_2upce")
 metadata/_tab_index = 0
 
 [node name="ColorRect" type="ColorRect" parent="."]
-custom_minimum_size = Vector2(1750, 150)
+custom_minimum_size = Vector2(2540, 150)
 layout_mode = 2
 offset_left = 10.0
 offset_right = 1710.0
@@ -24,7 +24,7 @@ color = Color(0.8, 1, 1, 1)
 layout_mode = 2
 offset_left = 9.0
 offset_top = 3.0
-offset_right = 1774.0
+offset_right = 2539.0
 offset_bottom = 146.0
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 50
@@ -59,11 +59,13 @@ size_flags_vertical = 3
 theme_override_constants/separation = 10
 
 [node name="Panel2" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="Ability" type="Label" parent="VBoxContainer/Rows/Headers/Panel2"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -81,11 +83,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel3" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="Type" type="Label" parent="VBoxContainer/Rows/Headers/Panel3"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -103,11 +107,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel4" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="Movement" type="Label" parent="VBoxContainer/Rows/Headers/Panel4"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -125,11 +131,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel5" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="Range" type="Label" parent="VBoxContainer/Rows/Headers/Panel5"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -147,11 +155,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel6" type="Panel" parent="VBoxContainer/Rows/Headers"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="CD" type="Label" parent="VBoxContainer/Rows/Headers/Panel6"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -169,12 +179,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel7" type="Panel" parent="VBoxContainer/Rows/Headers"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0thn4")
 
 [node name="Charges" type="Label" parent="VBoxContainer/Rows/Headers/Panel7"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -192,12 +203,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Panel" type="Panel" parent="VBoxContainer/Rows/Headers"]
-custom_minimum_size = Vector2(900, 0)
+custom_minimum_size = Vector2(1280, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_mi710")
 
 [node name="Label" type="Label" parent="VBoxContainer/Rows/Headers/Panel"]
+custom_minimum_size = Vector2(1280, 0)
 layout_mode = 2
 offset_left = 8.0
 offset_top = 8.0

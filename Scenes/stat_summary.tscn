@@ -1,92 +1,74 @@
-[gd_scene load_steps=3 format=3 uid="uid://2sixqbb8jt6v"]
+[gd_scene load_steps=2 format=3 uid="uid://2sixqbb8jt6v"]
 
 [ext_resource type="Script" uid="uid://dpevjmwe3a8cb" path="res://Scenes/stat_summary.gd" id="1_lduix"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lduix"]
-bg_color = Color(0, 0, 0, 0.654902)
-
 [node name="StatSummary" type="Control"]
-custom_minimum_size = Vector2(3025, 1600)
+custom_minimum_size = Vector2(2560, 1440)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -12.5
-offset_right = 452.5
-offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.582, 0.59)
 script = ExtResource("1_lduix")
 
-[node name="Panel" type="Panel" parent="."]
-custom_minimum_size = Vector2(3025, 1600)
-layout_mode = 0
-offset_left = -1527.0
-offset_top = -831.0
-offset_right = 4578.0
-offset_bottom = 2598.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_lduix")
-
 [node name="Panel2" type="Panel" parent="."]
-custom_minimum_size = Vector2(3025, 1600)
+custom_minimum_size = Vector2(2560, 1440)
 layout_mode = 0
-offset_right = 3025.0
-offset_bottom = 1600.0
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 0
-offset_left = 228.0
+offset_left = -3.0
 offset_top = 2.0
-offset_right = 1082.0
-offset_bottom = 33.0
-scale = Vector2(3, 3)
+offset_right = 2482.0
+offset_bottom = 101.0
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 80
 text = "Elemental_Mastery Stat Summary"
 horizontal_alignment = 1
 
 [node name="UnspentSkillPointsLabel" type="RichTextLabel" parent="."]
 layout_mode = 2
-offset_left = 1308.0
-offset_top = 178.0
-offset_right = 1614.0
-offset_bottom = 270.0
-scale = Vector2(2, 2)
+offset_left = 1413.0
+offset_top = 238.0
+offset_right = 1719.0
+offset_bottom = 330.0
+scale = Vector2(1.5, 1.5)
 text = "Unspent Skill Points: 10"
 horizontal_alignment = 1
 metadata/_edit_group_ = true
 
 [node name="UnspentSkillPointsLabel2" type="RichTextLabel" parent="."]
 layout_mode = 2
-offset_left = 2047.0
-offset_top = 172.0
-offset_right = 2361.0
-offset_bottom = 266.0
-scale = Vector2(2, 2)
+offset_left = 2015.0
+offset_top = 236.0
+offset_right = 2329.0
+offset_bottom = 330.0
+scale = Vector2(1.5, 1.5)
 text = "Unspent Base Points: 10"
 horizontal_alignment = 1
 metadata/_edit_group_ = true
 
 [node name="PointsHeader" type="Label" parent="."]
 layout_mode = 0
-offset_left = 1781.0
-offset_top = 94.0
-offset_right = 1919.0
-offset_bottom = 120.0
-scale = Vector2(3, 3)
+offset_left = 1626.0
+offset_top = 130.0
+offset_right = 2194.0
+offset_bottom = 210.0
 theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 65
 text = "Point Allocation"
 
 [node name="RowPoints" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 1299.0
-offset_top = 388.0
-offset_right = 2022.0
-offset_bottom = 449.0
-scale = Vector2(2, 2)
+offset_left = 1297.0
+offset_top = 412.0
+offset_right = 2103.0
+offset_bottom = 473.0
+scale = Vector2(1.5, 1.5)
 theme_override_constants/separation = 12
 metadata/_edit_group_ = true
 
@@ -120,9 +102,9 @@ offset_left = 1415.0
 offset_top = 515.0
 offset_right = 1501.0
 offset_bottom = 541.0
-scale = Vector2(3, 3)
 theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 64
 text = "Overrides"
 
 [node name="OverridesMargin" type="MarginContainer" parent="."]
@@ -130,13 +112,13 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1510.31
-offset_top = 611.864
-offset_right = -831.691
-offset_bottom = -612.136
+offset_left = 1404.0
+offset_top = 611.0
+offset_right = -498.0
+offset_bottom = -453.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(2, 2)
+scale = Vector2(1.5, 1.5)
 metadata/_edit_group_ = true
 
 [node name="OverridesGrid" type="GridContainer" parent="OverridesMargin"]
@@ -200,27 +182,27 @@ offset_left = 240.962
 offset_top = 152.0
 offset_right = 379.962
 offset_bottom = 178.0
-scale = Vector2(3, 3)
 theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 65
 text = "Contributions"
 
 [node name="BreakdownContainer" type="GridContainer" parent="."]
 layout_mode = 0
 offset_left = 84.0
-offset_top = 306.0
+offset_top = 240.0
 offset_right = 1211.0
-offset_bottom = 1695.0
+offset_bottom = 1567.0
 scale = Vector2(0.75, 0.75)
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 25
 
 [node name="TotalHeader" type="Label" parent="."]
 layout_mode = 0
-offset_left = 658.075
-offset_top = 1232.2
-offset_right = 958.075
-offset_bottom = 1355.2
+offset_left = 743.0
+offset_top = 1277.0
+offset_right = 1043.0
+offset_bottom = 1400.0
 theme_override_colors/font_color = Color(0.886, 0.761, 0.565, 1)
 theme_override_constants/outline_size = 30
 theme_override_font_sizes/font_size = 100
@@ -228,28 +210,28 @@ text = "Total:"
 
 [node name="TotalAmountLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 964.842
-offset_top = 1232.2
-offset_right = 1195.84
-offset_bottom = 1355.2
+offset_left = 1055.0
+offset_top = 1282.0
+offset_right = 1286.0
+offset_bottom = 1405.0
 theme_override_constants/outline_size = 30
 theme_override_font_sizes/font_size = 100
 text = "23.6"
 
 [node name="ConfirmButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 2555.0
-offset_top = 1454.0
-offset_right = 2946.0
-offset_bottom = 1549.0
+offset_left = 2103.0
+offset_top = 1280.0
+offset_right = 2494.0
+offset_bottom = 1375.0
 text = "Confirm"
 
 [node name="ExitButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 2902.0
-offset_top = 32.0
-offset_right = 2960.0
-offset_bottom = 93.0
+offset_left = 2485.0
+offset_top = 12.0
+offset_right = 2543.0
+offset_bottom = 73.0
 text = "X"
 
 [connection signal="pressed" from="ConfirmButton" to="." method="_on_confirm_button_pressed"]

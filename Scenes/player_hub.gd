@@ -10,6 +10,8 @@ extends Node2D
 @onready var CriticalDamageButton = $"UI/StatButtonsContainer/Critical Damage Button"
 @onready var RegionButton = $UI/TopHotbar/RegionButton
 @onready var ElementButton = $UI/TopHotbar/ElementButton
+@onready var Mora = $UI/TopHotbar/MoraButton
+@onready var Level = $UI/TopHotbar/LvlButton
 var last_known_characters_timestamp := ""
 var music_files: Array = []
 var music_index: int = -1
@@ -34,6 +36,11 @@ func _ready() -> void:
 	role_check()
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
+
+func assign_party():
+	for party in Global.PARTY.values():
+		if party.get("Party_Member_1") == Global.ACTIVE_USER_NAME or party.get("Party_Member_2") == Global.ACTIVE_USER_NAME or party.get("Party_Member_3") == Global.ACTIVE_USER_NAME or party.get("Party_Member_4") == Global.ACTIVE_USER_NAME:
+			Global.Current_Party = party
 
 func role_check():
 	var role = Player_data.get("Role")
@@ -107,6 +114,7 @@ func set_background():
 		print("⚠️ Background image not found:", path)
 
 func set_ui():
+	assign_party()
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
 	$UI/TopHotbar/Party1Portrait.set_character(Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Party_Member_1"))
 	$UI/TopHotbar/Party2Portrait.set_character(Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Party_Member_2"))
@@ -118,6 +126,8 @@ func set_ui():
 	$"UI/GearContainer/Sands of Time".set_artifact()
 	$"UI/GearContainer/Goblet of Space".set_artifact()
 	$"UI/GearContainer/Circlet of Principles".set_artifact()
+	Mora.text = str(Global.Current_Party.get("Mora"))
+	Level.text = "Level: "+str(int(Player_data.get("Level")))+"/"+str(int(Player_data.get("Level_Cap")))
 	if Global.Region_Changed == 1:
 		set_background()
 		load_region_music(Global.Current_Region)
@@ -126,46 +136,30 @@ func set_ui():
 	set_region_button_options()
 	set_element_button_options()
 
+func _apply_stat(btn, key: String, val) -> void:
+	var pd = Player_data
+	btn.Stat = key
+	btn.StatValue = val
+	btn.AddedRoll        = pd.get("%s_Added_Roll_Bonus" % key, 0) \
+						+ pd.get("%s_Manual_Roll_Added_Amount_Override" % key, 0)
+	btn.MultipliedRoll  = 1 + pd.get("%s_Multiplier_Roll_Bonus" % key, 0.0) \
+						  + pd.get("%s_Manual_Roll_Multiplier_Amount_Override" % key, 0.0)
+	btn.AddedDamage     = pd.get("%s_Added_Damage_Bonus" % key, 0) \
+						+ pd.get("%s_Manual_Damage_Added_Amount_Override" % key, 0)
+	btn.MultipliedDamage = 1 + pd.get("%s_Multiplier_Damage_Bonus" % key, 0.0) \
+						   + pd.get("%s_Manual_Damage_Multiplier_Amount_Override" % key, 0.0)
 
 func set_stats():
 	Player_data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
-	HealthButton.Stat = "Health"
-	HealthButton.StatValue = Global.Current_Health
-	HealthButton.AddedRoll = Player_data["Health_Added_Roll_Bonus"]
-	HealthButton.MultipliedRoll = 1+Player_data["Health_Multiplier_Roll_Bonus"]
-	HealthButton.AddedDamage = Player_data["Health_Added_Damage_Bonus"]
-	HealthButton.MultipliedDamage = 1+Player_data["Health_Multiplier_Damage_Bonus"]
-	AttackButton.Stat = "Attack"
-	AttackButton.StatValue = Global.Current_Attack
-	AttackButton.AddedRoll = Player_data["Attack_Added_Roll_Bonus"]
-	AttackButton.MultipliedRoll = 1+Player_data["Attack_Multiplier_Roll_Bonus"]
-	AttackButton.AddedDamage = Player_data["Attack_Added_Damage_Bonus"]
-	AttackButton.MultipliedDamage = 1+Player_data["Attack_Multiplier_Damage_Bonus"]
-	DefenseButton.Stat = "Defense"
-	DefenseButton.StatValue = Global.Current_Defense
-	DefenseButton.AddedRoll = Player_data["Defense_Added_Roll_Bonus"]
-	DefenseButton.MultipliedRoll = 1+Player_data["Defense_Multiplier_Roll_Bonus"]
-	DefenseButton.AddedDamage = Player_data["Defense_Added_Damage_Bonus"]
-	DefenseButton.MultipliedDamage = 1+Player_data["Defense_Multiplier_Damage_Bonus"]
-	ElementalMasteryButton.Stat = "Elemental_Mastery"
-	ElementalMasteryButton.StatValue = Global.Current_Elemental_Mastery
-	ElementalMasteryButton.AddedRoll = Player_data["Elemental_Mastery_Added_Roll_Bonus"]
-	ElementalMasteryButton.MultipliedRoll = 1+Player_data["Elemental_Mastery_Multiplier_Roll_Bonus"]
-	ElementalMasteryButton.AddedDamage = Player_data["Elemental_Mastery_Added_Damage_Bonus"]
-	ElementalMasteryButton.MultipliedDamage = 1+Player_data["Elemental_Mastery_Multiplier_Damage_Bonus"]
-	EnergyRechargeButton.Stat = "Energy_Recharge"
-	EnergyRechargeButton.StatValue = Global.Current_Energy_Recharge
-	EnergyRechargeButton.AddedRoll = Player_data["Energy_Recharge_Added_Roll_Bonus"]
-	EnergyRechargeButton.MultipliedRoll = 1+Player_data["Energy_Recharge_Multiplier_Roll_Bonus"]
-	EnergyRechargeButton.AddedDamage = Player_data["Energy_Recharge_Added_Damage_Bonus"]
-	EnergyRechargeButton.MultipliedDamage = 1+Player_data["Energy_Recharge_Multiplier_Damage_Bonus"]
-	ElementalMasteryButton.MultipliedDamage = 1+Player_data["Energy_Recharge_Multiplier_Damage_Bonus"]
-	CriticalDamageButton.Stat = "Critical_Damage"
-	CriticalDamageButton.StatValue = Global.Current_Critical_Damage
-	CriticalDamageButton.AddedRoll = Player_data["Critical_Damage_Added_Roll_Bonus"]
-	CriticalDamageButton.MultipliedRoll = 1+Player_data["Critical_Damage_Multiplier_Roll_Bonus"]
-	CriticalDamageButton.AddedDamage = Player_data["Critical_Damage_Added_Damage_Bonus"]
-	CriticalDamageButton.MultipliedDamage = 1+Player_data["Critical_Damage_Multiplier_Damage_Bonus"]
+	var rows = [
+	[HealthButton,            "Health",             Global.Current_Health],
+	[AttackButton,            "Attack",             Global.Current_Attack],
+	[DefenseButton,           "Defense",            Global.Current_Defense],
+	[ElementalMasteryButton,  "Elemental_Mastery",  Global.Current_Elemental_Mastery],
+	[EnergyRechargeButton,    "Energy_Recharge",    Global.Current_Energy_Recharge],
+	[CriticalDamageButton,    "Critical_Damage",    Global.Current_Critical_Damage],]
+	for r in rows:
+		_apply_stat(r[0], r[1], r[2])
 	
 	HealthButton.set_stats()
 	AttackButton.set_stats()
@@ -194,8 +188,19 @@ func _on_health_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
@@ -204,8 +209,19 @@ func _on_attack_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
@@ -214,8 +230,19 @@ func _on_defense_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
@@ -224,8 +251,19 @@ func _on_elemental_mastery_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
@@ -234,8 +272,19 @@ func _on_energy_recharge_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
@@ -244,19 +293,40 @@ func _on_critical_damage_button_pressed() -> void:
 	print ("Toggling Stat Panel for: " + Selected_Stat)
 	var s: PackedScene = preload("res://Scenes/stat_summary.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(402.0, 247.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.update_stat_summary(Selected_Stat)
 	pass # Replace with function body.
 
 
 func _on_weapon_button_pressed() -> void:
 	print ("Weapon Button has been pressed")
-	var detail_scene = preload("res://Scenes/weapon_detail_scene.tscn").instantiate()
-	# Make sure the root node is not using anchors or layout presets
-	detail_scene.set_position(Vector2(399.0, 249.0))
-	# Add to the current scene
-	add_child(detail_scene)
+	var s = preload("res://Scenes/weapon_detail_scene.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pass # Replace with function body.
 
 
@@ -410,8 +480,19 @@ func _on_element_button_item_selected(index: int) -> void:
 func _open_artifact_detail(slot_short: String) -> void:
 	var s: PackedScene = preload("res://Scenes/artifact_detail_scene.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(399.0, 249.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dlg.open_for_type(slot_short)
 
 func _on_flower_of_life_pressed() -> void:
@@ -447,25 +528,57 @@ func _on_circlet_of_principles_pressed() -> void:
 func _on_crafting_button_pressed() -> void:
 	var s: PackedScene = preload("res://Scenes/CraftingMenu.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(399.0, 249.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pass # Replace with function body.
 
 
 func _on_inventory_button_pressed() -> void:
 	var s: PackedScene = preload("res://Scenes/PlayerInventory.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(775.0, 249.0))
-	add_child(dlg)
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pass # Replace with function body.
 
 
 func _on_talents_button_pressed() -> void:
 	var s: PackedScene = preload("res://UI/Tabs.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(399.0, 249.0))
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
 	dlg.TableType = "Talents"
-	add_child(dlg)
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	
 	pass # Replace with function body.
 
@@ -473,9 +586,19 @@ func _on_talents_button_pressed() -> void:
 func _on_constellations_button_pressed() -> void:
 	var s: PackedScene = preload("res://UI/Tabs.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(399.0, 249.0))
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
 	dlg.TableType = "Constellations"
-	add_child(dlg)
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	
 	pass # Replace with function body.
 
@@ -483,9 +606,20 @@ func _on_constellations_button_pressed() -> void:
 func _on_abilities_button_pressed() -> void:
 	var s: PackedScene = preload("res://UI/Tabs.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(399.0, 249.0))
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
 	dlg.TableType = "Abilities"
-	add_child(dlg)
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
 	
 	pass # Replace with function body.
 
@@ -493,11 +627,71 @@ func _on_abilities_button_pressed() -> void:
 func _on_bug_button_pressed() -> void:
 	var s: PackedScene = preload("res://Scenes/FeedbackPopup.tscn")
 	var dlg = s.instantiate()
-	dlg.set_position(Vector2(775.0, 450.0))
+	dlg.position = Vector2(800,450)
 	add_child(dlg)
+
+
 	pass # Replace with function body.
 
 
 func _on_refresh_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+	pass # Replace with function body.
+
+
+func _on_gather_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/gathering.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_market_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/MarketPanel.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_research_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/ResearchPanel.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	dlg.open_auto()
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pass # Replace with function body.

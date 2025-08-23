@@ -4,14 +4,14 @@
 [ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="2_bp5ip"]
 
 [node name="ArtifactListItem" type="GridContainer"]
-offset_right = 2929.0
+offset_right = 2462.0
 offset_bottom = 96.0
 size_flags_horizontal = 3
 columns = 12
 script = ExtResource("1_tw8f8")
 
 [node name="NameLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("2_bp5ip")
@@ -85,7 +85,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="2PieceSetLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(490, 0)
 layout_mode = 2
 theme = ExtResource("2_bp5ip")
 theme_override_constants/outline_size = 20
@@ -97,7 +97,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="4PieceSetLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(490, 0)
 layout_mode = 2
 theme = ExtResource("2_bp5ip")
 theme_override_constants/outline_size = 20
@@ -109,12 +109,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="EquipCheck" type="CheckBox" parent="."]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(229, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 8.94
 theme = ExtResource("2_bp5ip")
 theme_override_constants/outline_size = 20
-text = "Equipped?"
+text = "Equipped"
 icon_alignment = 1
 expand_icon = true
 

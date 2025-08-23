@@ -1,29 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://d26cpxh2w46rm"]
+[gd_scene load_steps=2 format=3 uid="uid://d26cpxh2w46rm"]
 
 [ext_resource type="Script" uid="uid://cxd0x86veagl8" path="res://Scenes/CraftingMenu.gd" id="1_0ka71"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ka71"]
-bg_color = Color(0, 0, 0, 0.52549)
-
 [node name="CraftingMenu" type="Control"]
-custom_minimum_size = Vector2(1765, 940)
+custom_minimum_size = Vector2(2560, 1440)
 layout_mode = 3
 anchor_right = 0.689
 anchor_bottom = 0.639
-offset_right = 1.15991
-offset_bottom = -20.1601
+offset_right = 796.16
+offset_bottom = 519.84
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_0ka71")
-
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 0
-offset_left = -1733.0
-offset_top = -927.0
-offset_right = 3124.0
-offset_bottom = 2067.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_0ka71")
 
 [node name="HSplit" type="HSplitContainer" parent="."]
 layout_mode = 2
@@ -123,6 +112,7 @@ autowrap_mode = 2
 layout_mode = 2
 
 [node name="IngredientsVBox" type="VBoxContainer" parent="HSplit/RightPanel/RightVBox"]
+custom_minimum_size = Vector2(0, 1170)
 layout_mode = 2
 theme_override_constants/separation = 6
 
@@ -272,10 +262,10 @@ text = "Confirm Craft"
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 1708.0
-offset_top = 7.0
-offset_right = 1751.0
-offset_bottom = 67.0
+offset_left = 2494.0
+offset_top = 15.0
+offset_right = 2537.0
+offset_bottom = 75.0
 text = "X"
 
 [connection signal="pressed" from="HSplit/RightPanel/RightVBox/BottomBar/Confirm" to="." method="_on_confirm_pressed"]

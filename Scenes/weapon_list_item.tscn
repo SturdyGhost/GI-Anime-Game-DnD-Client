@@ -11,7 +11,7 @@ columns = 12
 script = ExtResource("1_1sh45")
 
 [node name="NameLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(500, 0)
+custom_minimum_size = Vector2(450, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("2_ph1v8")
@@ -61,7 +61,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Stat1TypeLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme = ExtResource("2_ph1v8")
 theme_override_constants/outline_size = 20
@@ -85,7 +85,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Stat2TypeLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme = ExtResource("2_ph1v8")
 theme_override_constants/outline_size = 20
@@ -109,7 +109,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Stat3TypeLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme = ExtResource("2_ph1v8")
 theme_override_constants/outline_size = 20
@@ -133,7 +133,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="EffectLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 theme = ExtResource("2_ph1v8")
 theme_override_constants/outline_size = 20
@@ -150,6 +150,6 @@ layout_mode = 2
 size_flags_stretch_ratio = 8.94
 theme = ExtResource("2_ph1v8")
 theme_override_constants/outline_size = 20
-text = "Equipped?"
+text = "Equip"
 icon_alignment = 1
 expand_icon = true

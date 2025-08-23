@@ -19,10 +19,11 @@ func _on_table_loaded(table_name: String, count: int):
 	Tables_Processed += 1
 	update_progress_bar()
 
+
 func _on_all_tables_loaded():
 	print("✅ All tables loaded. Moving to hub.")
 	print ("Total Records: " + str(Global.total_records))
-	get_tree().change_scene_to_file("res://Scene's/player_hub.tscn")
+	get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 
 
 func update_progress_bar():

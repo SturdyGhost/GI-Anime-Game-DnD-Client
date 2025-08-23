@@ -1,36 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://k8bhe4qimiob"]
+[gd_scene load_steps=3 format=3 uid="uid://k8bhe4qimiob"]
 
 [ext_resource type="Script" uid="uid://c53pkn8fsqd88" path="res://Scenes/artifact_detail_scene.gd" id="2_xcndu"]
 [ext_resource type="PackedScene" uid="uid://ndfu2mntb27c" path="res://Scenes/artifact_preview.tscn" id="3_6n48t"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skxm6"]
-bg_color = Color(0, 0, 0, 0.568627)
-
 [node name="ArtifactDetailScene" type="Control"]
-custom_minimum_size = Vector2(3000, 1600)
+custom_minimum_size = Vector2(2560, 1440)
 layout_mode = 3
 anchors_preset = 0
-offset_left = 399.0
-offset_top = 249.0
-offset_right = 3399.0
-offset_bottom = 1849.0
-scale = Vector2(0.588, 0.588)
+offset_right = 2560.0
+offset_bottom = 1440.0
 script = ExtResource("2_xcndu")
 
-[node name="PauseBackground" type="Panel" parent="."]
-custom_minimum_size = Vector2(3000, 1600)
-layout_mode = 0
-offset_left = -1168.0
-offset_top = -891.0
-offset_right = 3978.0
-offset_bottom = 2497.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_skxm6")
-
 [node name="PauseBackground2" type="Panel" parent="."]
-custom_minimum_size = Vector2(3000, 1600)
 layout_mode = 0
-offset_right = 2857.0
-offset_bottom = 1598.0
+offset_right = 2560.0
+offset_bottom = 1440.0
 
 [node name="StatPreviewPanel" type="Panel" parent="."]
 visible = false
@@ -46,13 +30,14 @@ anchors_preset = -1
 anchor_top = 0.391
 anchor_right = 0.953
 anchor_bottom = 0.962
-offset_left = 11.3946
-offset_top = -51.981
-offset_right = 131.395
-offset_bottom = 39.3308
+offset_left = 50.0
+offset_top = -56.04
+offset_right = 60.3201
+offset_bottom = 35.72
 
 [node name="SearchBar" type="LineEdit" parent="VBoxContainer"]
 layout_mode = 2
+placeholder_text = "Search for artifacts..."
 alignment = 1
 
 [node name="ArtifactHeaderRow" type="HBoxContainer" parent="VBoxContainer"]
@@ -60,7 +45,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 
 [node name="NameButton" type="Button" parent="VBoxContainer/ArtifactHeaderRow"]
-custom_minimum_size = Vector2(400, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 text = "Name"
 
@@ -96,19 +81,19 @@ text = "Stat 2
 Value"
 
 [node name="2PieceSetButton" type="Button" parent="VBoxContainer/ArtifactHeaderRow"]
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(490, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "2-Piece Set Bonus"
 
 [node name="4PieceSetButton" type="Button" parent="VBoxContainer/ArtifactHeaderRow"]
-custom_minimum_size = Vector2(700, 0)
+custom_minimum_size = Vector2(490, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "4-Piece Set Bonus"
 
 [node name="EquippedButton" type="Button" parent="VBoxContainer/ArtifactHeaderRow"]
-custom_minimum_size = Vector2(240, 0)
+custom_minimum_size = Vector2(229, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "Equipped"
@@ -133,10 +118,10 @@ anchor_left = 0.955
 anchor_top = 0.03
 anchor_right = 0.981
 anchor_bottom = 0.083
-offset_left = 0.401978
-offset_top = -0.137367
-offset_right = 20.1936
-offset_bottom = 24.229
+offset_left = 52.2
+offset_top = -31.2
+offset_right = 71.9915
+offset_bottom = -6.83364
 grow_horizontal = 0
 scale = Vector2(0.6, 0.6)
 text = "X"
@@ -145,9 +130,9 @@ icon_alignment = 1
 [node name="Error Label" type="Label" parent="."]
 layout_mode = 0
 offset_left = 39.0
-offset_top = 515.912
-offset_right = 2969.0
-offset_bottom = 560.912
+offset_top = 459.0
+offset_right = 2480.0
+offset_bottom = 499.0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 20
@@ -163,13 +148,15 @@ offset_left = 20.4082
 offset_top = 18.7075
 offset_right = 1396.41
 offset_bottom = 498.707
+scale = Vector2(0.9, 0.9)
 
 [node name="SelectedArtifactPreview" parent="." instance=ExtResource("3_6n48t")]
 layout_mode = 0
-offset_left = 1447.28
-offset_top = 18.7075
-offset_right = 2823.28
-offset_bottom = 498.707
+offset_left = 1258.0
+offset_top = 20.0
+offset_right = 2634.0
+offset_bottom = 500.0
+scale = Vector2(0.9, 0.9)
 
 [connection signal="pressed" from="VBoxContainer/ConfirmButton" to="." method="_on_confirm_button_pressed"]
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
