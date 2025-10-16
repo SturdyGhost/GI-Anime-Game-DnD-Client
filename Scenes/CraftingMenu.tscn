@@ -7,8 +7,9 @@ custom_minimum_size = Vector2(2560, 1440)
 layout_mode = 3
 anchor_right = 0.689
 anchor_bottom = 0.639
+offset_top = 18.0
 offset_right = 796.16
-offset_bottom = 519.84
+offset_bottom = 537.84
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
@@ -18,6 +19,8 @@ script = ExtResource("1_0ka71")
 layout_mode = 2
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -46.0
+offset_bottom = -57.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -65,7 +68,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="RightVBox" type="VBoxContainer" parent="HSplit/RightPanel"]
-custom_minimum_size = Vector2(680, 0)
+custom_minimum_size = Vector2(650, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -102,6 +105,7 @@ layout_mode = 2
 text = "Region: —"
 
 [node name="Desc" type="RichTextLabel" parent="HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 bbcode_enabled = true
 fit_content = true
@@ -112,7 +116,7 @@ autowrap_mode = 2
 layout_mode = 2
 
 [node name="IngredientsVBox" type="VBoxContainer" parent="HSplit/RightPanel/RightVBox"]
-custom_minimum_size = Vector2(0, 1170)
+custom_minimum_size = Vector2(0, 1000)
 layout_mode = 2
 theme_override_constants/separation = 6
 
@@ -262,10 +266,10 @@ text = "Confirm Craft"
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 2494.0
-offset_top = 15.0
-offset_right = 2537.0
-offset_bottom = 75.0
+offset_left = 2452.0
+offset_top = 16.0
+offset_right = 2495.0
+offset_bottom = 76.0
 text = "X"
 
 [connection signal="pressed" from="HSplit/RightPanel/RightVBox/BottomBar/Confirm" to="." method="_on_confirm_pressed"]

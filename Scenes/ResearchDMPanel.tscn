@@ -87,3 +87,16 @@ text = "Push Image"
 [node name="EndBtn" type="Button" parent="Margin/VBox"]
 layout_mode = 2
 text = "End Session"
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.008
+anchor_bottom = 0.042
+offset_left = 2174.0
+offset_top = 23.0
+offset_right = 2196.52
+offset_bottom = 22.52
+text = "X"
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

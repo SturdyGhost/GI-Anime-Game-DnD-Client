@@ -267,28 +267,59 @@ func _build_recipe_buttons() -> void:
 
 	_log("[_build_recipe_buttons] built_buttons=%d (visible_products=%d)" % [recipe_list.get_child_count(), _visible_products.size()])
 
-# Replace your existing _filter_products with this:
+# Replace your existing _filter_products with this (Godot 4.4.1)
+
 func _filter_products(query: String) -> Array[String]:
 	var out: Array[String] = []
+	var seen: Dictionary = {}
 
-	if query.strip_edges() == "":
-		# keys() returns Array (Variant); coerce to Array[String]
+	var q: String = query.strip_edges()
+	if q == "":
 		for k in _grouped_recipes.keys():
-			out.append(str(k))
-		# Strings -> simple lexicographic sort is fine
+			var s = str(k)
+			if not seen.has(s):
+				seen[s] = true
+				out.append(s)
 		out.sort()
 		return out
 
-	var q: String = query.to_lower()
+	var ql: String = q.to_lower()
+
 	for p in _grouped_recipes.keys():
-		var product: String = str(p)
-		var meta: Dictionary = _grouped_recipes[product]["meta"]
-		var region: String = str(meta.get("Region", ""))
-		if product.to_lower().find(q) != -1 or region.to_lower().find(q) != -1:
-			out.append(product)
+		var product_key_str: String = str(p)  # what we'll return
+		var entry: Dictionary = _grouped_recipes[p]
+		var meta: Dictionary = {}
+		if entry.has("meta"):
+			meta = entry["meta"]
+
+		var meta_product: String = _meta_pick_str(meta, ["Product", "product"])
+		var meta_region: String = _meta_pick_str(meta, ["Region", "region"])
+		var meta_desc:   String = _meta_pick_str(meta, ["Description", "description"])
+
+		# Match if any meta field contains the query (case-insensitive)
+		var mtch: bool = false
+		if meta_product.to_lower().find(ql) != -1:
+			mtch = true
+		elif meta_region.to_lower().find(ql) != -1:
+			mtch = true
+		elif meta_desc.to_lower().find(ql) != -1:
+			mtch = true
+
+		if mtch:
+			if not seen.has(product_key_str):
+				seen[product_key_str] = true
+				out.append(product_key_str)
 
 	out.sort()
 	return out
+
+
+# Helper: return first present field from "meta" as string, else ""
+func _meta_pick_str(meta: Dictionary, keys: Array) -> String:
+	for k in keys:
+		if meta.has(k):
+			return str(meta[k])
+	return ""
 
 
 func _on_search_changed(_t: String) -> void:

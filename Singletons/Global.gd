@@ -2,7 +2,9 @@ extends Node
 
 var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party"]
+var ACTIVE_USER_TYPE: String = ""
+var ACTIVE_USER_RECORD_ID: float
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Attacks","Battle_Turns"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
@@ -12,8 +14,10 @@ var COMPANIONS: Dictionary = {}
 var CRAFTING_RECIPES: Dictionary = {}
 var ITEMS: Dictionary = {}
 var ENEMIES: Dictionary = {}
+var ATTACKS: Dictionary = {}
 var CHARACTERS: Dictionary = {}
 var BATTLEENEMIES: Dictionary = {}
+var BATTLE_TURNS: Array = []
 var CHARACTER_ITEMS: Dictionary = {}
 var CHARACTER_WEAPONS: Dictionary = {}
 var CHARACTER_ARTIFACTS: Dictionary = {}
@@ -42,6 +46,7 @@ var Current_Energy_Recharge
 var Current_Critical_Damage
 var Current_Weapon
 var Polling_Timer
+var EnemyList = []
 var set_count = {}
 var set_pieces 
 var Current_Party
@@ -52,6 +57,7 @@ var elapsed
 var set_modifiers := {}
 var artifact_set_calculated = 0
 var Region_Changed = 1
+var PublicIP
 var watched_tables := [
 	"Characters",
 	"Character_Items",
@@ -60,7 +66,8 @@ var watched_tables := [
 	"Talents",
 	"Constellations",
 	"BattleEnemies",
-	"Party"
+	"Party",
+	"Battle_Turns"
 ]
 var last_known_timestamps := {}  # Dictionary<String, String>
 var APPLIED_ARTIFACT_BONUSES := {}  # key: character name, value: list of {stat: ..., amount: ...}
@@ -77,6 +84,7 @@ var Current_Region:
 signal table_loaded(table_name: String, records_loaded: int)
 signal data_load_complete
 
+
 const API_BASE: String = "https://api.mydndbackend.party"
 var scaling = {
 	"Health": 2.0,
@@ -86,8 +94,12 @@ var scaling = {
 	"Energy_Recharge": 0.1,
 	"Critical_Damage": 0.1,
 }
+signal insert_finished(correlation_id: String, table: String, record_id: int, payload: Dictionary, ok: bool)
 
+var _next_insert_corr_id: String = ""
 
+func set_next_correlation_id(id_value: String) -> void:
+	_next_insert_corr_id = id_value
 
 
 
@@ -177,9 +189,13 @@ func calculate_all_stats() -> void:
 		var multiplier = character.get("%s_Multiplier_Stat_Bonus" % stat, 0.0)
 		var AddEdit = character.get("%s_Manual_Added_Amount_Override" % stat, 0)
 		var MultEdit = character.get("%s_Manual_Multiplier_Amount_Override" % stat, 0.0)
+		var uadded = character.get("Universal_Added_Stat_Bonus", 0)
+		var umultiplier = character.get("Universal_Multiplier_Stat_Bonus", 0.0)
+
+		
 		
 
-		var value = (((base + skill) * scaling[stat]) + added + AddEdit)
+		var value = (((base + skill) * scaling[stat]) + added + AddEdit+uadded)
 
 		# Apply weapon bonuses
 		for weapon in CHARACTER_WEAPONS.values():
@@ -197,7 +213,7 @@ func calculate_all_stats() -> void:
 						value += artifact.get("Stat_%d_Value" % i, 0)
 
 		# Apply final multiplier
-		value *= (multiplier + MultEdit + 1.0)
+		value *= (multiplier + MultEdit + umultiplier + 1.0)
 
 		variable_name = stat.replace(" ", "_")
 		Global.set("Current_%s" % variable_name, snapped(value, 0.01))
@@ -384,7 +400,8 @@ func _on_all_tables_loaded(result: int, code: int, headers: PackedStringArray, b
 		var records = data[table_name]
 		_process_table(table_name, records)
 		
-	calculate_all_stats()
+	if ACTIVE_USER_TYPE == "Player":
+		calculate_all_stats()
 	Current_Region = CHARACTERS[CHARACTERS_NAME[ACTIVE_USER_NAME]].get("Current_Region")
 
 	# ✅ commit versions only after successful apply
@@ -394,6 +411,7 @@ func _on_all_tables_loaded(result: int, code: int, headers: PackedStringArray, b
 			pending_timestamps.erase(t)
 
 	emit_signal("data_load_complete")
+	print ("Emitting data_load_complete")
 
 func _commit_pending_timestamps(tables: Array) -> void:
 	for t in tables:
@@ -439,8 +457,10 @@ func _process_table(table_name: String, records: Array) -> void:
 		"Enemies":
 			for record in records:
 				ENEMIES[str(record["id"])] = record
+				EnemyList.append(record.get("name"))
 
 		"BattleEnemies":
+			BATTLEENEMIES = {}
 			for record in records:
 				BATTLEENEMIES[str(record["id"])] = record
 
@@ -471,6 +491,14 @@ func _process_table(table_name: String, records: Array) -> void:
 		"Party":
 			for record in records:
 				PARTY[str(record["id"])] = record
+
+		"Attacks":
+			for record in records:
+				ATTACKS[str(record["id"])] = record
+
+		"Battle_Turns":
+			for record in records:
+				BATTLE_TURNS.append(record)
 
 		_:
 			pass
@@ -515,7 +543,8 @@ func _apply_local_update(table_name: String, record_id: String, field: String, v
 
 func Update_Records(updates: Array) -> void:
 	# Pause poller like you already do
-	Global.Polling_Timer.paused = true
+	if Global.Polling_Timer != null:
+		Global.Polling_Timer.paused = true
 
 	# ✅ Only tag; do NOT modify your local dictionaries here
 	for u in updates:
@@ -544,8 +573,8 @@ func Insert(table: String, columns: Array, values: Array) -> void:
 		return
 
 	# Pause poller like Update_Records
-
-	Global.Polling_Timer.paused = true
+	if Global.Polling_Timer != null:
+		Global.Polling_Timer.paused = true
 
 	var http_request := HTTPRequest.new()
 	add_child(http_request)
@@ -557,50 +586,136 @@ func Insert(table: String, columns: Array, values: Array) -> void:
 		"columns": columns,
 		"values": values
 	}
+	# >>> NEW: grab & include correlation_id (if a caller set it)
+	var corr_id = _next_insert_corr_id
+	if corr_id != "":
+		payload["correlation_id"] = corr_id
+		_next_insert_corr_id = ""  # clear latch so it’s single-use
+
 	request_start_time = Time.get_ticks_msec() / 1000.0
-	http_request.request_completed.connect(_on_insert_response.bind(http_request, table, columns))
+
+	# >>> NEW: bind corr_id into the response handler
+	http_request.request_completed.connect(
+		_on_insert_response.bind(http_request, table, columns, corr_id)
+	)
+
 	var err := http_request.request(url, headers, HTTPClient.METHOD_POST, JSON.stringify(payload))
 	if err != OK:
 		push_error("Insert: HTTP request failed to start (%s)" % str(err))
-		# resume poller if request didn't start
 		if Global.has("Polling_Timer") and Global.Polling_Timer:
 			Global.Polling_Timer.paused = false
 
+# --- Remove a row by id from a table ---
+func Remove_Record(table: String, record_id: int) -> void:
+	# Guards
+	if table.strip_edges() == "":
+		push_warning("Remove_Record: table is empty")
+		return
+	if typeof(record_id) != TYPE_INT and typeof(record_id) != TYPE_FLOAT:
+		push_warning("Remove_Record: record_id must be a number")
+		return
 
-func _on_insert_response(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http_node: HTTPRequest, table: String, columns: Array) -> void:
+	# Pause poller (same behavior as Insert/Update)
+	if Global.Polling_Timer != null:
+		Global.Polling_Timer.paused = true
+
+	var http_request := HTTPRequest.new()
+	add_child(http_request)
+
+	var url := API_BASE + "/remove_record"
+	var headers := ["Content-Type: application/json"]
+	var body_dict := {
+		"table": table,
+		"record_id": int(record_id)
+	}
+	var body = JSON.stringify(body_dict)
+
+	request_start_time = Time.get_ticks_msec() / 1000.0
+	http_request.request_completed.connect(_on_remove_response.bind(http_request, table, int(record_id)))
+	var err := http_request.request(url, headers, HTTPClient.METHOD_DELETE, body)
+	if err != OK:
+		push_error("Remove_Record: HTTP request failed to start (%s)" % str(err))
+		# resume poller if request didn't start
+		if Global.Polling_Timer != null:
+			Global.Polling_Timer.paused = false
+
+
+func _on_remove_response(result: int,response_code: int,_headers: PackedStringArray,body: PackedByteArray,http_node: HTTPRequest,table: String,record_id: int) -> void:
 	var took = (Time.get_ticks_msec() / 1000.0) - request_start_time
 	var text = body.get_string_from_utf8()
-	var parsed = {}
+	var parsed: Dictionary = {}
 	if text != "":
-		parsed = JSON.parse_string(text)
+		var p = JSON.parse_string(text)
+		if typeof(p) == TYPE_DICTIONARY:
+			parsed = p
 
-	# Clean up the node
+	# Clean up request node
 	if is_instance_valid(http_node):
 		http_node.queue_free()
 
 	# Unpause poller
+	if Global.Polling_Timer != null:
+		Global.Polling_Timer.paused = false
 
-	Global.Polling_Timer.paused = false
+	var ok := (result == HTTPRequest.RESULT_SUCCESS and response_code >= 200 and response_code < 300)
 
-	# Basic status check
-	if result != HTTPRequest.RESULT_SUCCESS:
-		push_error("Insert: transport error (result=%s) in %.3fs" % [str(result), took])
+	if not ok:
+		push_error("Remove_Record: transport/server error (result=%s, http=%s) -> %s (%.3fs)"
+			% [str(result), str(response_code), text, took])
+		if has_method("Log"):
+			Global.Log("HTTP.Delete", "error", table, str(record_id), {}, parsed, {}, "failure", "error")
 		return
 
-	if response_code < 200 or response_code >= 300:
-		push_error("Insert: server error %d -> %s" % [response_code, text])
-		return
-
-	# Success path — your Flask returns { ok: True/False, inserted_primary_key: [...] } or {status:"success"}
-	if typeof(parsed) == TYPE_DICTIONARY:
-		if parsed.has("ok") and parsed["ok"] == true:
-			print("Insert OK into %s cols=%s pk=%s (%.3fs)" % [table, columns, str(parsed.get("inserted_primary_key", [])), took])
-		elif parsed.has("status") and str(parsed["status"]).to_lower() == "success":
-			print("Insert OK into %s cols=%s (%.3fs)" % [table, columns, took])
-		else:
-			print("Insert response: %s (%.3fs)" % [text, took])
+	# Success path
+	if parsed.has("success") and parsed["success"] == true:
+		var rows := int(parsed.get("rows_affected", 1))
+		print("Removed from %s id=%s (rows=%d) in %.3fs" % [table, str(record_id), rows, took])
 	else:
-		print("Insert raw response: %s (%.3fs)" % [text, took])
+		print("Remove_Record response: %s (%.3fs)" % [text, took])
+
+	# Refresh any local caches keyed by this table (matches your pattern)
+	Global.Refresh_Data([table])
+
+	# Audit log
+	if has_method("Log"):
+		Global.Log("HTTP.Delete", "remove_record", table, str(record_id), {}, parsed, {}, "success", "audit")
+
+func _on_insert_response(result: int,response_code: int,_headers: PackedStringArray,body: PackedByteArray,http_node: HTTPRequest,table: String,columns: Array,correlation_id: String) -> void:
+	var took = (Time.get_ticks_msec() / 1000.0) - request_start_time
+	var text = body.get_string_from_utf8()
+	var parsed: Dictionary = {}
+	if text != "":
+		var p = JSON.parse_string(text)
+		if typeof(p) == TYPE_DICTIONARY:
+			parsed = p
+
+	if is_instance_valid(http_node):
+		http_node.queue_free()
+	if Global.Polling_Timer != null:
+		Global.Polling_Timer.paused = false
+
+	var ok := (result == HTTPRequest.RESULT_SUCCESS and response_code >= 200 and response_code < 300)
+	if not ok:
+		push_error("Insert: transport/server error (result=%s, http=%s) in %.3fs" % [str(result), str(response_code), took])
+		emit_signal("insert_finished", correlation_id, table, -1, parsed, false)
+		return
+
+	# Success
+	var record_id := -1
+	if parsed.has("record_id"):
+		record_id = int(parsed["record_id"])
+	# If your Flask echoes correlation_id back, prefer that (optional)
+	if parsed.has("correlation_id") and str(parsed["correlation_id"]) != "":
+		correlation_id = str(parsed["correlation_id"])
+
+	if parsed.has("status") and str(parsed["status"]).to_lower() == "success":
+		print("Insert OK into %s cols=%s record_id=%s (%.3fs)" % [table, columns, str(record_id), took])
+	else:
+		print("Insert response: %s (%.3fs)" % [text, took])
+
+	# >>> Notify whoever initiated this insert
+	emit_signal("insert_finished", correlation_id, table, record_id, parsed, true)
+
 	Global.Refresh_Data([table])
 	
 func _on_multi_update_response(result, code, headers, body, request_node):
@@ -666,6 +781,28 @@ func equip_artifact(slot_type: String, record_id: String) -> bool:
 	# Recalculate overall stats
 	calculate_all_stats()
 	return true
+
+func find_substring_matches_ci(query_text: String, source_list: Array) -> Array:
+	var q: String = query_text.strip_edges()
+	if q == "":
+		return []
+
+	var ql: String = q.to_lower()
+	var matches: Array = []
+
+	for item in source_list:
+		var s: String = str(item)
+		if s.to_lower().find(ql) != -1:
+			matches.append(s)
+
+	# Sort alphabetically ignoring case
+	matches.sort_custom(Callable(self, "_ci_less"))
+	return matches
+
+
+func _ci_less(a: String, b: String) -> bool:
+	# nocasecmp_to returns negative if a < b (case-insensitive)
+	return a.nocasecmp_to(b) < 0
 
 # Non-destructive preview: returns a dict of final stats if this record were equipped
 func preview_stats_with_artifact(slot_type: String, record_id: String) -> Dictionary:
@@ -743,11 +880,22 @@ func Log(category: String, action: String, related_type: String = "", related_id
 	var scene_name = ""
 	if get_tree().current_scene != null:
 		scene_name = get_tree().current_scene.name
-
 	var meta: Dictionary = {
 		"scene": scene_name,
 		"client_time": Time.get_datetime_string_from_system(),
-		"client_version": ProjectSettings.get_setting("application/config/version", "dev")
+		"client_version": ProjectSettings.get_setting("application/config/version", "dev"),
+		"client_locale_info": OS.get_locale(),
+		"client_memory_info": OS.get_memory_info(),
+		"client_OS_type": OS.get_name(),
+		"client_OS_version": OS.get_version(),
+		"client_OS_version_alias": OS.get_version_alias(),
+		"client_CPU_info": OS.get_processor_name(),
+		"client_GPU_info": OS.get_video_adapter_driver_info(),
+		"client_audio_device": AudioServer.output_device,
+		"client_audio_driver": AudioServer.get_driver_name(),
+		"client_audio_device_list" : AudioServer.get_output_device_list(),
+		"client_public_ip_address": PublicIP,
+		"client_internal_ip_address": str(IP.resolve_hostname(str(OS.get_environment("COMPUTERNAME")), IP.TYPE_IPV4))
 	}
 	for k in metadata.keys():
 		meta[k] = metadata[k]

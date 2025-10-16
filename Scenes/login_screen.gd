@@ -44,11 +44,16 @@ func _on_http_request_request_completed(result: int, response_code: int, headers
 						"Player":
 							Global.ACTIVE_USER_EMAIL = hash_email($Container/UserEmailField.text.strip_edges().to_lower())
 							Global.ACTIVE_USER_NAME = record["Name"]
+							Global.ACTIVE_USER_RECORD_ID = record["id"]
 							get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+							Global.ACTIVE_USER_TYPE = "Player"
 						"Dungeon Master":
 							Global.ACTIVE_USER_EMAIL = hash_email($Container/UserEmailField.text.strip_edges().to_lower())
 							Global.ACTIVE_USER_NAME = record["Name"]
-							get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
+							Global.ACTIVE_USER_RECORD_ID = record["id"]
+							get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+							Global.ACTIVE_USER_TYPE = "Dungeon Master"
+							
 						_:
 							$Container/ErrorMessageLabel.text = "Unknown user type."
 				#print("✔ Record: ", record)

@@ -1,0 +1,55 @@
+[gd_scene load_steps=3 format=3 uid="uid://447ca702njaw"]
+
+[ext_resource type="Script" uid="uid://cknglxniht3f7" path="res://Scenes/battle_prep_character.gd" id="1_clpiv"]
+[ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="1_e7dum"]
+
+[node name="BattlePrepCharacter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_clpiv")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 341.0
+offset_bottom = 427.0
+theme_override_styles/panel = ExtResource("1_e7dum")
+
+[node name="CheckBox" type="CheckBox" parent="."]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 168.0
+offset_right = 269.0
+offset_bottom = 228.0
+text = " Ready?"
+
+[node name="OptionButton" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 248.0
+offset_right = 338.0
+offset_bottom = 292.0
+text_overrun_behavior = 1
+fit_to_longest_item = false
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 311.0
+offset_right = 300.0
+offset_bottom = 371.0
+text = "Confirm Food"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 63.0
+offset_right = 311.0
+offset_bottom = 103.0
+horizontal_alignment = 1
+
+[connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

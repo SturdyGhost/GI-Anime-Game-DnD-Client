@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://bbyint2toydp3"]
+
+[ext_resource type="Script" uid="uid://doss56f416xfw" path="res://Scenes/dm_battle_scene.gd" id="1_d3daq"]
+
+[node name="DMBattleScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_d3daq")
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(2560, 1440)
+layout_mode = 0
+offset_left = -57.0
+offset_top = -31.0
+offset_right = 2602.0
+offset_bottom = 1459.0
+
+[node name="TurnOrderHboxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 384.0
+offset_bottom = 1308.0
+
+[node name="EnemyGridContainer" type="GridContainer" parent="."]
+layout_mode = 2
+offset_left = 589.0
+offset_top = 95.0
+offset_right = 2388.0
+offset_bottom = 1455.0
+scale = Vector2(0.9, 0.9)
+theme_override_constants/h_separation = 545
+theme_override_constants/v_separation = 340
+columns = 4
+
+[node name="MinimizeButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2493.0
+offset_top = 15.0
+offset_right = 2536.0
+offset_bottom = 75.0
+text = "-"
+
+[connection signal="pressed" from="MinimizeButton" to="." method="_on_minimize_button_pressed"]

@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cl1kvvj5h3ay2"]
+[gd_scene load_steps=3 format=3 uid="uid://cl1kvvj5h3ay2"]
 
 [ext_resource type="Script" uid="uid://dr8b4aakgiu2d" path="res://UI/talent_table_row.gd" id="1_0thn4"]
 [ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="2_jaxu2"]
-[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="2_ycu3e"]
 
 [node name="Row" type="HBoxContainer"]
 custom_minimum_size = Vector2(1740, 150)
@@ -16,7 +15,7 @@ script = ExtResource("1_0thn4")
 custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = ExtResource("2_ycu3e")
+theme_override_styles/panel = ExtResource("2_jaxu2")
 
 [node name="DescriptionLabel" type="Label" parent="DescriptionPanel"]
 custom_minimum_size = Vector2(2000, 0)

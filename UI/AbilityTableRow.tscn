@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://8jfdqy6mftvu"]
 
 [ext_resource type="Script" uid="uid://bdaj5x43un4ff" path="res://UI/ability_table_row.gd" id="1_3qxl6"]
-[ext_resource type="StyleBox" uid="uid://biqj6so14otyr" path="res://UI/White Panel Stylebox.tres" id="2_hcvnk"]
+[ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="2_hcvnk"]
 
 [node name="Row" type="HBoxContainer"]
 custom_minimum_size = Vector2(1740, 150)

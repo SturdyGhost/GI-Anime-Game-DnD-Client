@@ -1,4 +1,4 @@
-[gd_scene load_steps=67 format=3 uid="uid://ch1tr8oe3rt8i"]
+[gd_scene load_steps=68 format=3 uid="uid://ch1tr8oe3rt8i"]
 
 [ext_resource type="Script" uid="uid://xh2i8c1bi3ff" path="res://Scenes/player_hub.gd" id="1_ki6c4"]
 [ext_resource type="Texture2D" uid="uid://xkgg5glslu6q" path="res://Background Images/Player HUB/Inazuma.jpg" id="2_gone6"]
@@ -39,6 +39,7 @@
 [ext_resource type="Texture2D" uid="uid://w1qqq4pdqmhl" path="res://UI/Element Icons/Ice.png" id="14_mi0iq"]
 [ext_resource type="Texture2D" uid="uid://c2sp3n163r82v" path="res://UI/Crafting Button Hover Icon.png" id="15_solx2"]
 [ext_resource type="Texture2D" uid="uid://t4w10ixf3x8b" path="res://UI/line-md--alert-twotone-loop.png" id="16_7r2vv"]
+[ext_resource type="Texture2D" uid="uid://baahccxkwxghr" path="res://UI/Portrait Icon Hover.png" id="16_7y6pu"]
 [ext_resource type="Texture2D" uid="uid://bdpjg3dxiwqhn" path="res://UI/Crafting Button Disabled Icon.png" id="16_y7hru"]
 [ext_resource type="Texture2D" uid="uid://cpbh50x48a63c" path="res://UI/line-md--alert-twotone-loop-dark.png" id="17_xt1je"]
 [ext_resource type="Texture2D" uid="uid://bwi7ssu27ghbv" path="res://UI/Research Button Pressed Icon.png" id="18_mn6i2"]
@@ -190,14 +191,14 @@ vertical_alignment = 1
 [node name="RegionButton" type="OptionButton" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 1211.0
-offset_top = 195.0
+offset_top = 192.0
 offset_right = 1539.0
-offset_bottom = 256.0
+offset_bottom = 262.0
 scale = Vector2(0.5, 0.5)
 tooltip_text = "Change the party's current region from what is selected to the new 
 option. This is only able to be done once per session unless otherwise 
 specified by Paimon."
-theme_override_font_sizes/font_size = 33
+theme_override_font_sizes/font_size = 40
 alignment = 1
 expand_icon = true
 selected = 2
@@ -261,16 +262,16 @@ vertical_alignment = 1
 [node name="ElementButton" type="OptionButton" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 1591.0
-offset_top = 195.0
+offset_top = 192.0
 offset_right = 1919.0
-offset_bottom = 256.0
+offset_bottom = 262.0
 scale = Vector2(0.5, 0.5)
 tooltip_text = "Change the element you currently have active. If it is your base 
 element or the element of the region you are in this can be done 
 anytime here with no cost. If it is another element that you'd have 
 to visit a regional \"shrin\" to, please consult with Paimon regarding 
 the offering you are making to switch."
-theme_override_font_sizes/font_size = 33
+theme_override_font_sizes/font_size = 40
 alignment = 1
 expand_icon = true
 selected = 2
@@ -328,6 +329,7 @@ offset_top = -6.0
 offset_right = 2545.0
 offset_bottom = 1018.0
 scale = Vector2(0.2, 0.2)
+texture_hover = ExtResource("16_7y6pu")
 
 [node name="BugButton" type="TextureButton" parent="UI/TopHotbar"]
 layout_mode = 0
@@ -407,6 +409,7 @@ offset_right = 302.0
 offset_bottom = 224.0
 theme_override_fonts/font = SubResource("FontVariation_84ies")
 theme_override_font_sizes/font_size = 25
+disabled = true
 text = "Level: 45/35"
 
 [node name="BottomHotbar" type="Panel" parent="UI"]
@@ -439,12 +442,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Market Button"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_left = 26.0
+offset_top = 132.0
+offset_right = 330.0
+offset_bottom = 231.0
+scale = Vector2(0.5, 0.5)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Market"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -463,12 +467,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Minigames Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 6.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 420.0
+offset_bottom = 220.0
+scale = Vector2(0.45, 0.45)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 70
 text = "Minigames"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -492,12 +497,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Crafting Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 18.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 388.0
+offset_bottom = 232.0
+scale = Vector2(0.45, 0.45)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Crafting"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -519,12 +525,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Research Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 10.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 409.0
+offset_bottom = 232.0
+scale = Vector2(0.45, 0.45)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Research"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -545,12 +552,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Gather Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 27.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 323.0
+offset_bottom = 232.0
+scale = Vector2(0.5, 0.5)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Gather"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -559,7 +567,6 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
 tooltip_text = "Queue up for a Dungeon/Combat Scenario."
-disabled = true
 texture_normal = ExtResource("5_twm1r")
 texture_pressed = ExtResource("11_x5hun")
 texture_hover = ExtResource("12_pitbg")
@@ -573,8 +580,9 @@ offset_left = 20.0
 offset_top = 133.0
 offset_right = 182.0
 offset_bottom = 172.0
+scale = Vector2(0.5, 0.5)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Combat"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -593,12 +601,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Practice Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 18.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 387.0
+offset_bottom = 232.0
+scale = Vector2(0.45, 0.45)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Practice"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -616,12 +625,13 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="UI/BottomHotbar/HBoxContainer/Exit Button"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 58.0
 offset_top = 133.0
-offset_right = 182.0
-offset_bottom = 172.0
+offset_right = 230.0
+offset_bottom = 232.0
+scale = Vector2(0.5, 0.5)
 theme = ExtResource("4_ndkhv")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 80
 text = "Exit"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -753,12 +763,14 @@ autoplay = true
 [connection signal="pressed" from="UI/TopHotbar/InventoryButton" to="." method="_on_inventory_button_pressed"]
 [connection signal="item_selected" from="UI/TopHotbar/RegionButton" to="." method="_on_region_button_item_selected"]
 [connection signal="item_selected" from="UI/TopHotbar/ElementButton" to="." method="_on_element_button_item_selected"]
+[connection signal="pressed" from="UI/TopHotbar/CompanionPortrait" to="." method="_on_companion_portrait_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/BugButton" to="." method="_on_bug_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/RefreshButton" to="." method="_on_refresh_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Market Button" to="." method="_on_market_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Crafting Button" to="." method="_on_crafting_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Research Button" to="." method="_on_research_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Gather Button" to="." method="_on_gather_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Combat Button" to="." method="_on_combat_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Exit Button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Health Button" to="." method="_on_health_button_pressed"]
 [connection signal="pressed" from="UI/StatButtonsContainer/Attack Button" to="." method="_on_attack_button_pressed"]

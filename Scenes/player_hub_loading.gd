@@ -7,6 +7,7 @@ var tables_to_fetch = Global.TABLES
 var Table_Count = Global.TABLES.size()
 var Tables_Processed = 0
 var completed_tables := []
+var upnp = UPNP.new()
 
 
 func _ready():
@@ -23,7 +24,12 @@ func _on_table_loaded(table_name: String, count: int):
 func _on_all_tables_loaded():
 	print("✅ All tables loaded. Moving to hub.")
 	print ("Total Records: " + str(Global.total_records))
-	get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+	upnp.discover(2000, 2, "InternetGatewayDevice")
+	Global.PublicIP = str(upnp.query_external_address())
+	if Global.ACTIVE_USER_TYPE == "Player":
+		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+	elif Global.ACTIVE_USER_TYPE == "Dungeon Master":
+		get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
 
 
 func update_progress_bar():
@@ -48,4 +54,7 @@ func update_progress_bar():
 func _on_progress_tween_finished():
 	if LoadingBar.value >= 100:
 		print("✅ Loading complete. Switching to PlayerHub...")
-		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+		if Global.ACTIVE_USER_TYPE == "Player":
+			get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+		elif Global.ACTIVE_USER_TYPE == "Dungeon Master":
+			get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")

@@ -34,6 +34,7 @@ func _ready() -> void:
 	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
 	Global.Polling_Timer.start()
 	role_check()
+
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
@@ -93,6 +94,7 @@ func play_next_track():
 
 func _on_data_load_complete():
 	print("✅ Global data has finished loading!")
+
 	set_ui()
 	#await get_tree().create_timer(3.0).timeout
 	Global.Polling_Timer.start()
@@ -141,13 +143,17 @@ func _apply_stat(btn, key: String, val) -> void:
 	btn.Stat = key
 	btn.StatValue = val
 	btn.AddedRoll        = pd.get("%s_Added_Roll_Bonus" % key, 0) \
-						+ pd.get("%s_Manual_Roll_Added_Amount_Override" % key, 0)
+						+ pd.get("%s_Manual_Roll_Added_Amount_Override" % key, 0) \
+						+ pd.get("Universal_Added_Roll_Bonus")
 	btn.MultipliedRoll  = 1 + pd.get("%s_Multiplier_Roll_Bonus" % key, 0.0) \
-						  + pd.get("%s_Manual_Roll_Multiplier_Amount_Override" % key, 0.0)
+						  + pd.get("%s_Manual_Roll_Multiplier_Amount_Override" % key, 0.0)\
+						+ pd.get("Universal_Multiplier_Roll_Bonus")
 	btn.AddedDamage     = pd.get("%s_Added_Damage_Bonus" % key, 0) \
-						+ pd.get("%s_Manual_Damage_Added_Amount_Override" % key, 0)
+						+ pd.get("%s_Manual_Damage_Added_Amount_Override" % key, 0)\
+						+ pd.get("Universal_Added_Damage_Bonus")
 	btn.MultipliedDamage = 1 + pd.get("%s_Multiplier_Damage_Bonus" % key, 0.0) \
-						   + pd.get("%s_Manual_Damage_Multiplier_Amount_Override" % key, 0.0)
+						   + pd.get("%s_Manual_Damage_Multiplier_Amount_Override" % key, 0.0)\
+						+ pd.get("Universal_Multiplier_Damage_Bonus")
 
 func set_stats():
 	Player_data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
@@ -167,6 +173,11 @@ func set_stats():
 	ElementalMasteryButton.set_stats()
 	EnergyRechargeButton.set_stats()
 	CriticalDamageButton.set_stats()
+	var updates = []
+	if Player_data.get("Current_Health") != int(Global.Current_Health) or Player_data.get("Max_Health") != int(Global.Current_Health):
+		updates.append({"table": "Characters", "record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Max_Health","value": int(Global.Current_Health) })
+		updates.append({"table": "Characters", "record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Current_Health","value": int(Global.Current_Health) })
+		Global.Update_Records(updates)
 
 func get_artifacts():
 	for artifact in Global.CHARACTER_ARTIFACTS.values():
@@ -379,16 +390,28 @@ func set_region_button_options():
 			RegionButton.set_item_disabled(item,true)
 
 func set_element_button_options():
+	var weapon_type
+	for weapon in Global.CHARACTER_WEAPONS.values():
+		if weapon.get("Owner") == Global.ACTIVE_USER_NAME and weapon.get("Equipped") == true:
+			weapon_type = weapon.get("Type")
 	var current_element = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Element")
 	var element = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Ascension_Material")
 	var base_element = element.left(element.length() -4)
 	for item in ElementButton.get_popup().get_item_count():
 		if ElementButton.get_item_text(item) == current_element:
 			ElementButton.selected = item
+		ElementButton.set_item_disabled(item,false)
 		if item > Ascension:
 			ElementButton.set_item_disabled(item,true)
 		if ElementButton.get_item_text(item) == base_element:
 			ElementButton.set_item_disabled(item,false)
+		var ability_count = 0
+		for ability in Global.ABILITIES.values():
+			if ability.get("Element") == ElementButton.get_item_text(item) and ability.get("Weapon") == weapon_type and ability.get("Character") == Global.ACTIVE_USER_NAME:
+				ability_count += 1
+		if ability_count == 0:
+			ElementButton.set_item_disabled(item,true)
+
 
 var _region_busy: bool = false
 
@@ -690,6 +713,44 @@ func _on_research_button_pressed() -> void:
 
 	win.add_child(dlg)
 	dlg.open_auto()
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_combat_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/player_battle_prep.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_companion_portrait_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/CompanionsOverview.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	win.add_child(dlg)
 	add_child(win)
 
 	# Optional: center or full-rect dlg inside window

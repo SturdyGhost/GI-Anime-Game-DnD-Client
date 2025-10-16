@@ -1,0 +1,86 @@
+extends Control
+
+
+@onready var TurnOrderPanel = $TurnOrderPanel
+@onready var Player_Card_Container = $PlayerCardContainer
+@onready var Food_Buff_Label = $ActiveFoodBuffHeader/ActiveFoodBuffLabel
+@onready var Food_Buff_Turns_Left_Label = $TurnsLeftHeader/TurnsLeftLabel
+@onready var Player_Card_Scene = preload("res://Scenes/battle_prep_character.tscn")
+
+var Active_Party = []
+var Players_in_party = []
+var Ready_Players = []
+
+
+
+func _ready() -> void:
+	set_names()
+	_set_player_cards()
+	set_food_buff()
+	_connect_card_signals()
+	pass
+
+
+func _process(delta: float) -> void:
+	_check_ready_players()
+	if Ready_Players.size() == 1:
+		get_tree().change_scene_to_file("res://Scenes/Player_Battle_Scene.tscn")
+
+func _check_ready_players():
+	var CharacterData
+	for PlayerName in Players_in_party:
+		CharacterData = Global.CHARACTERS[Global.CHARACTERS_NAME[PlayerName]]
+		if CharacterData.get("Ready") == true:
+			if Ready_Players.has(PlayerName):
+				pass
+			else:
+				Ready_Players.append(PlayerName)
+		else:
+			if Ready_Players.has(PlayerName):
+				Ready_Players.erase(PlayerName)
+				pass
+			else:
+				pass
+			
+	
+		#for PlayerName in Active_Party
+func _connect_card_signals():
+	for child in Player_Card_Container.get_children():
+		if child.has_signal("FoodBuffChanged") and not child.FoodBuffChanged.is_connected(_on_card_food_buff_changed):
+			child.FoodBuffChanged.connect(_on_card_food_buff_changed)
+
+func _on_card_food_buff_changed() -> void:
+	print ("Refreshing Scene")
+	System.refresh(self)
+	# Do any parent-level updates triggered by the change
+	# e.g., recompute team buffs, totals, enable/disable buttons, etc.
+	#refresh_window()
+
+func _set_player_cards():
+	for member in Global.CHARACTERS.values():
+		if Active_Party.has(member.get("Name")):
+			Players_in_party.append(member.get("Name"))
+	for player in Players_in_party:
+		var scene = Player_Card_Scene.instantiate()
+		Player_Card_Container.add_child(scene)
+		scene.assign_player(player)
+
+func set_food_buff():
+	if Global.Current_Party.get("Active_Food_Buff") != null:
+		Food_Buff_Label.text = Global.Current_Party.get("Active_Food_Buff")
+		Food_Buff_Turns_Left_Label.text = str(Global.Current_Party.get("Buff_Battles_Left"))
+	pass
+
+func set_names():
+	Active_Party.append(Global.Current_Party.get("First_Turn"))
+	Active_Party.append(Global.Current_Party.get("Second_Turn"))
+	Active_Party.append(Global.Current_Party.get("Third_Turn"))
+	Active_Party.append(Global.Current_Party.get("Fourth_Turn"))
+	TurnOrderPanel.party_record_id = Global.Current_Party.get("id")
+	TurnOrderPanel.set_party(Active_Party)
+	pass
+
+
+func _on_exit_button_pressed() -> void:
+	get_parent().queue_free()
+	pass # Replace with function body.

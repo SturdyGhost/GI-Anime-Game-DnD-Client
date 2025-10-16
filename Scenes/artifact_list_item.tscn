@@ -1,34 +1,55 @@
-[gd_scene load_steps=3 format=3 uid="uid://bwhtaold2x4py"]
+[gd_scene load_steps=4 format=3 uid="uid://bwhtaold2x4py"]
 
 [ext_resource type="Script" uid="uid://c67tb6cfctdh7" path="res://Scenes/artifact_list_item.gd" id="1_tw8f8"]
 [ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="2_bp5ip"]
+[ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="2_ytr2a"]
 
-[node name="ArtifactListItem" type="GridContainer"]
+[node name="ArtifactListItem" type="Control"]
+layout_mode = 3
+anchors_preset = 0
 offset_right = 2462.0
 offset_bottom = 96.0
 size_flags_horizontal = 3
-columns = 12
 script = ExtResource("1_tw8f8")
 
-[node name="NameLabel" type="RichTextLabel" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+offset_left = -1.0
+offset_right = 2447.0
+offset_bottom = 80.0
+
+[node name="Panel" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="NameLabel" type="RichTextLabel" parent="HBoxContainer/Panel"]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
+offset_right = 300.0
+offset_bottom = 80.0
 size_flags_horizontal = 0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "SetName"
 fit_content = true
 scroll_active = false
-autowrap_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TypeLabel" type="RichTextLabel" parent="."]
+[node name="Panel2" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(275, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="TypeLabel" type="RichTextLabel" parent="HBoxContainer/Panel2"]
+custom_minimum_size = Vector2(275, 200)
+layout_mode = 2
+offset_right = 275.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "Type"
 fit_content = true
@@ -36,11 +57,18 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Stat1TypeLabel" type="RichTextLabel" parent="."]
+[node name="Panel3" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="Stat1TypeLabel" type="RichTextLabel" parent="HBoxContainer/Panel3"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+offset_right = 200.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "Stat Type"
 fit_content = true
@@ -48,11 +76,18 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Stat1ValueLabel" type="RichTextLabel" parent="."]
+[node name="Panel4" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="Stat1ValueLabel" type="RichTextLabel" parent="HBoxContainer/Panel4"]
+custom_minimum_size = Vector2(100, 200)
+layout_mode = 2
+offset_right = 100.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "Stat Value"
 fit_content = true
@@ -60,11 +95,18 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Stat2TypeLabel" type="RichTextLabel" parent="."]
+[node name="Panel5" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="Stat2TypeLabel" type="RichTextLabel" parent="HBoxContainer/Panel5"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+offset_right = 200.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "Stat Type"
 fit_content = true
@@ -72,11 +114,18 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Stat2ValueLabel" type="RichTextLabel" parent="."]
+[node name="Panel6" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="Stat2ValueLabel" type="RichTextLabel" parent="HBoxContainer/Panel6"]
+custom_minimum_size = Vector2(100, 200)
+layout_mode = 2
+offset_right = 100.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "Stat value"
 fit_content = true
@@ -84,38 +133,50 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="2PieceSetLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(490, 0)
+[node name="Panel7" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(490, 200)
 layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="2PieceSetLabel" type="RichTextLabel" parent="HBoxContainer/Panel7"]
+custom_minimum_size = Vector2(490, 200)
+layout_mode = 2
+offset_right = 490.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "2-Piece Set Bonus"
-fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="4PieceSetLabel" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(490, 0)
+[node name="Panel8" type="Panel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(490, 200)
 layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("2_ytr2a")
+
+[node name="4PieceSetLabel" type="RichTextLabel" parent="HBoxContainer/Panel8"]
+custom_minimum_size = Vector2(490, 200)
+layout_mode = 2
+offset_right = 490.0
+offset_bottom = 80.0
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 bbcode_enabled = true
 text = "4-Piece Set Bonus"
-fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EquipCheck" type="CheckBox" parent="."]
+[node name="EquipCheck" type="CheckBox" parent="HBoxContainer"]
 custom_minimum_size = Vector2(229, 0)
 layout_mode = 2
 size_flags_stretch_ratio = 8.94
 theme = ExtResource("2_bp5ip")
-theme_override_constants/outline_size = 20
+theme_override_constants/outline_size = 5
 text = "Equipped"
 icon_alignment = 1
 expand_icon = true
-
-[connection signal="pressed" from="EquipCheck" to="." method="_on_equip_check_pressed"]

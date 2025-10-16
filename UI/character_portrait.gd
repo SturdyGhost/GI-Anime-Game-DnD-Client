@@ -18,7 +18,8 @@ func set_character(name):
 	else:
 		var PlayerData = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
 		var CompanionElement = PlayerData.get("Companion_Element")
+		var hyphen = PlayerData.get("Companion_Name").to_lower().replace(" ","-")
 		ElementIcon.texture = load("res://UI/Element Icons/"+CompanionElement+".png")
-		PortraitIcon.texture = load("res://UI/Character Portaits/ui-avataricon-"+PlayerData.get("Companion_Name").to_lower()+".png")
+		PortraitIcon.texture = load("res://UI/Character Portaits/ui-avataricon-"+hyphen+".png")
 		
 	

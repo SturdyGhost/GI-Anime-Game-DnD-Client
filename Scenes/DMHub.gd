@@ -44,19 +44,175 @@ extends Control
 @onready var UnlockConfirm: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockConfirm
 
 # Battle Prep references
-@onready var EncounterGrid: GridContainer = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterGrid
+@onready var EncounterHContainer = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterHContainer
+@onready var EncounterVContainer = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterHContainer/EncounterVContainer
 @onready var EnemyName: LineEdit = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox/EnemyName
-@onready var EnemyHP: SpinBox = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyHPHBox/EnemyHP
 @onready var BtnAddEnemy: Button = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/BtnAddEnemy
-@onready var BtnPreset: Button = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/BtnPreset
 @onready var BtnSituation: Button = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/BtnSituation
+@onready var RestoreBattle = $RestoreBattleButton
+@onready var BattlePrepTab = $Layout/MainSplit/Tabs/BattlePrep
+@onready var http = HTTPRequest.new()
 
 var owners: Array = []
+var matches = []
+var searchword
+var _suggest_panel: Panel
+var _suggest_scroll: ScrollContainer
+var _suggest_vbox: VBoxContainer
+var _panel_max_height: float = 240.0
+var active_party_members = []
+var active_companion_members = []
 
 func _ready() -> void:
 	_populate_mode_switch()
 	_populate_owners()
 	_wire_buttons()
+	_build_suggest_panel()
+	get_party()
+	check_ready()
+	EnemyName.gui_input.connect(_on_enemy_name_gui_input)
+	EnemyName.focus_exited.connect(func() -> void: _hide_suggest_panel())
+	add_child(http)
+	Global.Polling_Timer = Timer.new()
+	Global.add_child(Global.Polling_Timer)
+	Global.Polling_Timer.one_shot = false
+	Global.Polling_Timer.wait_time = 0.1
+	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
+	Global.Polling_Timer.start()
+
+func _process(delta: float) -> void:
+	if BattlePrepTab.visible == true:
+		check_matches()
+		check_ready()
+
+func get_party():
+	for entry in Global.PARTY.values():
+		if entry.get("Dungeon_Master") == Global.ACTIVE_USER_NAME:
+			Global.Current_Party = entry
+			active_party_members.append(entry.get("Party_Member_1"))
+			active_party_members.append(entry.get("Party_Member_2"))
+			if entry.get("Party_Member_3") != "COMPANION":
+				active_party_members.append(entry.get("Party_Member_3"))
+			if entry.get("Party_Member_4") != "COMPANION":
+				active_party_members.append(entry.get("Party_Member_4"))
+	for entry in Global.COMPANIONS.values():
+		if entry.get("Active") == true and active_companion_members.has(entry.get("Name")) == false:
+			active_companion_members.append(entry.get("Name"))
+
+func check_ready():
+	var ready_members = active_party_members.size()
+	for entry in active_party_members:
+		if Global.CHARACTERS[Global.CHARACTERS_NAME[entry]].get("Ready") == false:
+			ready_members -= 1
+	if ready_members == active_party_members.size():
+		BtnSituation.disabled = false
+	else:
+		BtnSituation.disabled = true
+	pass
+
+func check_matches():
+	if EnemyName.text != "" and EnemyName.text != searchword:
+		searchword = EnemyName.text
+		matches = Global.find_substring_matches_ci(EnemyName.text,Global.EnemyList)
+		_update_suggestion_panel()
+	elif EnemyName.text == "":
+		matches = []
+		_hide_suggest_panel()
+
+func _build_suggest_panel() -> void:
+	_suggest_panel = Panel.new()
+	_suggest_panel.name = "EnemySuggestPanel"
+	_suggest_panel.visible = false
+	_suggest_panel.top_level = true      # Control has this; positions in global coords
+	_suggest_panel.z_index = 10000       # Keep above nearby UI
+	_suggest_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	_suggest_scroll = ScrollContainer.new()
+	_suggest_scroll.clip_contents = false
+	_suggest_scroll.anchors_preset = Control.PRESET_FULL_RECT
+	_suggest_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_suggest_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_suggest_panel.add_child(_suggest_scroll)
+
+	_suggest_vbox = VBoxContainer.new()
+	_suggest_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_suggest_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_suggest_scroll.add_child(_suggest_vbox)
+
+	# Attach to the scene (root or your DMHub; top_level=true uses global coords either way)
+	get_tree().root.add_child(_suggest_panel)
+
+func _update_suggestion_panel() -> void:
+	if matches.size() == 0:
+		_hide_suggest_panel()
+		return
+
+	_render_suggestions(matches)
+	_open_panel_at_input()
+
+func _render_suggestions(names: Array) -> void:
+	for c in _suggest_vbox.get_children():
+		c.queue_free()
+
+	for n in names:
+		var b := Button.new()
+		b.text = str(n)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.focus_mode = Control.FOCUS_NONE       # <-- critical: never grab keyboard focus
+		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		b.pressed.connect(func() -> void: _apply_suggestion(str(n)))
+		_suggest_vbox.add_child(b)
+
+
+func _open_panel_at_input() -> void:
+	var r: Rect2 = EnemyName.get_global_rect()
+	var row_h: float = 30.0
+	var desired_h: float = min(_panel_max_height, row_h * float(matches.size()))
+
+	_suggest_panel.size = Vector2(r.size.x, desired_h)
+	_suggest_panel.global_position = Vector2(r.position.x, r.position.y + r.size.y)
+	_suggest_panel.show()
+	# keep typing without interruption
+
+func _refocus_enemy_input() -> void:
+	if is_instance_valid(EnemyName):
+		var col: int = EnemyName.caret_column
+		EnemyName.grab_focus()
+		EnemyName.caret_column = col
+
+func _hide_suggest_panel() -> void:
+	if is_instance_valid(_suggest_panel):
+		_suggest_panel.hide()
+
+func _on_enemy_name_gui_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			# Accept first suggestion if available
+			if matches.size() > 0:
+				_apply_suggestion(str(matches[0]))
+				EnemyName.accept_event()
+		elif event.keycode == KEY_ESCAPE:
+			_hide_suggest_panel()
+			EnemyName.accept_event()
+
+
+func _on_gui_focus_changed(new_focus: Control) -> void:
+	# Hide only if focus moves to something that's NOT the popup or the input.
+	if new_focus == null:
+		_hide_suggest_panel()
+		return
+	if new_focus == EnemyName:
+		return
+	if _suggest_panel != null and _suggest_panel.is_ancestor_of(new_focus):
+		return
+	_hide_suggest_panel()
+
+func _apply_suggestion(name: String) -> void:
+	EnemyName.text = name
+	EnemyName.caret_column = EnemyName.text.length()
+	_hide_suggest_panel()
+	# Ensure caret stays in the LineEdit after clicking a suggestion
+	call_deferred("_refocus_enemy_input")
 
 func _populate_mode_switch() -> void:
 	ModeSwitch.clear()
@@ -102,7 +258,6 @@ func _wire_buttons() -> void:
 	AscendConfirm.pressed.connect(_on_ascend_confirm)
 	UnlockConfirm.pressed.connect(_on_unlock_confirm)
 	BtnAddEnemy.pressed.connect(_on_add_enemy_pressed)
-	BtnPreset.pressed.connect(_on_preset_pressed)
 	BtnSituation.pressed.connect(_on_situation_pressed)
 
 
@@ -244,14 +399,15 @@ func _on_unlock_confirm() -> void:
 
 # ---------------- Battle Prep ----------------
 func _on_add_enemy_pressed() -> void:
-	if EncounterGrid.get_child_count() >= 15:
+	if EncounterVContainer.get_child_count() >= 15:
 		return
 	var name = EnemyName.text.strip_edges()
-	if name == "":
-		name = "Enemy"
-	var hp = int(EnemyHP.value)
-	var card = _make_enemy_card(name, hp)
-	EncounterGrid.add_child(card)
+	var cardscene = load("res://Scenes/enemy_line_item.tscn")
+	var card = cardscene.instantiate()
+	card.enemy_name = name
+	EncounterVContainer.add_child(card)
+
+	
 
 func _make_enemy_card(name: String, hp: int) -> Control:
 	var panel = PanelContainer.new()
@@ -273,13 +429,19 @@ func _on_preset_pressed() -> void:
 	_clear_encounter()
 	var names = ["Hilichurl","Hilichurl","Hilichurl","Mitachurl"]
 	for n in names:
-		EncounterGrid.add_child(_make_enemy_card(n, 20 if n == "Hilichurl" else 60))
+		EncounterVContainer.add_child(_make_enemy_card(n, 20 if n == "Hilichurl" else 60))
 
 func _on_situation_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/dm_battle_scene.tscn")
+	var dlg = s.instantiate()
+	add_child(dlg)
+	for child in EncounterVContainer.get_children():
+		child.queue_free()
+	self.visible = false
 	pass
 
 func _clear_encounter() -> void:
-	for c in EncounterGrid.get_children():
+	for c in EncounterVContainer.get_children():
 		c.queue_free()
 
 
@@ -299,4 +461,13 @@ func _on_button_pressed() -> void:
 
 	# Optional: center or full-rect dlg inside window
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_restore_battle_button_pressed() -> void:
+	for child in get_children():
+		if child.name == "DMBattleScene":
+			child.visible = true
+			RestoreBattle.visible = false
+			
 	pass # Replace with function body.

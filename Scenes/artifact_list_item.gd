@@ -1,14 +1,14 @@
-extends GridContainer
+extends Control
 
-@onready var NameLabel       = $NameLabel
-@onready var TypeLabel       = $TypeLabel
-@onready var Stat1TypeLabel  = $Stat1TypeLabel
-@onready var Stat1ValueLabel = $Stat1ValueLabel
-@onready var Stat2TypeLabel  = $Stat2TypeLabel
-@onready var Stat2ValueLabel = $Stat2ValueLabel
-@onready var TwoPieceSetLabel  = $"2PieceSetLabel"
-@onready var FourPieceSetLabel = $"4PieceSetLabel"
-@onready var EquipCheck: CheckBox = $EquipCheck
+@onready var NameLabel       = $HBoxContainer/Panel/NameLabel
+@onready var TypeLabel       = $HBoxContainer/Panel2/TypeLabel
+@onready var Stat1TypeLabel  = $HBoxContainer/Panel3/Stat1TypeLabel
+@onready var Stat1ValueLabel = $HBoxContainer/Panel4/Stat1ValueLabel
+@onready var Stat2TypeLabel  = $HBoxContainer/Panel5/Stat2TypeLabel
+@onready var Stat2ValueLabel = $HBoxContainer/Panel6/Stat2ValueLabel
+@onready var TwoPieceSetLabel  = $"HBoxContainer/Panel7/2PieceSetLabel"
+@onready var FourPieceSetLabel = $"HBoxContainer/Panel8/4PieceSetLabel"
+@onready var EquipCheck: CheckBox = $HBoxContainer/EquipCheck
 
 var _row: Dictionary = {}
 var _highlight_q: String = ""   # current search text
@@ -41,8 +41,12 @@ func _apply() -> void:
 	else:
 		if Stat2TypeLabel:  Stat2TypeLabel.text  = _hl(s2k, _highlight_q)    # or just s2k if no highlighter
 		if Stat2ValueLabel: Stat2ValueLabel.text = _hl(_fmt_num(s2v), _highlight_q)
-	if TwoPieceSetLabel: TwoPieceSetLabel.text = _hl(str(_row.get("TwoPiece","")),   _highlight_q)
-	if FourPieceSetLabel:FourPieceSetLabel.text= _hl(str(_row.get("FourPiece","")),  _highlight_q)
+	if TwoPieceSetLabel:
+		TwoPieceSetLabel.text = _hl(str(_row.get("TwoPiece","")),   _highlight_q)
+		TwoPieceSetLabel.tooltip_text = _hl(str(_row.get("TwoPiece","")),   _highlight_q)
+	if FourPieceSetLabel:
+		FourPieceSetLabel.text = _hl(str(_row.get("FourPiece","")),  _highlight_q)
+		FourPieceSetLabel.tooltip_text = _hl(str(_row.get("FourPiece","")),  _highlight_q)
 
 	if EquipCheck:
 		var eq = _row.get("Equipped", null)

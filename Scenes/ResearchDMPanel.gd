@@ -73,3 +73,9 @@ func _on_end() -> void:
 	if session_id == "":
 		return
 	ResearchAPI.end(session_id)
+
+
+func _on_exit_button_pressed() -> void:
+	ResearchAPI.end(session_id)
+	get_parent().queue_free()
+	pass # Replace with function body.

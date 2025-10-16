@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://bill6skrw23il"]
+
+[ext_resource type="Script" uid="uid://cpja0jh4qnsr3" path="res://Scenes/TurnOrderPanel.gd" id="1"]
+
+[node name="TurnOrderPanel" type="Panel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+theme_override_font_sizes/font_size = 18
+text = "Set Turn Order (use arrows)"
+
+[node name="OrderList" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 40.0
+offset_right = -12.0
+offset_bottom = -12.0

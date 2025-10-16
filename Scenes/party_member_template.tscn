@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://dhhaekg7wc0j7"]
+
+[node name="PartyMemberTemplate" type="Control"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 3
+anchors_preset = 0
+
+[node name="PM_Name" type="Label" parent="."]
+layout_mode = 2
+offset_left = 8.0
+offset_top = 108.0
+offset_right = 105.0
+offset_bottom = 148.0
+text = "Name"
+
+[node name="PM_Element" type="Label" parent="."]
+layout_mode = 2
+offset_left = 103.0
+offset_top = 105.0
+offset_right = 188.0
+offset_bottom = 145.0
+text = "Elem"
+
+[node name="PM_Weapon" type="Label" parent="."]
+layout_mode = 2
+offset_left = 194.0
+offset_top = 105.0
+offset_right = 289.0
+offset_bottom = 145.0
+text = "Weap"
+
+[node name="PM_Bar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+offset_left = 295.0
+offset_right = 435.0
+offset_bottom = 42.0
+value = 50.0
+
+[node name="PM_Downed" type="Label" parent="."]
+modulate = Color(1, 0.6, 0.6, 1)
+layout_mode = 2
+offset_left = 441.0
+offset_top = 105.0
+offset_right = 442.0
+offset_bottom = 145.0

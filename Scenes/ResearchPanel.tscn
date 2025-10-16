@@ -69,3 +69,13 @@ wrap_mode = 2
 stream = ExtResource("2_qicg7")
 
 [node name="CountdownTimer" type="Timer" parent="."]
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2282.0
+offset_top = 12.0
+offset_right = 2325.0
+offset_bottom = 72.0
+text = "X"
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

@@ -137,14 +137,10 @@ func _on_confirm_pressed() -> void:
 		"Confirm",                           # action
 		"Region",                            # related_type
 		region,                              # related_id
-		{},                                  # old_values (not applicable here)
-		{},                                  # new_values (we're adding new items, no single row)
-		{                                    # metadata
-			"D4": d4_roll,
-			"D12": d12_roll,
-			"UsedMaterialOverride": ChooseMaterialOption.disabled == false,
-			"Results": updated_pairs
-		},
+		{"D4": d4_roll,
+		"D12": d12_roll},                                  # old_values (not applicable here)
+		{"Results": updated_pairs},                                  # new_values (we're adding new items, no single row)
+		{"UsedMaterialOverride": ChooseMaterialOption.disabled == false},                                  # metadata
 		"success",                           # result
 		"audit"                              # severity
 	)

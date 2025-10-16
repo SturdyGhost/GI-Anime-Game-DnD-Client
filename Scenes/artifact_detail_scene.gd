@@ -303,6 +303,20 @@ func _on_confirm_button_pressed() -> void:
 				"field": "Equipped",
 				"value": false
 			})
+			var Current = (0+Global.CHARACTERS[str(Global.ACTIVE_USER_RECORD_ID)].get("Universal_Added_Damage_Bonus"))
+			var changed = 0
+			if rec.get("Stat_1_Type") == "Universal_Added_Damage_Bonus":
+				Current -= rec.get("Stat_1_Value")
+				changed = 1
+			if rec.get("Stat_2_Type") == "Universal_Added_Damage_Bonus":
+				Current -= rec.get("Stat_2_Value")
+				changed = 1
+			if changed == 1:
+				updates.append({
+					"table": "Characters",
+					"record_id": Global.ACTIVE_USER_RECORD_ID,
+					"field": "Universal_Added_Damage_Bonus",
+					"value": Current})
 		Global.Update_Records(updates)
 		
 		# Log unequip action
@@ -349,7 +363,21 @@ func _on_confirm_button_pressed() -> void:
 		"field": "Equipped",
 		"value": true
 	})
-
+	var current = Global.CHARACTERS[str(Global.ACTIVE_USER_RECORD_ID)].get("Universal_Added_Damage_Bonus")
+	var changed = 0
+	if selected_artifact.get("Stat1") == "Universal_Added_Damage_Bonus":
+		current += selected_artifact.get("Stat1Value")
+		changed = 1
+	elif selected_artifact.get("Stat2") == "Universal_Added_Damage_Bonus":
+		current += selected_artifact.get("Stat2Value")
+		changed = 1
+	if changed == 1:
+		updates.append({
+		"table": "Characters",
+		"record_id": Global.ACTIVE_USER_RECORD_ID,
+		"field": "Universal_Added_Damage_Bonus",
+		"value": current})
+	
 	# Fire the batched update
 	Global.Update_Records(updates)
 

@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3 uid="uid://dk5neshpkj2fr"]
+
+[ext_resource type="Script" uid="uid://d2hh2ve1ctj7p" path="res://Scenes/player_battle_prep.gd" id="1_qnpky"]
+[ext_resource type="PackedScene" uid="uid://bill6skrw23il" path="res://Scenes/TurnOrderPanel.tscn" id="2_sqrw5"]
+
+[node name="player_battle_prep" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qnpky")
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = -156.0
+offset_top = -95.0
+offset_right = 2730.0
+offset_bottom = 1559.0
+
+[node name="ExitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2500.0
+offset_top = 21.0
+offset_right = 2543.0
+offset_bottom = 81.0
+text = "X"
+
+[node name="PlayerCardContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 24.0
+offset_right = 1446.0
+offset_bottom = 475.0
+scale = Vector2(1.75, 1.75)
+theme_override_constants/separation = 350
+
+[node name="TurnOrderPanel" parent="." instance=ExtResource("2_sqrw5")]
+layout_mode = 1
+offset_left = 21.0
+offset_top = 1092.0
+offset_right = -1339.0
+offset_bottom = -19.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ActiveFoodBuffHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 856.0
+offset_right = 524.0
+offset_bottom = 918.0
+theme_override_font_sizes/font_size = 50
+text = "Active Food Buff:"
+
+[node name="ActiveFoodBuffLabel" type="Label" parent="ActiveFoodBuffHeader"]
+layout_mode = 0
+offset_left = 497.0
+offset_top = -39.0
+offset_right = 2497.0
+offset_bottom = 95.0
+theme_override_font_sizes/font_size = 45
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="TurnsLeftHeader" type="Label" parent="."]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 975.0
+offset_right = 524.0
+offset_bottom = 1037.0
+theme_override_font_sizes/font_size = 50
+text = "Turns Left:"
+
+[node name="TurnsLeftLabel" type="Label" parent="TurnsLeftHeader"]
+layout_mode = 0
+offset_left = 497.0
+offset_top = -25.0
+offset_right = 690.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 45
+vertical_alignment = 1
+autowrap_mode = 2
+
+[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

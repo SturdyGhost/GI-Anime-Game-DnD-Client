@@ -54,9 +54,10 @@ split_offset = 1800
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-current_tab = 0
+current_tab = 2
 
 [node name="PartyManagement" type="Control" parent="Layout/MainSplit/Tabs"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -359,7 +360,6 @@ layout_mode = 2
 text = "Complete Early"
 
 [node name="BattlePrep" type="Control" parent="Layout/MainSplit/Tabs"]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -379,14 +379,15 @@ size_flags_vertical = 3
 
 [node name="EncounterPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="EncounterGrid" type="GridContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel"]
+[node name="EncounterHContainer" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel"]
+custom_minimum_size = Vector2(1330, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-columns = 5
+
+[node name="EncounterVContainer" type="VBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterHContainer"]
+layout_mode = 2
+theme_override_constants/separation = 45
 
 [node name="EnemyEditorPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
 custom_minimum_size = Vector2(420, 0)
@@ -406,31 +407,16 @@ layout_mode = 2
 text = "Name:"
 
 [node name="EnemyName" type="LineEdit" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-
-[node name="EnemyHPHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
-layout_mode = 2
-
-[node name="EnemyHPLabel" type="Label" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyHPHBox"]
-layout_mode = 2
-text = "HP:"
-
-[node name="EnemyHP" type="SpinBox" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyHPHBox"]
-layout_mode = 2
-min_value = 1.0
-max_value = 9999.0
-value = 10.0
 
 [node name="BtnAddEnemy" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
 layout_mode = 2
 text = "Add/Update Enemy"
 
-[node name="BtnPreset" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
-layout_mode = 2
-text = "Load Preset"
-
 [node name="BtnSituation" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
 layout_mode = 2
+disabled = true
 text = "Trigger Battle Situation"
 
 [node name="ActiveBattle" type="Control" parent="Layout/MainSplit/Tabs"]
@@ -464,7 +450,7 @@ size_flags_vertical = 3
 
 [node name="DMLogLabel" type="Label" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
 layout_mode = 2
-text = "DM Log"
+text = "DM Buttons"
 
 [node name="DMLog" type="RichTextLabel" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
 layout_mode = 2
@@ -509,13 +495,23 @@ text = "Unlock Companion"
 layout_mode = 2
 text = "Ascend Character"
 
-[node name="Button" type="Button" parent="."]
+[node name="ResearchButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 2138.0
-offset_top = 813.0
-offset_right = 2546.0
-offset_bottom = 873.0
-text = "Temp Research Button
+offset_left = 2146.0
+offset_top = 129.0
+offset_right = 2554.0
+offset_bottom = 189.0
+text = "Research Button
 "
 
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[node name="RestoreBattleButton" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 2146.0
+offset_top = 197.0
+offset_right = 2553.0
+offset_bottom = 257.0
+text = "Restore Battle"
+
+[connection signal="pressed" from="ResearchButton" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="RestoreBattleButton" to="." method="_on_restore_battle_button_pressed"]

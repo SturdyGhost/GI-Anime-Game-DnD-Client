@@ -169,7 +169,7 @@ func Buy_Commit(shop_name: String, entry_index: int, quantity: int) -> bool:
 
 	var total_cost: int = unit_price * buy_qty
 
-	# --- Mora check ---
+	# --- Mora/Gold check ---
 	var original_mora: int = int(Global.Current_Party.get("Mora", 0))
 	if original_mora < total_cost:
 		return false

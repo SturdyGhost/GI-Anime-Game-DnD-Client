@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Genshin DnD Client"
-config/version="0.0.5"
+config/version="0.0.6"
 run/main_scene="uid://ejjstot0uurx"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 Global="*res://Singletons/Global.gd"
 Market="*res://Singletons/Market.gd"
 ResearchAPI="*res://Singletons/ResearchAPI.gd"
+System="*res://Singletons/System.gd"
 
 [display]
 

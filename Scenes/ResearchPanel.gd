@@ -22,6 +22,8 @@ var _end_ms: int = 0
 var _last_beep_second: int = -1
 var ms_left: int
 var timer_started = 0
+var duration
+var items: Array
 
 func _ready() -> void:
 	notes.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
@@ -84,8 +86,8 @@ func _poll() -> void:
 func _apply_state(data: Dictionary) -> void:
 	var is_active = bool(data.get("is_active", false))
 	var started_at = str(data.get("started_at", ""))
-	var duration = int(data.get("duration_sec", 0))
-	var items: Array = data.get("items", [])
+	duration = (data.get("duration_sec", 0))
+	items = data.get("items", [])
 
 	# --- LOCAL TIMER START (once) ---
 	# If server advertises a positive duration and our local timer isn't running, start locally.
@@ -230,6 +232,14 @@ func _add_image(url: String, caption: String) -> void:
 func _finish_and_close() -> void:
 	# copy notes and close like before
 	DisplayServer.clipboard_set(notes.text)
+	Global.Log(
+	"Research",                     # category
+	"Research Completed" ,          # action
+	"Information",                  # related_type
+	str(session_id),                # related_id (string is safest)
+	{"Duration": duration,
+	"Items": items},                # old_values
+	{"Notes": notes.text})          # new_values
 	poll_timer.stop()
 	discover_timer.stop()
 	get_parent().queue_free()
@@ -239,3 +249,8 @@ func _clear_viewer() -> void:
 		return
 	for c in viewer_vbox.get_children():
 		c.queue_free()
+
+
+func _on_exit_button_pressed() -> void:
+	get_parent().queue_free()
+	pass # Replace with function body.

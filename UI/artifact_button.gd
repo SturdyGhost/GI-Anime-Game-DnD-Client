@@ -75,13 +75,20 @@ func set_artifact():
 			$ArtifactIcon.texture = artifact_tex
 
 			# Update stats
-			$Stat1Name.text = artifact.get("Stat_1_Type", "")
+			if artifact.get("Stat_1_Type") == "Universal_Added_Damage_Bonus":
+				$Stat1Name.text = "Damage_Bonus"
+		
+			else:
+				$Stat1Name.text = artifact.get("Stat_1_Type", "")
 			$Stat1Value.text = str(artifact.get("Stat_1_Value", ""))
 			if artifact.get("Stat_2_Type") == null:
 				$Stat2Name.text = ""
 				$Stat2Value.text = ""
 			else:
-				$Stat2Name.text = artifact.get("Stat_2_Type", "")
+				if artifact.get("Stat_2_Type") == "Universal_Added_Damage_Bonus":
+					$Stat2Name.text = "Damage_Bonus"
+				else:
+					$Stat2Name.text = artifact.get("Stat_2_Type", "")
 				$Stat2Value.text = str(artifact.get("Stat_2_Value", ""))
 
 			# Update set name label
