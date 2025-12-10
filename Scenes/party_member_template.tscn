@@ -1,46 +1,87 @@
-[gd_scene format=3 uid="uid://dhhaekg7wc0j7"]
+[gd_scene load_steps=3 format=3 uid="uid://dhhaekg7wc0j7"]
+
+[ext_resource type="Script" uid="uid://dpixn5r1omp67" path="res://Scenes/party_member_template.gd" id="1_4c2nq"]
+[ext_resource type="Texture2D" uid="uid://imgap74e7fng" path="res://UI/Emotes/paimon-s-paintings-set-3-9.png" id="2_37fax"]
 
 [node name="PartyMemberTemplate" type="Control"]
 custom_minimum_size = Vector2(500, 0)
 layout_mode = 3
 anchors_preset = 0
+script = ExtResource("1_4c2nq")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 439.0
+offset_bottom = 230.0
+
+[node name="PM_Portrait" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 56.0
+offset_right = 181.0
+offset_bottom = 221.0
+texture = ExtResource("2_37fax")
+expand_mode = 1
 
 [node name="PM_Name" type="Label" parent="."]
 layout_mode = 2
-offset_left = 8.0
-offset_top = 108.0
-offset_right = 105.0
-offset_bottom = 148.0
+offset_left = 9.0
+offset_top = 47.0
+offset_right = 183.0
+offset_bottom = 87.0
 text = "Name"
+horizontal_alignment = 1
+text_overrun_behavior = 1
 
 [node name="PM_Element" type="Label" parent="."]
 layout_mode = 2
-offset_left = 103.0
-offset_top = 105.0
-offset_right = 188.0
-offset_bottom = 145.0
+offset_left = 200.0
+offset_top = 185.0
+offset_right = 435.0
+offset_bottom = 225.0
 text = "Elem"
+horizontal_alignment = 1
 
 [node name="PM_Weapon" type="Label" parent="."]
 layout_mode = 2
-offset_left = 194.0
-offset_top = 105.0
-offset_right = 289.0
-offset_bottom = 145.0
+offset_left = 197.0
+offset_top = 51.0
+offset_right = 427.0
+offset_bottom = 91.0
 text = "Weap"
+horizontal_alignment = 1
 
 [node name="PM_Bar" type="ProgressBar" parent="."]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-offset_left = 295.0
-offset_right = 435.0
-offset_bottom = 42.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 433.0
+offset_bottom = 47.0
 value = 50.0
 
 [node name="PM_Downed" type="Label" parent="."]
+visible = false
 modulate = Color(1, 0.6, 0.6, 1)
 layout_mode = 2
 offset_left = 441.0
 offset_top = 105.0
 offset_right = 442.0
 offset_bottom = 145.0
+
+[node name="PM_Status" type="Label" parent="."]
+layout_mode = 0
+offset_left = 192.0
+offset_top = 98.0
+offset_right = 431.0
+offset_bottom = 184.0
+text = "Status Effect:
+Camoflouged"
+horizontal_alignment = 1
+
+[node name="AppliedElement" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 159.0
+offset_right = 72.0
+offset_bottom = 223.0

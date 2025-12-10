@@ -28,7 +28,7 @@ func _process(delta: float) -> void:
 
 func _check_ready_players():
 	var CharacterData
-	for PlayerName in Players_in_party:
+	for PlayerName in Global.PartyCharacters:
 		CharacterData = Global.CHARACTERS[Global.CHARACTERS_NAME[PlayerName]]
 		if CharacterData.get("Ready") == true:
 			if Ready_Players.has(PlayerName):
@@ -57,10 +57,7 @@ func _on_card_food_buff_changed() -> void:
 	#refresh_window()
 
 func _set_player_cards():
-	for member in Global.CHARACTERS.values():
-		if Active_Party.has(member.get("Name")):
-			Players_in_party.append(member.get("Name"))
-	for player in Players_in_party:
+	for player in Global.PartyCharacters:
 		var scene = Player_Card_Scene.instantiate()
 		Player_Card_Container.add_child(scene)
 		scene.assign_player(player)
@@ -72,12 +69,13 @@ func set_food_buff():
 	pass
 
 func set_names():
-	Active_Party.append(Global.Current_Party.get("First_Turn"))
-	Active_Party.append(Global.Current_Party.get("Second_Turn"))
-	Active_Party.append(Global.Current_Party.get("Third_Turn"))
-	Active_Party.append(Global.Current_Party.get("Fourth_Turn"))
+	var party_members = []
+	for character in Global.PartyCharacters:
+		party_members.append(character)
+	for companion in Global.PartyCompanions:
+		party_members.append(companion)
 	TurnOrderPanel.party_record_id = Global.Current_Party.get("id")
-	TurnOrderPanel.set_party(Active_Party)
+	TurnOrderPanel._set_order(party_members)
 	pass
 
 

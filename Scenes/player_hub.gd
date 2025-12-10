@@ -39,10 +39,23 @@ func _ready() -> void:
 	pass
 
 func assign_party():
+	Global.PartyCharacters = []
+	Global.PartyCompanions = []
 	for party in Global.PARTY.values():
 		if party.get("Party_Member_1") == Global.ACTIVE_USER_NAME or party.get("Party_Member_2") == Global.ACTIVE_USER_NAME or party.get("Party_Member_3") == Global.ACTIVE_USER_NAME or party.get("Party_Member_4") == Global.ACTIVE_USER_NAME:
 			Global.Current_Party = party
-
+			if party.get("Party_Member_1") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_1")) == false:
+				Global.PartyCharacters.append(party.get("Party_Member_1"))
+			if party.get("Party_Member_2") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_2")) == false:
+				Global.PartyCharacters.append(party.get("Party_Member_2"))
+			if party.get("Party_Member_3") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_3")) == false:
+				Global.PartyCharacters.append(party.get("Party_Member_3"))
+			if party.get("Party_Member_4") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_4")) == false:
+				Global.PartyCharacters.append(party.get("Party_Member_4"))
+	for companion in Global.COMPANIONS.values():
+		if companion.get("Active") == true:
+			if Global.PartyCompanions.has(companion.get("Name")) == false:
+				Global.PartyCompanions.append(companion.get("Name"))
 func role_check():
 	var role = Player_data.get("Role")
 	if role == "Scribe":
@@ -118,9 +131,6 @@ func set_background():
 func set_ui():
 	assign_party()
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
-	$UI/TopHotbar/Party1Portrait.set_character(Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Party_Member_1"))
-	$UI/TopHotbar/Party2Portrait.set_character(Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Party_Member_2"))
-	$UI/TopHotbar/CompanionPortrait.set_character(Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Companion_Name"))
 	set_stats()
 	$UI/GearContainer/WeaponButton.set_weapon()
 	$"UI/GearContainer/Flower of Life".set_artifact()
@@ -130,6 +140,17 @@ func set_ui():
 	$"UI/GearContainer/Circlet of Principles".set_artifact()
 	Mora.text = str(Global.Current_Party.get("Mora"))
 	Level.text = "Level: "+str(int(Player_data.get("Level")))+"/"+str(int(Player_data.get("Level_Cap")))
+	var array = 0
+	for player in Global.PartyCharacters:
+		array += Global.CHARACTERS[Global.CHARACTERS_NAME[player]].get("Max_Health")
+	Global.AverageHealth = array/Global.PartyCharacters.size()
+	var updates = []
+	for Companion in Global.COMPANIONS.values():
+		if Companion.get("Current_Health") != Global.AverageHealth:
+			updates.append({"table": "Companions","record_id": Companion.get("id"),"field": "Current_Health","value": Global.AverageHealth})
+			updates.append({"table": "Companions","record_id": Companion.get("id"),"field": "Max_Health","value": Global.AverageHealth})
+	if updates.size() > 0:
+		Global.Update_Records(updates)
 	if Global.Region_Changed == 1:
 		set_background()
 		load_region_music(Global.Current_Region)
@@ -739,7 +760,7 @@ func _on_combat_button_pressed() -> void:
 	pass # Replace with function body.
 
 
-func _on_companion_portrait_pressed() -> void:
+func _on_companions_button_pressed() -> void:
 	var s: PackedScene = preload("res://Scenes/CompanionsOverview.tscn")
 	var dlg = s.instantiate()
 

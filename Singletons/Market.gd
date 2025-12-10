@@ -500,7 +500,7 @@ func _generate_elemental_gems(current_region: String) -> void:
 	var gem_items: Array = []
 	for id in Global.ITEMS.keys():
 		var it: Dictionary = Global.ITEMS[id]
-		var t = String(it.get("Type", ""))
+		var t = str(it.get("Type", ""))
 		if t.ends_with("Star Gem"):
 			gem_items.append(it)
 

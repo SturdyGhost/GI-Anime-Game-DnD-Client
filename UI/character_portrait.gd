@@ -5,6 +5,7 @@ extends TextureButton
 @onready var NameLabel = $NameLabel
 
 var PlayerData
+var CompanionData
 
 
 func set_character(name):
@@ -16,9 +17,9 @@ func set_character(name):
 		var PlayerPortrait = PlayerData.get("Portrait")
 		PortraitIcon.texture = load("res://UI/Emotes/"+str(PlayerPortrait))
 	else:
-		var PlayerData = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
-		var CompanionElement = PlayerData.get("Companion_Element")
-		var hyphen = PlayerData.get("Companion_Name").to_lower().replace(" ","-")
+		CompanionData = Global.COMPANIONS[Global.COMPANIONS_NAME[name]]
+		var CompanionElement = CompanionData.get("Element")
+		var hyphen = CompanionData.get("Name").to_lower().replace(" ","-")
 		ElementIcon.texture = load("res://UI/Element Icons/"+CompanionElement+".png")
 		PortraitIcon.texture = load("res://UI/Character Portaits/ui-avataricon-"+hyphen+".png")
 		

@@ -13,6 +13,15 @@ layout_mode = 0
 offset_right = 496.0
 offset_bottom = 309.0
 
+[node name="EC_Portrait" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 290.0
+offset_bottom = 290.0
+expand_mode = 1
+
 [node name="EC_Name" type="Label" parent="."]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
@@ -23,16 +32,6 @@ offset_bottom = 46.0
 text = "Enemy Name"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="EC_Portrait" type="TextureRect" parent="."]
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-offset_left = 13.0
-offset_top = 10.0
-offset_right = 320.0
-offset_bottom = 296.0
-expand_mode = 1
-stretch_mode = 4
 
 [node name="EC_Bar" type="ProgressBar" parent="."]
 visible = false
@@ -56,14 +55,32 @@ size_flags_vertical = 0
 text = "Doing great"
 horizontal_alignment = 1
 
+[node name="EC_TierText" type="Label" parent="."]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+offset_left = 5.0
+offset_top = 44.0
+offset_right = 485.0
+offset_bottom = 84.0
+size_flags_vertical = 0
+text = "Doing great"
+horizontal_alignment = 1
+
 [node name="EC_Sub" type="Label" parent="."]
 layout_mode = 2
-offset_left = 7.0
-offset_top = 43.0
+offset_left = 253.0
+offset_top = 100.0
 offset_right = 490.0
-offset_bottom = 175.0
+offset_bottom = 232.0
 size_flags_vertical = 8
 text = "Electric
 Tier
 Phase"
 horizontal_alignment = 1
+
+[node name="EC_AppliedElement" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 57.0
+offset_right = 53.0
+offset_bottom = 97.0

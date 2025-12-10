@@ -82,8 +82,12 @@ text = "Movement:"
 layout_mode = 2
 text = "-"
 
-[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardCharged/VBox"]
-custom_minimum_size = Vector2(0, 300)
+[node name="ScrollContainer" type="ScrollContainer" parent="Scroll/Root/AbilitiesBox/CardCharged/VBox"]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+
+[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardCharged/VBox/ScrollContainer"]
+custom_minimum_size = Vector2(835, 400)
 layout_mode = 2
 fit_content = true
 autowrap_mode = 2
@@ -131,8 +135,12 @@ text = "Movement:"
 layout_mode = 2
 text = "-"
 
-[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardSkill/VBox"]
-custom_minimum_size = Vector2(0, 300)
+[node name="ScrollContainer" type="ScrollContainer" parent="Scroll/Root/AbilitiesBox/CardSkill/VBox"]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+
+[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardSkill/VBox/ScrollContainer"]
+custom_minimum_size = Vector2(835, 400)
 layout_mode = 2
 fit_content = true
 autowrap_mode = 2
@@ -180,8 +188,12 @@ text = "Movement:"
 layout_mode = 2
 text = "-"
 
-[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardBurst/VBox"]
-custom_minimum_size = Vector2(0, 300)
+[node name="ScrollContainer" type="ScrollContainer" parent="Scroll/Root/AbilitiesBox/CardBurst/VBox"]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+
+[node name="Desc" type="RichTextLabel" parent="Scroll/Root/AbilitiesBox/CardBurst/VBox/ScrollContainer"]
+custom_minimum_size = Vector2(835, 400)
 layout_mode = 2
 fit_content = true
 autowrap_mode = 2
@@ -296,14 +308,27 @@ offset_right = 2510.0
 offset_bottom = 86.0
 text = "X"
 
-[node name="Lore" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(0, 240)
+[node name="UseCompanionButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2163.0
+offset_top = 26.0
+offset_right = 2450.0
+offset_bottom = 86.0
+text = "Use Companion"
+metadata/_edit_group_ = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 0
+offset_left = 1701.0
+offset_top = 113.0
+offset_right = 2506.0
+offset_bottom = 764.0
+
+[node name="Lore" type="RichTextLabel" parent="ScrollContainer"]
+custom_minimum_size = Vector2(800, 240)
 layout_mode = 2
-offset_left = 1754.0
-offset_top = 145.0
-offset_right = 2442.0
-offset_bottom = 747.0
 fit_content = true
 autowrap_mode = 2
 
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="UseCompanionButton" to="." method="_on_use_companion_button_pressed"]

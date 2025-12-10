@@ -16,6 +16,7 @@ const ARTIFACT_TABLE := "Character_Artifacts"
 
 var previouslogslot
 var currentlogslot
+var filtered
 
 var selected_artifact: Dictionary = {}   # current selection
 
@@ -129,7 +130,7 @@ func _refresh_list() -> void:
 		ListParent.remove_child(c)
 		c.queue_free()
 
-	var filtered := _apply_search(_rows)
+	filtered = _apply_search(_rows)
 	filtered.sort_custom(Callable(self, "_compare_rows"))
 
 	if RowScene == null:
@@ -145,9 +146,10 @@ func _refresh_list() -> void:
 
 		item.set_meta("row", row)
 
-		var chk = item.get_node_or_null("EquipCheck") as CheckBox
+		var chk = item.EquipCheck
 		if chk:
 			chk.pressed.connect(Callable(self, "_on_row_check_pressed").bind(item))
+			print ("Row Check Button Signal Connected for: ", item)
 
 		item.call_deferred("set_data", row)
 		item.call_deferred("set_highlight", SearchBar.text.strip_edges())  # ← add this
@@ -177,7 +179,8 @@ func _apply_initial_selection() -> void:
 
 # ---------- checkbox handler ----------
 func _on_row_check_pressed(item: Node) -> void:
-	var chk = item.get_node_or_null("EquipCheck") as CheckBox
+	print (item, " Check Button was pressed.")
+	var chk = item.EquipCheck as CheckBox
 	var row = item.get_meta("row") if item.has_meta("row") else {}
 	if chk == null or typeof(row) != TYPE_DICTIONARY:
 		return
@@ -187,6 +190,7 @@ func _on_row_check_pressed(item: Node) -> void:
 		# uncheck all others
 		for other in ListParent.get_children():
 			if other != item:
+				print (other, "Should be marked as not checked")
 				_set_item_checked(other, false)
 	else:
 		# deselect if it was the selected one
@@ -259,7 +263,7 @@ func _sort_value(r: Dictionary, key: String):
 
 # ---------- helpers ----------
 func _set_item_checked(item: Node, on: bool) -> void:
-	var chk := item.get_node_or_null("EquipCheck") as CheckBox
+	var chk := item.EquipCheck as CheckBox
 	if chk:
 		chk.button_pressed = on
 

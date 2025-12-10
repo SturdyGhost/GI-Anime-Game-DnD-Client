@@ -7,3 +7,9 @@ extends HBoxContainer
 @onready var CDLabel = $Panel6/CD
 @onready var ChargeLabel = $Panel7/Charges
 @onready var DescriptionLabel = $Panel/Description
+@onready var DescriptionPanel = $Panel
+
+
+func _process(delta: float) -> void:
+	if DescriptionLabel.text != null:
+		DescriptionPanel.custom_minimum_size = Vector2(1280,DescriptionLabel.size.y)

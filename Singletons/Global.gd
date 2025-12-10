@@ -4,7 +4,7 @@ var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
 var ACTIVE_USER_TYPE: String = ""
 var ACTIVE_USER_RECORD_ID: float
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Attacks","Battle_Turns"]
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Active_Abilities"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
@@ -21,6 +21,8 @@ var BATTLE_TURNS: Array = []
 var CHARACTER_ITEMS: Dictionary = {}
 var CHARACTER_WEAPONS: Dictionary = {}
 var CHARACTER_ARTIFACTS: Dictionary = {}
+var ACTIVE_ABILITIES: Dictionary = {}
+var ACTIVE_STATUS_EFFECTS: Dictionary = {}
 var PARTY: Dictionary = {}
 var TALENTS = {}
 var CONSTELLATIONS = {}
@@ -30,12 +32,13 @@ var WEAPONS_NAME = {}
 var COMPANIONS_NAME = {}
 var CRAFTINGRECIPES_NAME = {}
 var MATERIAL_CACHES = {}
+var BATTLE_PARTICIPANTS = []
 var ITEMS_NAME = {}
 var ENEMIES_NAME = {}
 var CHARACTERS_NAME = {}
 var BATTLEENEMIES_NAME = {}
 var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_Weapons", "Character_Artifacts", "Companions"] #When you save also force a manual re-sync
-var TABLES_TO_SYNC_OFTEN = ["Characters","BattleEnemies"] #Resycnc often while in battles.
+var TABLES_TO_SYNC_OFTEN = ["Characters","BattleEnemies","Companions"] #Resycnc often while in battles.
 var BATTLE_TURN_ORDER = []
 var _current_region = ""
 var Current_Health
@@ -58,6 +61,10 @@ var set_modifiers := {}
 var artifact_set_calculated = 0
 var Region_Changed = 1
 var PublicIP
+var PartyCharacters = []
+var PartyCompanions = []
+var BattlerData = {}
+var AverageHealth : int
 var watched_tables := [
 	"Characters",
 	"Character_Items",
@@ -67,7 +74,8 @@ var watched_tables := [
 	"Constellations",
 	"BattleEnemies",
 	"Party",
-	"Battle_Turns"
+	"Battle_Turns",
+	"Companions"
 ]
 var last_known_timestamps := {}  # Dictionary<String, String>
 var APPLIED_ARTIFACT_BONUSES := {}  # key: character name, value: list of {stat: ..., amount: ...}
@@ -445,6 +453,7 @@ func _process_table(table_name: String, records: Array) -> void:
 		"Companions":
 			for record in records:
 				COMPANIONS[str(record["id"])] = record
+				COMPANIONS_NAME[record["Name"]] = str(record["id"])
 
 		"Crafting_Recipes":
 			for record in records:
@@ -492,13 +501,14 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				PARTY[str(record["id"])] = record
 
-		"Attacks":
+		"Active_Abilities":
 			for record in records:
-				ATTACKS[str(record["id"])] = record
+				ACTIVE_ABILITIES[str(record["id"])] = record
 
-		"Battle_Turns":
+		"Active_Status_Effects":
 			for record in records:
-				BATTLE_TURNS.append(record)
+				ACTIVE_STATUS_EFFECTS[str(record["id"])] = record
+
 
 		_:
 			pass
@@ -919,6 +929,7 @@ func CombatLog(battle_id: int, turn_no: int, phase: String, actor_type: String, 
 			   action_type: String, action_name: String, target_id: String, ignores_def: bool,
 			   rolls: Dictionary, damage: int, hp_before: int, hp_after: int, energy_change: int,
 			   elements_applied: Array = [], status_changes: Dictionary = {}, misc: Dictionary = {}) -> void:
+
 	if Global.Polling_Timer:
 		Global.Polling_Timer.paused = true
 
@@ -968,5 +979,6 @@ func _on_combat_log_response(result: int, response_code: int, headers: PackedStr
 	if Global.Polling_Timer:
 		Global.Polling_Timer.paused = false
 	http.queue_free()
+	print (result, response_code,http)
 	if response_code < 200 or response_code >= 300:
 		push_warning("CombatLog() failed: HTTP " + str(response_code) + " body=" + body.get_string_from_utf8())

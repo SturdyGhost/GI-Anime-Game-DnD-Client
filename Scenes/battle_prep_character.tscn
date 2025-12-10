@@ -34,6 +34,8 @@ offset_right = 338.0
 offset_bottom = 292.0
 text_overrun_behavior = 1
 fit_to_longest_item = false
+item_count = 1
+popup/item_0/id = 0
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0

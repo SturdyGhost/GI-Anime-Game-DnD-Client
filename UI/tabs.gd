@@ -5,6 +5,7 @@ var PlayerTalents = []
 var PlayerConstellations = []
 var PlayerAbilities = []
 var weapontype
+var Ability_Data = []
 var TalentTabKeys = {
 	"Wind": "b4fcd4",
 	"Earth": "f4d563",
@@ -19,6 +20,7 @@ var ConstellationTabKeys = {
 	"Medium":"4374b6",
 	"Strong":"fdd22e"
 }
+var Ability_Keys = ["Basic Attack", "Charged Attack","Skill","Burst","Passive"]
 @onready var Tables = $TabContainer
 @onready var TalentTableScene = load("res://UI/TalentTable.tscn")
 @onready var TalentTableRowScene = load("res://UI/TalentTableRow.tscn")
@@ -39,9 +41,10 @@ func get_data():
 	for constellation in Global.CONSTELLATIONS.values():
 		if constellation.get("Name") == Global.ACTIVE_USER_NAME:
 			PlayerConstellations.append(constellation)
-	for ability in Global.ABILITIES.values():
-		if ability.get("Character") == Global.ACTIVE_USER_NAME:
+	for ability in Global.ACTIVE_ABILITIES.values():
+		if ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID and ability.get("Entity_Type") == "Character":
 			PlayerAbilities.append(ability)
+			pass
 
 
 func _on_exit_button_pressed() -> void:
@@ -108,17 +111,41 @@ func init_rowes():
 			for talent in PlayerTalents:
 				if talent.get("Element") == child.name and talent.get("Chosen") == true:
 					UnlockedElement = true
-			for ability in PlayerAbilities:
-				if ability.get("Element") == child.name and ability.get("Weapon") == weapontype and UnlockedElement == true:
-					var NewRow = AbilityTableRowScene.instantiate()
-					child.Rows.add_child(NewRow)
-					NewRow.DescriptionLabel.text = ability.get("Description")
-					NewRow.AbilityLabel.text = ability.get("Ability_Type")
-					NewRow.TypeLabel.text = ability.get("Damage_Type")
-					NewRow.MovementLabel.text = str(ability.get("Movement"))
-					NewRow.RangeLabel.text = str(ability.get("Movement"))
-					NewRow.CDLabel.text = str(ability.get("Cooldown"))
-					NewRow.ChargeLabel.text = str(ability.get("Charge_Cost"))
+			for ability_key in Ability_Keys:
+				for ability in PlayerAbilities:
+					if ability.get("Element") == child.name and ability.get("Weapon_Type") == weapontype and UnlockedElement == true and ability.get("Ability_Type") == ability_key:
+						var ability_data = Global.ABILITIES[str(ability.get("Ability_ID"))]
+						Ability_Data.append({ability.get("id"): ability_data})
+						var NewRow = AbilityTableRowScene.instantiate()
+						child.Rows.add_child(NewRow)
+						if ability_data.get("description") != null:
+							NewRow.DescriptionLabel.text = ability_data.get("description")
+						else:
+							NewRow.DescriptionLabel.text = ""
+						if ability.get("Ability_Type") != null:
+							NewRow.AbilityLabel.text = ability.get("Ability_Type")
+						else:
+							NewRow.AbilityLabel.text = ""
+						if ability_data.get("element") != null:
+							NewRow.TypeLabel.text = ability_data.get("element")
+						else:
+							NewRow.TypeLabel.text = ""
+						if ability_data.get("movement") != null:
+							NewRow.MovementLabel.text = str(ability_data.get("movement"))
+						else:
+							NewRow.MovementLabel.text = ""
+						if ability_data.get("targeting_length") != null:
+							NewRow.RangeLabel.text = str(ability_data.get("targeting_length"))
+						else:
+							NewRow.RangeLabel.text = ""
+						if ability_data.get("cooldown") != null:
+							NewRow.CDLabel.text = str(ability_data.get("cooldown"))
+						else:
+							NewRow.CDLabel.text = ""
+						if ability_data.get("charge_cost") != null:
+							NewRow.ChargeLabel.text = str(ability_data.get("charge_cost"))
+						else:
+							NewRow.ChargeLabel.text = ""
 						
 			pass
 	pass
