@@ -149,9 +149,9 @@ icon_alignment = 1
 [node name="Error Label" type="Label" parent="."]
 layout_mode = 0
 offset_left = 39.0
-offset_top = 516.0
+offset_top = 455.0
 offset_right = 2536.0
-offset_bottom = 561.0
+offset_bottom = 500.0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 20

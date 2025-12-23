@@ -1,0 +1,92 @@
+[gd_scene load_steps=5 format=3 uid="uid://cii8q81edcqpe"]
+
+[ext_resource type="Script" path="res://addons/stat_printer/scene/script/stat_dock.gd" id="1_fy0jh"]
+[ext_resource type="PackedScene" uid="uid://b8mtx0eh2xhek" path="res://addons/stat_printer/scene/text_scan_menu.tscn" id="2_irykf"]
+[ext_resource type="PackedScene" uid="uid://c6ixuai41ao32" path="res://addons/stat_printer/scene/folder_blacklist_menu.tscn" id="3_t2kp1"]
+[ext_resource type="PackedScene" uid="uid://bv1bjrtmchor7" path="res://addons/stat_printer/scene/file_type_menu.tscn" id="4_u8lox"]
+
+[node name="StatDock" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+script = ExtResource("1_fy0jh")
+
+[node name="BaseContainer" type="VSplitContainer" parent="."]
+layout_mode = 0
+offset_right = 135.0
+offset_bottom = 117.0
+split_offset = 480
+
+[node name="PanelContainer" type="PanelContainer" parent="BaseContainer"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="TabContainer" type="TabContainer" parent="BaseContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="Text Scanners" parent="BaseContainer/PanelContainer/TabContainer" instance=ExtResource("2_irykf")]
+layout_mode = 2
+
+[node name="Folder Blacklist" parent="BaseContainer/PanelContainer/TabContainer" instance=ExtResource("3_t2kp1")]
+visible = false
+layout_mode = 2
+
+[node name="File Types" parent="BaseContainer/PanelContainer/TabContainer" instance=ExtResource("4_u8lox")]
+visible = false
+layout_mode = 2
+
+[node name="OutputPanelContainer" type="PanelContainer" parent="BaseContainer"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="OutputSplitContainer" type="HSplitContainer" parent="BaseContainer/OutputPanelContainer"]
+layout_mode = 2
+split_offset = 140
+
+[node name="OutputButtonVBox" type="VBoxContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer"]
+layout_mode = 2
+
+[node name="OutputButtonPanelContainer" type="PanelContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScanButton" type="Button" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox/OutputButtonPanelContainer"]
+layout_mode = 2
+mouse_filter = 1
+text = "Scan"
+
+[node name="OutputButtonPanelContainer2" type="PanelContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LoadDefaults" type="Button" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox/OutputButtonPanelContainer2"]
+layout_mode = 2
+mouse_filter = 1
+text = "Load Defaults"
+
+[node name="OutputTextPanelContainer" type="PanelContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputTextPanelContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputTextPanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+vertical_scroll_mode = 2
+
+[node name="Output" type="RichTextLabel" parent="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputTextPanelContainer/HBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[connection signal="pressed" from="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox/OutputButtonPanelContainer/ScanButton" to="." method="collect"]
+[connection signal="pressed" from="BaseContainer/OutputPanelContainer/OutputSplitContainer/OutputButtonVBox/OutputButtonPanelContainer2/LoadDefaults" to="." method="load_defaults"]

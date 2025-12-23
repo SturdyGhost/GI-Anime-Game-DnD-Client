@@ -22,8 +22,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_check_ready_players()
-	if Ready_Players.size() == 1:
+	if Global.CHARACTERS[Global.CHARACTERS_NAME[Global.Current_Party.get("Dungeon_Master")]].get("Ready") == true:
 		get_tree().change_scene_to_file("res://Scenes/Player_Battle_Scene.tscn")
 
 func _check_ready_players():

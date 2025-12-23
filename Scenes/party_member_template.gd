@@ -6,6 +6,7 @@ var hp_max: float
 var pct: float = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
 var type
 var tableid
+var card_name
 
 @onready var CardPortrait = $PM_Portrait
 @onready var CardName = $PM_Name
@@ -19,14 +20,13 @@ var tableid
 
 func set_card(cname):
 	s = Global.CHARACTERS[Global.CHARACTERS_NAME[cname]]
-	type = "Player"
+	card_name = cname
+	type = "Character"
 	tableid = s.get("id")
 	hp_cur = s.get("Current_Health")
 	hp_max = s.get("Max_Health")
 	pct = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
 	CardName.text = cname
-	CardElement.text = str(s.get("Element","—"))
-	CardWeapon.text = str(s.get("Weapon_Type","—"))
 	CardHealthBar.value = pct
 	CardHealthBar.tooltip_text = str(int(hp_cur)) + " / " + str(int(hp_max))
 	CardPortrait.texture = load("res://UI/Emotes/"+s.get("Portrait"))
@@ -50,10 +50,13 @@ func set_companion_card(cname):
 		
 		pass
 	CardName.text = cname
+	card_name = cname
+	hp_cur = s.get("Current_Health")
+	hp_max = s.get("Max_Health")
+	pct = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
+	CardHealthBar.value = pct
+	CardHealthBar.tooltip_text = str(int(hp_cur)) + " / " + str(int(hp_max))
 	var Lower = cname.to_lower().replace(" ","-")
-	CardElement.text = str(s.get("Element","—"))
-	CardWeapon.text = str(s.get("Weapon","—"))
-	CardHealthBar.visible = false
 	CardPortrait.texture = load("res://UI/Character Portaits/ui-avatarIcon-"+Lower+".png")
 	if s.get("Applied_Element") != "None":
 		CardAppliedElement.texture = load("res://UI/Element Icons/"+s.get("Applied_Element")+".png")
@@ -82,3 +85,29 @@ func split_at_space_after_limit(text: String, limit: int = 100,max_lines: int = 
 		start = min(split_at + 1, n)  # skip the space
 
 	return "\n".join(lines)
+
+func update_stats():
+	var s
+	match type:
+		"Character":
+			s = Global.CHARACTERS[str(float(tableid))]
+		"Companion":
+			s = Global.COMPANIONS[str(float(tableid))]
+	hp_cur = s.get("Current_Health")
+	hp_max = s.get("Max_Health")
+	pct = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
+	CardHealthBar.value = pct
+	CardHealthBar.tooltip_text = str(int(hp_cur)) + " / " + str(int(hp_max))
+	if s.get("Applied_Element") != "None":
+		CardAppliedElement.texture = load("res://UI/Element Icons/"+s.get("Applied_Element")+".png")
+		CardAppliedElement.tooltip_text = ""
+		for reaction in Global.REACTIONS.values():
+			if reaction.get("First_Element") == s.get("Applied_Element"):
+				CardAppliedElement.tooltip_text += reaction.get("Second_Element")+" - "+split_at_space_after_limit(reaction.get("Effect"), 100)+"\n \n"
+	else:
+		CardAppliedElement.texture = null
+	if hp_cur <= 0:
+		self.modulate = Color(0.6, 0.6, 0.6, 0.8)
+	else:
+		self.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	pass

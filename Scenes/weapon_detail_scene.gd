@@ -119,8 +119,8 @@ func _on_confirm_button_pressed() -> void:
 		_confirm_locked = false
 		return
 
-	for ability in Global.ABILITIES.values():
-		if ability.get("Weapon") == weapon_type and ability.get("Element") == element and ability.get("Character") == Global.ACTIVE_USER_NAME:
+	for ability in Global.ACTIVE_ABILITIES.values():
+		if ability.get("Weapon_Type") == weapon_type and ability.get("Element") == element and ability.get("Entity_Type") == "Character" and ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID:
 			ability_count += 1
 
 	if ability_count < 1:
@@ -167,22 +167,7 @@ func _on_confirm_button_pressed() -> void:
 		updates.append({"table": "Character_Weapons", "record_id": float(target_id), "field": "Equipped", "value": true})
 		Global.CHARACTER_WEAPONS[target_id]["Equipped"] = true
 
-	# --------- PASS 3: UPDATE CHARACTER FIELDS ---------
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Current_Weapon", "value": target_weapon_name})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Type", "value": selected_weapon.get("Type")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Region", "value": selected_weapon.get("Region")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Rarity", "value": selected_weapon.get("Rarity")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Effect", "value": selected_weapon.get("Effect")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Refinement", "value": selected_weapon.get("Refinement")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_1", "value": selected_weapon.get("Stat_1_Type")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_1_Value", "value": selected_weapon.get("Stat_1_Value")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_2", "value": selected_weapon.get("Stat_2_Type")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_2_Value", "value": selected_weapon.get("Stat_2_Value")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_3", "value": selected_weapon.get("Stat_3_Type")})
-	updates.append({"table": "Characters", "record_id": float(char_id), "field": "Weapon_Stat_3_Value", "value": selected_weapon.get("Stat_3_Value")})
 
-
-	
 
 	# Send updates (your function already pauses poller etc.)
 	Global.Update_Records(updates)

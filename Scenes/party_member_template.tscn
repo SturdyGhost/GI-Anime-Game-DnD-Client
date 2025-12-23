@@ -34,6 +34,7 @@ horizontal_alignment = 1
 text_overrun_behavior = 1
 
 [node name="PM_Element" type="Label" parent="."]
+visible = false
 layout_mode = 2
 offset_left = 200.0
 offset_top = 185.0
@@ -43,6 +44,7 @@ text = "Elem"
 horizontal_alignment = 1
 
 [node name="PM_Weapon" type="Label" parent="."]
+visible = false
 layout_mode = 2
 offset_left = 197.0
 offset_top = 51.0
@@ -70,6 +72,7 @@ offset_right = 442.0
 offset_bottom = 145.0
 
 [node name="PM_Status" type="Label" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 192.0
 offset_top = 98.0
@@ -81,7 +84,7 @@ horizontal_alignment = 1
 
 [node name="AppliedElement" type="TextureRect" parent="."]
 layout_mode = 0
-offset_left = 8.0
-offset_top = 159.0
-offset_right = 72.0
-offset_bottom = 223.0
+offset_left = 259.0
+offset_top = 82.0
+offset_right = 353.0
+offset_bottom = 176.0

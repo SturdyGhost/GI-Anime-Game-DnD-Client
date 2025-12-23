@@ -2,7 +2,7 @@ extends Control
 const PARTY_KEYS = ["Party_Member_1", "Party_Member_2", "Party_Member_3", "Party_Member_4"]
 const TURN_KEYS  = ["First_Turn", "Second_Turn", "Third_Turn", "Fourth_Turn"]
 
-@onready var PartyRow   : HBoxContainer  = $PartyRow
+@onready var PartyRow   = $PartyContainer/PartyRow
 @onready var PartyTpl    = preload("res://Scenes/party_member_template.tscn")
 @onready var TurnList   : ItemList       = $Body/TurnList
 @onready var EnemyFlow  : GridContainer  = $Body/EnemyScroll/EnemyFlow
@@ -13,6 +13,7 @@ const TURN_KEYS  = ["First_Turn", "Second_Turn", "Third_Turn", "Fourth_Turn"]
 @onready var PlayerTurnUI = $Player_Hub
 @onready var VisibilityButton = $VisibilityToggleButton
 
+
 const COL_NEXT    : Color = Color(0.545, 0.827, 0.867, 0.18)
 const COL_CURRENT : Color = Color(0.886, 0.761, 0.564, 0.28)
 var companion_name = []
@@ -21,10 +22,13 @@ var music_index: int = -1
 var ordered: Array = []
 var Original_Order = []
 
+
 func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
+	if PlayerTurnUI.has_signal("turn_ended"):
+		PlayerTurnUI.turn_ended.connect(_on_child_turn_ended)
 	_refresh_all()
 	set_background()
 	load_region_music(Global.Current_Region)
@@ -32,15 +36,45 @@ func _ready() -> void:
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	set_battlers()
 
+func update_enemies():
+	var updates = []
+	for record in Global.BATTLEENEMIES.values():
+		var enemy_name = str(record.get("EnemyName"))
+		var enemy_id := str(int(record.get("id")))
+
+		# Expected suffix format: " <id>"
+		var expected_suffix = " " + enemy_id
+
+		if not enemy_name.ends_with(expected_suffix):
+			updates.append({
+				"table": "BattleEnemies",
+				"record_id": str(int(record.get("id"))),
+				"field": "EnemyName",
+				"value": enemy_name + expected_suffix
+			})
+	Global.Update_Records(updates)
+
+func _on_child_turn_ended() -> void:
+	advance_turn()
 
 func _refresh_all() -> void:
 	_refresh_party()
 	_refresh_enemies()
 	_refresh_turns()
 
+func _process(delta: float) -> void:
+	if_someone_else_ended()
+
 func _on_data_load_complete():
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	set_battlers()
+	_update_party_ui()
+	Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
+
+func if_someone_else_ended():
+	var char_data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
+	if char_data.get("Ready") == false:
+		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
 func _refresh_party() -> void:
 	for c in PartyRow.get_children():
@@ -55,6 +89,10 @@ func _refresh_party() -> void:
 		else:
 			row.set_companion_card(member)
 
+func _update_party_ui():
+	for c in PartyRow.get_children():
+		if c.tableid != null:
+			c.update_stats()
 
 func _refresh_enemies() -> void:
 	for c in EnemyFlow.get_children():
@@ -124,7 +162,7 @@ func set_battlers():
 						b_active_abilities[aa.get("id")] = aa
 						b_active_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
 			for status in Global.ACTIVE_STATUS_EFFECTS.values():
-				if status.get("Entity_Type") == b_type and status.get("Entity_ID") == b_id:
+				if status.get("Entity_Type") == b_type and str(float(status.get("Entity_ID"))) == str(float(b_id)):
 					b_active_status_effects[status.get("id")] = status
 			b_current_health = b_complete_data.get("Current_Health")
 			b_max_health = b_complete_data.get("Max_Health")
@@ -150,6 +188,7 @@ func set_battlers():
 				"killed_status": b_killed_status,
 				"skipped_status": b_skipped_status,
 				"skipped_duration": b_skipped_duration}
+		Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
 		pass
 
 func _refresh_turns() -> void:
@@ -217,7 +256,7 @@ func load_region_music(region: String) -> void:
 		print("⚠️ Could not open music folder:", folder_path)
 
 func play_next_track():
-	if Global.ACTIVE_USER_NAME == "Brian C.":
+	if Global.ACTIVE_USER_NAME == "Brian F.":
 		if music_files.is_empty():
 			print("⚠️ No music files found!")
 			return
@@ -235,8 +274,55 @@ func _on_audio_stream_player_finished() -> void:
 func _on_button_pressed() -> void:
 	advance_turn()
 
+func check_battle_end():
+	var all_enemies_dead := true
+	var all_players_down := true
+
+	# Check enemies
+	for enemy in Global.BATTLEENEMIES.values():
+		if enemy.get("Killed") == false:
+			all_enemies_dead = false
+			break
+
+	# Check players
+	for player_name in Global.PartyCharacters:
+		var char_id = Global.CHARACTERS_NAME[player_name]
+		var health = Global.CHARACTERS[char_id].get("Current_Health")
+
+		if health > 0:
+			all_players_down = false
+			break
+
+	# End battle if either condition is met
+	if all_enemies_dead or all_players_down:
+		print("Battle ending")
+		for enemy in Global.BATTLEENEMIES.values():
+			Global.Remove_Record("BattleEnemies",enemy.get("id"))
+		for status in Global.ACTIVE_STATUS_EFFECTS.values():
+			Global.Remove_Record("Active_Status_Effects", status.get("id"))
+		var updates = []
+		for ability in Global.ACTIVE_ABILITIES.values():
+			if ability.get("Ability_Cooldown") > 0:
+				updates.append({
+					"table": "Active_Abilities",            # Adjust if your table name differs
+					"record_id": ability.get("id"),  # Must be the Party's record id
+					"field": "Ability_Cooldown",
+					"value": 0
+					})
+		for character in Global.CHARACTERS.values():
+			if character.get("Ready") == true:
+				updates.append({
+					"table": "Characters",            # Adjust if your table name differs
+					"record_id": character.get("id"),  # Must be the Party's record id
+					"field": "Ready",
+					"value": false
+					})
+		Global.Update_Records(updates)
+		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+
 
 func advance_turn():
+	check_battle_end()	
 	var SecondTurnText = TurnList.get_item_text(1)
 	var updates = [{
 		"table": "Party",            # Adjust if your table name differs
@@ -256,6 +342,7 @@ func assign_party():
 
 
 func check_turn_ui(current_turn):
+	_refresh_turns()
 	if current_turn == Global.ACTIVE_USER_NAME:
 		VisibilityButton.visible = true
 		PlayerTurnUI.visible = true

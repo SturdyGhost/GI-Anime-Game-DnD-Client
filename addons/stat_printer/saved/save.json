@@ -1,0 +1,23 @@
+{
+	"blacklisted_folders": [
+		"addons",
+		".godot"
+	],
+	"file_types": {
+		"PNGs": "png",
+		"Resources": "tres",
+		"Scenes": "tscn",
+		"Scripts": "gd"
+	},
+	"script_scanners": {
+		"Classes": "class_name ",
+		"Else If Statements": "elif ",
+		"Else Statements": "else:",
+		"Functions": "func ",
+		"If Statements": "if ",
+		"Lambda Functions": "func(",
+		"Match Statements": "match ",
+		"Signals": "signal ",
+		"Variables": "var "
+	}
+}

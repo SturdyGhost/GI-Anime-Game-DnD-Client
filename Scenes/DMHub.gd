@@ -1,47 +1,11 @@
 extends Control
 
-# ---------------- Node Refs ----------------
-@onready var ModeSwitch: OptionButton = $Layout/TopBarDM/ModeSwitch
-@onready var PartyList: VBoxContainer = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/PartyListPanel/PartyListScroll/PartyList
-@onready var DMLog: RichTextLabel = $Layout/MainSplit/DMLogPanel/DMLogVBox/DMLog
-
-# Give
-@onready var GiveTarget: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveTargetHBox/GiveTarget
-@onready var GiveItemName: LineEdit = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveNameHBox/GiveItemName
-@onready var GiveQty: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveQtyHBox/GiveQty
-@onready var GiveConfirm: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/GiveItemBox/GiveItemVBox/GiveConfirm
-
-# Remove
-@onready var RemoveTarget: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveTargetHBox/RemoveTarget
-@onready var RemoveItemName: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveItemHBox/RemoveItemName
-@onready var RemoveQty: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveQtyHBox/RemoveQty
-@onready var RemoveConfirm: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/RemoveItemBox/RemoveItemVBox/RemoveConfirm
-
-# Artifact
-@onready var ArtifactOwner: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactOwnerHBox/ArtifactOwner
-@onready var ArtifactSet: LineEdit = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactSetHBox/ArtifactSet
-@onready var ArtifactType: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactTypeHBox/ArtifactType
-@onready var ArtifactRarity: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactRarityHBox/ArtifactRarity
-@onready var Stat1Type: LineEdit = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox/Stat1Type
-@onready var Stat1Value: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox/Stat1Value
-@onready var Stat2Type: LineEdit = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox/Stat2Type
-@onready var Stat2Value: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactStatsHBox/Stat2Value
-@onready var ArtifactGenerate: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/ArtifactBox/ArtifactVBox/ArtifactGenerate
-
-# Ascend
-@onready var AscendOwner: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendOwnerHBox/AscendOwner
-@onready var PointsHP: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/HP
-@onready var PointsATK: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/ATK
-@onready var PointsDEF: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/DEF
-@onready var PointsEM: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/EM
-@onready var PointsER: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/ER
-@onready var PointsCD: SpinBox = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendPointsGrid/CD
-@onready var AscendConfirm: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/AscendBox/AscendVBox/AscendConfirm
-
-# Unlock Companion
-@onready var UnlockOwner: OptionButton = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox/UnlockOwner
-@onready var UnlockCompanionName: LineEdit = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockHBox/UnlockCompanionName
-@onready var UnlockConfirm: Button = $Layout/MainSplit/Tabs/PartyManagement/PM_HBox/MemberPanel/MemberVBox/UnlockBox/UnlockConfirm
+@onready var ActionButton = $Layout/MainSplit/Tabs/PartyManagement/Panel/ActionOptionButton
+@onready var CharacterButton = $Layout/MainSplit/Tabs/PartyManagement/Panel/CharacterOptionButton
+@onready var ObjectButton = $Layout/MainSplit/Tabs/PartyManagement/Panel/ObjectOptionButton
+@onready var QuantityText = $Layout/MainSplit/Tabs/PartyManagement/Panel/QuantityTextEdit
+@onready var SpecificsObjectButton = $Layout/MainSplit/Tabs/PartyManagement/Panel/SpecificsOptionButton
+@onready var ConfirmButton = $Layout/MainSplit/Tabs/PartyManagement/Panel/ConfirmButton
 
 # Battle Prep references
 @onready var EncounterHContainer = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterHContainer
@@ -62,10 +26,16 @@ var _suggest_vbox: VBoxContainer
 var _panel_max_height: float = 240.0
 var active_party_members = []
 var active_companion_members = []
+# Fast lookups for specifics -> full record
+var _items_by_name: Dictionary = {}     # "ItemName" -> item_record
+var _weapons_by_name: Dictionary = {}   # "WeaponName" -> weapon_record
 
 func _ready() -> void:
-	_populate_mode_switch()
+	var handler = Callable(self, "_on_data_load_complete")
+	if not Global.is_connected("data_load_complete", handler):
+		Global.connect("data_load_complete", handler)
 	_populate_owners()
+	_build_lookup_maps()
 	_wire_buttons()
 	_build_suggest_panel()
 	get_party()
@@ -79,11 +49,354 @@ func _ready() -> void:
 	Global.Polling_Timer.wait_time = 0.1
 	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
 	Global.Polling_Timer.start()
+	_refresh_specifics_options()
 
 func _process(delta: float) -> void:
-	if BattlePrepTab.visible == true:
-		check_matches()
-		check_ready()
+	check_matches()
+	check_ready()
+
+func _on_data_load_complete():
+	print("✅ Global data has finished loading!")
+	get_party()
+
+func _build_lookup_maps() -> void:
+	_items_by_name.clear()
+	for rec in Global.ITEMS.values():
+		var item_name: String = str(rec.get("Item", ""))
+		if item_name != "" and not _items_by_name.has(item_name):
+			_items_by_name[item_name] = rec
+
+	_weapons_by_name.clear()
+	for rec in Global.WEAPONS.values():
+		var weapon_name: String = str(rec.get("Name", ""))
+		if weapon_name != "" and not _weapons_by_name.has(weapon_name):
+			_weapons_by_name[weapon_name] = rec
+
+
+func _on_object_selected(_idx: int) -> void:
+	_refresh_specifics_options()
+
+func _refresh_specifics_options() -> void:
+	SpecificsObjectButton.clear()
+
+	var category: String = ObjectButton.get_item_text(ObjectButton.selected)
+
+	if category == "Misc.":
+		SpecificsObjectButton.add_item("Levels")
+		SpecificsObjectButton.add_item("Gold")
+		SpecificsObjectButton.add_item("Character Gambles")
+		return
+
+	if category == "Items":
+		var names: Array[String] = []
+		for k in _items_by_name.keys():
+			names.append(str(k))
+		names.sort()
+		for n in names:
+			SpecificsObjectButton.add_item(n)
+		return
+
+	if category == "Artifacts":
+		# Intentionally not implemented yet (manual setup)
+		return
+
+	if category == "Weapons":
+		var names: Array[String] = []
+		for k in _weapons_by_name.keys():
+			names.append(str(k))
+		names.sort()
+		for n in names:
+			SpecificsObjectButton.add_item(n)
+		return
+
+
+func _on_confirm_pressed() -> void:
+	var action_text: String = ActionButton.get_item_text(ActionButton.selected)
+	var owner_name: String = CharacterButton.get_item_text(CharacterButton.selected)
+	var category: String = ObjectButton.get_item_text(ObjectButton.selected)
+
+	var specific: String = ""
+	if SpecificsObjectButton.item_count > 0 and SpecificsObjectButton.selected >= 0:
+		specific = SpecificsObjectButton.get_item_text(SpecificsObjectButton.selected)
+
+	var qty: int = _get_quantity()
+	if qty <= 0:
+		return
+
+	if category == "Items":
+		_process_items(action_text, owner_name, specific, qty)
+		return
+
+	if category == "Weapons":
+		_process_weapons(action_text, owner_name, specific, qty)
+		return
+
+	if category == "Misc.":
+		_process_misc(action_text, owner_name, specific, qty)
+	# Misc / Artifacts intentionally not implemented
+	return
+
+
+func _get_quantity() -> int:
+	# If you are using a LineEdit instead of TextEdit:
+	#   var raw := QuantityText.text
+	var raw: String = QuantityText.text
+	raw = raw.strip_edges()
+
+	if raw == "":
+		return 0
+
+	# Allow accidental decimals like "3.0"
+	if raw.find(".") != -1:
+		raw = raw.split(".")[0]
+
+	if not raw.is_valid_int():
+		return 0
+
+	var v: int = int(raw)
+	if v < 0:
+		v = 0
+	return v
+
+
+func _process_items(action_text: String, owner_name: String, item_name: String, qty: int) -> void:
+	if item_name == "":
+		return
+
+	var delta: int = qty
+	if action_text == "Remove":
+		delta = -qty
+
+	# Find existing record (keyed by record_id)
+	var found_record_id: String = ""
+	var found_record: Dictionary = {}
+
+	for record_id in Global.CHARACTER_ITEMS.keys():
+		var rec: Dictionary = Global.CHARACTER_ITEMS[record_id]
+		if str(rec.get("Owner", "")) == owner_name and str(rec.get("Name", "")) == item_name:
+			found_record_id = str(int(record_id))
+			found_record = rec
+			break
+
+	if found_record_id != "":
+		var old_q: int = int(float(found_record.get("Quantity", 0)))
+		var new_q: int = old_q + delta
+		if new_q < 0:
+			new_q = 0
+
+		var updates: Array = []
+		updates.append({
+			"table": "Character_Items",
+			"record_id": found_record_id,
+			"field": "Quantity",
+			"value": new_q
+		})
+
+		Global.Update_Records(updates)
+		return
+
+	# Doesn't exist: only insert if we're giving (delta > 0)
+	if delta <= 0:
+		return
+
+	if not _items_by_name.has(item_name):
+		return
+
+	var base: Dictionary = _items_by_name[item_name]
+
+	var columns: Array = ["Owner", "Name", "Quantity", "Type", "Description", "Rarity"]
+	var values: Array = [
+		owner_name,
+		item_name,
+		delta,
+		str(base.get("Type", "")),
+		str(base.get("Description", "")),
+		str(base.get("Rarity", ""))
+	]
+
+	Global.Insert("Character_Items", columns, values)
+
+
+func _process_misc(action_text: String, owner_name: String, property_name: String, qty: int) -> void:
+	if qty <= 0:
+		return
+
+	# Determine delta based on Give/Remove
+	var delta: int = qty
+	if action_text == "Remove":
+		delta = -qty
+
+	# -----------------------------
+	# PARTY-LEVEL PROPERTIES
+	# -----------------------------
+	if property_name == "Gold":
+		var party_id: String = str(int(Global.Current_Party.get("id")))
+		var current_mora: int = int(float(Global.Current_Party.get("Mora", 0)))
+		var new_mora: int = current_mora + delta
+		if new_mora < 0:
+			new_mora = 0
+
+		var updates: Array = [{
+			"table": "Party",
+			"record_id": party_id,
+			"field": "Mora",
+			"value": new_mora
+		}]
+		Global.Update_Records(updates)
+		return
+
+	if property_name == "Character Gambles":
+		var party_id2: String = str(int(Global.Current_Party.get("id")))
+		var current_gambles: int = int(float(Global.Current_Party.get("Gambles", 0)))
+		var new_gambles: int = current_gambles + delta
+		if new_gambles < 0:
+			new_gambles = 0
+
+		var updates2: Array = [{
+			"table": "Party",
+			"record_id": party_id2,
+			"field": "Gambles",
+			"value": new_gambles
+		}]
+		Global.Update_Records(updates2)
+		return
+
+	# -----------------------------
+	# CHARACTER-LEVEL PROPERTIES
+	# -----------------------------
+	if property_name == "Levels":
+		if not Global.CHARACTERS_NAME.has(owner_name):
+			return
+
+		var char_record_id: String = str(int(Global.CHARACTERS_NAME[owner_name]))
+		var char_rec: Dictionary = Global.CHARACTERS[str(float(char_record_id))]
+
+		var current_level: int = int(float(char_rec.get("Level", 0)))
+		var level_cap: int = int(float(char_rec.get("Level_Cap", 0)))
+		var current_unspent: int = int(float(char_rec.get("Unspent_Skill_Points", 0)))
+
+		# Removing levels: just decrease Level by qty (no cap logic)
+		if action_text == "Remove":
+			var new_level: int = current_level - qty
+			if new_level < 0:
+				new_level = 0
+
+			var updates3: Array = [{
+				"table": "Characters",
+				"record_id": char_record_id,
+				"field": "Level",
+				"value": new_level
+			}]
+			Global.Update_Records(updates3)
+			return
+
+		# Giving levels: clamp to Level Cap, and add Unspent_Skill_Points
+		if action_text == "Give":
+			var target_level: int = int(current_level+qty)
+			if target_level > level_cap:
+				target_level = level_cap
+
+			var increase_amount: int = target_level - current_level
+			print ("Current Level: " + str(current_level) +" - Target Level: " + str(target_level)+" - Increase Amount: "+str(increase_amount)+" - Quantity: "+str(qty))
+			if increase_amount <= 0:
+
+				return
+
+			var new_unspent: int = current_unspent + increase_amount
+
+			var updates4: Array = []
+			updates4.append({
+				"table": "Characters",
+				"record_id": char_record_id,
+				"field": "Level",
+				"value": target_level
+			})
+			updates4.append({
+				"table": "Characters",
+				"record_id": char_record_id,
+				"field": "Unspent_Skill_Points",
+				"value": new_unspent
+			})
+
+			Global.Update_Records(updates4)
+			return
+
+	# If property_name is something unexpected, do nothing
+	return
+
+
+func _process_weapons(action_text: String, owner_name: String, weapon_name: String, qty: int) -> void:
+	if weapon_name == "":
+		return
+
+	var delta: int = qty
+	if action_text == "Remove":
+		delta = -qty
+
+	# Find existing record
+	var found_record_id: String = ""
+	var found_record: Dictionary = {}
+
+	for record_id in Global.CHARACTER_WEAPONS.keys():
+		var rec: Dictionary = Global.CHARACTER_WEAPONS[record_id]
+		if str(rec.get("Owner", "")) == owner_name and str(rec.get("Weapon", "")) == weapon_name:
+			found_record_id = str(int(record_id))
+			found_record = rec
+			break
+
+	if found_record_id != "":
+		var old_q: int = int(float(found_record.get("Quantity", 0)))
+		var new_q: int = old_q + delta
+		if new_q < 0:
+			new_q = 0
+
+		var updates: Array = []
+		updates.append({
+			"table": "Character_Weapons",
+			"record_id": found_record_id,
+			"field": "Quantity",
+			"value": new_q
+		})
+
+		Global.Update_Records(updates)
+		return
+
+	# Doesn't exist: only insert if we're giving
+	if delta <= 0:
+		return
+
+	if not _weapons_by_name.has(weapon_name):
+		return
+
+	var base: Dictionary = _weapons_by_name[weapon_name]
+
+	var columns: Array = [
+		"Owner", "Weapon", "Type", "Rarity", "Region", "Quantity",
+		"Effect", "Stat_1_Type", "Stat_2_Type", "Stat_3_Type",
+		"Stat_1_Value", "Stat_2_Value", "Stat_3_Value",
+		"Refinement", "Equipped"
+	]
+
+	var values: Array = [
+		owner_name,
+		weapon_name,
+		str(base.get("Type", "")),
+		str(base.get("Rarity", "")),
+		str(base.get("Region", "")),
+		delta,
+		str(base.get("Effect", "")),
+		str(base.get("Stat_1_Type", "")),
+		str(base.get("Stat_2_Type", "")),
+		str(base.get("Stat_3_Type", "")),
+		base.get("Stat_1_Value", 0),
+		base.get("Stat_2_Value", 0),
+		base.get("Stat_3_Value", 0),
+		0,      # Refinement always 0
+		false   # Equipped always false
+	]
+
+	Global.Insert("Character_Weapons", columns, values)
+
 
 func get_party():
 	for entry in Global.PARTY.values():
@@ -100,15 +413,17 @@ func get_party():
 			active_companion_members.append(entry.get("Name"))
 
 func check_ready():
-	var ready_members = active_party_members.size()
-	for entry in active_party_members:
-		if Global.CHARACTERS[Global.CHARACTERS_NAME[entry]].get("Ready") == false:
-			ready_members -= 1
-	if ready_members == active_party_members.size():
-		BtnSituation.disabled = false
-	else:
-		BtnSituation.disabled = true
-	pass
+	if active_party_members.size() > 0:
+		var players_ready = true
+		for entry in active_party_members:
+			if Global.CHARACTERS[Global.CHARACTERS_NAME[entry]].get("Ready") == false:
+				players_ready = false
+				break
+		if players_ready == true:
+			BtnSituation.disabled = false
+		else:
+			BtnSituation.disabled = true
+
 
 func check_matches():
 	if EnemyName.text != "" and EnemyName.text != searchword:
@@ -214,11 +529,6 @@ func _apply_suggestion(name: String) -> void:
 	# Ensure caret stays in the LineEdit after clicking a suggestion
 	call_deferred("_refocus_enemy_input")
 
-func _populate_mode_switch() -> void:
-	ModeSwitch.clear()
-	ModeSwitch.add_item("Party View")
-	ModeSwitch.add_item("Battle Prep")
-	ModeSwitch.add_item("World State")
 
 func _populate_owners() -> void:
 	owners.clear()
@@ -230,184 +540,31 @@ func _populate_owners() -> void:
 	else:
 		owners = ["Brian C.", "Brian F.", "Dylan"]
 	owners.sort()
-	_fill_option_with_array(GiveTarget, owners)
-	_fill_option_with_array(RemoveTarget, owners)
-	_fill_option_with_array(ArtifactOwner, owners)
-	_fill_option_with_array(AscendOwner, owners)
-	_fill_option_with_array(UnlockOwner, owners)
-	# Fill artifact type/rarity options
-	ArtifactType.clear()
-	for t in ["Flower","Feather","Sands","Goblet","Circlet"]:
-		ArtifactType.add_item(t)
-	ArtifactRarity.clear()
-	for r in [1,2,3,4,5]:
-		ArtifactRarity.add_item(str(r))
-
-func _fill_option_with_array(ob: OptionButton, arr: Array) -> void:
-	ob.clear()
-	for i in arr.size():
-		ob.add_item(str(arr[i]), i)
-	if arr.size() > 0:
-		ob.select(0)
 
 func _wire_buttons() -> void:
-	GiveConfirm.pressed.connect(_on_give_confirm)
-	RemoveTarget.item_selected.connect(_on_remove_owner_selected)
-	RemoveConfirm.pressed.connect(_on_remove_confirm)
-	ArtifactGenerate.pressed.connect(_on_artifact_generate)
-	AscendConfirm.pressed.connect(_on_ascend_confirm)
-	UnlockConfirm.pressed.connect(_on_unlock_confirm)
 	BtnAddEnemy.pressed.connect(_on_add_enemy_pressed)
 	BtnSituation.pressed.connect(_on_situation_pressed)
+	ObjectButton.item_selected.connect(_on_object_selected)
+	ConfirmButton.pressed.connect(_on_confirm_pressed)
 
 
-# ---------------- Inventory: Give ----------------
-func _on_give_confirm() -> void:
-	var owner = owners[GiveTarget.get_selected_id()] if owners.size() > 0 else ""
-	var name = GiveItemName.text.strip_edges()
-	var qty = int(GiveQty.value)
-	if owner == "" or name == "" or qty <= 0:
-		return
-	var existing_id = _find_item_entry(owner, name)
-	if existing_id >= 0:
-		var current_qty = _get_item_quantity(existing_id)
-		var new_qty = current_qty + qty
-		var updates = [{"table":"Character_Items","record_id": float(existing_id), "field":"Quantity", "value": new_qty}]
-		if "Update" in Global:
-			Global.Update(updates)
-	else:
-		if "Insert" in Global:
-			Global.Insert("Character_Items",
-				["Owner","Name","Type","Rarity","Quantity","Description"],
-				[owner, name, "", "", qty, "Granted via DM Hub"])
 
-# ---------------- Inventory: Remove ----------------
-func _on_remove_owner_selected(_index: int) -> void:
-	_populate_remove_item_names()
 
-func _populate_remove_item_names() -> void:
-	RemoveItemName.clear()
-	var owner = owners[RemoveTarget.get_selected_id()] if owners.size() > 0 else ""
-	if owner == "":
-		return
-	var items = _get_items_for_owner(owner)
-	for item_name in items:
-		RemoveItemName.add_item(item_name)
-
-func _on_remove_confirm() -> void:
-	var owner = owners[RemoveTarget.get_selected_id()] if owners.size() > 0 else ""
-	var item_name = RemoveItemName.get_item_text(RemoveItemName.get_selected_id()) if RemoveItemName.item_count > 0 else ""
-	var qty = int(RemoveQty.value)
-	if owner == "" or item_name == "" or qty <= 0:
-		return
-	var existing_id = _find_item_entry(owner, item_name)
-	if existing_id < 0:
-		return
-	var current_qty = _get_item_quantity(existing_id)
-	var new_qty = current_qty - qty
-	if new_qty < 0:
-		new_qty = 0
-	var updates = [{"table":"Character_Items","record_id": float(existing_id), "field":"Quantity", "value": new_qty}]
-	if "Update" in Global:
-		Global.Update(updates)
-
-# Helpers for Character_Items
-func _find_item_entry(owner: String, name: String) -> int:
-	if "Character_Items" in Global:
-		for key in Global.Character_Items.keys():
-			var row = Global.Character_Items[key]
-			if str(row.get("Owner")) == owner and str(row.get("Name")).to_lower() == name.to_lower():
-				return int(row.get("id", key))
-	return -1
-
-func _get_item_quantity(row_id: int) -> int:
-	if "Character_Items" in Global:
-		for key in Global.Character_Items.keys():
-			var row = Global.Character_Items[key]
-			var id_val = int(row.get("id", key))
-			if id_val == row_id:
-				return int(row.get("Quantity", 0))
-	return 0
-
-func _get_items_for_owner(owner: String) -> Array:
-	var out: Array = []
-	if "Character_Items" in Global:
-		for key in Global.Character_Items.keys():
-			var row = Global.Character_Items[key]
-			if str(row.get("Owner")) == owner:
-				out.append(str(row.get("Name")))
-	out.sort()
-	return out
-
-# ---------------- Artifact Generation ----------------
-func _on_artifact_generate() -> void:
-	var owner = owners[ArtifactOwner.get_selected_id()] if owners.size() > 0 else ""
-	var set_name = ArtifactSet.text.strip_edges()
-	var type_name = ArtifactType.get_item_text(ArtifactType.get_selected_id()) if ArtifactType.item_count > 0 else ""
-	var rarity = int(ArtifactRarity.get_item_text(ArtifactRarity.get_selected_id())) if ArtifactRarity.item_count > 0 else 1
-	var stat1_t = Stat1Type.text.strip_edges()
-	var stat1_v = int(Stat1Value.value)
-	var stat2_t = Stat2Type.text.strip_edges()
-	var stat2_v = int(Stat2Value.value)
-	if owner == "" or set_name == "" or type_name == "":
-		return
-	if "Insert" in Global:
-		Global.Insert("Character_Artifacts",
-			["Artifact Set","Owner","Type","Stat 1 Type","Stat 2 Type","Stat 1 Value","Stat 2 Value","Equipped","Rarity"],
-			[set_name, owner, type_name, stat1_t, stat2_t, stat1_v, stat2_v, false, rarity])
-
-# ---------------- Ascension ----------------
-func _on_ascend_confirm() -> void:
-	var owner = owners[AscendOwner.get_selected_id()] if owners.size() > 0 else ""
-	if owner == "":
-		return
-	var rec = _find_character_record(owner)
-	if rec.is_empty():
-		return
-	var char_id = float(rec.get("Id", 0))
-	var updates = []
-	updates.append({"table":"Characters","record_id": char_id,"field":"Health Base Points","value": int(PointsHP.value)})
-	updates.append({"table":"Characters","record_id": char_id,"field":"Attack Base Points","value": int(PointsATK.value)})
-	updates.append({"table":"Characters","record_id": char_id,"field":"Defense Base Points","value": int(PointsDEF.value)})
-	updates.append({"table":"Characters","record_id": char_id,"field":"Elemental Mastery Base Points","value": int(PointsEM.value)})
-	updates.append({"table":"Characters","record_id": char_id,"field":"Energy Recharge Base Points","value": int(PointsER.value)})
-	updates.append({"table":"Characters","record_id": char_id,"field":"Critical Damage Base Points","value": int(PointsCD.value)})
-	if "Update" in Global:
-		Global.Update(updates)
-
-func _find_character_record(owner: String) -> Dictionary:
-	if "Characters" in Global:
-		for key in Global.Characters.keys():
-			var rec = Global.Characters[key]
-			if str(rec.get("Name")) == owner:
-				return rec
-	return {}
-
-# ---------------- Unlock Companion ----------------
-func _on_unlock_confirm() -> void:
-	var owner = owners[UnlockOwner.get_selected_id()] if owners.size() > 0 else ""
-	var companion = UnlockCompanionName.text.strip_edges()
-	if owner == "" or companion == "":
-		return
-	var rec = _find_character_record(owner)
-	if rec.is_empty():
-		return
-	var char_id = float(rec.get("Id", 0))
-	var updates = [{"table":"Characters","record_id": char_id,"field":"Companion Name","value": companion}]
-	if "Update" in Global:
-		Global.Update(updates)
 
 # ---------------- Battle Prep ----------------
 func _on_add_enemy_pressed() -> void:
-	if EncounterVContainer.get_child_count() >= 15:
-		return
 	var name = EnemyName.text.strip_edges()
 	var cardscene = load("res://Scenes/enemy_line_item.tscn")
 	var card = cardscene.instantiate()
 	card.enemy_name = name
 	EncounterVContainer.add_child(card)
-
-	
+	var enemy_data = Global.ENEMIES[str(float(Global.ENEMIES_NAME[name]))]
+	var phase1hp
+	if enemy_data.get("hp_per_phase") == null:
+		phase1hp = enemy_data.get("phase1_hp")
+	else:
+		phase1hp = enemy_data.get("hp_per_phase")
+	Global.Insert("BattleEnemies",["EnemyName","EnemyID","Current_Health","Max_Health"],[name,Global.ENEMIES_NAME[name],phase1hp,phase1hp])
 
 func _make_enemy_card(name: String, hp: int) -> Control:
 	var panel = PanelContainer.new()
@@ -424,20 +581,15 @@ func _make_enemy_card(name: String, hp: int) -> Control:
 	panel.add_child(v)
 	return panel
 
-func _on_preset_pressed() -> void:
-	# Example preset: add 3 Hilichurls and 1 Mitachurl
-	_clear_encounter()
-	var names = ["Hilichurl","Hilichurl","Hilichurl","Mitachurl"]
-	for n in names:
-		EncounterVContainer.add_child(_make_enemy_card(n, 20 if n == "Hilichurl" else 60))
+
 
 func _on_situation_pressed() -> void:
-	var s: PackedScene = preload("res://Scenes/dm_battle_scene.tscn")
+	await(Global.Update_Records([{"table":"Characters","record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Ready","value": true}]))
+	var s: PackedScene = preload("res://Scenes/Enemy_Battle_Scene.tscn")
 	var dlg = s.instantiate()
 	add_child(dlg)
 	for child in EncounterVContainer.get_children():
 		child.queue_free()
-	self.visible = false
 	pass
 
 func _clear_encounter() -> void:
@@ -466,8 +618,7 @@ func _on_button_pressed() -> void:
 
 func _on_restore_battle_button_pressed() -> void:
 	for child in get_children():
-		if child.name == "DMBattleScene":
+		if child.name == "Player_Battle_Scene":
 			child.visible = true
-			RestoreBattle.visible = false
 			
 	pass # Replace with function body.

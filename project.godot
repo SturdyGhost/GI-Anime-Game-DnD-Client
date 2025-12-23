@@ -14,7 +14,6 @@ config/name="Genshin DnD Client"
 config/version="0.0.8"
 run/main_scene="uid://ejjstot0uurx"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
 
 [autoload]
 
@@ -44,6 +43,13 @@ enabled=PackedStringArray("res://addons/theme_gen_save_sync/plugin.cfg")
 theme/default_theme_scale=2.0
 theme/custom="uid://dgfy4yirbqrg7"
 theme/default_font_generate_mipmaps=true
+
+[plugins]
+
+ai_assistant_hub/preferences/thinking_target=0
+ai_assistant_hub/preferences/skip_greeting=false
+ai_assistant_hub/preferences/always_scroll_to_bottom=false
+ai_assistant_hub/llm_api="ollama_api"
 
 [rendering]
 

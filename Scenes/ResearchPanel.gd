@@ -232,6 +232,8 @@ func _add_image(url: String, caption: String) -> void:
 func _finish_and_close() -> void:
 	# copy notes and close like before
 	DisplayServer.clipboard_set(notes.text)
+	ResearchAPI.end(session_id)
+	_clear_viewer()
 	Global.Log(
 	"Research",                     # category
 	"Research Completed" ,          # action

@@ -297,113 +297,116 @@ offset_bottom = 40.0
 
 [node name="TilesMovedEdit" type="LineEdit" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 957.0
+offset_left = 1010.0
 offset_top = 320.0
-offset_right = 1149.0
+offset_right = 1202.0
 offset_bottom = 376.0
 text = "0"
 
 [node name="TilesMovedLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 325.0
-offset_right = 925.0
+offset_right = 978.0
 offset_bottom = 365.0
 text = "Spaces Moved:"
 
 [node name="BurstChargesEdit" type="LineEdit" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1067.0
+offset_left = 1120.0
 offset_top = 551.0
-offset_right = 1259.0
+offset_right = 1312.0
 offset_bottom = 607.0
 text = "0"
 
 [node name="BurstChargesLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 535.0
-offset_right = 1061.0
+offset_right = 1114.0
 offset_bottom = 621.0
 text = "Burst Charges Gained:"
 vertical_alignment = 1
 
 [node name="AttackRollEdit" type="LineEdit" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1314.0
+offset_left = 1368.0
 offset_top = 613.0
-offset_right = 1506.0
+offset_right = 1560.0
 offset_bottom = 669.0
 text = "0"
 
 [node name="AttackRollLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1309.0
+offset_left = 1362.0
 offset_top = 535.0
-offset_right = 1698.0
+offset_right = 1751.0
 offset_bottom = 621.0
 text = "Attack Roll:"
 vertical_alignment = 1
 
 [node name="PassiveStacksEdit" type="LineEdit" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1067.0
+offset_left = 1120.0
 offset_top = 612.0
-offset_right = 1259.0
+offset_right = 1312.0
 offset_bottom = 668.0
 text = "0"
 
 [node name="PassiveStacksLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 596.0
-offset_right = 1064.0
+offset_right = 1117.0
 offset_bottom = 682.0
 text = "Passive Stacks Total:"
 vertical_alignment = 1
 
 [node name="ItemUsedLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 412.0
-offset_right = 925.0
+offset_right = 978.0
 offset_bottom = 452.0
 text = "Item Used:"
 
 [node name="ItemUsedLabel2" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1180.0
+offset_left = 1233.0
 offset_top = 412.0
-offset_right = 1232.0
+offset_right = 1285.0
 offset_bottom = 452.0
 text = "on "
 
 [node name="TargetSelectionLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 669.0
+offset_left = 722.0
 offset_top = 671.0
-offset_right = 1500.0
+offset_right = 1553.0
 offset_bottom = 711.0
 text = "Targets (Select All):"
 horizontal_alignment = 1
 
 [node name="ItemUsedButton" type="OptionButton" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 893.0
+offset_left = 946.0
 offset_top = 404.0
-offset_right = 1149.0
+offset_right = 1202.0
 offset_bottom = 464.0
+text_overrun_behavior = 1
 selected = 0
+fit_to_longest_item = false
 item_count = 1
 popup/item_0/text = "None"
 popup/item_0/id = 0
 
 [node name="AttackUsedButton" type="OptionButton" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 893.0
+offset_left = 946.0
 offset_top = 477.0
-offset_right = 1149.0
+offset_right = 1202.0
 offset_bottom = 537.0
+text_overrun_behavior = 1
 selected = 0
 fit_to_longest_item = false
 item_count = 5
@@ -420,36 +423,38 @@ popup/item_4/id = 4
 
 [node name="ItemUsedButton2" type="OptionButton" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1253.0
+offset_left = 1306.0
 offset_top = 404.0
-offset_right = 1509.0
+offset_right = 1562.0
 offset_bottom = 464.0
+text_overrun_behavior = 1
 selected = 0
+fit_to_longest_item = false
 item_count = 1
 popup/item_0/text = "Nobody"
 popup/item_0/id = 0
 
 [node name="AttackUsedLabel" type="Label" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 486.0
-offset_right = 925.0
+offset_right = 978.0
 offset_bottom = 526.0
 text = "Attack Used:"
 
 [node name="TargetSelection" type="ItemList" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 664.0
+offset_left = 717.0
 offset_top = 726.0
-offset_right = 1523.0
+offset_right = 1576.0
 offset_bottom = 1404.0
 select_mode = 2
 
 [node name="CheckBox" type="CheckBox" parent="UI/PlayerTurnLeftPanel"]
 layout_mode = 0
-offset_left = 1231.0
+offset_left = 1284.0
 offset_top = 477.0
-offset_right = 1508.0
+offset_right = 1561.0
 offset_bottom = 537.0
 text = "Critical Hit?"
 
@@ -463,19 +468,38 @@ offset_bottom = 1324.0
 [node name="TargetListContainer" type="VBoxContainer" parent="UI/TargetListScrollbar"]
 layout_mode = 2
 
+[node name="Label" type="Label" parent="UI"]
+layout_mode = 0
+offset_left = 386.0
+offset_top = 636.0
+offset_right = 723.0
+offset_bottom = 722.0
+text = "Status Conditions
+(Turns Left - Name)"
+horizontal_alignment = 1
+
+[node name="StatusEffects" type="ItemList" parent="UI"]
+layout_mode = 0
+offset_left = 397.0
+offset_top = 726.0
+offset_right = 711.0
+offset_bottom = 1404.0
+wraparound_items = false
+item_count = 1
+
 [node name="BurstChargeLabel" type="Label" parent="UI"]
 layout_mode = 0
-offset_left = 672.0
+offset_left = 725.0
 offset_top = 255.0
-offset_right = 972.0
+offset_right = 1025.0
 offset_bottom = 295.0
 text = "Burst Charges: 19"
 
 [node name="PassiveStacksTotalLabel" type="Label" parent="UI"]
 layout_mode = 0
-offset_left = 1207.0
+offset_left = 1260.0
 offset_top = 329.0
-offset_right = 1575.0
+offset_right = 1628.0
 offset_bottom = 369.0
 text = "Passive Stacks: 0"
 

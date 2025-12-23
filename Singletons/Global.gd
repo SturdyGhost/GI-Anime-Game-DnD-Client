@@ -4,7 +4,7 @@ var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
 var ACTIVE_USER_TYPE: String = ""
 var ACTIVE_USER_RECORD_ID: float
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Active_Abilities"]
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Active_Abilities","Active_Status_Effects","Status_Effects"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
@@ -21,6 +21,7 @@ var BATTLE_TURNS: Array = []
 var CHARACTER_ITEMS: Dictionary = {}
 var CHARACTER_WEAPONS: Dictionary = {}
 var CHARACTER_ARTIFACTS: Dictionary = {}
+var STATUS_EFFECTS = {}
 var ACTIVE_ABILITIES: Dictionary = {}
 var ACTIVE_STATUS_EFFECTS: Dictionary = {}
 var PARTY: Dictionary = {}
@@ -64,6 +65,8 @@ var PublicIP
 var PartyCharacters = []
 var PartyCompanions = []
 var BattlerData = {}
+var Current_Battler_Data
+
 var AverageHealth : int
 var watched_tables := [
 	"Characters",
@@ -75,7 +78,8 @@ var watched_tables := [
 	"BattleEnemies",
 	"Party",
 	"Battle_Turns",
-	"Companions"
+	"Companions",
+	"Active_Status_Effects"
 ]
 var last_known_timestamps := {}  # Dictionary<String, String>
 var APPLIED_ARTIFACT_BONUSES := {}  # key: character name, value: list of {stat: ..., amount: ...}
@@ -467,6 +471,7 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				ENEMIES[str(record["id"])] = record
 				EnemyList.append(record.get("name"))
+				ENEMIES_NAME[record["name"]] = str(record["id"])
 
 		"BattleEnemies":
 			BATTLEENEMIES = {}
@@ -508,6 +513,10 @@ func _process_table(table_name: String, records: Array) -> void:
 		"Active_Status_Effects":
 			for record in records:
 				ACTIVE_STATUS_EFFECTS[str(record["id"])] = record
+
+		"Status_Effects":
+			for record in records:
+				STATUS_EFFECTS[str(record["id"])] = record
 
 
 		_:
@@ -925,7 +934,7 @@ func Log(category: String, action: String, related_type: String = "", related_id
 	_post_json("/log", payload, _on_log_response)
 
 
-func CombatLog(battle_id: int, turn_no: int, phase: String, actor_type: String, actor_id: String,
+func CombatLog(battle_id, turn_no: int, phase: String, actor_type: String, actor_id: String,
 			   action_type: String, action_name: String, target_id: String, ignores_def: bool,
 			   rolls: Dictionary, damage: int, hp_before: int, hp_after: int, energy_change: int,
 			   elements_applied: Array = [], status_changes: Dictionary = {}, misc: Dictionary = {}) -> void:

@@ -34,10 +34,22 @@ func _ready() -> void:
 	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
 	Global.Polling_Timer.start()
 	role_check()
-
+	restore_health()
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
+
+func restore_health():
+	var updates = []
+	for character in Global.CHARACTERS.values():
+		if character.get("Max_Health") != null:
+			updates.append({
+			"table": "Characters",            # Adjust if your table name differs
+			"record_id": character.get("id"),  # Must be the Party's record id
+			"field": "Current_Health",
+			"value": character.get("Max_Health")})
+	Global.Update_Records(updates)
+	pass
 func assign_party():
 	Global.PartyCharacters = []
 	Global.PartyCompanions = []
@@ -96,7 +108,7 @@ func load_region_music(region: String) -> void:
 		print("⚠️ Could not open music folder:", folder_path)
 
 func play_next_track():
-	if Global.ACTIVE_USER_NAME == "Brian C.":
+	if Global.ACTIVE_USER_NAME == "Brian F.":
 		if music_files.is_empty():
 			print("⚠️ No music files found!")
 			return
@@ -131,6 +143,18 @@ func set_background():
 func set_ui():
 	assign_party()
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
+
+	match Global.ACTIVE_USER_NAME:
+		"Brian C.":
+			$UI/TopHotbar/Party1Portrait.set_character("Brian F.")
+			$UI/TopHotbar/Party2Portrait.set_character("Dylan")
+		"Brian F.":
+			$UI/TopHotbar/Party1Portrait.set_character("Brian C.")
+			$UI/TopHotbar/Party2Portrait.set_character("Dylan")
+		"Dylan":
+			$UI/TopHotbar/Party1Portrait.set_character("Brian C.")
+			$UI/TopHotbar/Party2Portrait.set_character("Brian F.")
+
 	set_stats()
 	$UI/GearContainer/WeaponButton.set_weapon()
 	$"UI/GearContainer/Flower of Life".set_artifact()
@@ -427,8 +451,8 @@ func set_element_button_options():
 		if ElementButton.get_item_text(item) == base_element:
 			ElementButton.set_item_disabled(item,false)
 		var ability_count = 0
-		for ability in Global.ABILITIES.values():
-			if ability.get("Element") == ElementButton.get_item_text(item) and ability.get("Weapon") == weapon_type and ability.get("Character") == Global.ACTIVE_USER_NAME:
+		for ability in Global.ACTIVE_ABILITIES.values():
+			if ability.get("Element") == ElementButton.get_item_text(item) and ability.get("Weapon_Type") == weapon_type and ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID and ability.get("Entity_Type") == "Character":
 				ability_count += 1
 		if ability_count == 0:
 			ElementButton.set_item_disabled(item,true)
@@ -492,10 +516,32 @@ func _on_element_button_item_selected(index: int) -> void:
 	var new_element = ElementButton.get_item_text(index)
 	var rid = Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]
 	var old = Global.CHARACTERS[rid].get("Element")
-
+	var weap
+	var weap_type
+	for weapon in Global.CHARACTER_WEAPONS.values():
+		if weapon.get("Owner") == Global.ACTIVE_USER_NAME and weapon.get("Equipped") == true:
+			weap = weapon
+			weap_type = weapon.get("Type")
 	if new_element == old:
 		_element_busy = false
 		return
+	
+	# check if user has at least one ability for this weapon + element
+	var has_matching_ability := false
+
+	for ability in Global.ACTIVE_ABILITIES.values():
+		if ability.get("Entity_Type") == "Character" \
+		and str(ability.get("Entity_ID")) == str(Global.ACTIVE_USER_RECORD_ID) \
+		and str(ability.get("Weapon_Type")) == str(weap_type) \
+		and str(ability.get("Element")) == str(new_element):
+			has_matching_ability = true
+			break
+
+	if not has_matching_ability:
+		print("No abilities match this element + weapon type. Exiting.")
+		_element_busy = false
+		return
+	
 
 	# 1) Local apply
 	Global.CHARACTERS[rid]["Element"] = new_element

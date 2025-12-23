@@ -23,8 +23,9 @@ extends Node2D
 @onready var ItemUsedButton = $UI/PlayerTurnLeftPanel/ItemUsedButton
 @onready var ItemUsedTarget = $UI/PlayerTurnLeftPanel/ItemUsedButton2
 @onready var CritBox = $UI/PlayerTurnLeftPanel/CheckBox
+@onready var StatusEffectList = $UI/StatusEffects
 
-var battle_id= 0
+var battle_id = null
 var turn_no= 0
 var BattleScene 
 var last_known_characters_timestamp := ""
@@ -40,6 +41,8 @@ var logged
 var Weapon_Data
 var Turn_Type
 var Current_Turn = null
+var Current_Battler_Selected_Move
+var Current_Battler_Selected_Move_Data
 
 signal turn_ended
 
@@ -59,12 +62,22 @@ func _ready() -> void:
 	Global.Polling_Timer.start()
 	set_targets()
 	set_attacks()
+	set_items()
+	set_status_effects()
+	set_battle_id()
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
 func _process(delta: float) -> void: 
 	if AttackUsedButton.has_selectable_items() == false:
 		set_attacks()
+	if ItemUsedButton.has_selectable_items() == false:
+		set_items()
+	if StatusEffectList.item_count == 0:
+		set_status_effects()
+	if battle_id == null:
+		battle_id = Global.Current_Party.get("Active_Battle_ID")
+
 
 func assign_party():
 	for party in Global.PARTY.values():
@@ -96,9 +109,13 @@ func _check_ability_options():
 func _on_data_load_complete():
 	print("✅ Global data has finished loading!")
 	Current_Turn = Global.Current_Party.get("Current_Turn")
+	check_current_turn_battler_status()
 	set_ui()
 	set_targets()
 	set_attacks()
+	set_items()
+	set_status_effects()
+	
 	#await get_tree().create_timer(3.0).timeout
 	Global.Polling_Timer.start()
 	Global.Polling_Timer.paused = false
@@ -110,6 +127,23 @@ func _on_data_load_complete():
 	else:
 		Turn_Type = "Enemy"
 	# Your logic here
+
+
+func check_current_turn_battler_status():
+	if Global.Current_Battler_Data != null:
+		pass
+
+
+func set_battle_id():
+	if Global.PARTY.get("Active_Battle_ID") == null and Global.ACTIVE_USER_NAME == 'Dylan':
+		var updates = []
+		battle_id = CryptoKey.generate_scene_unique_id()
+		updates.append({
+			"table": "Party",
+			"record_id": Global.Current_Party.get('id'),
+			"field": "Active_Battle_ID",
+			"value": battle_id})
+		Global.Update_Records(updates)
 
 
 func set_targets():
@@ -159,6 +193,100 @@ func set_attacks():
 					popup.set_item_tooltip(idx, desc)
 				if AttackUsedButton.get_item_text(idx) != "None" and AttackUsedButton.get_item_text(idx) != name:
 					AttackUsedButton.set_item_disabled(idx, true)
+
+func set_items():
+	print("Set Items function running")
+	var popup: PopupMenu = ItemUsedButton.get_popup()
+
+	if ItemUsedButton.has_selectable_items():
+		ItemUsedButton.clear()
+
+	if Current_Turn != null and Global.BattlerData.size() > 0:
+		ItemUsedButton.add_item("None")
+		var none_index = ItemUsedButton.get_item_count() - 1
+		if popup:
+			popup.set_item_tooltip(none_index, "No item used this turn.")
+
+		for item in Global.CHARACTER_ITEMS.values():
+			if item.get("Owner") == Current_Turn:
+				if item.get("Type") == "Consumable" and item.get("Quantity") > 0:
+					if not item.get("Description").to_lower().contains("battle") and not item.get("Description").to_lower().contains("material"):
+						var name = str(item.get("Name"))
+						ItemUsedButton.add_item(name)
+						var desc = "Quantity - x"+str(item.get("Quantity"))+"\n\n"+"Description - "+item.get("Description")
+						desc = _wrap_text(desc, 100)
+						var idx = ItemUsedButton.get_item_count() - 1
+						if popup:
+							popup.set_item_tooltip(idx, desc)
+	set_item_targets()
+
+func set_item_targets():
+	print("Set Items function running")
+	var popup: PopupMenu = ItemUsedTarget.get_popup()
+
+	if ItemUsedTarget.has_selectable_items():
+		ItemUsedTarget.clear()
+
+	if Current_Turn != null and Global.BattlerData.size() > 0:
+		ItemUsedTarget.add_item("None")
+		var none_index = ItemUsedTarget.get_item_count() - 1
+		if popup:
+			popup.set_item_tooltip(none_index, "No item used this turn.")
+
+		for item in Global.BattlerData.keys():
+			ItemUsedTarget.add_item(item)
+			var idx = ItemUsedTarget.get_item_count() - 1
+			var desc = Global.BattlerData[item].get("type")
+			if popup:
+				popup.set_item_tooltip(idx, desc)
+
+func set_status_effects():
+	print("Set Status Effects function running")
+	StatusEffectList.clear()
+
+
+	if Current_Turn != null and Global.BattlerData.size() > 0:
+		var entries: Array = []
+
+		for item in Global.ACTIVE_STATUS_EFFECTS.values():
+			if str(float(item.get("Entity_ID"))) == str(float(Global.Current_Battler_Data.get("id"))) and item.get("Entity_Type") == Global.Current_Battler_Data.get("type"):
+				var status_effect: Dictionary = Global.STATUS_EFFECTS[str(float(item.get("Status_ID")))]
+				var name: String = str(status_effect.get("Name", ""))
+				var duration: int = int(item.get("Duration", 0))
+				var description = str(status_effect.get("Description"))
+
+				entries.append({
+					"name": name,
+					"duration": duration,
+					"description": description,
+					"status_effect": status_effect,
+					"active_item": item
+				})
+
+		# Sort by shortest duration, then alphabetically by name
+		entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var da: int = int(a.get("duration", 0))
+			var db: int = int(b.get("duration", 0))
+
+			if da != db:
+				return da < db
+
+			var na: String = str(a.get("name", "")).to_lower()
+			var nb: String = str(b.get("name", "")).to_lower()
+			return na < nb
+		)
+
+		# Add in sorted order
+		for e in entries:
+			StatusEffectList.add_item(str(str(e.get("duration"))+' - '+e.get("name", "")))
+			var idx = StatusEffectList.get_item_count() - 1
+
+			var desc = "Turns Left: " + str(e.get("duration")) + "\nName: "+e.get("name")+"\nDescription: " + str(e.get("description", ""))
+			desc = _wrap_text(desc, 100)
+			StatusEffectList.set_item_tooltip(idx, desc)
+
+		if StatusEffectList.item_count == 0:
+			StatusEffectList.add_item("None")
 
 
 
@@ -527,6 +655,8 @@ func process_turn():
 	var elements_unique: Dictionary = {}
 	var killed_names: Array = []
 
+
+
 	for row in TargetList.get_children():
 		if not row.has_node("NameLabel"):
 			continue
@@ -672,6 +802,40 @@ func process_turn():
 						row_data["Killed"] = true
 						t_killed = true  # ensure the log / killed_names reflect this
 
+		#Pulls in and assigns the moveslot data of the move that was selected/used this turn.
+		if attack_used_text != "None":
+			for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
+				if ability.get("name") == attack_used_text:
+					Current_Battler_Selected_Move_Data = ability
+					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data").values():
+						if move.get("Ability_ID") == ability.get("id"):
+							Current_Battler_Selected_Move = move
+
+		#Puts the ability on turned cooldown. 
+		if Current_Battler_Selected_Move_Data.get("cooldown") != 0:
+			updates.append({
+				"table": "Active_Abilities",
+				"record_id": float(Current_Battler_Selected_Move.get("id")),
+				"field": "Ability_Cooldown",
+				"value": Current_Battler_Selected_Move_Data.get("cooldown")})
+
+		#Subtracts the burst charge cost of the move from their current burst charges.
+		if Current_Battler_Selected_Move_Data.get("charge_cost") != 0:
+			var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
+			var new_value = int(old_value-Current_Battler_Selected_Move_Data.get("charge_cost"))
+			var table
+			if new_value <= 0:
+				new_value = 0
+			match Global.Current_Battler_Data.get("type"):
+				"Character":
+					table = "Characters"
+				"Companion":
+					table = "Companions"
+			updates.append({
+				"table": table,
+				"record_id": float(Global.Current_Battler_Data.get("id")),
+				"field": "Burst_Charges",
+				"value": new_value})
 
 		if t_killed:
 			killed_names.append(t_name)
@@ -701,6 +865,45 @@ func process_turn():
 		# If you have a heal value field somewhere, include it (example assumes none):
 	}
 
+	#Adds Burst Charges Gained.
+	if burst_charges_gained > 0:
+		var highest_charge_cost = 0
+		for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
+			if ability.get("charge_cost") > highest_charge_cost:
+				highest_charge_cost = ability.get("charge_cost")
+		var current_charges = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
+		if current_charges < highest_charge_cost:
+			if current_charges + burst_charges_gained >= highest_charge_cost:
+				match Global.Current_Battler_Data.get("type"):
+					"Character":
+						updates.append({
+							"table": "Characters",
+							"record_id": Global.Current_Battler_Data.get("id"),
+							"field": "Burst_Charges",
+							"value": highest_charge_cost})
+					"Companion":
+						updates.append({
+							"table": "Companions",
+							"record_id": Global.Current_Battler_Data.get("id"),
+							"field": "Burst_Charges",
+							"value": highest_charge_cost})
+			else:
+				var new_charge_amount = current_charges + burst_charges_gained
+				match Global.Current_Battler_Data.get("type"):
+					"Character":
+						updates.append({
+							"table": "Characters",
+							"record_id": Global.Current_Battler_Data.get("id"),
+							"field": "Burst_Charges",
+							"value": new_charge_amount})
+					"Companion":
+						updates.append({
+							"table": "Companions",
+							"record_id": Global.Current_Battler_Data.get("id"),
+							"field": "Burst_Charges",
+							"value": new_charge_amount})
+		pass
+
 	# ----- Build single aggregated log -----
 	var action_type: String = "Turn"                 # composite—item + attack(s) in one turn
 	var action_name: String = attack_used_text       # keep the attack name the UI selected (or "None")
@@ -727,12 +930,43 @@ func process_turn():
 	# You can compute hp_before/after if you track it locally; 0 for now.
 	var hp_before: int = 0
 	var hp_after: int = 0
-	
+
+	#Subtract turn from Status Effects For This Entity.
+	for entry in Global.ACTIVE_STATUS_EFFECTS.values():
+		if entry.get("Entity_Type") == Global.Current_Battler_Data.get("type") and str(float(entry.get("Entity_ID"))) == str(float(Global.Current_Battler_Data.get("id"))):
+			if int(entry.get("Duration"))-1 > 0:
+				updates.append({
+								"table": "Active_Status_Effects",
+								"record_id": entry.get("id"),
+								"field": "Duration",
+								"value": int(entry.get("Duration"))-1})
+			else:
+				Global.Remove_Record("Active_Status_Effects",entry.get("id"))
+
+	#Subtracts turn from Move Cooldowns for this Entity.
+	for entry in Global.ACTIVE_ABILITIES.values():
+		if entry.get("Entity_Type") == Global.Current_Battler_Data.get("type") and str(float(entry.get("Entity_ID"))) == str(float(Global.Current_Battler_Data.get("id"))) and entry.get("Ability_Cooldown") > 0:
+			updates.append({
+				"table": "Active_Abilities",
+				"record_id": entry.get("id"),
+				"field": "Ability_Cooldown",
+				"value": int(entry.get("Ability_Cooldown"))-1})
+
+	#Subtracts Item from inventory if used
+	if item_used_text != "None":
+		for entry in Global.CHARACTER_ITEMS.values():
+			if entry.get("Owner") == Global.Current_Battler_Data.get("name") and entry.get("Name") == item_used_text:
+				updates.append({
+					"table": "Character_Items",
+					"record_id": entry.get("id"),
+					"field": "Quantity",
+					"value": int(entry.get("Quantity"))-1})
+
 	Global.CombatLog(
 		battle_id,
 		turn_no,
 		"player_turn",
-		"Player",
+		Global.Current_Battler_Data.get("type"),
 		Global.ACTIVE_USER_NAME,
 		action_type,
 		action_name,
@@ -753,7 +987,7 @@ func process_turn():
 func _on_end_turn_button_pressed() -> void:
 	#self.visible = false
 	await process_turn()
-	#emit_signal("turn_ended")
+	emit_signal("turn_ended")
 	pass # Replace with function body.
 
 
