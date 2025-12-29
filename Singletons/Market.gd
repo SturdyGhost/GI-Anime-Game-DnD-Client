@@ -3,14 +3,14 @@ extends Node
 # --------------------------
 # Config
 # --------------------------
-const BASE_SELL_RATE = 0.40
-const SELL_RATE_MIN = 0.15
-const SELL_RATE_MAX = 0.50
+const BASE_SELL_RATE = 0.20
+const SELL_RATE_MIN = 0.10
+const SELL_RATE_MAX = 0.30
 const PRICE_VARIANCE_PCT = 0.02
 
 const LEGENDARY_WEAPON_COUNT = 2
 const EPIC_WEAPON_COUNT = 4
-const ARTIFACT_COUNT = 10
+const ARTIFACT_COUNT = 15
 
 const ARTIFACT_TYPES = [
 	"Flower of Life",
@@ -35,15 +35,15 @@ const MAG_BUCKETS = [
 
 const STAT_NEGATIVE_P = 0.60
 const TWO_STAT_ARTIFACT_P = 0.15
-const ARTIFACT_BASE_PRICE_1 = 150
-const ARTIFACT_BASE_PRICE_2 = 300
+const ARTIFACT_BASE_PRICE_1 = 300
+const ARTIFACT_BASE_PRICE_2 = 600
 
 const WEAPON_RARITY_BASE_PRICE = {
 	"Common": 75,
 	"Uncommon": 500,
-	"Rare": 1000,
-	"Epic": 2000,
-	"Legendary": 4000
+	"Rare": 850,
+	"Epic": 3000,
+	"Legendary": 6000
 }
 
 const REGION_MARKUP_MIN = 0.25
@@ -61,7 +61,7 @@ var Stock = {
 }
 
 var _rng: RandomNumberGenerator
-var _daily_luck: int = 100  # set this from your game each day
+var _daily_luck: int = 50  # set this from your game each day
 
 func _ready() -> void:
 	_rng = RandomNumberGenerator.new()
@@ -436,22 +436,22 @@ func _price_artifact(a: Dictionary) -> int:
 		if s1 >= 1.5:
 			v_total *= (1.0 + (s1 / 1.5))
 	else:
-		v_total -= (abs(s1) * 30.0)
+		v_total -= (abs(s1) * 60.0)
 
 	if s2_exists:
 		if s2 >= 0.0:
 			v_total += (s2 * 30.0)
 			if s2 >= 1.5:
-				v_total *= (1.0 + (s2 / 1.5))
+				v_total *= (1.0 + (s2 / 0.5))
 		else:
-			v_total -= (abs(s2) * 30.0)
+			v_total -= (abs(s2) * 60.0)
 
 	# 2) Rare stat adjustments (apply after normal pricing)
 	var rare_types = ["Energy_Recharge", "Universal_Added_Damage_Bonus", "Critical_Damage"]
 	var t1 = a.get("Stat_1_Type")
 	if t1 in rare_types:
 		if s1 > 0.0:
-			v_total = v_total * 2.5
+			v_total = v_total * 6.0
 		elif s1 < 0.0:
 			v_total = v_total / 2.5
 
@@ -459,7 +459,7 @@ func _price_artifact(a: Dictionary) -> int:
 		var t2 = a.get("Stat_2_Type")
 		if t2 in rare_types:
 			if s2 > 0.0:
-				v_total = v_total * 2.5
+				v_total = v_total * 6.0
 			elif s2 < 0.0:
 				v_total = v_total / 2.5
 
@@ -631,6 +631,7 @@ func _commit_buy_weapon(entry: Dictionary, qty: int) -> bool:
 		# increment Quantity
 		var current_row: Dictionary = Global.CHARACTER_WEAPONS[existing_id]
 		var original_qty = int(current_row.get("Quantity", 0))
+		var new_qty = original_qty + int(qty)
 		var updates = [{
 			"table": "Character_Weapons",
 			"record_id": int(existing_id),
@@ -638,6 +639,38 @@ func _commit_buy_weapon(entry: Dictionary, qty: int) -> bool:
 			"value": float(original_qty + qty)
 		}]
 		Global.Update_Records(updates)  # void
+
+		# Logging (update)
+		var old_values = {
+			"Owner": owner,
+			"Weapon": weapon_name,
+			"Quantity": int(original_qty)
+		}
+		var new_values = {
+			"Owner": owner,
+			"Weapon": weapon_name,
+			"Quantity": int(new_qty)
+		}
+		var metadata = {
+			"market_action": "buy",
+			"entity": "weapon",
+			"delta_qty": int(qty),
+			"Rarity": current_row.get("Rarity"),
+			"Region": current_row.get("Region"),
+			"Type": current_row.get("Type")
+		}
+
+		Global.Log(
+			"market",
+			"buy_weapon_stack",
+			"Character_Weapons",
+			str(int(existing_id)),
+			old_values,
+			new_values,
+			metadata,
+			"success",
+			"audit"
+		)
 		return true
 	else:
 		# insert full row with Quantity
@@ -659,6 +692,39 @@ func _commit_buy_weapon(entry: Dictionary, qty: int) -> bool:
 			float(qty)
 		]
 		Global.Insert("Character_Weapons", cols, vals)  # void
+		# Logging (insert)
+		var new_values = {
+			"Owner": entry.get("Owner"),
+			"Weapon": entry.get("Weapon"),
+			"Rarity": entry.get("Rarity"),
+			"Region": entry.get("Region"),
+			"Type": entry.get("Type"),
+			"Effect": effect,
+			"Stat_1_Type": entry.get("Stat_1_Type"),
+			"Stat_2_Type": entry.get("Stat_2_Type"),
+			"Stat_3_Type": entry.get("Stat_3_Type"),
+			"Stat_1_Value": entry.get("Stat_1_Value"),
+			"Stat_2_Value": entry.get("Stat_2_Value"),
+			"Stat_3_Value": entry.get("Stat_3_Value"),
+			"Quantity": int(qty)
+		}
+		var metadata = {
+			"market_action": "buy",
+			"entity": "weapon",
+			"delta_qty": int(qty)
+		}
+
+		Global.Log(
+			"market",
+			"buy_weapon_new",
+			"Character_Weapons",
+			"",     # Insert is void; no record_id
+			{},
+			new_values,
+			metadata,
+			"success",
+			"audit"
+		)
 		return true
 
 # ---- Artifacts
@@ -675,6 +741,38 @@ func _commit_buy_artifact(entry: Dictionary) -> bool:
 		entry.get("Rarity")
 	]
 	Global.Insert("Character_Artifacts", cols, vals)  # void
+	# Logging
+	var new_values = {
+		"Owner": entry.get("Owner"),
+		"Artifact_Set": entry.get("Artifact_Set"),
+		"Type": entry.get("Type"),
+		"Stat_1_Type": entry.get("Stat_1_Type"),
+		"Stat_1_Value": entry.get("Stat_1_Value"),
+		"Stat_2_Type": entry.get("Stat_2_Type"),
+		"Stat_2_Value": entry.get("Stat_2_Value"),
+		"Rarity": entry.get("Rarity")
+	}
+
+	var metadata = {
+		"market_action": "buy",
+		"entity": "artifact"
+		# Optional fields if you have them available in entry:
+		# "Price": entry.get("Price"),
+		# "Currency": entry.get("Currency")
+	}
+
+	Global.Log(
+		"market",
+		"buy_artifact",
+		"Character_Artifacts",
+		"",                 # we don't have the inserted record_id (Insert is void)
+		{},                 # old_values
+		new_values,
+		metadata,
+		"success",
+		"audit"
+	)
+
 	return true
 
 # ---- Items (materials/consumables/etc.)
@@ -687,7 +785,8 @@ func _commit_buy_item(entry: Dictionary, qty: int) -> bool:
 	var existing = _lookup_character_item(owner, name)
 
 	if existing != null:
-		var new_qty = int(existing.get("Quantity", 0)) + qty
+		var old_qty = int(existing.get("Quantity", 0))
+		var new_qty = old_qty + int(qty)
 		var updates = [{
 			"table": "Character_Items",
 			"record_id": int(existing.get("id")),
@@ -695,11 +794,67 @@ func _commit_buy_item(entry: Dictionary, qty: int) -> bool:
 			"value": int(new_qty)
 		}]
 		Global.Update_Records(updates)  # void
+		# Logging (update)
+		var old_values = {
+			"Owner": owner,
+			"Name": name,
+			"Quantity": int(old_qty)
+		}
+		var new_values = {
+			"Owner": owner,
+			"Name": name,
+			"Quantity": int(new_qty)
+		}
+		var metadata = {
+			"market_action": "buy",
+			"entity": "item",
+			"delta_qty": int(qty),
+			"Type": Type,
+			"Rarity": Rarity
+		}
+
+		Global.Log(
+			"market",
+			"buy_item_stack",
+			"Character_Items",
+			str(int(existing.get("id"))),
+			old_values,
+			new_values,
+			metadata,
+			"success",
+			"audit"
+		)
 		return true
 	else:
 		var cols = ["Owner","Name","Quantity","Type","Description","Rarity"]
 		var vals = [owner, name, int(qty),Type,Description,Rarity]
 		Global.Insert("Character_Items", cols, vals)  # void
+		# Logging (insert)
+		var new_values = {
+			"Owner": owner,
+			"Name": name,
+			"Quantity": int(qty),
+			"Type": Type,
+			"Description": Description,
+			"Rarity": Rarity
+		}
+		var metadata = {
+			"market_action": "buy",
+			"entity": "item",
+			"delta_qty": int(qty)
+		}
+
+		Global.Log(
+			"market",
+			"buy_item_new",
+			"Character_Items",
+			"",     # Insert is void; no record_id
+			{},
+			new_values,
+			metadata,
+			"success",
+			"audit"
+		)
 		return true
 
 func _lookup_character_weapon(owner: String, weapon_name: String) -> Variant:

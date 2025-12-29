@@ -18,7 +18,7 @@ var music_index: int = -1
 var Selected_Stat
 var Ascension
 var Player_data
-
+var Luck_set = false
 
 func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
@@ -35,9 +35,19 @@ func _ready() -> void:
 	Global.Polling_Timer.start()
 	role_check()
 	restore_health()
+	Market.Refresh_Stock(Global.Current_Region)
+	if Global.Luck_Set == false:
+		trigger_luck_popup()
+		Global.Luck_Set = true
+		
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
+func trigger_luck_popup():
+	var s: PackedScene = preload("res://Scenes/DailyLuck.tscn")
+	var dlg = s.instantiate()
+	dlg.position = Vector2(1000,450)
+	add_child(dlg)
 
 func restore_health():
 	var updates = []

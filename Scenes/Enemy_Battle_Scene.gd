@@ -36,13 +36,7 @@ func _ready() -> void:
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	set_battlers()
 
-func _process(delta: float) -> void:
-	if_someone_else_ended()
 
-func if_someone_else_ended():
-	var char_data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
-	if char_data.get("Ready") == false:
-		self.queue_free()
 
 func _on_child_turn_ended() -> void:
 	advance_turn()
@@ -69,7 +63,7 @@ func _set_party_and_companions():
 	for entry in Global.Current_Party.get("Turn_Order"):
 		if Global.CHARACTERS_NAME.has(entry):
 			Global.PartyCharacters.append(entry)
-		else:
+		elif Global.COMPANIONS_NAME.has(entry):
 			Global.PartyCompanions.append(entry)
 
 func _refresh_all() -> void:
@@ -81,6 +75,7 @@ func _on_data_load_complete():
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	set_battlers()
 	_update_party_ui()
+	check_battle_end()
 	Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
 
 func _refresh_party() -> void:
@@ -88,13 +83,17 @@ func _refresh_party() -> void:
 		if c != PartyTpl:
 			c.queue_free()
 	for member in Global.Current_Party.get("Turn_Order"):
+		if Global.PartyCharacters.has(member) == false and Global.PartyCompanions.has(member) == false:
+			continue
 		var row = PartyTpl.instantiate()
 		row.visible = true
 		PartyRow.add_child(row)
 		if Global.PartyCharacters.has(member):
 			row.set_card(member)
-		else:
+		elif Global.PartyCompanions.has(member):
 			row.set_companion_card(member)
+		else:
+			pass
 
 func _update_party_ui():
 	for c in PartyRow.get_children():
@@ -203,7 +202,10 @@ func _refresh_turns() -> void:
 	ordered = []
 	Original_Order = Global.Current_Party.get("Turn_Order")
 	for e in Global.BATTLEENEMIES.values():
-		Original_Order.append(e.get("EnemyName")+" "+str(int(e.get("id"))))
+		if Original_Order.has(e.get("EnemyName")+" "+str(int(e.get("id")))):
+			pass
+		else:
+			Original_Order.append(e.get("EnemyName")+" "+str(int(e.get("id"))))
 	ordered = Original_Order
 	var current = str(Global.Current_Party.get("Current_Turn"))
 	print (current)
@@ -311,7 +313,6 @@ func check_battle_end():
 
 
 func advance_turn():
-	check_battle_end()	
 	var SecondTurnText = TurnList.get_item_text(1)
 	var updates = [{
 		"table": "Party",            # Adjust if your table name differs

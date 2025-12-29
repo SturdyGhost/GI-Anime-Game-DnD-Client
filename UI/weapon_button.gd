@@ -60,8 +60,8 @@ func set_weapon():
 		if record.get("Owner") == Global.ACTIVE_USER_NAME and record.get("Equipped") == true:
 			Weapon_Data = record
 			Weapon = record.get("Weapon")
-
-	shrink_text_to_fit($WeaponLabel)
+	if Weapon != null:
+		shrink_text_to_fit($WeaponLabel)
 	var WeaponIconPath = "res://UI/Weapon Icons/" + Global.normalize_text_filename(str(Weapon))
 	$WeaponIcon.texture = load(WeaponIconPath)
 	if Weapon_Data.has("Effect") and Weapon_Data.get("Effect") != null:

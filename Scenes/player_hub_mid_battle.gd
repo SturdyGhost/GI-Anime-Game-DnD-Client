@@ -9,7 +9,6 @@ extends Node2D
 @onready var CriticalDamageButton = $"UI/StatButtonsContainer/Critical Damage Button"
 
 @onready var Mora = $UI/TopHotbar/MoraButton
-@onready var Level = $UI/TopHotbar/LvlButton
 @onready var TargetList = $UI/TargetListScrollbar/TargetListContainer
 @onready var TargetSelection = $UI/PlayerTurnLeftPanel/TargetSelection
 @onready var target_row_scene = preload("res://Scenes/target_row_scene.tscn")
@@ -24,6 +23,7 @@ extends Node2D
 @onready var ItemUsedTarget = $UI/PlayerTurnLeftPanel/ItemUsedButton2
 @onready var CritBox = $UI/PlayerTurnLeftPanel/CheckBox
 @onready var StatusEffectList = $UI/StatusEffects
+@onready var FoodBuffItemLabel = $UI/TopHotbar/FoodBuffItemLabel
 
 var battle_id = null
 var turn_no= 0
@@ -52,6 +52,7 @@ func _ready() -> void:
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
 	var path = "res://Background Music/Inazuma/Player HUB/1-01 Inazuma.mp3"  # replace with your actual file
+	set_battlers()
 	set_ui()
 	add_child(http)
 	Global.Polling_Timer = Timer.new()
@@ -68,15 +69,8 @@ func _ready() -> void:
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
-func _process(delta: float) -> void: 
-	if AttackUsedButton.has_selectable_items() == false:
-		set_attacks()
-	if ItemUsedButton.has_selectable_items() == false:
-		set_items()
-	if StatusEffectList.item_count == 0:
-		set_status_effects()
-	if battle_id == null:
-		battle_id = Global.Current_Party.get("Active_Battle_ID")
+
+
 
 
 func assign_party():
@@ -90,18 +84,25 @@ func _check_ability_options():
 			Weapon_Data = weapon
 	for ability in Global.ACTIVE_ABILITIES.values():
 		if str(ability.get("Entity_ID")) == str(Global.ACTIVE_USER_RECORD_ID) and ability.get("Element") == Player_data.get("Element") and ability.get("Weapon_Type") == Weapon_Data.get("Type") and ability.get("Entity_Type") == "Character":
+			var item_id
 			if ability.get("Ability_Type") == "Skill":
 				Skill_Data = Global.ABILITIES[str(ability.get("Ability_ID"))]
+				for item in AttackUsedButton.item_count:
+					if AttackUsedButton.get_item_text(item) == Skill_Data.get("name"):
+						item_id = item
 				if Player_data.get("Skill_CD") == 0:
-					AttackUsedButton.set_item_disabled(3,false)
+					AttackUsedButton.set_item_disabled(item_id,false)
 				else:
-					AttackUsedButton.set_item_disabled(3,true)
+					AttackUsedButton.set_item_disabled(item_id,true)
 			elif ability.get("Ability_Type") == "Burst":
 				Burst_Data = Global.ABILITIES[str(ability.get("Ability_ID"))]
+				for item in AttackUsedButton.item_count:
+					if AttackUsedButton.get_item_text(item) == Burst_Data.get("name"):
+						item_id = item
 				if Player_data.get ("Burst_Charges") >= Burst_Data.get("charge_cost"):
-					AttackUsedButton.set_item_disabled(4,false)
+					AttackUsedButton.set_item_disabled(item_id,false)
 				else:
-					AttackUsedButton.set_item_disabled(4,true)
+					AttackUsedButton.set_item_disabled(item_id,true)
 		
 			pass
 	pass
@@ -109,17 +110,19 @@ func _check_ability_options():
 func _on_data_load_complete():
 	print("✅ Global data has finished loading!")
 	Current_Turn = Global.Current_Party.get("Current_Turn")
+	set_battlers()
 	check_current_turn_battler_status()
 	set_ui()
 	set_targets()
 	set_attacks()
 	set_items()
 	set_status_effects()
+	if battle_id == null:
+		battle_id = Global.Current_Party.get("Active_Battle_ID")
 	
 	#await get_tree().create_timer(3.0).timeout
 	Global.Polling_Timer.start()
 	Global.Polling_Timer.paused = false
-	$UI/TopHotbar/Party2Portrait/ElementTexture
 	if Global.PartyCharacters.has(Global.Current_Party.get("Current_Turn")):
 		Turn_Type = "Character"
 	elif Global.PartyCompanions.has(Global.Current_Party.get("Current_Turn")):
@@ -158,8 +161,17 @@ func set_targets():
 				Active_Party_With_Companions.append(Companion.get("Name"))
 	for Member in Active_Party_With_Companions:
 		TargetSelection.add_item(Member)
-	for Enemy in Global.BATTLEENEMIES.values():
-		TargetSelection.add_item(str(Enemy.get("EnemyName")," ",str(int(Enemy.get("id")))))
+	for enemy in Global.BATTLEENEMIES.values():
+		var enemy_label = str(enemy.get("EnemyName")) + " " + str(int(enemy.get("id")))
+		var found = false
+		
+		for i in range(TargetSelection.item_count):
+			if TargetSelection.get_item_text(i) == enemy_label:
+				found = true
+				break
+		
+		if not found:
+			TargetSelection.add_item(enemy_label)
 
 func set_attacks():
 	print("Set Attacks function running")
@@ -181,13 +193,23 @@ func set_attacks():
 				var cooldown = item.get("Ability_Cooldown")
 				var name = str(ability.get("name", "Unnamed"))
 				var desc = str(ability.get("description", ""))
+				var charge_cost = 0
+				var ability_data = Global.ABILITIES[ability_id]
+				if ability_data.get("charge_cost") > 0:
+					charge_cost = ability_data.get("charge_cost")
 
 				# Wrap long descriptions every 100 characters
 				desc = _wrap_text(desc, 100)
-				if cooldown == 0:
+				if cooldown == 0 and charge_cost == 0:
 					AttackUsedButton.add_item(name)
+				elif charge_cost > 0:
+					if Global.Current_Battler_Data.get("burst_charges") > charge_cost:
+						AttackUsedButton.add_item(name)
+					else:
+						AttackUsedButton.add_item(name+" - Not enough charges.")
 				else:
 					AttackUsedButton.add_item(name+" - "+str(cooldown)+" Turns left.")
+				
 				var idx = AttackUsedButton.get_item_count() - 1
 				if popup:
 					popup.set_item_tooltip(idx, desc)
@@ -239,6 +261,103 @@ func set_item_targets():
 			var desc = Global.BattlerData[item].get("type")
 			if popup:
 				popup.set_item_tooltip(idx, desc)
+
+func set_battlers():
+	Global.BattlerData = {}
+	print ("Set Battlers Function running.")
+	if get_parent().Original_Order.size() > 0:
+		for battler in get_parent().Original_Order:
+			var b_id
+			var b_type
+			var b_complete_data
+			var b_complete_weapon_data = null
+			var b_complete_active_ability_data = {}
+			var b_complete_ability_data = {}
+			var b_active_status_effects = {}
+			var b_active_abilities = {}
+			var b_active_ability_data = {}
+			var b_current_health
+			var b_max_health
+			var b_burst_charges = null
+			var b_max_burst_charges = null
+			var b_applied_element
+			var b_skipped_status
+			var b_skipped_duration
+			var b_killed_status
+			if Global.PartyCharacters.has(battler):
+				b_type = "Character"
+				b_complete_data = Global.CHARACTERS[Global.CHARACTERS_NAME[battler]]
+				b_id = b_complete_data.get("id")
+				b_burst_charges = b_complete_data.get("Burst_Charges")
+				for weapon in Global.CHARACTER_WEAPONS.values():
+					if weapon.get("Owner") == battler and weapon.get("Equipped") == true:
+						b_complete_weapon_data = weapon
+				for aa in Global.ACTIVE_ABILITIES.values():
+					if aa.get("Entity_Type") == b_type and aa.get("Entity_ID") == b_id:
+						b_complete_active_ability_data[aa.get("id")] = aa
+						b_complete_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+						if aa.get("Element") == b_complete_data.get("Element") and aa.get("Weapon_Type") == b_complete_weapon_data.get("Type"):
+							b_active_abilities[aa.get("id")] = aa
+							b_active_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+			elif Global.PartyCompanions.has(battler):
+				b_type = "Companion"
+				b_complete_data = Global.COMPANIONS[Global.COMPANIONS_NAME[battler]]
+				b_id = b_complete_data.get("id")
+				b_burst_charges = b_complete_data.get("Burst_Charges")
+				for aa in Global.ACTIVE_ABILITIES.values():
+					if aa.get("Entity_Type") == b_type and aa.get("Entity_ID") == b_id:
+						b_complete_active_ability_data[aa.get("id")] = aa
+						b_complete_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+						b_active_abilities[aa.get("id")] = aa
+						b_active_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+			else:
+				b_type = "Enemy"
+				b_id = battler.split(" ")[-1]
+				b_complete_data = Global.BATTLEENEMIES[str(float(b_id))]
+				for aa in Global.ACTIVE_ABILITIES.values():
+					if aa.get("Entity_Type") == b_type and aa.get("Entity_ID") == b_complete_data.get("EnemyID"):
+						b_complete_active_ability_data[aa.get("id")] = aa
+						b_complete_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+						b_active_abilities[aa.get("id")] = aa
+						b_active_ability_data[aa.get("Ability_ID")] = Global.ABILITIES[str(aa.get("Ability_ID"))]
+			for status in Global.ACTIVE_STATUS_EFFECTS.values():
+				if status.get("Entity_Type") == b_type and str(float(status.get("Entity_ID"))) == str(float(b_id)):
+					b_active_status_effects[status.get("id")] = status
+			b_current_health = b_complete_data.get("Current_Health")
+			b_max_health = b_complete_data.get("Max_Health")
+			b_skipped_status = b_complete_data.get("Skipped")
+			b_skipped_duration = b_complete_data.get("Skip_Duration")
+			b_applied_element = b_complete_data.get("Applied_Element")
+			b_killed_status = b_complete_data.get("Killed")
+			for ability in b_active_ability_data.values():
+				if ability.get("charge_cost") > 0:
+					if b_max_burst_charges == null:
+						b_max_burst_charges = ability.get("charge_cost")
+					else:
+						if ability.get("charge_cost") > b_max_burst_charges:
+							b_max_burst_charges = ability.get("charge_cost")
+			Global.BattlerData[battler] = {
+				"id": b_id,
+				"name": battler,
+				"type": b_type,
+				"entity_data": b_complete_data,
+				"entity_weapon_data": b_complete_weapon_data,
+				"entity_total_active_ability_data": b_complete_active_ability_data,
+				"entity_total_ability_data": b_complete_ability_data,
+				"entity_current_active_ability_data": b_active_abilities,
+				"entity_current_ability_data": b_active_ability_data,
+				"entity_status_effect_data": b_active_status_effects,
+				"current_health": b_current_health,
+				"max_health": b_max_health,
+				"burst_charges": b_burst_charges,
+				"max_burst_charges": b_max_burst_charges,
+				"applied_element": b_applied_element,
+				"killed_status": b_killed_status,
+				"skipped_status": b_skipped_status,
+				"skipped_duration": b_skipped_duration}
+		Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
+		pass
+
 
 func set_status_effects():
 	print("Set Status Effects function running")
@@ -324,10 +443,28 @@ func set_background():
 func set_ui():
 	assign_party()
 	set_stats()
-	_check_ability_options()
+	#_check_ability_options()
 	Mora.text = str(Global.Current_Party.get("Mora"))
-	Level.text = "Level: "+str(int(Player_data.get("Level")))+"/"+str(int(Player_data.get("Level_Cap")))
-	BurstChargeLabel.text = "Burst Charges: "+str(Player_data.get("Burst_Charges"))+"/"+str(Burst_Data.get("charge_cost"))
+	if Global.Current_Battler_Data != null:
+		BurstChargeLabel.text = "Burst Charges: "+str(Global.Current_Battler_Data.get("burst_charges"))+"/"+str(Global.Current_Battler_Data.get("max_burst_charges"))
+	for child in TargetList.get_children():
+		child.queue_free()
+	TilesMovedEdit.text = str(0)
+	BurstChargesEdit.text = str(0)
+	PassiveStacksEdit.text = str(0)
+	AttackRollEdit.text = str(0)
+	if Global.Current_Party.get("Active_Food_Buff") != "None":
+		FoodBuffItemLabel.text = Global.Current_Party.get("Active_Food_Buff")
+		var item_data
+		for item in Global.ITEMS.values():
+			if item.get("Item") == Global.Current_Party.get("Active_Food_Buff"):
+				item_data = item
+		FoodBuffItemLabel.tooltip_text = item_data.get("Description")
+	else:
+		FoodBuffItemLabel.text = "None"
+		FoodBuffItemLabel.tooltip_text = "No Food Buff Active."
+
+
 
 
 
@@ -812,7 +949,7 @@ func process_turn():
 							Current_Battler_Selected_Move = move
 
 		#Puts the ability on turned cooldown. 
-		if Current_Battler_Selected_Move_Data.get("cooldown") != 0:
+		if Current_Battler_Selected_Move_Data.get("cooldown") > 0:
 			updates.append({
 				"table": "Active_Abilities",
 				"record_id": float(Current_Battler_Selected_Move.get("id")),
@@ -820,7 +957,7 @@ func process_turn():
 				"value": Current_Battler_Selected_Move_Data.get("cooldown")})
 
 		#Subtracts the burst charge cost of the move from their current burst charges.
-		if Current_Battler_Selected_Move_Data.get("charge_cost") != 0:
+		if Current_Battler_Selected_Move_Data.get("charge_cost") > 0:
 			var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
 			var new_value = int(old_value-Current_Battler_Selected_Move_Data.get("charge_cost"))
 			var table
@@ -986,7 +1123,7 @@ func process_turn():
 
 func _on_end_turn_button_pressed() -> void:
 	#self.visible = false
-	await process_turn()
+	process_turn()
 	emit_signal("turn_ended")
 	pass # Replace with function body.
 

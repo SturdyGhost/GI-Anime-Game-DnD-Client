@@ -178,17 +178,6 @@ offset_bottom = 57.0
 texture = ExtResource("29_2e767")
 expand_mode = 1
 
-[node name="LvlButton" type="Button" parent="UI/TopHotbar"]
-layout_mode = 0
-offset_left = 31.0
-offset_top = 173.0
-offset_right = 302.0
-offset_bottom = 224.0
-theme_override_fonts/font = SubResource("FontVariation_84ies")
-theme_override_font_sizes/font_size = 25
-disabled = true
-text = "Level: 45/35"
-
 [node name="VisibilityButton" type="TextureButton" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 1678.0
@@ -198,6 +187,23 @@ offset_bottom = 74.0
 texture_normal = ExtResource("16_wui08")
 texture_pressed = ExtResource("17_yem3m")
 texture_hover = ExtResource("18_dms54")
+
+[node name="FoodBuffLabel" type="Label" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 904.0
+offset_top = 78.0
+offset_right = 1087.0
+offset_bottom = 118.0
+text = "Food Buff:"
+
+[node name="FoodBuffItemLabel" type="Label" parent="UI/TopHotbar"]
+layout_mode = 0
+offset_left = 1097.0
+offset_top = 78.0
+offset_right = 1592.0
+offset_bottom = 118.0
+mouse_filter = 1
+text = "Sashimi Platter"
 
 [node name="StatButtonsContainer" type="VBoxContainer" parent="UI"]
 layout_mode = 2

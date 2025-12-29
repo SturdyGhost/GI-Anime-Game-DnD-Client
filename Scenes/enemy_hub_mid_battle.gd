@@ -132,7 +132,16 @@ func set_targets():
 	for Member in Active_Party_With_Companions:
 		TargetSelection.add_item(Member)
 	for Enemy in Global.BATTLEENEMIES.values():
-		TargetSelection.add_item(str(Enemy.get("EnemyName")," ",str(int(Enemy.get("id")))))
+		var enemy_label = str(Enemy.get("EnemyName")) + " " + str(int(Enemy.get("id")))
+		var found = false
+		
+		for i in range(TargetSelection.item_count):
+			if TargetSelection.get_item_text(i) == enemy_label:
+				found = true
+				break
+		
+		if not found:
+			TargetSelection.add_item(enemy_label)
 
 func set_attacks():
 	print("Set Attacks function running")

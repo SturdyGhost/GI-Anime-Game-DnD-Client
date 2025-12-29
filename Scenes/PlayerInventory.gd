@@ -29,6 +29,9 @@ var _selected_item
 const RARITY_ORDER := ["common","uncommon","rare","epic","legendary","mythic"]
 
 func _ready() -> void:
+	var handler = Callable(self, "_on_data_load_complete")
+	if not Global.is_connected("data_load_complete", handler):
+		Global.connect("data_load_complete", handler)
 	_load_owner_items()
 	_build_filter_options()
 	_connect_ui()
@@ -134,6 +137,12 @@ func _build_filter_options() -> void:
 	if rarity_filter.item_count > 0:
 		rarity_filter.select(0)
 
+
+func _on_data_load_complete():
+	var scene = preload("res://Scenes/PlayerInventory.tscn")
+	var new_inventory = scene.instantiate()
+	get_parent().add_child(new_inventory)
+	self.queue_free()
 # -------- UI wiring --------
 func _connect_ui() -> void:
 	search_box.text_changed.connect(func(_t): _apply_filters_and_search())
@@ -233,7 +242,7 @@ func _show_preview(rid) -> void:
 		return
 	_selected_item = row
 	var name: String = str(row.get("Name",""))
-	var qty: int = _to_int_or_zero(row.get("Quantity", row.get("Qty", row.get("Count", null))))
+	var qty: int = int(row.get("Quantity"))
 	var type_val: String = str(row.get("Type",""))
 	var rarity_val: String = str(row.get("Rarity",""))
 	var desc_text: String
@@ -248,8 +257,13 @@ func _show_preview(rid) -> void:
 	# NEW: set SpinBox bounds for giving
 	if give_amount != null:
 		give_amount.min_value = 1
-		give_amount.max_value = max(1, qty)
+		give_amount.max_value = max(1, qty+1)
 		give_amount.value = min(1, qty) if qty > 0 else 1
+	
+	if _selected_item.get("Quantity") <= 0:
+		give_button.disabled = true
+	else:
+		give_button.disabled = false
 
 	type_lbl.text = "Type: " + type_val
 	rarity_lbl.text = "Rarity: " + rarity_val
@@ -282,16 +296,93 @@ func _populate_player_dropdown() -> void:
 			player_dropdown.add_item(pname)
 
 func _on_give_button_pressed() -> void:
-	var idx := player_dropdown.selected if player_dropdown != null else -1
+	var idx := player_dropdown.selected
 	if idx < 0:
 		print("[Give] No target selected")
 		return
-	var target_name := player_dropdown.get_item_text(idx)
-	var amount := int(give_amount.value) if give_amount != null else 0
-	var item_name := name_lbl.text
-	print("[Give] Request -> give", amount, "of", item_name, "to", target_name)
+	var target_name = player_dropdown.get_item_text(idx)
+	var amount = int(give_amount.value) if give_amount != null else 0
+	var item_name = name_lbl.text
+	print("[Give] Request -> give ", amount, " of ", item_name, " from ", Global.ACTIVE_USER_NAME," to ", target_name)
 	# TODO: call your transfer function here
-	# transfer_item(Global.ACTIVE_USER_NAME, target_name, current_item_id, amount)
+	transfer_item(Global.ACTIVE_USER_NAME, target_name, item_name, amount)
+
+
+func transfer_item(giver,receiver,item_name,quantity):
+	var sending_record = null
+	var receiving_record = null
+	for item in Global.CHARACTER_ITEMS.values():
+		if item.get("Owner") == giver and item.get("Name") == item_name:
+			sending_record = item
+		if item.get("Owner") == receiver and item.get("Name") == item_name:
+			receiving_record = item
+	var updates = []
+	var sender_old_qty = int(sending_record.get("Quantity"))
+	var sender_new_qty = max(0, sender_old_qty - quantity)
+	var receiver_item_id = ""
+	var receiver_had_item = false
+	updates.append({
+		"table": "Character_Items",
+		"record_id": int(sending_record.get("id")),
+		"field": "Quantity",
+		"value": int(sending_record.get("Quantity"))-quantity
+		})
+	var receiver_old_qty = 0
+	var receiver_new_qty = quantity
+	if receiving_record != null:
+		receiver_old_qty = int(receiving_record.get("Quantity"))
+		receiver_new_qty = receiver_old_qty + quantity
+		receiver_item_id = str(int(receiving_record.get("id")))
+		receiver_had_item = true
+		updates.append({
+		"table": "Character_Items",
+		"record_id": int(receiving_record.get("id")),
+		"field": "Quantity",
+		"value": int(receiving_record.get("Quantity"))+quantity
+		})
+	else:
+		var cols = ["Owner", "Name", "Type","Rarity","Quantity","Description"]
+		var item_data
+		for i in Global.ITEMS.values():
+			if i.get("Item") == item_name:
+				item_data = i
+		var i_description = item_data.get("Description")
+		var i_type = item_data.get("Type")
+		var i_rarity = item_data.get("Rarity")
+		var vals = [receiver, item_name, i_type,i_rarity,quantity,i_description]
+		Global.Insert("Character_Items",cols,vals)
+	Global.Update_Records(updates)
+	Global.Log(
+	"inventory",
+	"transfer_item",
+	"Character_Items",
+	"",  # multiple rows affected
+	{
+		"giver": giver,
+		"receiver": receiver,
+		"item": item_name,
+		"giver_quantity_before": sender_old_qty,
+		"receiver_quantity_before": receiver_old_qty
+	},
+	{
+		"giver": giver,
+		"receiver": receiver,
+		"item": item_name,
+		"giver_quantity_after": sender_new_qty,
+		"receiver_quantity_after": receiver_new_qty
+	},
+	{
+		"entity": "item",
+		"transfer_qty": int(quantity),
+		"giver_item_id": str(int(sending_record.get("id"))),
+		"receiver_item_id": receiver_item_id,
+		"receiver_had_item": receiver_had_item
+	},
+	"success",
+	"audit"
+)
+	
+
 
 # -------- Icon hook (you set these up) --------
 func _get_icon_for(name: String, type_val: String, rarity_val: String) -> Texture2D:

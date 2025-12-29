@@ -584,8 +584,8 @@ func _make_enemy_card(name: String, hp: int) -> Control:
 
 
 func _on_situation_pressed() -> void:
-	await(Global.Update_Records([{"table":"Characters","record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Ready","value": true}]))
-	var s: PackedScene = preload("res://Scenes/Enemy_Battle_Scene.tscn")
+	Global.Update_Records([{"table":"Characters","record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Ready","value": true}])
+	var s = preload("res://Scenes/Enemy_Battle_Scene.tscn")
 	var dlg = s.instantiate()
 	add_child(dlg)
 	for child in EncounterVContainer.get_children():

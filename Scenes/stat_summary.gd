@@ -133,6 +133,16 @@ func update_stat_summary(stat) -> void:
 
 	# --- Artifact set bonuses ---
 	_add_artifact_set_bonuses(char_data)
+	
+	var weapon_data
+	var weapon_info
+	for weapon in Global.CHARACTER_WEAPONS.values():
+		if weapon.get("Owner") == Global.ACTIVE_USER_NAME and weapon.get("Equipped") == true:
+			weapon_info = weapon
+			weapon_data = Global.WEAPONS[Global.WEAPONS_NAME[weapon.get("Weapon")]]
+	
+	if weapon_data.get("Stat_Modifier") != null:
+		_add_weapon_effect_bonuses(weapon_data)
 
 	# --- Weapon stats ---
 	_add_weapon_stats(char_name)
@@ -345,6 +355,20 @@ func _add_artifact_set_bonuses(char_data: Dictionary) -> void:
 
 			var src_key = "%s %s-Piece Set Bonus" % [set_name, needed]  # e.g., "Gladiator 2"
 			Sources[src_key] = Sources.get(src_key, 0.0) + bonus_val
+
+func _add_weapon_effect_bonuses(weapon_data: Dictionary):
+	var stat = weapon_data.get("Stat_Modifier")
+	var value = weapon_data.get("Stat_Modifier_Value")
+	var added = "%s_Added_Stat_Bonus" % SelectedStat
+	var multiplier = "%s_Multiplier_Stat_Bonus" % SelectedStat
+	if stat.contains(SelectedStat):
+		match stat:
+			added:
+				Sources["Weapon Effect"] = Sources.get("Weapon Effect", 0.0) + value
+			multiplier:
+				Sources["Weapon Effect"] = "x"+str(Sources.get("Weapon Effect", 1.0) + value)
+				pass
+	
 
 func _add_weapon_stats(char_name: String) -> void:
 	if typeof(Global.CHARACTER_WEAPONS) != TYPE_DICTIONARY:

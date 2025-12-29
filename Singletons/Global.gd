@@ -66,6 +66,7 @@ var PartyCharacters = []
 var PartyCompanions = []
 var BattlerData = {}
 var Current_Battler_Data
+var Luck_Set = false
 
 var AverageHealth : int
 var watched_tables := [
@@ -77,7 +78,6 @@ var watched_tables := [
 	"Constellations",
 	"BattleEnemies",
 	"Party",
-	"Battle_Turns",
 	"Companions",
 	"Active_Status_Effects"
 ]
@@ -192,6 +192,16 @@ func calculate_all_stats() -> void:
 
 				if meets_condition:
 					character[stat] = character.get(stat, 0) + value  # ✅ Write to CHARACTERS dict
+	
+	for weapon in CHARACTER_WEAPONS.values():
+		if weapon.get("Owner") == ACTIVE_USER_NAME and weapon.get("Equipped") == true:
+			var weapon_data = WEAPONS[WEAPONS_NAME[weapon.get("Weapon")]]
+			if weapon_data.get("Stat_Modifier") != null:
+				var stat = weapon_data.get("Stat_Modifier")
+				var value = weapon_data.get("Stat_Modifier_Value")
+				character[stat] = character.get(stat,0) + value
+			
+
 
 	# STEP 4: Final calculated stat values (includes everything)
 	for stat in scaling.keys():
@@ -434,40 +444,50 @@ func _commit_pending_timestamps(tables: Array) -> void:
 func _process_table(table_name: String, records: Array) -> void:
 	match table_name:
 		"Characters":
+			CHARACTERS = {}
 			for record in records:
 				CHARACTERS[str(record["id"])] = record
 				CHARACTERS_NAME[record["Name"]] = str(record["id"])
 
 		"Weapons":
+			WEAPONS = {}
 			for record in records:
 				WEAPONS[str(record["id"])] = record
+				WEAPONS_NAME[record["Name"]] = str(record["id"])
 
 		"Artifacts":
+			ARTIFACTS = {}
 			for record in records:
 				ARTIFACTS[str(record["id"])] = record
 
 		"Reactions":
+			REACTIONS = {}
 			for record in records:
 				REACTIONS[str(record["id"])] = record
 
 		"Abilities":
+			ABILITIES = {}
 			for record in records:
 				ABILITIES[str(record["id"])] = record
 
 		"Companions":
+			COMPANIONS = {}
 			for record in records:
 				COMPANIONS[str(record["id"])] = record
 				COMPANIONS_NAME[record["Name"]] = str(record["id"])
 
 		"Crafting_Recipes":
+			CRAFTING_RECIPES = {}
 			for record in records:
 				CRAFTING_RECIPES[str(record["id"])] = record
 
 		"Items":
+			ITEMS = {}
 			for record in records:
 				ITEMS[str(record["id"])] = record
 
 		"Enemies":
+			ENEMIES = {}
 			for record in records:
 				ENEMIES[str(record["id"])] = record
 				EnemyList.append(record.get("name"))
@@ -479,42 +499,52 @@ func _process_table(table_name: String, records: Array) -> void:
 				BATTLEENEMIES[str(record["id"])] = record
 
 		"Character_Weapons":
+			CHARACTER_WEAPONS = {}
 			for record in records:
 				CHARACTER_WEAPONS[str(record["id"])] = record
 
 		"Character_Artifacts":
+			CHARACTER_ARTIFACTS = {}
 			for record in records:
 				CHARACTER_ARTIFACTS[str(record["id"])] = record
 
 		"Character_Items":
+			CHARACTER_ITEMS = {}
 			for record in records:
 				CHARACTER_ITEMS[str(record["id"])] = record
 
 		"Talents":
+			TALENTS = {}
 			for record in records:
 				TALENTS[str(record["id"])] = record
 
 		"Constellations":
+			CONSTELLATIONS = {}
 			for record in records:
 				CONSTELLATIONS[str(record["id"])] = record
 
 		"Material_Caches":
+			MATERIAL_CACHES = {}
 			for record in records:
 				MATERIAL_CACHES[str(record["id"])] = record
 
 		"Party":
+			PARTY = {}
 			for record in records:
 				PARTY[str(record["id"])] = record
 
 		"Active_Abilities":
+			ACTIVE_ABILITIES = {}
 			for record in records:
 				ACTIVE_ABILITIES[str(record["id"])] = record
 
 		"Active_Status_Effects":
+			ACTIVE_STATUS_EFFECTS = {}
 			for record in records:
 				ACTIVE_STATUS_EFFECTS[str(record["id"])] = record
 
 		"Status_Effects":
+			STATUS_EFFECTS = {}
 			for record in records:
 				STATUS_EFFECTS[str(record["id"])] = record
 
@@ -637,6 +667,11 @@ func Remove_Record(table: String, record_id: int) -> void:
 	# Pause poller (same behavior as Insert/Update)
 	if Global.Polling_Timer != null:
 		Global.Polling_Timer.paused = true
+	
+	var record
+	var normalized = table.to_upper()
+	var object = Global.get(normalized)
+	record = object[str(float(record_id))]
 
 	var http_request := HTTPRequest.new()
 	add_child(http_request)
@@ -650,7 +685,7 @@ func Remove_Record(table: String, record_id: int) -> void:
 	var body = JSON.stringify(body_dict)
 
 	request_start_time = Time.get_ticks_msec() / 1000.0
-	http_request.request_completed.connect(_on_remove_response.bind(http_request, table, int(record_id)))
+	http_request.request_completed.connect(_on_remove_response.bind(http_request, table, int(record_id),record))
 	var err := http_request.request(url, headers, HTTPClient.METHOD_DELETE, body)
 	if err != OK:
 		push_error("Remove_Record: HTTP request failed to start (%s)" % str(err))
@@ -659,7 +694,7 @@ func Remove_Record(table: String, record_id: int) -> void:
 			Global.Polling_Timer.paused = false
 
 
-func _on_remove_response(result: int,response_code: int,_headers: PackedStringArray,body: PackedByteArray,http_node: HTTPRequest,table: String,record_id: int) -> void:
+func _on_remove_response(result: int,response_code: int,_headers: PackedStringArray,body: PackedByteArray,http_node: HTTPRequest,table: String,record_id: int,record) -> void:
 	var took = (Time.get_ticks_msec() / 1000.0) - request_start_time
 	var text = body.get_string_from_utf8()
 	var parsed: Dictionary = {}
@@ -697,7 +732,7 @@ func _on_remove_response(result: int,response_code: int,_headers: PackedStringAr
 
 	# Audit log
 	if has_method("Log"):
-		Global.Log("HTTP.Delete", "remove_record", table, str(record_id), {}, parsed, {}, "success", "audit")
+		Global.Log("HTTP.Delete", "remove_record", table, str(record_id), record, parsed, {}, "success", "audit")
 
 func _on_insert_response(result: int,response_code: int,_headers: PackedStringArray,body: PackedByteArray,http_node: HTTPRequest,table: String,columns: Array,correlation_id: String) -> void:
 	var took = (Time.get_ticks_msec() / 1000.0) - request_start_time

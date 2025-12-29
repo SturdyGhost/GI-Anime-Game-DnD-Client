@@ -18,7 +18,9 @@ var _selected_entry: Dictionary = {}
 #Market.Set_Daily_Luck(Global.DAILY_LUCK) 
 #Market.Refresh_Stock(Global.Current_Region)
 func _ready() -> void:
-	Market.Refresh_Stock(Global.Current_Region)
+	var handler = Callable(self, "_on_data_load_complete")
+	if not Global.is_connected("data_load_complete", handler):
+		Global.connect("data_load_complete", handler)
 	ModeTabs.clear_tabs()
 	ModeTabs.add_tab("Buy")
 	ModeTabs.add_tab("Sell")
@@ -33,6 +35,9 @@ func _ready() -> void:
 
 	_reset_details()
 	_refresh_items()
+
+func _on_data_load_complete():
+	_items_clear_and_reload()
 
 func _on_mode_changed(tab: int) -> void:
 	_current_mode_buy = (tab == 0)
@@ -127,9 +132,9 @@ func _weapon_base_value_safe(w: Dictionary) -> int:
 	var map := {
 		"common": 75,
 		"uncommon": 500,
-		"rare": 1000,
-		"epic": 2000,
-		"legendary": 4000
+		"rare": 850,
+		"epic": 3000,
+		"legendary": 6000
 	}
 	if rarity in map:
 		return int(map[rarity])
@@ -313,11 +318,49 @@ func _on_confirm() -> void:
 			_clear_selection_after_mutation()
 	else:
 		var gain = Market.Sell_Commit(_selected_entry, qty)
+		_log_sell_item(_selected_entry,qty,gain)
 		_remove_sold_from_inventory(_selected_entry, qty)
 		_add_mora(gain)
 		_items_clear_and_reload()
 		_clear_selection_after_mutation()
 		# Add 'gain' to your wallet system here if applicable
+
+func _log_sell_item(_selected_entry: Dictionary, qty: int, gain) -> void:
+	print (_selected_entry)
+
+
+	var old_values = {
+		"Owner": _selected_entry.get("Owner"),
+		"Name": _selected_entry.get("Name"),
+	}
+
+	var new_values = {
+		"Owner": _selected_entry.get("Owner"),
+		"Name": _selected_entry.get("Name"),
+		"Log": str(qty)+" of this item removed for: "+str(gain)
+	}
+
+	var metadata = {
+		"market_action": "sell",
+		"entity": "item",
+		"delta_qty": -int(qty),
+		"Type": _selected_entry.get("__table"),
+		"Mora Gained": gain
+	}
+
+	Global.Log(
+		"market",
+		"sell_item",
+		"Character_Items",
+		str(int(_selected_entry.get("id"))),
+		old_values,
+		new_values,
+		metadata,
+		"success",
+		"audit"
+	)
+
+
 
 func _clear_selection_after_mutation() -> void:
 	_selected_index = -1
@@ -351,14 +394,13 @@ func _add_mora(value):
 
 
 func _remove_sold_from_inventory(row: Dictionary, qty: int) -> void:
+	print (row)
 	var tbl = row.get("__table", "Character_Items")
 	if tbl == "Character_Items":
 		for id in Global.CHARACTER_ITEMS.keys():
 			var r: Dictionary = Global.CHARACTER_ITEMS[id]
-			if r.get("Owner") == row.get("Owner") and r.get("Name") == row.get("Name"):
-				var current_qty = 0
-				if "Quantity" in r and r["Quantity"] != null:
-					current_qty = int(r["Quantity"])
+			if str(r.get("id")) == str(row.get("__record_id")):
+				var current_qty = int(r["Quantity"])
 				var new_qty = max(0, current_qty - qty)
 				r["Quantity"] = new_qty
 				var updates = [{
@@ -372,10 +414,8 @@ func _remove_sold_from_inventory(row: Dictionary, qty: int) -> void:
 	elif tbl == "Character_Weapons":
 		for id in Global.CHARACTER_WEAPONS.keys():
 			var w: Dictionary = Global.CHARACTER_WEAPONS[id]
-			if w.get("Owner") == row.get("Owner") and (w.get("Weapon") == row.get("Weapon") or w.get("Weapon") == row.get("Name")):
-				var current_qty = 0
-				if "Quantity" in w and w["Quantity"] != null:
-					current_qty = int(w["Quantity"])
+			if str(w.get("id")) == str(row.get("__record_id")):
+				var current_qty = int(w["Quantity"])
 				var new_qty = max(0, current_qty - qty)
 				w["Quantity"] = new_qty
 				var updates = [{
@@ -387,18 +427,9 @@ func _remove_sold_from_inventory(row: Dictionary, qty: int) -> void:
 				Global.Update_Records(updates)
 				break
 	elif tbl == "Character_Artifacts":
-		for id in Global.CHARACTER_ARTIFACTS.keys():
-			var a: Dictionary = Global.CHARACTER_ARTIFACTS[id]
-			var label = "%s — %s" % [a.get("Artifact_Set", a.get("Set", "")), a.get("Type", "")]
-			if a.get("Owner") == row.get("Owner") and (row.get("Name") == label):
-				var updates = [{
-					"table": "Character_Artifacts",
-					"record_id": int(id),
-					"Column": "Owner",
-					"Values": ""  # clear owner
-				}]
-				Global.Update_Records(updates)
-				break
+		Global.Remove_Record("Character_Artifacts",int(row.get("__record_id")))
+	Global.Refresh_Data(Global.watched_tables)
+
 
 func _reset_details() -> void:
 	NameLabel.text = ""
