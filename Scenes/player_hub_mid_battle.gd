@@ -809,6 +809,17 @@ func process_turn():
 		var t_id = row.TargetID
 		var t_reaction = false
 		var t_current_element = "None"
+		var t_effect_status = 0
+		var t_effect_status_duration = 0
+		var t_entity_type
+		
+		match t_table:
+			"Characters":
+				t_entity_type = "Character"
+			"Companions":
+				t_entity_type = "Companion"
+			"BattleEnemies":
+				t_entity_type = "Enemy"
 
 		var t_ignores_def: bool = t_type.to_lower() in ["true damage", "pierce", "ignore def"]
 		var t_damage: int = t_raw_dmg
@@ -974,6 +985,33 @@ func process_turn():
 				"field": "Burst_Charges",
 				"value": new_value})
 
+		# Checks if the used move applies a status condition, if so, applies that status.
+		if int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
+			t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
+			t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration", 0))
+
+			var found_existing = false
+
+			for active_status in Global.ACTIVE_STATUS_EFFECTS.values():
+				if int(active_status.get("Status_ID", 0)) == t_effect_status \
+				and str(active_status.get("Entity_Type")) == str(t_entity_type) \
+				and int(active_status.get("Entity_ID", 0)) == int(t_id):
+
+					found_existing = true
+
+					updates.append({
+						"table": "Active_Status_Effects",
+						"record_id": int(active_status.get("id")),
+						"field": "Duration",
+						"value": int(t_effect_status_duration + 1)
+					})
+					break
+
+			if not found_existing:
+				var cols = ["Entity_ID","Entity_Type","Status_ID","Duration"]
+				var vals = [int(t_id), str(t_entity_type), int(t_effect_status), int(t_effect_status_duration + 1)]
+				Global.Insert("Active_Status_Effects", cols, vals)
+
 		if t_killed:
 			killed_names.append(t_name)
 
@@ -983,11 +1021,14 @@ func process_turn():
 			"name": t_name,
 			"target_table": t_table,
 			"target_id": t_id,
+			"target_type": t_entity_type,
 			"their_roll": t_def_roll,
 			"hits": t_hits,
 			"attack_type": t_type,
 			"current_element": t_current_element,
 			"applied_element": t_elem,
+			"applied_status_effect": t_effect_status,
+			"applied_status_effect_duration": t_effect_status_duration,
 			"ignores_def": t_ignores_def,
 			"killed": t_killed,
 			"damage": t_damage,
