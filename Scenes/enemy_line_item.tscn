@@ -19,7 +19,7 @@ offset_bottom = 40.0
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
 offset_left = 3.0
-offset_right = 739.0
+offset_right = 668.0
 offset_bottom = 40.0
 
 [node name="Button" type="Button" parent="."]
@@ -31,4 +31,14 @@ offset_bottom = 65.0
 scale = Vector2(0.5, 0.5)
 text = "x"
 
+[node name="CheckBox" type="CheckBox" parent="."]
+layout_mode = 0
+offset_left = 677.0
+offset_top = 5.0
+offset_right = 797.0
+offset_bottom = 65.0
+scale = Vector2(0.5, 0.5)
+text = "Fog"
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]

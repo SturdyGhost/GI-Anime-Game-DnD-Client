@@ -53,23 +53,23 @@ placeholder_text = "0"
 layout_mode = 0
 offset_left = 4.0
 offset_top = 139.0
-offset_right = 262.0
+offset_right = 161.0
 offset_bottom = 179.0
-text = "Damage Dealt: "
+text = "Amount: "
 
 [node name="DamageEdit" type="TextEdit" parent="."]
 layout_mode = 0
-offset_left = 261.0
+offset_left = 154.0
 offset_top = 127.0
-offset_right = 364.0
+offset_right = 257.0
 offset_bottom = 191.0
 placeholder_text = "0"
 
 [node name="AttackType" type="OptionButton" parent="."]
 layout_mode = 0
-offset_left = 380.0
+offset_left = 267.0
 offset_top = 129.0
-offset_right = 568.0
+offset_right = 469.0
 offset_bottom = 189.0
 selected = 1
 item_count = 4
@@ -79,7 +79,7 @@ popup/item_1/text = "Damage"
 popup/item_1/id = 1
 popup/item_2/text = "Healed"
 popup/item_2/id = 2
-popup/item_3/text = "True Damage"
+popup/item_3/text = "Shielded"
 popup/item_3/id = 3
 
 [node name="AppliedElementLabel" type="Label" parent="."]
@@ -95,9 +95,9 @@ horizontal_alignment = 1
 
 [node name="AppliedElement" type="OptionButton" parent="."]
 layout_mode = 0
-offset_left = 728.0
+offset_left = 727.0
 offset_top = 57.0
-offset_right = 920.0
+offset_right = 919.0
 offset_bottom = 117.0
 selected = 0
 item_count = 8
@@ -120,8 +120,17 @@ popup/item_7/id = 7
 
 [node name="KilledBox" type="CheckBox" parent="."]
 layout_mode = 0
-offset_left = 736.0
-offset_top = 131.0
+offset_left = 727.0
+offset_top = 129.0
 offset_right = 919.0
-offset_bottom = 191.0
+offset_bottom = 189.0
 text = "Killed?"
+
+[node name="HitShieldBox" type="CheckBox" parent="."]
+layout_mode = 0
+offset_left = 482.0
+offset_top = 129.0
+offset_right = 714.0
+offset_bottom = 189.0
+disabled = true
+text = "Hit Shield"

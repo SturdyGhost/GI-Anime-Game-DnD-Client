@@ -385,7 +385,7 @@ func process_turn():
 		var t_effect_status = 0
 		var t_effect_status_duration = 0
 		var t_entity_type
-		
+
 		match t_table:
 			"Characters":
 				t_entity_type = "Character"
@@ -398,7 +398,7 @@ func process_turn():
 		var t_damage: int = t_raw_dmg
 		if t_type.to_lower() == "healed":
 			t_damage = -t_raw_dmg  # represent healing as negative damage in the aggregate
-			
+
 
 		#Processes applying the Element to the Target and triggering the reaction if applicable.
 		if t_elem != "None":

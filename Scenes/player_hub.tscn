@@ -341,7 +341,6 @@ offset_right = 673.0
 offset_bottom = 160.0
 scale = Vector2(1.1, 1.1)
 tooltip_text = "Check your Settings/Options."
-disabled = true
 texture_normal = ExtResource("19_fbdku")
 texture_pressed = ExtResource("20_d7s6e")
 texture_hover = ExtResource("21_tbfj8")
@@ -455,7 +454,6 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(202, 198)
 layout_mode = 2
 tooltip_text = "Not finished yet, check back later!"
-disabled = true
 texture_normal = ExtResource("7_x5hun")
 texture_pressed = ExtResource("10_obn3f")
 texture_hover = ExtResource("11_xprst")
@@ -762,9 +760,11 @@ autoplay = true
 [connection signal="item_selected" from="UI/TopHotbar/RegionButton" to="." method="_on_region_button_item_selected"]
 [connection signal="item_selected" from="UI/TopHotbar/ElementButton" to="." method="_on_element_button_item_selected"]
 [connection signal="pressed" from="UI/TopHotbar/BugButton" to="." method="_on_bug_button_pressed"]
+[connection signal="pressed" from="UI/TopHotbar/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/RefreshButton" to="." method="_on_refresh_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/CompanionsButton" to="." method="_on_companions_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Market Button" to="." method="_on_market_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Minigames Button" to="." method="_on_minigames_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Crafting Button" to="." method="_on_crafting_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Research Button" to="." method="_on_research_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Gather Button" to="." method="_on_gather_button_pressed"]

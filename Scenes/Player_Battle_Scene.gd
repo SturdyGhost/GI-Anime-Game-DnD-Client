@@ -67,6 +67,7 @@ func _on_data_load_complete():
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_update_party_ui()
 	check_battle_end()
+	_refresh_enemies()
 	Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
 
 
@@ -94,7 +95,10 @@ func _refresh_enemies() -> void:
 			c.queue_free()
 	for e in Global.BATTLEENEMIES.values():
 		var card = EnemyTpl.instantiate()
-		card.visible = true
+		if e.get("Fog") == false:
+			card.visible = true
+		else:
+			card.visible = false
 		EnemyFlow.add_child(card)
 		card.set_card(str(e.get("id")))
 

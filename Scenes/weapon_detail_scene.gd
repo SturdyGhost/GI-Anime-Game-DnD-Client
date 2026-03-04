@@ -5,6 +5,7 @@ extends Control
 @onready var WeaponListItemScene: PackedScene = preload("res://Scenes/weapon_list_item.tscn")
 @onready var CurrentWeaponPreview = $CurrentWeaponPreview
 @onready var SelectedWeaponPreview = $SelectedWeaponPreview
+@onready var ReceiverOptionButton = $ReceiverOptionButton
 
 var selected_weapon: Dictionary = {}
 var weapon_items: Array = []
@@ -23,6 +24,7 @@ var _rows_to_init: int = 0
 
 func _ready():
 	populate_weapon_list()
+	populate_receivers()
 	CurrentWeaponPreview.set_stats(selected_weapon)
 	original_weapon = selected_weapon
 	SearchBar.placeholder_text = "Search weapons…"
@@ -39,6 +41,15 @@ func _on_preview_show(preview_stats: Dictionary, weapon_data: Dictionary):
 
 func _on_preview_hide():
 	$StatPreviewPanel.hide()
+
+func populate_receivers():
+	ReceiverOptionButton.clear()
+	ReceiverOptionButton.add_item("Nobody")
+	for character in Global.PartyCharacters:
+		if character != Global.ACTIVE_USER_NAME:
+			ReceiverOptionButton.add_item(character)
+	#for companion in Global.PartyCompanions:
+	#	ReceiverOptionButton.add_item(companion)
 
 func populate_weapon_list() -> void:
 	for c in WeaponListVBox.get_children():
@@ -315,4 +326,23 @@ func _on_effect_button_pressed() -> void:
 
 func _on_equipped_button_pressed() -> void:
 	sort_weapon_list("Equipped")
+	pass # Replace with function body.
+
+
+func _on_confirm_give_button_pressed() -> void:
+	if ReceiverOptionButton.get_selected_id() > 0 and selected_weapon != original_weapon:
+		updates.append({
+			"table": "Character_Weapons", 
+			"record_id": float(selected_weapon.get("id")), 
+			"field": "Owner", 
+			"value": ReceiverOptionButton.get_item_text(ReceiverOptionButton.get_selected_id())})
+		Global.Update_Records(updates)
+		
+		print (selected_weapon)
+		var p = get_parent()
+		if p is Window:
+			p.queue_free()
+		else:
+			queue_free()
+		pass # Replace with function body.
 	pass # Replace with function body.

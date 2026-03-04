@@ -49,8 +49,10 @@ const WEAPON_RARITY_BASE_PRICE = {
 const REGION_MARKUP_MIN = 0.25
 const REGION_MARKUP_MAX = 0.75
 
+
 enum ShopKind { WEAPONS, ARTIFACTS, CONSUMABLES, ELEMENTAL_GEMS, ARTISAN, BLACKSMITH }
 
+var Sell_Offers = {}
 var Stock = {
 	"Weapons": [],
 	"Artifacts": [],
@@ -120,6 +122,7 @@ func Refresh_Stock(current_region: String) -> void:
 	_generate_blacksmith(current_region)
 	_sort_all_shops()
 	Apply_Price_Variance()
+	Sell_Offers.clear()
 
 func Get_Shop(shop_name: String) -> Array:
 	if not (shop_name in Stock):
@@ -127,11 +130,15 @@ func Get_Shop(shop_name: String) -> Array:
 	return Stock[shop_name]
 
 func Price_Sell_Preview(item_entry: Dictionary, qty: int) -> int:
-	var unit_value = int(item_entry.get("Value"))
-	var rate = _sell_rate_with_luck(_daily_luck)
-	rate += randf_range(-0.02,0.02)
-	var total = int(round(unit_value * rate * max(qty, 0)))
-	return max(total, 0)
+	if Sell_Offers.has(item_entry.get("Name")):
+		return Sell_Offers[item_entry.get("Name")]
+	else:
+		var unit_value = int(item_entry.get("Value"))
+		var rate = _sell_rate_with_luck(_daily_luck)
+		rate += randf_range(-0.02,0.02)
+		var total = int(round(unit_value * rate * max(qty, 0)))
+		Sell_Offers[item_entry.get("Name")] = max(total, 0)
+		return max(total, 0)
 
 # --------------------------
 # BUY COMMIT (DB)

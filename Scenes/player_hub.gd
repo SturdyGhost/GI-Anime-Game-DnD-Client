@@ -12,6 +12,7 @@ extends Node2D
 @onready var ElementButton = $UI/TopHotbar/ElementButton
 @onready var Mora = $UI/TopHotbar/MoraButton
 @onready var Level = $UI/TopHotbar/LvlButton
+@onready var settings_popup_scene := preload("res://Scenes/SettingsPopup.tscn")
 var last_known_characters_timestamp := ""
 var music_files: Array = []
 var music_index: int = -1
@@ -832,4 +833,30 @@ func _on_companions_button_pressed() -> void:
 
 	# Optional: center or full-rect dlg inside window
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	pass # Replace with function body.
+
+
+func _on_settings_button_pressed() -> void:
+	var popup = settings_popup_scene.instantiate()
+	add_child(popup)
+	popup.popup_centered()
+
+
+func _on_minigames_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/MinigamesMenu.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true               # makes it modal, blocks hover/clicks
+	win.transparent = true             # so only your dlg visuals show
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	add_child(win)
+
+	# Optional: center or full-rect dlg inside window
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	
+	pass # Replace with function body.
 	pass # Replace with function body.

@@ -95,7 +95,7 @@ func init_rowes():
 					if talent.get("Element") == child.name:
 						var NewRow = TalentTableRowScene.instantiate()
 						child.Rows.add_child(NewRow)
-						NewRow.DescriptionLabel.text = talent.get("Talent")
+						NewRow.DescriptionLabel.text = System.db_richtext_to_bbcode(talent.get("Talent"))
 						if talent.get("Chosen") == true:
 							NewRow.Check.button_pressed = talent.get("Chosen")
 		elif TableType == "Constellations":
@@ -103,7 +103,7 @@ func init_rowes():
 				if constellation.get("Tier") == child.name:
 					var NewRow = TalentTableRowScene.instantiate()
 					child.Rows.add_child(NewRow)
-					NewRow.DescriptionLabel.text = constellation.get("Constellation")
+					NewRow.DescriptionLabel.text = System.db_richtext_to_bbcode(constellation.get("Constellation"))
 					if constellation.get("Chosen") == true:
 						NewRow.Check.button_pressed = constellation.get("Chosen")
 		elif TableType == "Abilities":
@@ -119,7 +119,7 @@ func init_rowes():
 						var NewRow = AbilityTableRowScene.instantiate()
 						child.Rows.add_child(NewRow)
 						if ability_data.get("description") != null:
-							NewRow.DescriptionLabel.text = ability_data.get("description")
+							NewRow.DescriptionLabel.text = System.db_richtext_to_bbcode(ability_data.get("description"))
 						else:
 							NewRow.DescriptionLabel.text = ""
 						if ability.get("Ability_Type") != null:
@@ -146,6 +146,8 @@ func init_rowes():
 							NewRow.ChargeLabel.text = str(ability_data.get("charge_cost"))
 						else:
 							NewRow.ChargeLabel.text = ""
+			#var NewRow = AbilityTableRowScene.instantiate()
+			#child.Rows.add_child(NewRow)
 						
 			pass
 	pass

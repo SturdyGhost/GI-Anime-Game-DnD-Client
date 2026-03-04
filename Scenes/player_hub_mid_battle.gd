@@ -66,6 +66,9 @@ func _ready() -> void:
 	set_items()
 	set_status_effects()
 	set_battle_id()
+	await get_tree().create_timer(1.5).timeout
+	if Global.BattlerData == {}:
+		_refresh_data()
 	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
 	pass
 
@@ -106,10 +109,7 @@ func _check_ability_options():
 		
 			pass
 	pass
-
-func _on_data_load_complete():
-	print("✅ Global data has finished loading!")
-	Current_Turn = Global.Current_Party.get("Current_Turn")
+func _refresh_data():
 	set_battlers()
 	check_current_turn_battler_status()
 	set_ui()
@@ -117,6 +117,12 @@ func _on_data_load_complete():
 	set_attacks()
 	set_items()
 	set_status_effects()
+
+
+func _on_data_load_complete():
+	print("✅ Global data has finished loading!")
+	Current_Turn = Global.Current_Party.get("Current_Turn")
+	_refresh_data()
 	if battle_id == null:
 		battle_id = Global.Current_Party.get("Active_Battle_ID")
 	
@@ -776,6 +782,7 @@ func _on_bug_button_pressed() -> void:
 
 func process_turn():
 	var updates = []
+	var processed_self_inflicted_status = false
 	var spaces_moved: int = int(TilesMovedEdit.text)
 	var burst_charges_gained: int = int(BurstChargesEdit.text)
 	var attack_roll: int = int(AttackRollEdit.text)
@@ -805,10 +812,12 @@ func process_turn():
 		var t_type: String = row.AttackType.get_item_text(row.AttackType.selected)        # "Damage" | "Heal" | "True Damage" | etc.
 		var t_elem: String = row.AppliedElement.get_item_text(row.AppliedElement.selected)     # "None" | "Electric" | ...
 		var t_killed: bool = row.KilledStatus.button_pressed
+		var t_shield_hit: bool = row.ShieldHit.button_pressed
 		var t_table = row.TargetTable
 		var t_id = row.TargetID
 		var t_reaction = false
 		var t_current_element = "None"
+		var t_effect_status_target = "self"
 		var t_effect_status = 0
 		var t_effect_status_duration = 0
 		var t_entity_type
@@ -881,13 +890,13 @@ func process_turn():
 		var t_type_lower: String = t_type.to_lower()
 
 		# Only process if we have a real target and a supported attack type
-		if t_table != null and t_id != null and t_type_lower in ["damage", "true damage", "healed"]:
+		# NOTE: includes "shielded" now.
+		if t_table != null and t_id != null and t_type_lower in ["damage", "true damage", "healed", "shielded"]:
 			var record_id: float = float(t_id)
 			var row_data: Dictionary = {}
 			var key: String = ""
 
 			if t_table == "Characters":
-				# Characters are keyed directly by t_id in your existing code
 				key = str(t_id)
 				if Global.CHARACTERS.has(key):
 					row_data = Global.CHARACTERS[key]
@@ -896,59 +905,165 @@ func process_turn():
 					row_data = Global.CHARACTERS[key]
 
 			elif t_table == "Companions":
-				# BattleEnemies uses stringified float keys, like "128.0"
 				key = str(float(t_id))
 				if Global.COMPANIONS.has(key):
 					row_data = Global.COMPANIONS[key]
 
 			elif t_table == "BattleEnemies":
-				# BattleEnemies uses stringified float keys, like "128.0"
 				key = str(float(t_id))
 				if Global.BATTLEENEMIES.has(key):
 					row_data = Global.BATTLEENEMIES[key]
 
-			# If we actually found a row, apply the HP change
+			# If we actually found a row, apply the change
 			if row_data.size() > 0:
-				var current_hp: int = int(row_data.get("Current_Health", 0))
-				var max_hp: int = int(row_data.get("Max_Health", current_hp))
+				# ----------------------------
+				# SHIELD GRANT (no HP change)
+				# ----------------------------
+				if t_type_lower == "shielded":
+					var incoming_shield: int = int(t_raw_dmg)
 
-				# t_damage is positive for damage, negative for heals
-				var new_hp: int = current_hp - t_damage
+					# Null-safe current shield read
+					var sh_val = row_data.get("Shield_Health")
+					var cur_shield: int = 0
+					if sh_val != null:
+						cur_shield = int(sh_val)
 
-				# Clamp to [0, Max_Health]
-				if new_hp > max_hp:
-					new_hp = max_hp
-				if new_hp < 0:
-					new_hp = 0
+					var new_shield: int = incoming_shield
 
-				# Write HP update to DB
-				updates.append({
-					"table": t_table,
-					"record_id": record_id,
-					"field": "Current_Health",
-					"value": new_hp
-				})
-				row_data["Current_Health"] = new_hp
-
-				# If HP hit 0 from DAMAGE, mark as Skipped (and Killed for BattleEnemies)
-				if new_hp == 0 and t_type_lower in ["damage", "true damage"]:
 					updates.append({
 						"table": t_table,
 						"record_id": record_id,
-						"field": "Skipped",
-						"value": true
+						"field": "Shield_Health",
+						"value": new_shield
 					})
-					row_data["Skipped"] = true
+					row_data["Shield_Health"] = new_shield
 
-					if t_table == "BattleEnemies":
+					updates.append({
+						"table": t_table,
+						"record_id": record_id,
+						"field": "Shield_Duration",
+						"value": 4
+					})
+					row_data["Shield_Duration"] = 4
+
+				else:
+					# ----------------------------
+					# DAMAGE/HEAL (with optional shield-hit routing)
+					# ----------------------------
+					var current_hp: int = int(row_data.get("Current_Health", 0))
+					var max_hp: int = int(row_data.get("Max_Health", current_hp))
+
+					# Start with your existing model: positive = damage, negative = healing
+					var hp_damage: int = t_damage
+
+					# If this attack was flagged as hitting a shield, route DAMAGE through Shield_Health first.
+					# Only applies to actual damage (positive). Healing should not consume shield.
+					if t_shield_hit and hp_damage > 0:
+						var sh_val2 = row_data.get("Shield_Health")
+						var cur_shield2: int = 0
+						if sh_val2 != null:
+							cur_shield2 = int(sh_val2)
+
+						if cur_shield2 > 0:
+							if hp_damage < cur_shield2:
+								# Shield absorbs all incoming damage
+								var remaining_shield: int = cur_shield2 - hp_damage
+
+								updates.append({
+									"table": t_table,
+									"record_id": record_id,
+									"field": "Shield_Health",
+									"value": remaining_shield
+								})
+								row_data["Shield_Health"] = remaining_shield
+
+								# No HP damage gets through
+								hp_damage = 0
+
+							else:
+								# Shield breaks; spillover hits HP
+								var overflow: int = hp_damage - cur_shield2
+
+								# If damage EXCEEDS shield health (strictly), apply Status_ID 19 for 2 turns
+								if hp_damage > cur_shield2:
+									var found_break = false
+									for active_status in Global.ACTIVE_STATUS_EFFECTS.values():
+										if int(active_status.get("Status_ID", 0)) == 19 \
+										and str(active_status.get("Entity_Type")) == str(t_entity_type) \
+										and int(active_status.get("Entity_ID", 0)) == int(t_id):
+
+											found_break = true
+											# Set/refresh duration to 2 (or keep higher if you prefer)
+											updates.append({
+												"table": "Active_Status_Effects",
+												"record_id": int(active_status.get("id")),
+												"field": "Duration",
+												"value": 2
+											})
+											break
+
+									if not found_break:
+										var cols_break = ["Entity_ID","Entity_Type","Status_ID","Duration"]
+										var vals_break = [int(t_id), str(t_entity_type), 19, 2]
+										Global.Insert("Active_Status_Effects", cols_break, vals_break)
+
+								# Clear shield (set to null so your UI logic "not null and >0" turns off)
+								updates.append({
+									"table": t_table,
+									"record_id": record_id,
+									"field": "Shield_Health",
+									"value": null
+								})
+								row_data["Shield_Health"] = null
+
+								updates.append({
+									"table": t_table,
+									"record_id": record_id,
+									"field": "Shield_Duration",
+									"value": null
+								})
+								row_data["Shield_Duration"] = null
+
+								# Only the overflow reaches HP
+								hp_damage = overflow
+
+					# Apply HP change (hp_damage is positive for damage, negative for heals)
+					var new_hp: int = current_hp - hp_damage
+
+					# Clamp to [0, Max_Health]
+					if new_hp > max_hp:
+						new_hp = max_hp
+					if new_hp < 0:
+						new_hp = 0
+
+					updates.append({
+						"table": t_table,
+						"record_id": record_id,
+						"field": "Current_Health",
+						"value": new_hp
+					})
+					row_data["Current_Health"] = new_hp
+
+					# If HP hit 0 from DAMAGE, mark as Skipped (and Killed for BattleEnemies)
+					if new_hp == 0 and t_type_lower in ["damage", "true damage"]:
 						updates.append({
 							"table": t_table,
 							"record_id": record_id,
-							"field": "Killed",
+							"field": "Skipped",
 							"value": true
 						})
-						row_data["Killed"] = true
-						t_killed = true  # ensure the log / killed_names reflect this
+						row_data["Skipped"] = true
+
+						if t_table == "BattleEnemies":
+							updates.append({
+								"table": t_table,
+								"record_id": record_id,
+								"field": "Killed",
+								"value": true
+							})
+							row_data["Killed"] = true
+							t_killed = true
+
 
 		#Pulls in and assigns the moveslot data of the move that was selected/used this turn.
 		if attack_used_text != "None":
@@ -960,57 +1075,60 @@ func process_turn():
 							Current_Battler_Selected_Move = move
 
 		#Puts the ability on turned cooldown. 
-		if Current_Battler_Selected_Move_Data.get("cooldown") > 0:
-			updates.append({
-				"table": "Active_Abilities",
-				"record_id": float(Current_Battler_Selected_Move.get("id")),
-				"field": "Ability_Cooldown",
-				"value": Current_Battler_Selected_Move_Data.get("cooldown")})
+		if Current_Battler_Selected_Move_Data:
+			if Current_Battler_Selected_Move_Data.get("cooldown") > 0:
+				updates.append({
+					"table": "Active_Abilities",
+					"record_id": float(Current_Battler_Selected_Move.get("id")),
+					"field": "Ability_Cooldown",
+					"value": Current_Battler_Selected_Move_Data.get("cooldown")})
 
-		#Subtracts the burst charge cost of the move from their current burst charges.
-		if Current_Battler_Selected_Move_Data.get("charge_cost") > 0:
-			var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
-			var new_value = int(old_value-Current_Battler_Selected_Move_Data.get("charge_cost"))
-			var table
-			if new_value <= 0:
-				new_value = 0
-			match Global.Current_Battler_Data.get("type"):
-				"Character":
-					table = "Characters"
-				"Companion":
-					table = "Companions"
-			updates.append({
-				"table": table,
-				"record_id": float(Global.Current_Battler_Data.get("id")),
-				"field": "Burst_Charges",
-				"value": new_value})
+			#Subtracts the burst charge cost of the move from their current burst charges.
+			if Current_Battler_Selected_Move_Data.get("charge_cost") > 0:
+				var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
+				var new_value = int(old_value-Current_Battler_Selected_Move_Data.get("charge_cost"))
+				var table
+				if new_value <= 0:
+					new_value = 0
+				match Global.Current_Battler_Data.get("type"):
+					"Character":
+						table = "Characters"
+					"Companion":
+						table = "Companions"
+				updates.append({
+					"table": table,
+					"record_id": float(Global.Current_Battler_Data.get("id")),
+					"field": "Burst_Charges",
+					"value": new_value})
 
-		# Checks if the used move applies a status condition, if so, applies that status.
-		if int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
-			t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
-			t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration", 0))
+			# Checks if the used move applies a status condition, if so, applies that status.
+			if int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
+				if Current_Battler_Selected_Move_Data.get("effect_status_target") == "target":
+					t_effect_status_target = Current_Battler_Selected_Move_Data.get("effect_status_target")
+					t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
+					t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration", 0))
 
-			var found_existing = false
+					var found_existing = false
 
-			for active_status in Global.ACTIVE_STATUS_EFFECTS.values():
-				if int(active_status.get("Status_ID", 0)) == t_effect_status \
-				and str(active_status.get("Entity_Type")) == str(t_entity_type) \
-				and int(active_status.get("Entity_ID", 0)) == int(t_id):
+					for active_status in Global.ACTIVE_STATUS_EFFECTS.values():
+						if int(active_status.get("Status_ID", 0)) == t_effect_status \
+						and str(active_status.get("Entity_Type")) == str(t_entity_type) \
+						and int(active_status.get("Entity_ID", 0)) == int(t_id):
 
-					found_existing = true
+							found_existing = true
 
-					updates.append({
-						"table": "Active_Status_Effects",
-						"record_id": int(active_status.get("id")),
-						"field": "Duration",
-						"value": int(t_effect_status_duration + 1)
-					})
-					break
+							updates.append({
+								"table": "Active_Status_Effects",
+								"record_id": int(active_status.get("id")),
+								"field": "Duration",
+								"value": int(t_effect_status_duration + 1)
+							})
+							break
 
-			if not found_existing:
-				var cols = ["Entity_ID","Entity_Type","Status_ID","Duration"]
-				var vals = [int(t_id), str(t_entity_type), int(t_effect_status), int(t_effect_status_duration + 1)]
-				Global.Insert("Active_Status_Effects", cols, vals)
+					if not found_existing:
+						var cols = ["Entity_ID","Entity_Type","Status_ID","Duration"]
+						var vals = [int(t_id), str(t_entity_type), int(t_effect_status), int(t_effect_status_duration + 1)]
+						Global.Insert("Active_Status_Effects", cols, vals)
 
 		if t_killed:
 			killed_names.append(t_name)
@@ -1030,6 +1148,7 @@ func process_turn():
 			"applied_status_effect": t_effect_status,
 			"applied_status_effect_duration": t_effect_status_duration,
 			"ignores_def": t_ignores_def,
+			"shield_hit": t_shield_hit,
 			"killed": t_killed,
 			"damage": t_damage,
 			"reaction": t_reaction
@@ -1177,18 +1296,34 @@ func _on_target_selection_multi_selected(index: int, selected: bool) -> void:
 		var row = target_row_scene.instantiate()
 		TargetList.add_child(row)
 		row.NameLabel.text = TargetSelection.get_item_text(item)
+		var data
 		if Global.PartyCharacters.has(TargetSelection.get_item_text(item)):
 			row.TargetTable = "Characters"
 			row.TargetID = Global.CHARACTERS_NAME[TargetSelection.get_item_text(item)]
+			data = Global.CHARACTERS[row.TargetID]
+			if data.get("Shield_Health"):
+				row.TargetShieldAmount = data.get("Shield_Health")
+			else:
+				row.TargetShieldAmount = 0
 		elif Global.PartyCompanions.has(TargetSelection.get_item_text(item)):
 			row.TargetTable = "Companions"
 			row.TargetID = Global.COMPANIONS_NAME[TargetSelection.get_item_text(item)]
+			data = Global.COMPANIONS[row.TargetID]
+			if data.get("Shield_Health"):
+				row.TargetShieldAmount = data.get("Shield_Health")
+			else:
+				row.TargetShieldAmount = 0
 		else:
 			row.TargetTable = "BattleEnemies"
 			var parts = TargetSelection.get_item_text(item).split(" ")
 			var id_str = parts[-1]
-			var id_num = int(id_str)
-			row.TargetID = id_num
+			var id_num = float(id_str)
+			row.TargetID = str(id_num)
+			data = Global.BATTLEENEMIES[row.TargetID]
+			if data.get("Shield_Health"):
+				row.TargetShieldAmount = data.get("Shield_Health")
+			else:
+				row.TargetShieldAmount = 0
 	pass # Replace with function body.
 
 

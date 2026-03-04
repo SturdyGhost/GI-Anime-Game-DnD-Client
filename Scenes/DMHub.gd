@@ -553,18 +553,19 @@ func _wire_buttons() -> void:
 
 # ---------------- Battle Prep ----------------
 func _on_add_enemy_pressed() -> void:
+	print ("Add Enemy Button Pressed")
 	var name = EnemyName.text.strip_edges()
 	var cardscene = load("res://Scenes/enemy_line_item.tscn")
 	var card = cardscene.instantiate()
 	card.enemy_name = name
 	EncounterVContainer.add_child(card)
-	var enemy_data = Global.ENEMIES[str(float(Global.ENEMIES_NAME[name]))]
-	var phase1hp
-	if enemy_data.get("hp_per_phase") == null:
-		phase1hp = enemy_data.get("phase1_hp")
-	else:
-		phase1hp = enemy_data.get("hp_per_phase")
-	Global.Insert("BattleEnemies",["EnemyName","EnemyID","Current_Health","Max_Health"],[name,Global.ENEMIES_NAME[name],phase1hp,phase1hp])
+	#var enemy_data = Global.ENEMIES[str(float(Global.ENEMIES_NAME[name]))]
+	#var phase1hp
+	#if enemy_data.get("hp_per_phase") == null:
+		#phase1hp = enemy_data.get("phase1_hp")
+	#else:
+		#phase1hp = enemy_data.get("hp_per_phase")
+	#Global.Insert("BattleEnemies",["EnemyName","EnemyID","Current_Health","Max_Health"],[name,Global.ENEMIES_NAME[name],phase1hp,phase1hp])
 
 func _make_enemy_card(name: String, hp: int) -> Control:
 	var panel = PanelContainer.new()

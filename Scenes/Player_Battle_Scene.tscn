@@ -134,6 +134,7 @@ texture_pressed = ExtResource("6_04loq")
 texture_hover = ExtResource("7_cy7ag")
 
 [node name="Player_Hub" parent="." instance=ExtResource("4_gnd1w")]
+visible = false
 
 [connection signal="finished" from="AudioStreamPlayer" to="." method="_on_audio_stream_player_finished"]
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

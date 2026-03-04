@@ -7,6 +7,15 @@ extends Panel
 @onready var AttackType = $AttackType
 @onready var AppliedElement = $AppliedElement
 @onready var KilledStatus = $KilledBox
+@onready var ShieldHit = $HitShieldBox
 
 var TargetID
 var TargetTable
+var TargetShieldAmount = 0
+
+func _process(delta: float) -> void:
+	if TargetShieldAmount > 0:
+		ShieldHit.disabled = false
+	else:
+		ShieldHit.disabled = true
+		

@@ -4,7 +4,7 @@ var ACTIVE_USER_EMAIL: String = ""
 var ACTIVE_USER_NAME: String = ""
 var ACTIVE_USER_TYPE: String = ""
 var ACTIVE_USER_RECORD_ID: float
-var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Active_Abilities","Active_Status_Effects","Status_Effects"]
+var TABLES: Array = ["Artifacts","Reactions","Weapons","Abilities","Companions","Crafting_Recipes","Items","Enemies","Characters","BattleEnemies","Character_Items","Character_Weapons", "Character_Artifacts","Talents","Constellations","Material_Caches","Party","Active_Abilities","Active_Status_Effects","Status_Effects","Game_Config","Minigames","Minigames_Results"]
 var joined = ",".join(TABLES)
 var ARTIFACTS: Dictionary = {}
 var REACTIONS: Dictionary = {}
@@ -21,6 +21,7 @@ var BATTLE_TURNS: Array = []
 var CHARACTER_ITEMS: Dictionary = {}
 var CHARACTER_WEAPONS: Dictionary = {}
 var CHARACTER_ARTIFACTS: Dictionary = {}
+var GAME_CONFIG: Dictionary
 var STATUS_EFFECTS = {}
 var ACTIVE_ABILITIES: Dictionary = {}
 var ACTIVE_STATUS_EFFECTS: Dictionary = {}
@@ -28,6 +29,8 @@ var PARTY: Dictionary = {}
 var TALENTS = {}
 var CONSTELLATIONS = {}
 var BATTLE_LOG: Dictionary = {}
+var MINIGAMES: Dictionary = {}
+var MINIGAMES_RESULTS: Dictionary = {}
 var ARTIFACTS_NAME = {}
 var WEAPONS_NAME = {}
 var COMPANIONS_NAME = {}
@@ -548,7 +551,20 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				STATUS_EFFECTS[str(record["id"])] = record
 
+		"Game_Config":
+			GAME_CONFIG = {}
+			for record in records:
+				GAME_CONFIG[str(record["key"])] = str(record["value"])
 
+		"Minigames":
+			MINIGAMES = {}
+			for record in records:
+				MINIGAMES[str(record["id"])] = record
+
+		"Minigames_Results":
+			MINIGAMES_RESULTS = {}
+			for record in records:
+				MINIGAMES_RESULTS[str(record["id"])] = record
 		_:
 			pass
 
@@ -750,7 +766,7 @@ func _on_insert_response(result: int,response_code: int,_headers: PackedStringAr
 
 	var ok := (result == HTTPRequest.RESULT_SUCCESS and response_code >= 200 and response_code < 300)
 	if not ok:
-		push_error("Insert: transport/server error (result=%s, http=%s) in %.3fs" % [str(result), str(response_code), took])
+		push_error("Insert: transport/server error (result=%s, http=%s) in %.3fs" % [str(result), str(response_code), took, body])
 		emit_signal("insert_finished", correlation_id, table, -1, parsed, false)
 		return
 

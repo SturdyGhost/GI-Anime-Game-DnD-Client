@@ -150,7 +150,7 @@ icon_alignment = 1
 layout_mode = 0
 offset_left = 39.0
 offset_top = 455.0
-offset_right = 2536.0
+offset_right = 1243.0
 offset_bottom = 500.0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -179,6 +179,43 @@ offset_bottom = 490.204
 scale = Vector2(0.9, 0.9)
 script = ExtResource("4_3uuwh")
 
+[node name="ReceiverOptionButton" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 1850.0
+offset_top = 444.0
+offset_right = 2125.0
+offset_bottom = 501.0
+
+[node name="ConfirmGiveButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2178.0
+offset_top = 444.0
+offset_right = 2423.0
+offset_bottom = 504.0
+text = "Give Weapon"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1351.0
+offset_top = 457.0
+offset_right = 1644.0
+offset_bottom = 497.0
+text = "Give Selected Weapon To: "
+
+[node name="Selected" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1253.0
+offset_right = 1627.0
+offset_bottom = 45.0
+text = "Selected"
+
+[node name="Current" type="Label" parent="."]
+layout_mode = 0
+offset_right = 388.0
+offset_bottom = 44.0
+text = "Current"
+horizontal_alignment = 1
+
 [connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/NameButton" to="." method="_on_name_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/TypeButton" to="." method="_on_type_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/RegionButton" to="." method="_on_region_button_pressed"]
@@ -193,3 +230,4 @@ script = ExtResource("4_3uuwh")
 [connection signal="pressed" from="VBoxContainer/WeaponHeaderRow/EquippedButton" to="." method="_on_equipped_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/ConfirmButton" to="." method="_on_confirm_button_pressed"]
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="ConfirmGiveButton" to="." method="_on_confirm_give_button_pressed"]

@@ -1,10 +1,15 @@
-# Godot engine folders
-.import/
-.export/
-.godot/
+# Ignore everything
+*
 
-# Godot build files
+# But do not ignore these file types
+!.gitignore
+!*.gd
+!*.tscn
+!*.tres
+
+# Specifically ignore Godot garbage
+.godot/
 *.import
-*.pck
-*.exe
-*.zip
+
+# Also ignore typical temporary files
+*.log

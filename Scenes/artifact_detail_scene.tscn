@@ -132,7 +132,7 @@ icon_alignment = 1
 layout_mode = 0
 offset_left = 39.0
 offset_top = 459.0
-offset_right = 2480.0
+offset_right = 1247.0
 offset_bottom = 499.0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -151,6 +151,15 @@ offset_right = 1396.41
 offset_bottom = 498.707
 scale = Vector2(0.9, 0.9)
 
+[node name="Label" type="Label" parent="CurrentArtifactPreview"]
+layout_mode = 0
+offset_left = -22.0
+offset_top = -17.0
+offset_right = 422.0
+offset_bottom = 50.0
+text = "Current:"
+horizontal_alignment = 1
+
 [node name="SelectedArtifactPreview" parent="." instance=ExtResource("3_6n48t")]
 layout_mode = 0
 offset_left = 1258.0
@@ -159,5 +168,42 @@ offset_right = 2634.0
 offset_bottom = 500.0
 scale = Vector2(0.9, 0.9)
 
+[node name="Label" type="Label" parent="SelectedArtifactPreview"]
+layout_mode = 0
+offset_top = -20.0
+offset_right = 418.0
+offset_bottom = 40.0
+text = "Selected:"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1268.0
+offset_top = 456.0
+offset_right = 1716.0
+offset_bottom = 496.0
+text = "Give Selected Artifact to: "
+
+[node name="ReceiverOptionButton" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 1726.0
+offset_top = 453.0
+offset_right = 2060.0
+offset_bottom = 513.0
+scale = Vector2(0.8, 0.8)
+item_count = 1
+popup/item_0/text = "None"
+popup/item_0/id = 0
+
+[node name="GiveConfirmButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 2029.0
+offset_top = 452.0
+offset_right = 2360.0
+offset_bottom = 514.0
+scale = Vector2(0.8, 0.8)
+text = "Give Artifact"
+
 [connection signal="pressed" from="VBoxContainer/ConfirmButton" to="." method="_on_confirm_button_pressed"]
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="GiveConfirmButton" to="." method="_on_give_confirm_button_pressed"]

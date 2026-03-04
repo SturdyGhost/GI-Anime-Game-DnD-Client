@@ -163,16 +163,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_hcvnk")
 
-[node name="Description" type="Label" parent="Panel"]
-custom_minimum_size = Vector2(1280, 0)
+[node name="Description" type="RichTextLabel" parent="Panel"]
+custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 1288.0
-offset_bottom = 206.0
+offset_left = 9.0
+offset_top = 4.0
+offset_right = 1267.0
+offset_bottom = 364.0
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 25
+bbcode_enabled = true
 text = "Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description Description "
-horizontal_alignment = 1
-vertical_alignment = 1
 autowrap_mode = 2
+vertical_alignment = 1

@@ -13,12 +13,14 @@ const ARTIFACT_TABLE := "Character_Artifacts"
 @onready var ExitButton: Button        = $ExitButton
 @onready var CurrentArtifactPreview = $CurrentArtifactPreview
 @onready var SelectedArtifactPreview = $SelectedArtifactPreview
+@onready var ReceiverOptionButton = $ReceiverOptionButton
 
 var previouslogslot
 var currentlogslot
 var filtered
 
 var selected_artifact: Dictionary = {}   # current selection
+var original_artifact: Dictionary = {}
 
 
 # Header buttons -> sort keys (must match your header child names)
@@ -60,6 +62,7 @@ func _ready() -> void:
 	# optional initial paint (empty until open_for_* is called)
 	_refresh_list()
 	
+	
 
 # --- call one of these from your hub ---
 func open_for_slot(short_name: String) -> void:
@@ -71,6 +74,15 @@ func open_for_type(full_name: String) -> void:
 	_slot_type = full_name
 	_build_rows()
 	_refresh_list()
+
+func set_receivers():
+	ReceiverOptionButton.clear()
+	ReceiverOptionButton.add_item("None")
+	for character in Global.PartyCharacters:
+		if character != Global.ACTIVE_USER_NAME:
+			ReceiverOptionButton.add_item(character)
+
+
 
 # ---------- build data ----------
 func _build_rows() -> void:
@@ -174,7 +186,9 @@ func _apply_initial_selection() -> void:
 			picked = true
 	SelectedArtifactPreview.original_artifact = selected_artifact
 	CurrentArtifactPreview.set_stats(selected_artifact)
+	original_artifact = selected_artifact
 	SelectedArtifactPreview.set_stats(selected_artifact)
+	set_receivers()
 
 
 # ---------- checkbox handler ----------
@@ -424,3 +438,23 @@ func _id_num(v) -> float:
 	# Convert safely from string/int to float. If your ids are non-numeric,
 	# change the backend to accept strings and pass str(v) instead.
 	return str(v).to_float()
+
+
+func _on_give_confirm_button_pressed() -> void:
+	if ReceiverOptionButton.get_selected_id() > 0 and selected_artifact != original_artifact:
+		var updates = []
+		updates.append({
+			"table": "Character_Artifacts", 
+			"record_id": float(selected_artifact.get("RecordID")), 
+			"field": "Owner", 
+			"value": ReceiverOptionButton.get_item_text(ReceiverOptionButton.get_selected_id())})
+		Global.Update_Records(updates)
+		
+		print (selected_artifact)
+		var p = get_parent()
+		if p is Window:
+			p.queue_free()
+		else:
+			queue_free()
+		pass # Replace with function body.
+	pass # Replace with function body.

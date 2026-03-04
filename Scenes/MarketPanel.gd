@@ -300,7 +300,7 @@ func _update_price_preview() -> void:
 	else:
 		var total_gain = Market.Price_Sell_Preview(_selected_entry, qty)
 		var rate_text = _format_percent(Market._sell_rate_with_luck(luck))
-		PricePreview.text = "Rate: %s  |  Offer: %d" % [rate_text, total_gain]
+		PricePreview.text = "Offer: %d" % [total_gain]
 
 func _format_percent(x: float) -> String:
 	return "%d%%" % int(round(x * 100.0))
@@ -508,7 +508,7 @@ func _item_info_text(r: Dictionary) -> String:
 func _sell_info_text(r: Dictionary) -> String:
 	var lines: Array = []
 	lines.append("You own: x%d" % r.get("Quantity", 0))
-	lines.append("Base Value: %d" % r.get("Value", 0))
+	#lines.append("Base Value: %d" % r.get("Value", 0))
 	if r.get("__table") == "Character_Weapons":
 		var hyphen = r.get("Name").to_lower().replace(" ","-")+".png"
 		Icon.texture = load("res://UI/Weapon Icons/"+hyphen)

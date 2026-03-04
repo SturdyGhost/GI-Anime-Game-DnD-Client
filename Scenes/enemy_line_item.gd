@@ -9,6 +9,7 @@ signal status_changed(enemy_id: int, status: String)
 @export var enemy_name: String = ""  
 
 @onready var NameLabel = $Label
+@onready var FogButton = $CheckBox
 
 var ELEMENTS: Array = [
 	{"name": "None", "key": "None", "icon": null},
@@ -51,15 +52,16 @@ func set_battle_record_id(id_value: int) -> void:
 # -------------------------- DB IO --------------------------
 
 func _insert_battle_enemy() -> void:
+	print ("Insert_Battle_Enemy being ran.")
 	if not Global or not Global.has_method("Insert"):
 		return
 	var columns: Array = [
-		"EnemyName", "EnemyID", "HP_Current", "HP_Max", "Phase", "Killed",
-		"AppliedElement", "StatusEffect"
+		"EnemyName", "EnemyID", "Current_Health", "Max_Health", "Phase", "Killed",
+		"AppliedElement"
 	]
 	var values: Array = [
-		NameLabel.text, enemy_id, _cur_hp, _max_hp, 1, false,
-		"None", "None"
+		str(enemy_name), float(enemy_id), int(_cur_hp), int(_max_hp), 1, false,
+		"None"
 	]
 	# Make a unique correlation id for THIS card
 	_insert_corr_id = "ins-%d-%d" % [get_instance_id(), Time.get_ticks_msec()]
@@ -114,12 +116,13 @@ func setup_from_name(name: String) -> void:
 	found = _find_enemy_by_name(enemy_name)
 	enemy_id = int(found[0])
 	var row: Dictionary = found[1]
+	var testname = str(row.get("name"))
 
 	# Name
-	NameLabel.text = str(row.get("Name", enemy_name))
+	NameLabel.text = str(row.get("name", enemy_name))
 
 	# Icon
-	_icon_path = str(row.get("IconPath", ""))
+	#_icon_path = str(row.get("IconPath", ""))
 
 
 	
@@ -143,4 +146,19 @@ func setup_from_name(name: String) -> void:
 		battle_record_id = int(row["BattleRecordID"])
 
 	# Insert into BattleEnemies using your columns/values signature (no return)
+	print ("Calling insert_battle_enemy")
 	_insert_battle_enemy()
+
+
+func _on_check_box_toggled(toggled_on: bool) -> void:
+	print (FogButton.button_pressed)
+	var updates = []
+	updates.append({
+				"table": "BattleEnemies",
+				"record_id": battle_record_id,
+				"field": "Fog",
+				"value": FogButton.button_pressed
+			})
+	Global.Update_Records(updates)
+
+	pass # Replace with function body.

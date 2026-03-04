@@ -17,20 +17,19 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = ExtResource("2_jaxu2")
 
-[node name="DescriptionLabel" type="Label" parent="DescriptionPanel"]
+[node name="DescriptionLabel" type="RichTextLabel" parent="DescriptionPanel"]
 custom_minimum_size = Vector2(2000, 0)
 layout_mode = 2
 offset_left = 8.0
 offset_top = 8.0
-offset_right = 1491.0
+offset_right = 2008.0
 offset_bottom = 143.0
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 32
+bbcode_enabled = true
 text = "Test LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest LabellingTest Labelling"
+autowrap_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
-clip_text = true
 
 [node name="CheckboxPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(530, 0)

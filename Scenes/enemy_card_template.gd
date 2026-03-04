@@ -11,6 +11,9 @@ var pct
 var bar
 var eid
 var status
+var shield_value
+var shield_hp: int = 0
+var shield_duration: int = 0
 
 @onready var CardName = $EC_Name
 @onready var CardPortrait = $EC_Portrait
@@ -19,6 +22,11 @@ var status
 @onready var CardHealthBar = $EC_Bar
 @onready var CardElement = $EC_AppliedElement
 @onready var CardTier = $EC_TierText
+@onready var CardPanel = $Panel
+@onready var ShieldHIcon = $Shield_Health_Icon
+@onready var ShieldHLabel = $Shield_Health_Icon/Label
+@onready var ShieldDIcon = $Shield_Duration_Icon
+@onready var ShieldDLabel = $Shield_Duration_Icon/Label
 
 
 func _process(delta: float) -> void:
@@ -44,6 +52,11 @@ func set_card(id):
 	CardTier.text = tier.capitalize()
 	CardHealthBar.value = pct
 	CardHealthText.text = ( "Doing great" if pct >= 75.0 else ("Hurting a bit" if pct >= 50.0 else ("In trouble" if pct >= 25.0 else "On last legs")) )
+	shield_value = e.get("Shield_Health")
+	if shield_value != null:
+		shield_hp = int(shield_value)
+		shield_duration = int(e.get("Shield_Duration"))
+	_apply_shield_border(shield_hp > 0.0)
 	if elem != "None":
 		CardElement.texture = load("res://UI/Element Icons/"+str(elem)+".png")
 		CardElement.tooltip_text = ""
@@ -59,6 +72,34 @@ func set_card(id):
 		var tex = load(path)
 		if tex is Texture2D:
 			CardPortrait.texture = tex
+
+func _apply_shield_border(has_shield: bool) -> void:
+	if has_shield:
+		# Get the current theme's panel style
+		var base_style = CardPanel.get_theme_stylebox("panel")
+		ShieldDIcon.visible = true
+		ShieldHIcon.visible = true
+		ShieldDLabel.text = str(shield_duration)
+		ShieldHLabel.text = str(shield_hp)
+
+		if base_style != null:
+			# Duplicate so we don't modify the global theme
+			var sb = base_style.duplicate()
+
+			# Ensure it's a StyleBoxFlat (default panels usually are)
+			if sb is StyleBoxFlat:
+				# Thicker gray border
+				sb.border_color = Color(0.55, 0.55, 0.55, 1.0)
+				sb.border_width_left = 6
+				sb.border_width_top = 6
+				sb.border_width_right = 6
+				sb.border_width_bottom = 6
+
+			CardPanel.add_theme_stylebox_override("panel", sb)
+	else:
+		CardPanel.remove_theme_stylebox_override("panel")
+		ShieldDIcon.visible = false
+		ShieldHIcon.visible = false
 
 
 
