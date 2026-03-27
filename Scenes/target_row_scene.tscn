@@ -1,76 +1,76 @@
-[gd_scene load_steps=3 format=3 uid="uid://c2boutu44o4l1"]
+[gd_scene load_steps=3 format=3 uid="uid://bgo8wdt81ecrl"]
 
 [ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="1_uqii5"]
-[ext_resource type="Script" uid="uid://b3njxn187fwrq" path="res://Scenes/target_row_scene.gd" id="2_bi6vx"]
+[ext_resource type="Script" path="res://Scenes/target_row_scene.gd" id="2_bi6vx"]
 
 [node name="TargetRowScene" type="Panel"]
-custom_minimum_size = Vector2(925, 200)
+custom_minimum_size = Vector2(900, 160)
 theme_override_styles/panel = ExtResource("1_uqii5")
 script = ExtResource("2_bi6vx")
 
-[node name="NameLabel" type="Label" parent="."]
+[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 0
-offset_top = 5.0
-offset_right = 939.0
-offset_bottom = 85.0
+offset_left = 3.0
+offset_top = 8.0
+offset_right = 1229.0
+offset_bottom = 192.0
+scale = Vector2(0.73, 0.73)
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
 text = "Target Name"
 horizontal_alignment = 1
 
-[node name="RollLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 68.0
-offset_right = 186.0
-offset_bottom = 108.0
+[node name="Row1" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RollLabel" type="Label" parent="Margin/VBox/Row1"]
+layout_mode = 2
 text = "Their Roll:"
+vertical_alignment = 1
 
-[node name="RollEdit" type="TextEdit" parent="."]
-layout_mode = 0
-offset_left = 191.0
-offset_top = 56.0
-offset_right = 257.0
-offset_bottom = 120.0
+[node name="RollEdit" type="LineEdit" parent="Margin/VBox/Row1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
 placeholder_text = "0"
 
-[node name="HitsLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 312.0
-offset_top = 68.0
-offset_right = 494.0
-offset_bottom = 108.0
+[node name="HitsLabel" type="Label" parent="Margin/VBox/Row1"]
+layout_mode = 2
 text = "# of Hits:"
+vertical_alignment = 1
 
-[node name="HitsEdit" type="TextEdit" parent="."]
-layout_mode = 0
-offset_left = 499.0
-offset_top = 56.0
-offset_right = 565.0
-offset_bottom = 120.0
+[node name="HitsEdit" type="LineEdit" parent="Margin/VBox/Row1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
 text = "1"
+
+[node name="AmountLabel" type="Label" parent="Margin/VBox/Row1"]
+layout_mode = 2
+text = "Amount:"
+vertical_alignment = 1
+
+[node name="DamageEdit" type="LineEdit" parent="Margin/VBox/Row1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
 placeholder_text = "0"
 
-[node name="DamageLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 139.0
-offset_right = 161.0
-offset_bottom = 179.0
-text = "Amount: "
-
-[node name="DamageEdit" type="TextEdit" parent="."]
-layout_mode = 0
-offset_left = 154.0
-offset_top = 127.0
-offset_right = 257.0
-offset_bottom = 191.0
-placeholder_text = "0"
-
-[node name="AttackType" type="OptionButton" parent="."]
-layout_mode = 0
-offset_left = 267.0
-offset_top = 129.0
-offset_right = 469.0
-offset_bottom = 189.0
+[node name="AttackType" type="OptionButton" parent="Margin/VBox/Row1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
 selected = 1
 item_count = 4
 popup/item_0/text = "None"
@@ -82,23 +82,19 @@ popup/item_2/id = 2
 popup/item_3/text = "Shielded"
 popup/item_3/id = 3
 
-[node name="AppliedElementLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 557.0
-offset_top = 55.0
-offset_right = 739.0
-offset_bottom = 141.0
-theme_override_font_sizes/font_size = 25
-text = "Applied
-Element:"
-horizontal_alignment = 1
+[node name="Row2" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="AppliedElement" type="OptionButton" parent="."]
-layout_mode = 0
-offset_left = 727.0
-offset_top = 57.0
-offset_right = 919.0
-offset_bottom = 117.0
+[node name="ElemLabel" type="Label" parent="Margin/VBox/Row2"]
+layout_mode = 2
+text = "Applied Element:"
+vertical_alignment = 1
+
+[node name="AppliedElement" type="OptionButton" parent="Margin/VBox/Row2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
 selected = 0
 item_count = 8
 popup/item_0/text = "None"
@@ -118,19 +114,13 @@ popup/item_6/id = 6
 popup/item_7/text = "Nature"
 popup/item_7/id = 7
 
-[node name="KilledBox" type="CheckBox" parent="."]
-layout_mode = 0
-offset_left = 727.0
-offset_top = 129.0
-offset_right = 919.0
-offset_bottom = 189.0
-text = "Killed?"
-
-[node name="HitShieldBox" type="CheckBox" parent="."]
-layout_mode = 0
-offset_left = 482.0
-offset_top = 129.0
-offset_right = 714.0
-offset_bottom = 189.0
+[node name="HitShieldBox" type="CheckBox" parent="Margin/VBox/Row2"]
+unique_name_in_owner = true
+layout_mode = 2
 disabled = true
 text = "Hit Shield"
+
+[node name="KilledBox" type="CheckBox" parent="Margin/VBox/Row2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Killed?"

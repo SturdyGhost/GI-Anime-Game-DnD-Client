@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://fa2kq0nb3gdy"]
+[gd_scene load_steps=2 format=3 uid="uid://xcbcoxi42cva"]
 
-[ext_resource type="Script" uid="uid://bkpba4m82qrjy" path="res://Scenes/DMHub.gd" id="1"]
+[ext_resource type="Script" path="res://Scenes/DMHub.gd" id="1_gd"]
 
 [node name="DMHub" type="Control"]
 layout_mode = 3
@@ -9,47 +9,77 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-script = ExtResource("1")
+script = ExtResource("1_gd")
 
-[node name="Layout" type="VBoxContainer" parent="."]
-layout_mode = 0
+[node name="Root" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="MainSplit" type="HSplitContainer" parent="Layout"]
+[node name="MainVBox" type="VBoxContainer" parent="Root"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-split_offset = 1800
+theme_override_constants/separation = 0
 
-[node name="Tabs" type="TabContainer" parent="Layout/MainSplit"]
+[node name="MainSplit" type="HSplitContainer" parent="Root/MainVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-current_tab = 2
+split_offset = 1700
 
-[node name="PartyManagement" type="Control" parent="Layout/MainSplit/Tabs"]
-visible = false
+[node name="Tabs" type="TabContainer" parent="Root/MainVBox/MainSplit"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+current_tab = 0
+
+[node name="PartyManagement" type="MarginContainer" parent="Root/MainVBox/MainSplit/Tabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 metadata/_tab_index = 0
 
-[node name="Panel" type="Panel" parent="Layout/MainSplit/Tabs/PartyManagement"]
-layout_mode = 0
-offset_right = 2115.0
-offset_bottom = 1324.0
+[node name="PMVBox" type="VBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="ActionOptionButton" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 64.0
-offset_top = 123.0
-offset_right = 280.0
-offset_bottom = 201.0
+[node name="PMHeader" type="Label" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Give or Remove Resources"
+
+[node name="PMSep" type="HSeparator" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox"]
+layout_mode = 2
+
+[node name="FormRow" type="HBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ActLabel" type="Label" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+layout_mode = 2
+text = "Action:"
+vertical_alignment = 1
+
+[node name="ActionOptionButton" type="OptionButton" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 44)
+layout_mode = 2
 selected = 0
 item_count = 2
 popup/item_0/text = "Give"
@@ -57,27 +87,25 @@ popup/item_0/id = 0
 popup/item_1/text = "Remove"
 popup/item_1/id = 1
 
-[node name="CharacterOptionButton" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 312.0
-offset_top = 123.0
-offset_right = 528.0
-offset_bottom = 201.0
-selected = 0
-item_count = 3
-popup/item_0/text = "Brian C."
-popup/item_0/id = 0
-popup/item_1/text = "Brian F."
-popup/item_1/id = 1
-popup/item_2/text = "Dylan"
-popup/item_2/id = 2
+[node name="CharLabel" type="Label" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+layout_mode = 2
+text = "Character:"
+vertical_alignment = 1
 
-[node name="ObjectOptionButton" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 560.0
-offset_top = 123.0
-offset_right = 776.0
-offset_bottom = 201.0
+[node name="CharacterOptionButton" type="OptionButton" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 44)
+layout_mode = 2
+
+[node name="CatLabel" type="Label" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+layout_mode = 2
+text = "Category:"
+vertical_alignment = 1
+
+[node name="ObjectOptionButton" type="OptionButton" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 44)
+layout_mode = 2
 selected = 0
 item_count = 4
 popup/item_0/text = "Misc."
@@ -89,189 +117,177 @@ popup/item_2/id = 2
 popup/item_3/text = "Weapons"
 popup/item_3/id = 3
 
-[node name="QuantityTextEdit" type="TextEdit" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 800.0
-offset_top = 123.0
-offset_right = 1016.0
-offset_bottom = 201.0
-placeholder_text = "Quantity"
+[node name="QtyLabel" type="Label" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+layout_mode = 2
+text = "Qty:"
+vertical_alignment = 1
 
-[node name="SpecificsOptionButton" type="OptionButton" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 1048.0
-offset_top = 123.0
-offset_right = 2006.0
-offset_bottom = 201.0
+[node name="QuantityLineEdit" type="LineEdit" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+placeholder_text = "1"
+
+[node name="SpecificsOptionButton" type="OptionButton" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox/FormRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+size_flags_horizontal = 3
 flat = true
 
-[node name="ConfirmButton" type="Button" parent="Layout/MainSplit/Tabs/PartyManagement/Panel"]
-layout_mode = 0
-offset_left = 64.0
-offset_top = 229.0
-offset_right = 2086.0
-offset_bottom = 289.0
+[node name="ConfirmButton" type="Button" parent="Root/MainVBox/MainSplit/Tabs/PartyManagement/PMVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
 text = "Confirm"
 
-[node name="ResearchProgression" type="Control" parent="Layout/MainSplit/Tabs"]
+[node name="BattlePrep" type="MarginContainer" parent="Root/MainVBox/MainSplit/Tabs"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 metadata/_tab_index = 1
 
-[node name="RP_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ProjectList" type="Tree" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
+[node name="BPHSplit" type="HSplitContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+split_offset = -900
 
-[node name="ResearchButtons" type="HBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
+[node name="EnemyEditorPanel" type="PanelContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EnemyEditorMargin" type="MarginContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="EnemyEditorVBox" type="VBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="EnemyEditorHeader" type="Label" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Battle Prep"
+
+[node name="EnemyEditorSep" type="HSeparator" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
 layout_mode = 2
 
-[node name="BtnAssign" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+[node name="EnemyNameRow" type="HBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
 layout_mode = 2
-text = "Assign Player"
+theme_override_constants/separation = 8
 
-[node name="BtnSpeedUp" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+[node name="EnemyLabel" type="Label" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox/EnemyNameRow"]
 layout_mode = 2
-text = "Speed Up"
+text = "Enemy:"
+vertical_alignment = 1
 
-[node name="BtnComplete" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
+[node name="EnemyName" type="LineEdit" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox/EnemyNameRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-text = "Complete Early"
+size_flags_horizontal = 3
+placeholder_text = "Search enemy name..."
 
-[node name="BattlePrep" type="Control" parent="Layout/MainSplit/Tabs"]
+[node name="BtnAddEnemy" type="Button" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Add to Encounter"
+
+[node name="Spacer" type="Control" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SituationSep" type="HSeparator" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+layout_mode = 2
+
+[node name="BtnSituation" type="Button" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+disabled = true
+text = "Trigger Battle Situation"
+
+[node name="RestoreBattleButton" type="Button" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EnemyEditorPanel/EnemyEditorMargin/EnemyEditorVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Restore Battle"
+
+[node name="EncounterScroll" type="ScrollContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="EncounterHContainer" type="HBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EncounterScroll"]
+layout_mode = 2
+
+[node name="EncounterVContainer" type="VBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/BattlePrep/BPHSplit/EncounterScroll/EncounterHContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 45
+
+[node name="AwardArtifact" type="ScrollContainer" parent="Root/MainVBox/MainSplit/Tabs"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 metadata/_tab_index = 2
 
-[node name="BP_HBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="ArtifactMargin" type="MarginContainer" parent="Root/MainVBox/MainSplit/Tabs/AwardArtifact"]
+layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
-[node name="EnemyPalettePanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
+[node name="ArtifactScrollContent" type="VBoxContainer" parent="Root/MainVBox/MainSplit/Tabs/AwardArtifact/ArtifactMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SidePanel" type="VBoxContainer" parent="Root/MainVBox/MainSplit"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 8
 
-[node name="EncounterPanel" type="ScrollContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
-custom_minimum_size = Vector2(1350, 0)
+[node name="LogHeader" type="Label" parent="Root/MainVBox/MainSplit/SidePanel"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_font_sizes/font_size = 16
+text = "Activity Log"
 
-[node name="EncounterHContainer" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel"]
-custom_minimum_size = Vector2(1330, 0)
-layout_mode = 2
-
-[node name="EncounterVContainer" type="VBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EncounterPanel/EncounterHContainer"]
-layout_mode = 2
-theme_override_constants/separation = 45
-
-[node name="EnemyEditorPanel" type="PanelContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox"]
-custom_minimum_size = Vector2(420, 0)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="EnemyEditorVBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="EnemyNameHBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
+[node name="LogSep" type="HSeparator" parent="Root/MainVBox/MainSplit/SidePanel"]
 layout_mode = 2
 
-[node name="EnemyNameLabel" type="Label" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox"]
-layout_mode = 2
-text = "Name:"
-
-[node name="EnemyName" type="LineEdit" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/EnemyNameHBox"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-
-[node name="BtnAddEnemy" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
-layout_mode = 2
-text = "Add/Update Enemy"
-
-[node name="BtnSituation" type="Button" parent="Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox"]
-layout_mode = 2
-disabled = true
-text = "Trigger Battle Situation"
-
-[node name="ActiveBattle" type="Control" parent="Layout/MainSplit/Tabs"]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-metadata/_tab_index = 3
-
-[node name="AB_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ActiveBattle"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BattleEmbedPlaceholder" type="Label" parent="Layout/MainSplit/Tabs/ActiveBattle/AB_VBox"]
-layout_mode = 2
-text = "Battle Scene Embed (placeholder)"
-
-[node name="DMLogPanel" type="PanelContainer" parent="Layout/MainSplit"]
-custom_minimum_size = Vector2(420, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="DMLogVBox" type="VBoxContainer" parent="Layout/MainSplit/DMLogPanel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="DMLogLabel" type="Label" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
-layout_mode = 2
-text = "DM Buttons"
-
-[node name="DMLog" type="RichTextLabel" parent="Layout/MainSplit/DMLogPanel/DMLogVBox"]
+[node name="DMLog" type="RichTextLabel" parent="Root/MainVBox/MainSplit/SidePanel"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 scroll_following = true
 
-[node name="QuickBar" type="PanelContainer" parent="Layout"]
-custom_minimum_size = Vector2(0, 48)
+[node name="SideSep" type="HSeparator" parent="Root/MainVBox/MainSplit/SidePanel"]
 layout_mode = 2
-size_flags_horizontal = 3
 
-[node name="QuickHBox" type="HBoxContainer" parent="Layout/QuickBar"]
+[node name="ResearchButton" type="Button" parent="Root/MainVBox/MainSplit/SidePanel"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-size_flags_horizontal = 3
+text = "Research & Progression"
 
-[node name="ResearchButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 2146.0
-offset_top = 129.0
-offset_right = 2554.0
-offset_bottom = 189.0
-text = "Research Button
-"
-
-[node name="RestoreBattleButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 2146.0
-offset_top = 197.0
-offset_right = 2553.0
-offset_bottom = 257.0
-text = "Restore Battle"
-
-[connection signal="pressed" from="ResearchButton" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="RestoreBattleButton" to="." method="_on_restore_battle_button_pressed"]
+[connection signal="pressed" from="Root/MainVBox/MainSplit/SidePanel/ResearchButton" to="." method="_on_button_pressed"]
