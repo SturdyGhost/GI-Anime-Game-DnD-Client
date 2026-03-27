@@ -1,57 +1,62 @@
-[gd_scene load_steps=3 format=3 uid="uid://447ca702njaw"]
+[gd_scene load_steps=3 format=3 uid="uid://tvok1dlxlklk"]
 
-[ext_resource type="Script" uid="uid://cknglxniht3f7" path="res://Scenes/battle_prep_character.gd" id="1_clpiv"]
+[ext_resource type="Script" path="res://Scenes/battle_prep_character.gd" id="1_clpiv"]
 [ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="1_e7dum"]
 
 [node name="BattlePrepCharacter" type="Control"]
+custom_minimum_size = Vector2(340, 430)
 layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 3
+script = ExtResource("1_clpiv")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_clpiv")
-
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 0
-offset_right = 341.0
-offset_bottom = 427.0
 theme_override_styles/panel = ExtResource("1_e7dum")
 
-[node name="CheckBox" type="CheckBox" parent="."]
-layout_mode = 0
-offset_left = 76.0
-offset_top = 168.0
-offset_right = 269.0
-offset_bottom = 228.0
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="CheckBox" type="CheckBox" parent="Margin/VBox"]
+layout_mode = 2
 text = " Ready?"
 
-[node name="OptionButton" type="OptionButton" parent="."]
-layout_mode = 0
-offset_left = 3.0
-offset_top = 248.0
-offset_right = 338.0
-offset_bottom = 292.0
+[node name="OptionButton" type="OptionButton" parent="Margin/VBox"]
+layout_mode = 2
 text_overrun_behavior = 1
 fit_to_longest_item = false
 item_count = 1
 popup/item_0/id = 0
 
-[node name="Button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 311.0
-offset_right = 300.0
-offset_bottom = 371.0
+[node name="Button" type="Button" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
 text = "Confirm Food"
 
-[node name="Label" type="Label" parent="."]
-layout_mode = 0
-offset_left = 26.0
-offset_top = 63.0
-offset_right = 311.0
-offset_bottom = 103.0
-horizontal_alignment = 1
-
-[connection signal="toggled" from="CheckBox" to="." method="_on_check_box_toggled"]
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="toggled" from="Margin/VBox/CheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="pressed" from="Margin/VBox/Button" to="." method="_on_button_pressed"]

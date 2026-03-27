@@ -18,6 +18,8 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 [autoload]
 
 Global="*res://Singletons/Global.gd"
+ToastManager="*res://Singletons/ToastManager.gd"
+WSClient="*res://Singletons/WSClient.gd"
 Market="*res://Singletons/Market.gd"
 ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"

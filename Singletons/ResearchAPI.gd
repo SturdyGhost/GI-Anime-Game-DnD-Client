@@ -26,7 +26,7 @@ func create_session(on_done: Callable) -> void:
 		var data := {}
 		if code == 200:
 			data = JSON.parse_string(b.get_string_from_utf8())
-		on_done.call(data)
+		_safe_callv(on_done, [data])
 		http.queue_free()
 	, CONNECT_ONE_SHOT)
 	var headers := PackedStringArray(["Content-Type: application/json"])
@@ -40,7 +40,7 @@ func fetch_current(on_done: Callable) -> void:
 		var data := {}
 		if code == 200:
 			data = JSON.parse_string(b.get_string_from_utf8())
-		on_done.call(code, data)
+		_safe_callv(on_done, [code, data])
 		http.queue_free()
 	, CONNECT_ONE_SHOT)
 	http.request(url)
