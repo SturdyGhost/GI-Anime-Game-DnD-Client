@@ -1,0 +1,463 @@
+[
+  {
+    "id": 38,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian C.",
+    "action_type": "Turn",
+    "action_name": "None",
+    "target_id": "Brian C.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 0
+    },
+    "damage": 10,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 0,
+    "elements_applied": [],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "None",
+        "used": false,
+        "target": "None"
+      },
+      "targets": [
+        {
+          "hits": 1,
+          "name": "Fire Kairagi 181",
+          "damage": 6,
+          "killed": false,
+          "reaction": false,
+          "target_id": "181.0",
+          "shield_hit": true,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "None",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Large Nature Slime 183",
+          "damage": 4,
+          "killed": false,
+          "reaction": false,
+          "target_id": "183.0",
+          "shield_hit": false,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "None",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        }
+      ],
+      "spaces_moved": 0,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-02T14:07:39.510638-07:00"
+  },
+  {
+    "id": 39,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian C.",
+    "action_type": "Turn",
+    "action_name": "None",
+    "target_id": "Brian C.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 0
+    },
+    "damage": 6,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 0,
+    "elements_applied": [],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "None",
+        "used": false,
+        "target": "None"
+      },
+      "targets": [
+        {
+          "hits": 1,
+          "name": "Fire Kairagi 181",
+          "damage": 6,
+          "killed": false,
+          "reaction": false,
+          "target_id": "181.0",
+          "shield_hit": true,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "None",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        }
+      ],
+      "spaces_moved": 0,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-02T14:09:33.918652-07:00"
+  },
+  {
+    "id": 40,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian C.",
+    "action_type": "Turn",
+    "action_name": "Brian C. – Charged Attack",
+    "target_id": "Brian C.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 18
+    },
+    "damage": 10,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 1,
+    "elements_applied": [
+      "Earth"
+    ],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "Apple Cider",
+        "used": true,
+        "target": "Brian F."
+      },
+      "targets": [
+        {
+          "hits": 1,
+          "name": "Water Abyssal Lector 182",
+          "damage": 6,
+          "killed": false,
+          "reaction": false,
+          "target_id": "182.0",
+          "shield_hit": false,
+          "their_roll": 11,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "Earth",
+          "current_element": "None",
+          "applied_status_effect": 24,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Large Nature Slime 183",
+          "damage": 4,
+          "killed": false,
+          "reaction": false,
+          "target_id": "183.0",
+          "shield_hit": false,
+          "their_roll": 15,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "Earth",
+          "current_element": "None",
+          "applied_status_effect": 24,
+          "applied_status_effect_duration": 0
+        }
+      ],
+      "spaces_moved": 2,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-03T23:40:31.739763-07:00"
+  },
+  {
+    "id": 41,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian C.",
+    "action_type": "Turn",
+    "action_name": "Brian C. – Basic",
+    "target_id": "Brian C.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 20
+    },
+    "damage": 0,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 2,
+    "elements_applied": [],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "None",
+        "used": false,
+        "target": "None"
+      },
+      "targets": [],
+      "spaces_moved": 2,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-18T08:26:33.665817-06:00"
+  },
+  {
+    "id": 42,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian C.",
+    "action_type": "Turn",
+    "action_name": "Brian C. – Basic",
+    "target_id": "Brian C.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 15
+    },
+    "damage": 69,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 2,
+    "elements_applied": [
+      "Ice"
+    ],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "None",
+        "used": false,
+        "target": "None"
+      },
+      "targets": [
+        {
+          "hits": 1,
+          "name": "Brian C.",
+          "damage": 5,
+          "killed": false,
+          "reaction": false,
+          "target_id": "2.0",
+          "shield_hit": true,
+          "their_roll": 5,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Character",
+          "target_table": "Characters",
+          "applied_element": "Ice",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Dylan",
+          "damage": 10,
+          "killed": false,
+          "reaction": false,
+          "target_id": "3.0",
+          "shield_hit": false,
+          "their_roll": 5,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Character",
+          "target_table": "Characters",
+          "applied_element": "Ice",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Yae Miko",
+          "damage": 10,
+          "killed": false,
+          "reaction": false,
+          "target_id": "26.0",
+          "shield_hit": false,
+          "their_roll": 5,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Companion",
+          "target_table": "Companions",
+          "applied_element": "None",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Fire Kairagi 181",
+          "damage": 40,
+          "killed": false,
+          "reaction": true,
+          "target_id": "181.0",
+          "shield_hit": false,
+          "their_roll": 5,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "Ice",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Large Nature Slime 183",
+          "damage": 4,
+          "killed": false,
+          "reaction": true,
+          "target_id": "183.0",
+          "shield_hit": true,
+          "their_roll": 5,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "Ice",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        }
+      ],
+      "spaces_moved": 5,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-18T10:34:46.034676-06:00"
+  },
+  {
+    "id": 43,
+    "battle_id": "rggnv",
+    "turn_no": 0,
+    "phase": "player_turn",
+    "actor_type": "Character",
+    "actor_id": "Brian F.",
+    "action_type": "Turn",
+    "action_name": "Brian F. – Basic",
+    "target_id": "Brian F.",
+    "ignores_def": false,
+    "rolls": {
+      "critical": false,
+      "player_attack": 20
+    },
+    "damage": 30,
+    "hp_before": 0,
+    "hp_after": 0,
+    "energy_change": 0,
+    "elements_applied": [
+      "Water"
+    ],
+    "status_changes": {
+      "killed_targets": [],
+      "passive_stacks_total": 0
+    },
+    "misc": {
+      "item": {
+        "name": "None",
+        "used": false,
+        "target": "None"
+      },
+      "targets": [
+        {
+          "hits": 1,
+          "name": "Brian C.",
+          "damage": 10,
+          "killed": false,
+          "reaction": true,
+          "target_id": "2.0",
+          "shield_hit": true,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Character",
+          "target_table": "Characters",
+          "applied_element": "Water",
+          "current_element": "Ice",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Ayaka",
+          "damage": 10,
+          "killed": false,
+          "reaction": false,
+          "target_id": "21.0",
+          "shield_hit": false,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Companion",
+          "target_table": "Companions",
+          "applied_element": "Water",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        },
+        {
+          "hits": 1,
+          "name": "Large Nature Slime 183",
+          "damage": 10,
+          "killed": false,
+          "reaction": true,
+          "target_id": "183.0",
+          "shield_hit": false,
+          "their_roll": 0,
+          "attack_type": "Damage",
+          "ignores_def": false,
+          "target_type": "Enemy",
+          "target_table": "BattleEnemies",
+          "applied_element": "Water",
+          "current_element": "None",
+          "applied_status_effect": 0,
+          "applied_status_effect_duration": 0
+        }
+      ],
+      "spaces_moved": 0,
+      "attack_ui_type": "Composite"
+    },
+    "created_at": "2026-03-18T10:36:33.944687-06:00"
+  }
+]

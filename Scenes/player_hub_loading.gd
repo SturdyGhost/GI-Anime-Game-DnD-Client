@@ -1,19 +1,22 @@
 extends Node2D
 
-@onready var http = $HTTPRequest
 @onready var LoadingBar = $Control/LoadingProgress
-var current_table_index := 0
-var tables_to_fetch = Global.TABLES
 var Table_Count = Global.TABLES.size()
 var Tables_Processed = 0
-var completed_tables := []
-var upnp = UPNP.new()
-
 
 func _ready():
 	Global.table_loaded.connect(_on_table_loaded)
 	Global.data_load_complete.connect(_on_all_tables_loaded)
-	Global.Refresh_Data(Global.TABLES)
+
+	if NetworkManager.is_host:
+		# Host already loaded data in NetworkManager.host_game(), just proceed
+		# But if we get here before data_load_complete, wait for it
+		if Global.total_records > 0:
+			_on_all_tables_loaded()
+	# Client: data was already received via NetworkManager sync, data_load_complete already fired
+	# But connect the signal in case it fires again
+	if Global.total_records > 0 and not NetworkManager.is_host:
+		_on_all_tables_loaded()
 
 
 func _on_table_loaded(table_name: String, count: int):
@@ -22,10 +25,8 @@ func _on_table_loaded(table_name: String, count: int):
 
 
 func _on_all_tables_loaded():
-	print("✅ All tables loaded. Moving to hub.")
-	print ("Total Records: " + str(Global.total_records))
-	upnp.discover(2000, 2, "InternetGatewayDevice")
-	Global.PublicIP = str(upnp.query_external_address())
+	print("All tables loaded. Moving to hub.")
+	print("Total Records: " + str(Global.total_records))
 	if Global.ACTIVE_USER_TYPE == "Player":
 		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 	elif Global.ACTIVE_USER_TYPE == "Dungeon Master":
@@ -39,21 +40,18 @@ func update_progress_bar():
 	var target_value = current_value
 
 	if Tables_Processed < Table_Count:
-		# Random bump between 5 and 15 (or tweak as you like)
 		target_value += randi_range(4, 8)
-		target_value = clamp(target_value, 0, 99)  # Avoid overshooting before final
+		target_value = clamp(target_value, 0, 99)
 	else:
-		# Final table — set to 100%
 		target_value = 100
 
-	# Animate the value change
 	var tween = create_tween()
 	tween.tween_property(LoadingBar, "value", target_value, 0.1)
 	tween.tween_callback(Callable(self, "_on_progress_tween_finished"))
 
 func _on_progress_tween_finished():
 	if LoadingBar.value >= 100:
-		print("✅ Loading complete. Switching to PlayerHub...")
+		print("Loading complete. Switching to hub...")
 		if Global.ACTIVE_USER_TYPE == "Player":
 			get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 		elif Global.ACTIVE_USER_TYPE == "Dungeon Master":

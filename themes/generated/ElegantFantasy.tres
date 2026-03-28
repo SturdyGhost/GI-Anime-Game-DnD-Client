@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=35 format=3 uid="uid://dgfy4yirbqrg7"]
 
-[ext_resource type="FontFile" uid="uid://vyr8kiirh8lc" path="res://UI/zh-cn.ttf" id="1_dt1gu"]
+[ext_resource type="FontFile" uid="uid://cdfkowdvj40cn" path="res://UI/zh-cn.ttf" id="1_dt1gu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dt1gu"]
 content_margin_left = 10.0

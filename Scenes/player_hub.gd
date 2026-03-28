@@ -1,7 +1,7 @@
 extends Node2D
 @onready var player = $AudioStreamPlayer2D
 @onready var background_image = $UI/BackgroundImage
-@onready var http = HTTPRequest.new()
+var http: Node  # kept for compat, no longer used for HTTP
 @onready var HealthButton = $"UI/StatButtonsContainer/Health Button"
 @onready var AttackButton = $"UI/StatButtonsContainer/Attack Button"
 @onready var DefenseButton = $"UI/StatButtonsContainer/Defense Button"
@@ -27,13 +27,7 @@ func _ready() -> void:
 		Global.connect("data_load_complete", handler)
 	var path = "res://Background Music/Inazuma/Player HUB/1-01 Inazuma.mp3"  # replace with your actual file
 	set_ui()
-	add_child(http)
-	Global.Polling_Timer = Timer.new()
-	Global.add_child(Global.Polling_Timer)
-	Global.Polling_Timer.one_shot = false
-	Global.Polling_Timer.wait_time = 0.1
-	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
-	Global.Polling_Timer.start()
+	pass  # http node removed
 	role_check()
 	restore_health()
 	Market.Refresh_Stock(Global.Current_Region)
@@ -133,8 +127,7 @@ func _on_data_load_complete():
 
 	set_ui()
 	#await get_tree().create_timer(3.0).timeout
-	Global.Polling_Timer.start()
-	Global.Polling_Timer.paused = false
+	pass  # polling removed — data synced via ENet
 	$UI/TopHotbar/Party2Portrait/ElementTexture
 	# Your logic here
 
@@ -410,32 +403,13 @@ func _on_quit_confirmed():
 
 
 func _check_characters_update():
-	if http.is_connected("request_completed", _on_check_characters_response):
-		http.request_completed.disconnect(_on_check_characters_response)
-
-	var url = Global.API_BASE+"/check_modified?nocache=" + str(Time.get_ticks_msec())
-	http.request_completed.connect(_on_check_characters_response)
-	http.request(url)
+	# No longer polls HTTP — data updates arrive via ENet RPC
+	pass
 
 
-func _on_check_characters_response(result, code, headers, body):
-	http.request_completed.disconnect(_on_check_characters_response)
-
-	if code == 200:
-		var json = JSON.parse_string(body.get_string_from_utf8())
-		if json:
-			var new_timestamp = json.get("modified", "")
-			print("🧠 Flask returned timestamp:", new_timestamp)
-			print("📦 Godot cached timestamp: ", last_known_characters_timestamp)
-			if last_known_characters_timestamp == "":
-				last_known_characters_timestamp = new_timestamp
-			else:
-				if new_timestamp != last_known_characters_timestamp:
-					print("Characters table changed! Refreshing...")
-					last_known_characters_timestamp = new_timestamp
-					
-					Global.Refresh_Data(["Characters"])
-					# Optionally call scene refresh logic here
+func _on_check_characters_response(_result, _code, _headers, _body):
+	# Legacy callback — no longer used. Data sync handled by ENet.
+	pass
 
 func set_region_button_options():
 	Ascension = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Ascension_Rank")
@@ -492,8 +466,7 @@ func _on_region_button_item_selected(index: int) -> void:
 		var rid = Global.CHARACTERS_NAME[name]
 		# local cache so UI stays consistent
 		Global.CHARACTERS[rid]["Current_Region"] = region
-		# stale-guard tag
-		Global.note_local_field_write(str(rid), "Current_Region")
+		# stale-guard no longer needed — ENet handles sync
 		updates.append({
 			"table": "Characters",
 			"record_id": float(rid),
@@ -558,7 +531,7 @@ func _on_element_button_item_selected(index: int) -> void:
 	Global.CHARACTERS[rid]["Element"] = new_element
 
 	# 2) Tag + send
-	Global.note_local_field_write(rid, "Element")
+	# stale-guard removed — ENet sync
 	Global.Update_Records([{
 		"table": "Characters",
 		"record_id": float(rid),

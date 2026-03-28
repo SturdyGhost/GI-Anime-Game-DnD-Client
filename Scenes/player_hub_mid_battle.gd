@@ -1,6 +1,6 @@
 extends Node2D
 @onready var background_image = $UI/BackgroundImage
-@onready var http = HTTPRequest.new()
+var http: Node  # kept for compat, no longer used for HTTP
 @onready var HealthButton = $"UI/StatButtonsContainer/Health Button"
 @onready var AttackButton = $"UI/StatButtonsContainer/Attack Button"
 @onready var DefenseButton = $"UI/StatButtonsContainer/Defense Button"
@@ -54,13 +54,7 @@ func _ready() -> void:
 	var path = "res://Background Music/Inazuma/Player HUB/1-01 Inazuma.mp3"  # replace with your actual file
 	set_battlers()
 	set_ui()
-	add_child(http)
-	Global.Polling_Timer = Timer.new()
-	Global.add_child(Global.Polling_Timer)
-	Global.Polling_Timer.one_shot = false
-	Global.Polling_Timer.wait_time = 0.1
-	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
-	Global.Polling_Timer.start()
+	pass  # http node removed
 	set_targets()
 	set_attacks()
 	set_items()
@@ -127,8 +121,7 @@ func _on_data_load_complete():
 		battle_id = Global.Current_Party.get("Active_Battle_ID")
 	
 	#await get_tree().create_timer(3.0).timeout
-	Global.Polling_Timer.start()
-	Global.Polling_Timer.paused = false
+	pass  # polling removed — ENet sync
 	if Global.PartyCharacters.has(Global.Current_Party.get("Current_Turn")):
 		Turn_Type = "Character"
 	elif Global.PartyCompanions.has(Global.Current_Party.get("Current_Turn")):
@@ -676,32 +669,13 @@ func _on_weapon_button_pressed() -> void:
 
 
 func _check_characters_update():
-	if http.is_connected("request_completed", _on_check_characters_response):
-		http.request_completed.disconnect(_on_check_characters_response)
-
-	var url = Global.API_BASE+"/check_modified?nocache=" + str(Time.get_ticks_msec())
-	http.request_completed.connect(_on_check_characters_response)
-	http.request(url)
+	# No longer polls HTTP — data updates arrive via ENet RPC
+	pass
 
 
-func _on_check_characters_response(result, code, headers, body):
-	http.request_completed.disconnect(_on_check_characters_response)
-
-	if code == 200:
-		var json = JSON.parse_string(body.get_string_from_utf8())
-		if json:
-			var new_timestamp = json.get("modified", "")
-			print("🧠 Flask returned timestamp:", new_timestamp)
-			print("📦 Godot cached timestamp: ", last_known_characters_timestamp)
-			if last_known_characters_timestamp == "":
-				last_known_characters_timestamp = new_timestamp
-			else:
-				if new_timestamp != last_known_characters_timestamp:
-					print("Characters table changed! Refreshing...")
-					last_known_characters_timestamp = new_timestamp
-					
-					Global.Refresh_Data(["Characters"])
-					# Optionally call scene refresh logic here
+func _on_check_characters_response(_result, _code, _headers, _body):
+	# Legacy callback — no longer used. Data sync handled by ENet.
+	pass
 
 
 

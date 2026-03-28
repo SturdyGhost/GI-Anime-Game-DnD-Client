@@ -6,6 +6,7 @@
 !*.gd
 !*.tscn
 !*.tres
+!*.json
 
 # Specifically ignore Godot garbage
 .godot/

@@ -1,0 +1,110 @@
+[
+  {
+    "id": 2,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 8950,
+    "rewards": "{\"Shrimp Meat\":3}"
+  },
+  {
+    "id": 3,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 9480,
+    "rewards": "{\"Shrimp Meat\":3}"
+  },
+  {
+    "id": 4,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 8620,
+    "rewards": "{\"Shrimp Meat\":3}"
+  },
+  {
+    "id": 5,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 7660,
+    "rewards": "{\"Shrimp Meat\":3}"
+  },
+  {
+    "id": 6,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 11130,
+    "rewards": "{\"Shrimp Meat\":5}"
+  },
+  {
+    "id": 7,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 9080,
+    "rewards": "{\"Shrimp Meat\":3}"
+  },
+  {
+    "id": 8,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 10200,
+    "rewards": "{\"Bamboo Segment\":4,\"Crab\":5,\"Shrimp Meat\":8,\"White Iron Chunk\":3}"
+  },
+  {
+    "id": 9,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 11150,
+    "rewards": "{\"Amethyst Lump\":1,\"Famed Handguard\":5,\"Otogi Wood\":4,\"Raimei Angelfish\":2}"
+  },
+  {
+    "id": 10,
+    "created_at": null,
+    "updated_at": null,
+    "created_by": null,
+    "updated_by": null,
+    "nc_order": null,
+    "minigame_id": "KleeFishBlast",
+    "player_name": "Brian C.",
+    "score": 490,
+    "rewards": "{}"
+  }
+]

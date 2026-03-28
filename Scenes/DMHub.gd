@@ -15,7 +15,7 @@ extends Control
 @onready var BtnSituation: Button = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/BtnSituation
 @onready var RestoreBattle = $RestoreBattleButton
 @onready var BattlePrepTab = $Layout/MainSplit/Tabs/BattlePrep
-@onready var http = HTTPRequest.new()
+var http: Node  # kept for compat, no longer used for HTTP
 
 var owners: Array = []
 var matches = []
@@ -42,13 +42,7 @@ func _ready() -> void:
 	check_ready()
 	EnemyName.gui_input.connect(_on_enemy_name_gui_input)
 	EnemyName.focus_exited.connect(func() -> void: _hide_suggest_panel())
-	add_child(http)
-	Global.Polling_Timer = Timer.new()
-	Global.add_child(Global.Polling_Timer)
-	Global.Polling_Timer.one_shot = false
-	Global.Polling_Timer.wait_time = 0.1
-	Global.Polling_Timer.timeout.connect(Global._check_modified_batch)
-	Global.Polling_Timer.start()
+	pass  # http node removed
 	_refresh_specifics_options()
 
 func _process(delta: float) -> void:

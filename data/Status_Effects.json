@@ -1,0 +1,262 @@
+[
+  {
+    "id": 6,
+    "created_at": "2025-10-28T18:09:54",
+    "updated_at": "2025-10-28T18:12:44",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 6,
+    "Name": "Slow",
+    "Description": "Each tile of movement counts as 2 rather than 1."
+  },
+  {
+    "id": 5,
+    "created_at": "2025-10-28T18:09:51",
+    "updated_at": "2025-10-28T18:12:56",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 5,
+    "Name": "Quick",
+    "Description": "Each tile of movement counts as ½ rather than 1."
+  },
+  {
+    "id": 7,
+    "created_at": "2025-10-28T18:09:56",
+    "updated_at": "2025-10-28T18:13:04",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 7,
+    "Name": "Advantage",
+    "Description": "You roll 2 dice rolls and take the better of the two."
+  },
+  {
+    "id": 8,
+    "created_at": "2025-10-28T18:10:04",
+    "updated_at": "2025-10-28T18:13:11",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 8,
+    "Name": "Disadvantage",
+    "Description": "You roll 2 dice rolls and take the worse of the two."
+  },
+  {
+    "id": 9,
+    "created_at": "2025-10-28T18:10:07",
+    "updated_at": "2025-10-28T18:13:16",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 9,
+    "Name": "Camouflage",
+    "Description": "You cannot be seen by enemies until the camouflage ends or you attack someone."
+  },
+  {
+    "id": 10,
+    "created_at": "2025-10-28T18:10:27",
+    "updated_at": "2025-10-28T18:13:23",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 10,
+    "Name": "Disarm",
+    "Description": "Weapon is knocked away from the unit, cannot attack until weapon is recovered. May swap to a weapon in inventory of the same type (counts as action). If a weapon is not picked up by battle end it is lost. Typically a condition unique to Brian C."
+  },
+  {
+    "id": 11,
+    "created_at": "2025-10-28T18:10:32",
+    "updated_at": "2025-10-28T18:13:29",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 11,
+    "Name": "Taunt",
+    "Description": "Forces enemies to attack the taunting unit."
+  },
+  {
+    "id": 12,
+    "created_at": "2025-10-28T18:10:35",
+    "updated_at": "2025-10-28T18:13:34",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 12,
+    "Name": "Fear",
+    "Description": "Forces enemies to move away/target the furthest ally away from fearing unit."
+  },
+  {
+    "id": 13,
+    "created_at": "2025-10-28T18:10:59",
+    "updated_at": "2025-10-28T18:13:43",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 13,
+    "Name": "Burst Bust",
+    "Description": "Cannot generate burst charges while active."
+  },
+  {
+    "id": 14,
+    "created_at": "2025-10-28T18:11:43",
+    "updated_at": "2025-10-28T18:13:50",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 14,
+    "Name": "Skill Suck",
+    "Description": "Skill cooldown does not decrease while active."
+  },
+  {
+    "id": 15,
+    "created_at": "2025-10-28T18:11:44",
+    "updated_at": "2025-10-28T18:13:57",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 15,
+    "Name": "Unlucky",
+    "Description": "Overrides Luck and makes bad things happen."
+  },
+  {
+    "id": 16,
+    "created_at": "2025-10-28T18:11:50",
+    "updated_at": "2025-10-28T18:14:03",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 16,
+    "Name": "Lucky",
+    "Description": "Overrides Luck and makes good things happen."
+  },
+  {
+    "id": 17,
+    "created_at": "2025-10-28T18:11:53",
+    "updated_at": "2025-10-28T18:14:09",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 17,
+    "Name": "En Garde",
+    "Description": "The attack against this unit deals no damage and the attacker is stunned for 1 turn."
+  },
+  {
+    "id": 4,
+    "created_at": "2025-10-28T18:09:42",
+    "updated_at": "2025-12-14T10:48:11",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 4,
+    "Name": "Reflect",
+    "Description": "The next attack that would hit this entity is reflected back at the attacker."
+  },
+  {
+    "id": 22,
+    "created_at": "2026-03-02T21:23:24",
+    "updated_at": "2026-03-02T21:24:54",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 22,
+    "Name": "Overheated",
+    "Description": "Using an ability with a turn cooldown increases its cooldown by 1 additional turn."
+  },
+  {
+    "id": 3,
+    "created_at": "2025-10-28T18:09:14",
+    "updated_at": "2025-12-14T11:18:45",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 3,
+    "Name": "Blind",
+    "Description": "You may target whoever you want but a dice will be rolled and the target will change to whoever the dice indicates. If it is an AoE ability it will apply an AoE around that new target. Friendly fire is turned on for any blinded attacks."
+  },
+  {
+    "id": 21,
+    "created_at": "2026-03-02T21:23:13",
+    "updated_at": "2026-03-02T21:24:59",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 21,
+    "Name": "Locked In",
+    "Description": "You must repeat the same actions you took last turn in the same order if possible."
+  },
+  {
+    "id": 20,
+    "created_at": "2026-03-02T21:15:28",
+    "updated_at": "2026-03-02T21:15:37",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 20,
+    "Name": "Loner",
+    "Description": "Ending your turn on a tile with any entity on surrounding tiles causes your next attack to deal no damage."
+  },
+  {
+    "id": 18,
+    "created_at": "2026-01-31T20:46:44",
+    "updated_at": "2026-01-31T20:47:00",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 18,
+    "Name": "Collateral Damage",
+    "Description": "When you deal damage to a target, ¼ of the final damage dealt to them is also dealt to the ally closest to you."
+  },
+  {
+    "id": 19,
+    "created_at": "2026-02-02T06:02:07",
+    "updated_at": "2026-03-02T21:11:40",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 19,
+    "Name": "Shield-Break",
+    "Description": "Any incoming damage is doubled. While this status is active, I cannot gain a new shield and cannot eat any food items."
+  },
+  {
+    "id": 26,
+    "created_at": "2026-03-02T21:23:57",
+    "updated_at": "2026-03-02T21:24:03",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 26,
+    "Name": "Dazed",
+    "Description": "You must act, but only using Basic Attacks. Skills and Bursts cannot be used."
+  },
+  {
+    "id": 25,
+    "created_at": "2026-03-02T21:23:51",
+    "updated_at": "2026-03-02T21:24:09",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 25,
+    "Name": "Slippery",
+    "Description": "The next time you move, you slide your full movement straight in that direction unable to stop any sooner."
+  },
+  {
+    "id": 1,
+    "created_at": "2025-10-28T18:09:09",
+    "updated_at": "2025-10-28T18:12:11",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 1,
+    "Name": "Stun",
+    "Description": "Your turn is essentially skipped, you cannot act or do anything. If you have an ability that lets you do something “at any time” you cannot do them while stunned."
+  },
+  {
+    "id": 2,
+    "created_at": "2025-10-28T18:09:12",
+    "updated_at": "2025-10-28T18:12:26",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 2,
+    "Name": "Root",
+    "Description": "You may still act fully but cannot move in any way. If the ability you are trying to use has movement (i.e. blinks) built into it you cannot use it while rooted."
+  },
+  {
+    "id": 24,
+    "created_at": "2026-03-02T21:23:44",
+    "updated_at": "2026-03-02T21:24:14",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 24,
+    "Name": "Pinned",
+    "Description": "You may not rotate or change facing direction."
+  },
+  {
+    "id": 23,
+    "created_at": "2026-03-02T21:23:35",
+    "updated_at": "2026-03-02T21:24:20",
+    "created_by": "usnqci6vxqr0xfi6",
+    "updated_by": "usnqci6vxqr0xfi6",
+    "nc_order": 23,
+    "Name": "Hot Feet",
+    "Description": "Before attacking you must use your full movement of the desired ability. If movement is needed you cannot end on the tile you started on."
+  }
+]

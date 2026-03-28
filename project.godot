@@ -12,12 +12,14 @@ config_version=5
 
 config/name="Genshin DnD Client"
 config/version="0.0.8"
-run/main_scene="uid://ejjstot0uurx"
+run/main_scene="res://Scenes/Lobby.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [autoload]
 
 Global="*res://Singletons/Global.gd"
+DataStore="*res://Singletons/DataStore.gd"
+NetworkManager="*res://Singletons/NetworkManager.gd"
 Market="*res://Singletons/Market.gd"
 ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"

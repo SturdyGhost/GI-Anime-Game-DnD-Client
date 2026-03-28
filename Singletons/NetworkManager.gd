@@ -1,0 +1,490 @@
+extends Node
+## ENet multiplayer manager. DM hosts, players connect.
+## Handles: hosting, joining, LAN discovery, UPNP, RPC sync, pause-on-disconnect.
+
+signal player_connected(peer_id: int)
+signal player_disconnected(peer_id: int)
+signal connection_succeeded
+signal connection_failed
+signal all_data_received  # fired on client after initial sync completes
+signal host_ready         # fired on host after data loaded from disk
+
+const DEFAULT_PORT := 7777
+const DISCOVERY_PORT := 7778
+const MAX_CLIENTS := 8
+const BEACON_INTERVAL := 2.0
+
+var is_host := false
+var is_connected_to_host := false
+var peer: ENetMultiplayerPeer = null
+
+# Host tracks connected players: peer_id -> { "name": String, "character_id": String }
+var connected_players := {}
+
+# LAN discovery
+var _beacon_timer: Timer = null
+var _discovery_socket: PacketPeerUDP = null
+var _beacon_socket: PacketPeerUDP = null
+var discovered_hosts := []  # Array of { "ip": String, "port": int, "name": String, "players": int }
+
+# UPNP
+var upnp: UPNP = null
+var public_ip := ""
+var _upnp_mapped := false
+
+# Pause on disconnect
+var _paused_for_disconnect := false
+var _missing_peers := []
+
+# Initial sync tracking (client side)
+var _sync_tables_received := {}
+var _sync_total_expected := 0
+
+func _ready() -> void:
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.connection_failed.connect(_on_connection_failed)
+
+# ─── HOSTING ───
+
+func host_game(port: int = DEFAULT_PORT) -> Error:
+	is_host = true
+	DataStore.set_host(true)
+
+	# UPNP port forwarding
+	_setup_upnp(port)
+
+	peer = ENetMultiplayerPeer.new()
+	var err := peer.create_server(port, MAX_CLIENTS)
+	if err != OK:
+		push_error("NetworkManager: Failed to create server on port %d: %s" % [port, error_string(err)])
+		return err
+
+	multiplayer.multiplayer_peer = peer
+	print("NetworkManager: Hosting on port %d" % port)
+
+	# Start LAN beacon
+	_start_beacon(port)
+
+	# Load data from disk
+	var all_data := DataStore.load_all_tables()
+	for table_name in all_data.keys():
+		Global._process_table(table_name, all_data[table_name])
+
+	if Global.ACTIVE_USER_TYPE == "Player":
+		Global.calculate_all_stats()
+
+	Global.Current_Region = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Current_Region")
+	emit_signal("host_ready")
+	Global.emit_signal("data_load_complete")
+	return OK
+
+func _setup_upnp(port: int) -> void:
+	upnp = UPNP.new()
+	var discover_result := upnp.discover(2000, 2, "InternetGatewayDevice")
+	if discover_result == UPNP.UPNP_RESULT_SUCCESS:
+		var map_result := upnp.add_port_mapping(port, port, "GenshinDnD", "UDP")
+		if map_result == UPNP.UPNP_RESULT_SUCCESS:
+			_upnp_mapped = true
+			print("NetworkManager: UPNP port %d mapped successfully" % port)
+		else:
+			push_warning("NetworkManager: UPNP mapping failed: %s" % str(map_result))
+
+		public_ip = str(upnp.query_external_address())
+		Global.PublicIP = public_ip
+	else:
+		push_warning("NetworkManager: UPNP discovery failed: %s" % str(discover_result))
+
+# ─── JOINING ───
+
+func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
+	is_host = false
+	DataStore.set_host(false)
+
+	peer = ENetMultiplayerPeer.new()
+	var err := peer.create_client(ip, port)
+	if err != OK:
+		push_error("NetworkManager: Failed to connect to %s:%d: %s" % [ip, port, error_string(err)])
+		return err
+
+	multiplayer.multiplayer_peer = peer
+	print("NetworkManager: Connecting to %s:%d" % [ip, port])
+	return OK
+
+# ─── DISCONNECT ───
+
+func disconnect_from_game() -> void:
+	_stop_beacon()
+	_stop_discovery()
+
+	if _upnp_mapped and upnp:
+		upnp.delete_port_mapping(DEFAULT_PORT, "UDP")
+		_upnp_mapped = false
+
+	if peer:
+		peer.close()
+		peer = null
+
+	multiplayer.multiplayer_peer = null
+	is_host = false
+	is_connected_to_host = false
+	connected_players.clear()
+	discovered_hosts.clear()
+
+# ─── LAN DISCOVERY ───
+
+func start_discovery() -> void:
+	_stop_discovery()
+	discovered_hosts.clear()
+
+	_discovery_socket = PacketPeerUDP.new()
+	_discovery_socket.set_broadcast_enabled(true)
+	var err := _discovery_socket.bind(DISCOVERY_PORT)
+	if err != OK:
+		push_warning("NetworkManager: Could not bind discovery socket: %s" % error_string(err))
+		return
+
+	print("NetworkManager: Listening for LAN beacons on port %d" % DISCOVERY_PORT)
+
+func poll_discovery() -> void:
+	if _discovery_socket == null:
+		return
+
+	while _discovery_socket.get_available_packet_count() > 0:
+		var data := _discovery_socket.get_packet().get_string_from_utf8()
+		var ip := _discovery_socket.get_packet_ip()
+		var parsed = JSON.parse_string(data)
+		if parsed == null or typeof(parsed) != TYPE_DICTIONARY:
+			continue
+		if not parsed.has("game") or parsed["game"] != "GenshinDnD":
+			continue
+
+		var entry := {
+			"ip": ip,
+			"port": int(parsed.get("port", DEFAULT_PORT)),
+			"name": str(parsed.get("host_name", "Unknown")),
+			"players": int(parsed.get("player_count", 0))
+		}
+
+		# Update or add
+		var found := false
+		for i in discovered_hosts.size():
+			if discovered_hosts[i]["ip"] == ip:
+				discovered_hosts[i] = entry
+				found = true
+				break
+		if not found:
+			discovered_hosts.append(entry)
+
+func _stop_discovery() -> void:
+	if _discovery_socket:
+		_discovery_socket.close()
+		_discovery_socket = null
+
+func _start_beacon(port: int) -> void:
+	_beacon_socket = PacketPeerUDP.new()
+	_beacon_socket.set_broadcast_enabled(true)
+	_beacon_socket.set_dest_address("255.255.255.255", DISCOVERY_PORT)
+
+	_beacon_timer = Timer.new()
+	add_child(_beacon_timer)
+	_beacon_timer.wait_time = BEACON_INTERVAL
+	_beacon_timer.timeout.connect(_send_beacon.bind(port))
+	_beacon_timer.start()
+	_send_beacon(port)
+
+func _send_beacon(port: int) -> void:
+	if _beacon_socket == null:
+		return
+	var payload := JSON.stringify({
+		"game": "GenshinDnD",
+		"port": port,
+		"host_name": Global.ACTIVE_USER_NAME,
+		"player_count": connected_players.size()
+	})
+	_beacon_socket.put_packet(payload.to_utf8_buffer())
+
+func _stop_beacon() -> void:
+	if _beacon_timer:
+		_beacon_timer.stop()
+		_beacon_timer.queue_free()
+		_beacon_timer = null
+	if _beacon_socket:
+		_beacon_socket.close()
+		_beacon_socket = null
+
+# ─── CONNECTION CALLBACKS ───
+
+func _on_peer_connected(id: int) -> void:
+	print("NetworkManager: Peer connected: %d" % id)
+	if is_host:
+		# Send full data sync to the new peer, table by table
+		_send_full_sync_to_peer(id)
+	emit_signal("player_connected", id)
+
+func _on_peer_disconnected(id: int) -> void:
+	print("NetworkManager: Peer disconnected: %d" % id)
+	if is_host:
+		connected_players.erase(id)
+		# Pause the game until they reconnect
+		_missing_peers.append(id)
+		_paused_for_disconnect = true
+		get_tree().paused = true
+		print("NetworkManager: Game paused — waiting for peer %d to reconnect" % id)
+	emit_signal("player_disconnected", id)
+
+func _on_connected_to_server() -> void:
+	print("NetworkManager: Connected to host!")
+	is_connected_to_host = true
+	# Tell host who we are
+	_register_with_host.rpc_id(1, Global.ACTIVE_USER_NAME, str(Global.ACTIVE_USER_RECORD_ID))
+	emit_signal("connection_succeeded")
+
+func _on_connection_failed() -> void:
+	print("NetworkManager: Connection failed!")
+	is_connected_to_host = false
+	emit_signal("connection_failed")
+
+# ─── PLAYER REGISTRATION ───
+
+@rpc("any_peer", "reliable")
+func _register_with_host(player_name: String, character_id: String) -> void:
+	if not is_host:
+		return
+	var sender := multiplayer.get_remote_sender_id()
+	connected_players[sender] = { "name": player_name, "character_id": character_id }
+	print("NetworkManager: Player '%s' registered (peer %d)" % [player_name, sender])
+
+	# Check if this was a reconnecting player
+	if _missing_peers.has(sender):
+		_missing_peers.erase(sender)
+	# Also check by name for reconnects on a different peer id
+	for missing_id in _missing_peers.duplicate():
+		# If the old peer had the same name, consider them reconnected
+		if connected_players.has(missing_id) and connected_players[missing_id]["name"] == player_name:
+			_missing_peers.erase(missing_id)
+			connected_players.erase(missing_id)
+
+	if _paused_for_disconnect and _missing_peers.is_empty():
+		_paused_for_disconnect = false
+		get_tree().paused = false
+		print("NetworkManager: All players reconnected — game resumed")
+
+# ─── FULL SYNC (Host -> Client, chunked per table) ───
+
+func _send_full_sync_to_peer(peer_id: int) -> void:
+	# Tell client how many tables to expect
+	_receive_sync_start.rpc_id(peer_id, Global.TABLES.size())
+
+	for table_name in Global.TABLES:
+		var records := DataStore.get_table_as_array(table_name)
+		var json_str := JSON.stringify(records)
+		_receive_table_sync.rpc_id(peer_id, table_name, json_str)
+
+@rpc("authority", "reliable")
+func _receive_sync_start(table_count: int) -> void:
+	_sync_total_expected = table_count
+	_sync_tables_received.clear()
+	print("NetworkManager: Expecting %d tables from host" % table_count)
+
+@rpc("authority", "reliable")
+func _receive_table_sync(table_name: String, json_str: String) -> void:
+	var records = JSON.parse_string(json_str)
+	if records == null:
+		push_error("NetworkManager: Failed to parse sync data for '%s'" % table_name)
+		records = []
+
+	Global._process_table(table_name, records)
+	_sync_tables_received[table_name] = true
+	Global.emit_signal("table_loaded", table_name, records.size())
+	print("NetworkManager: Synced table '%s' (%d records) [%d/%d]" % [table_name, records.size(), _sync_tables_received.size(), _sync_total_expected])
+
+	if _sync_tables_received.size() >= _sync_total_expected:
+		print("NetworkManager: All tables synced!")
+		if Global.ACTIVE_USER_TYPE == "Player":
+			Global.calculate_all_stats()
+		Global.Current_Region = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Current_Region")
+		emit_signal("all_data_received")
+		Global.emit_signal("data_load_complete")
+
+# ─── DELTA SYNC (Host -> All Clients) ───
+
+## Called by host after a mutation. Broadcasts only the changed table.
+func broadcast_table_update(table_name: String) -> void:
+	if not is_host:
+		return
+	var records := DataStore.get_table_as_array(table_name)
+	var json_str := JSON.stringify(records)
+	_receive_table_sync.rpc(table_name, json_str)
+
+## Broadcast a single record update (more efficient for field changes).
+func broadcast_record_update(table_name: String, record_id: String, data: Dictionary) -> void:
+	if not is_host:
+		return
+	var json_str := JSON.stringify(data)
+	_receive_record_update.rpc(table_name, record_id, json_str)
+
+@rpc("authority", "reliable")
+func _receive_record_update(table_name: String, record_id: String, json_str: String) -> void:
+	var data = JSON.parse_string(json_str)
+	if data == null:
+		return
+	# Update the specific record in Global's dictionary
+	Global._apply_record_update(table_name, record_id, data)
+
+# ─── CLIENT -> HOST REQUESTS ───
+
+## Client requests a field update. Host validates, applies, saves, broadcasts.
+@rpc("any_peer", "reliable")
+func request_update(updates_json: String) -> void:
+	if not is_host:
+		return
+	var updates = JSON.parse_string(updates_json)
+	if updates == null or typeof(updates) != TYPE_ARRAY:
+		return
+
+	var changed_tables := {}
+	for u in updates:
+		var table: String = str(u.get("table", ""))
+		var record_id: String = str(u.get("record_id", ""))
+		var field: String = str(u.get("field", ""))
+		var value = u.get("value")
+
+		Global._apply_local_update(table, record_id, field, value)
+		changed_tables[table] = true
+
+	# Save and broadcast each changed table
+	for table_name in changed_tables.keys():
+		DataStore.persist_table(table_name)
+		broadcast_table_update(table_name)
+
+## Client requests a record insertion.
+@rpc("any_peer", "reliable")
+func request_insert(table: String, record_json: String, correlation_id: String) -> void:
+	if not is_host:
+		return
+	var record = JSON.parse_string(record_json)
+	if record == null:
+		return
+
+	# Generate a new ID
+	var new_id := _next_id_for_table(table)
+	record["id"] = new_id
+
+	# Insert into Global dict
+	Global._insert_record(table, str(new_id), record)
+
+	# Save and broadcast
+	DataStore.persist_table(table)
+	broadcast_table_update(table)
+
+	# Notify the requesting peer
+	var sender := multiplayer.get_remote_sender_id()
+	_receive_insert_result.rpc_id(sender, correlation_id, table, new_id, record_json, true)
+
+@rpc("authority", "reliable")
+func _receive_insert_result(correlation_id: String, table: String, record_id: int, payload_json: String, ok: bool) -> void:
+	var payload = JSON.parse_string(payload_json)
+	if payload == null:
+		payload = {}
+	Global.emit_signal("insert_finished", correlation_id, table, record_id, payload, ok)
+
+## Client requests a record removal.
+@rpc("any_peer", "reliable")
+func request_remove(table: String, record_id: int) -> void:
+	if not is_host:
+		return
+
+	Global._remove_record(table, str(record_id))
+	DataStore.persist_table(table)
+	broadcast_table_update(table)
+
+func _next_id_for_table(table_name: String) -> int:
+	var dict: Dictionary = DataStore._get_global_dict(table_name)
+	var max_id := 0
+	for key in dict.keys():
+		var id_val := int(key)
+		if id_val > max_id:
+			max_id = id_val
+	return max_id + 1
+
+# ─── HOST-SIDE DIRECT OPERATIONS (called by Global) ───
+
+## Host applies updates locally, saves, and broadcasts.
+func host_update_records(updates: Array) -> void:
+	var changed_tables := {}
+	for u in updates:
+		var table: String = str(u.get("table", ""))
+		var record_id: String = str(u.get("record_id", ""))
+		var field: String = str(u.get("field", ""))
+		var value = u.get("value")
+
+		Global._apply_local_update(table, record_id, field, value)
+		changed_tables[table] = true
+
+	for table_name in changed_tables.keys():
+		DataStore.persist_table(table_name)
+		broadcast_table_update(table_name)
+
+## Host inserts a record locally, saves, and broadcasts.
+func host_insert(table: String, columns: Array, values: Array) -> int:
+	var new_id := _next_id_for_table(table)
+	var record := { "id": new_id }
+	for i in columns.size():
+		record[columns[i]] = values[i]
+
+	Global._insert_record(table, str(new_id), record)
+	DataStore.persist_table(table)
+	broadcast_table_update(table)
+	return new_id
+
+## Host removes a record locally, saves, and broadcasts.
+func host_remove(table: String, record_id: int) -> void:
+	Global._remove_record(table, str(record_id))
+	DataStore.persist_table(table)
+	broadcast_table_update(table)
+
+# ─── LOG OPERATIONS (host-only, saved to JSON) ───
+
+func host_log(payload: Dictionary) -> void:
+	if not is_host:
+		# Client sends log to host
+		_request_log.rpc_id(1, JSON.stringify(payload))
+		return
+
+	# Load existing log, append, save
+	var log_records := DataStore.load_table("log")
+	var new_id := log_records.size() + 1
+	payload["id"] = new_id
+	payload["created_at"] = Time.get_datetime_string_from_system()
+	log_records.append(payload)
+	DataStore.save_table("log", log_records)
+
+func host_combat_log(payload: Dictionary) -> void:
+	if not is_host:
+		_request_combat_log.rpc_id(1, JSON.stringify(payload))
+		return
+
+	var log_records := DataStore.load_table("battle_log")
+	var new_id := log_records.size() + 1
+	payload["id"] = new_id
+	payload["created_at"] = Time.get_datetime_string_from_system()
+	log_records.append(payload)
+	DataStore.save_table("battle_log", log_records)
+
+@rpc("any_peer", "reliable")
+func _request_log(payload_json: String) -> void:
+	if not is_host:
+		return
+	var payload = JSON.parse_string(payload_json)
+	if payload:
+		host_log(payload)
+
+@rpc("any_peer", "reliable")
+func _request_combat_log(payload_json: String) -> void:
+	if not is_host:
+		return
+	var payload = JSON.parse_string(payload_json)
+	if payload:
+		host_combat_log(payload)

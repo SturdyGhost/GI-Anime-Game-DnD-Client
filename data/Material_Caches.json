@@ -1,0 +1,138 @@
+[
+  {
+    "id": 15,
+    "created_at": "2025-08-19T17:08:22",
+    "updated_at": "2025-08-19T17:08:34",
+    "Region": "Sumeru",
+    "Roll": 3,
+    "Materials": null
+  },
+  {
+    "id": 16,
+    "created_at": "2025-08-19T17:08:23",
+    "updated_at": "2025-08-19T17:08:34",
+    "Region": "Sumeru",
+    "Roll": 4,
+    "Materials": null
+  },
+  {
+    "id": 2,
+    "created_at": "2025-08-19T17:05:36",
+    "updated_at": "2025-08-19T17:09:25",
+    "Region": "Mondstadt",
+    "Roll": 2,
+    "Materials": "[Sugar,Iron Chunk,Glaze Lily]"
+  },
+  {
+    "id": 11,
+    "created_at": "2025-08-19T17:08:14",
+    "updated_at": "2025-08-19T17:17:13",
+    "Region": "Inazuma",
+    "Roll": 3,
+    "Materials": "[Fluorescent Fungus,Amethyst Lump,Sango Pearl,Naku Weed]"
+  },
+  {
+    "id": 7,
+    "created_at": "2025-08-19T17:08:06",
+    "updated_at": "2025-08-19T17:14:19",
+    "Region": "Liyue",
+    "Roll": 3,
+    "Materials": "[Glabrous Beans,Treasure Hoarder Insignia,Starconch,Cabbage]"
+  },
+  {
+    "id": 12,
+    "created_at": "2025-08-19T17:08:16",
+    "updated_at": "2025-08-19T17:17:42",
+    "Region": "Inazuma",
+    "Roll": 4,
+    "Materials": "[Onikabuto,Cor Lapis,Sakura Bloom,Sea Ganoderma]"
+  },
+  {
+    "id": 3,
+    "created_at": "2025-08-19T17:07:33",
+    "updated_at": "2025-08-19T17:10:03",
+    "Region": "Mondstadt",
+    "Roll": 3,
+    "Materials": "[Calla Lily,White Iron Chunk,Windwheel Aster,Radish]"
+  },
+  {
+    "id": 1,
+    "created_at": "2025-08-19T17:05:33",
+    "updated_at": "2025-08-19T17:07:53",
+    "Region": "Mondstadt",
+    "Roll": 1,
+    "Materials": "[Fir Wood, Wolfhook, Dandelion Seed]"
+  },
+  {
+    "id": 8,
+    "created_at": "2025-08-19T17:08:07",
+    "updated_at": "2025-08-19T17:15:02",
+    "Region": "Liyue",
+    "Roll": 4,
+    "Materials": "[Crab,Clearwater Jade,Bamboo Shoot,Violetgrass]"
+  },
+  {
+    "id": 4,
+    "created_at": "2025-08-19T17:07:35",
+    "updated_at": "2025-08-19T17:10:46",
+    "Region": "Mondstadt",
+    "Roll": 4,
+    "Materials": "[Raw Meat,Noctilucous Jade,Wheat,Cecilia]"
+  },
+  {
+    "id": 9,
+    "created_at": "2025-08-19T17:08:07",
+    "updated_at": "2025-08-19T17:16:04",
+    "Region": "Inazuma",
+    "Roll": 1,
+    "Materials": "[Otogi Wood,Amakumo Fruit,Dendrobium,Purple Shirakodai]"
+  },
+  {
+    "id": 5,
+    "created_at": "2025-08-19T17:07:44",
+    "updated_at": "2025-08-19T17:12:45",
+    "Region": "Liyue",
+    "Roll": 1,
+    "Materials": "[Bamboo Segment,Berry,Jueyun Chili,Fish]"
+  },
+  {
+    "id": 17,
+    "created_at": "2025-08-19T17:08:24",
+    "updated_at": null,
+    "Region": null,
+    "Roll": null,
+    "Materials": null
+  },
+  {
+    "id": 10,
+    "created_at": "2025-08-19T17:08:11",
+    "updated_at": "2025-08-19T17:16:38",
+    "Region": "Inazuma",
+    "Roll": 2,
+    "Materials": "[Crystal Marrow,Famed Handguard,Sharp Arrowhead,Raimei Angelfish]"
+  },
+  {
+    "id": 13,
+    "created_at": "2025-08-19T17:08:17",
+    "updated_at": "2025-08-19T17:08:33",
+    "Region": "Sumeru",
+    "Roll": 1,
+    "Materials": null
+  },
+  {
+    "id": 14,
+    "created_at": "2025-08-19T17:08:20",
+    "updated_at": "2025-08-19T17:08:33",
+    "Region": "Sumeru",
+    "Roll": 2,
+    "Materials": null
+  },
+  {
+    "id": 6,
+    "created_at": "2025-08-19T17:08:02",
+    "updated_at": "2025-08-19T17:13:28",
+    "Region": "Liyue",
+    "Roll": 2,
+    "Materials": "[Qingxin,Silver Raven Insignia,Silk Flower,Shrimp Meat]"
+  }
+]

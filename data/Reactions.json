@@ -1,0 +1,322 @@
+[
+  {
+    "id": 2,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Water",
+    "Effect": "Triggers a thawing reaction that restore this unit to full health."
+  },
+  {
+    "id": 1,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Earth",
+    "Second_Element": "Ice",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 3,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Wind",
+    "Second_Element": "Ice",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 5,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Electric",
+    "Effect": "Triggers an electrocution reaction making this unit take 2 damage at the end of each unit's actions for 5 actions."
+  },
+  {
+    "id": 6,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Earth",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 7,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Water",
+    "Effect": "Triggers a reflective reaction, causing the attack to backfire back at the attacker dealing double the damage it would have."
+  },
+  {
+    "id": 8,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Wind",
+    "Second_Element": "Water",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 10,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Wind",
+    "Second_Element": "Fire",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 11,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Wind",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 12,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Electric",
+    "Effect": "Triggers a conductive reaction causing the attack to deal no damage and allowing this unit to act twice on their turn."
+  },
+  {
+    "id": 9,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:47:55.596907-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Electric",
+    "Effect": "Fire a piercing vine bolt at any target within 4 tiles dealing D8 Nature damage."
+  },
+  {
+    "id": 14,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:48:04.280568-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Water",
+    "Effect": "Heal yourself and any allies within 2 tiles of you for 2 health."
+  },
+  {
+    "id": 36,
+    "created_at": null,
+    "updated_at": "2025-10-16T16:49:00.919585-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Ice",
+    "Effect": "Enemies deal -2 damage for 2 turns. Earth attacks against them deal +6 damage for 1 turn."
+  },
+  {
+    "id": 37,
+    "created_at": null,
+    "updated_at": "2025-10-16T16:49:11.814173-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Earth",
+    "Effect": "Yourself or ally of your choice within 3 tiles takes half damage next time they are attacked. They additionally add +4 to their next defense roll."
+  },
+  {
+    "id": 38,
+    "created_at": null,
+    "updated_at": "2025-10-16T16:50:00.510382-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Nature",
+    "Effect": "You are encased in ice, stunned for 1 turn. Additionally you lose the ability to apply any element for the rest of the battle."
+  },
+  {
+    "id": 4,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:50:30.989244-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Nature",
+    "Effect": "The vine reflects at you dealing D6 Nature damage to you and roots you for 1 turn."
+  },
+  {
+    "id": 13,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Wind",
+    "Second_Element": "Electric",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 15,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Fire",
+    "Effect": "Triggers a superconductive reaction causing an AoE explosion of fire damage to occur. The size and damage of the explosion will vary by dice roll, all units hit are knocked back to the edge of the explosion after taking damage."
+  },
+  {
+    "id": 16,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Ice",
+    "Effect": "Triggers a freezing reaction that will stun this unit in place preventing them from moving and skipping their next turn once every other turn."
+  },
+  {
+    "id": 19,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Fire",
+    "Effect": "Triggers a steam reaction making the attack deal no damage. This unit is then enraged dealing double damage on their next attack."
+  },
+  {
+    "id": 20,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Electric",
+    "Effect": "Triggers a shattering reaction that multiplies both attacker + defender's attack by 2x, but cuts both units defense in half."
+  },
+  {
+    "id": 21,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Wind",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 22,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Wind",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 23,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Water",
+    "Effect": "Triggers a vaporizing reaction causing the attack to deal 2x the damage to this unit."
+  },
+  {
+    "id": 24,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Ice",
+    "Effect": "Triggers a shattering reaction that multiplies both attacker + defender's attack by 2x, but cuts both units defense in half."
+  },
+  {
+    "id": 25,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Earth",
+    "Second_Element": "Fire",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 26,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Earth",
+    "Second_Element": "Water",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 27,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Earth",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 28,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Earth",
+    "Second_Element": "Electric",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 29,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Wind",
+    "Effect": "Triggers a swirling reaction reapplying the supplementary non-wind element, deal 1 D4 of reaction damage of the supplementary type, and forcing this unit to receive double damage from the next hit that matches the supplementary element"
+  },
+  {
+    "id": 30,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Fire",
+    "Effect": "Triggers a melting reaction that will root this unit and have the triggering attack deal 1.5x damage to this unit."
+  },
+  {
+    "id": 31,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Ice",
+    "Effect": "Triggers an extinguishing reaction causing the attack to heal this unit instead of damaging them."
+  },
+  {
+    "id": 32,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Electric",
+    "Second_Element": "Earth",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 33,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-08-08T18:07:39.867542-06:00",
+    "First_Element": "Ice",
+    "Second_Element": "Earth",
+    "Effect": "Triggers a crystallize reaction generating a shield for the attacker initiating the reaction that matches the supplementary element. This shield shall have 1 D4 of health and last for 1 turn. "
+  },
+  {
+    "id": 34,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:48:11.854290-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Fire",
+    "Effect": "Deal D8 of Damage, causes enemy to roll with Disadvantage on next turn."
+  },
+  {
+    "id": 35,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:48:28.086594-06:00",
+    "First_Element": "Nature",
+    "Second_Element": "Wind",
+    "Effect": "Spew spores out applying Nature to all enemies reapplying it for 1 full turn."
+  },
+  {
+    "id": 18,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:50:36.721039-06:00",
+    "First_Element": "Water",
+    "Second_Element": "Nature",
+    "Effect": "Vines damage everyone in the party for D4 Nature damage."
+  },
+  {
+    "id": 17,
+    "created_at": "2025-08-08T23:43:29",
+    "updated_at": "2025-10-16T16:49:53.999004-06:00",
+    "First_Element": "Fire",
+    "Second_Element": "Nature",
+    "Effect": "Deals D8 of Fire damage to yourself, after any additional reactions are done from this re-apply fire to yourself."
+  },
+  {
+    "id": 40,
+    "created_at": null,
+    "updated_at": "2025-10-16T16:50:06.765971-06:00",
+    "First_Element": "Wind",
+    "Second_Element": "Nature",
+    "Effect": "Spew spores at party members constantly reapplying Nature to them for 3 turns."
+  },
+  {
+    "id": 41,
+    "created_at": null,
+    "updated_at": "2025-10-16T16:50:15.970830-06:00",
+    "First_Element": "Earth",
+    "Second_Element": "Nature",
+    "Effect": "You chuck a rock at each of your allies' faces, blinding them and making their attacks hit a random target regardless of their selection for 2 turns."
+  }
+]
