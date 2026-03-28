@@ -1,6 +1,6 @@
 [gd_scene load_steps=67 format=3 uid="uid://ch1tr8oe3rt8i"]
 
-[ext_resource type="Script" uid="uid://xh2i8c1bi3ff" path="res://Scenes/player_hub.gd" id="1_ki6c4"]
+[ext_resource type="Script" uid="uid://fju8xise3nho" path="res://Scenes/player_hub.gd" id="1_ki6c4"]
 [ext_resource type="Texture2D" uid="uid://dni6cco3ugpot" path="res://Background Images/Player HUB/Inazuma.jpg" id="2_gone6"]
 [ext_resource type="PackedScene" uid="uid://dph7ujhc7bwgv" path="res://UI/Stat Button Dark.tscn" id="2_ki6c4"]
 [ext_resource type="PackedScene" uid="uid://jbqsvww1jvk6" path="res://UI/Weapon Button.tscn" id="3_a5jjv"]
