@@ -230,6 +230,9 @@ func Refresh_Data(table_list: Array) -> void:
 	emit_signal("data_load_complete")
 
 func _process_table(table_name: String, records: Array) -> void:
+	if records.size() > 0 and typeof(records[0]) != TYPE_DICTIONARY:
+		push_warning("_process_table '%s': records[0] is type %s, expected Dictionary. Skipping." % [table_name, type_string(typeof(records[0]))])
+		return
 	match table_name:
 		"Characters":
 			CHARACTERS = {}
@@ -339,7 +342,9 @@ func _process_table(table_name: String, records: Array) -> void:
 		"Game_Config":
 			GAME_CONFIG = {}
 			for record in records:
-				GAME_CONFIG[str(record["key"])] = str(record["value"])
+				if typeof(record) != TYPE_DICTIONARY:
+					continue
+				GAME_CONFIG[str(record.get("key", ""))] = str(record.get("value", ""))
 
 		"Minigames":
 			MINIGAMES = {}
