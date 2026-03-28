@@ -232,113 +232,155 @@ func Refresh_Data(table_list: Array) -> void:
 	emit_signal("data_load_complete")
 
 func _process_table(table_name: String, records: Array) -> void:
-	if records.size() > 0 and typeof(records[0]) != TYPE_DICTIONARY:
-		push_warning("_process_table '%s': records[0] is type %s, expected Dictionary. Skipping." % [table_name, type_string(typeof(records[0]))])
-		return
 	match table_name:
 		"Characters":
 			CHARACTERS = {}
+			CHARACTERS_NAME = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CHARACTERS[str(record["id"])] = record
-				CHARACTERS_NAME[record["Name"]] = str(record["id"])
+				CHARACTERS_NAME[record.get("Name", "")] = str(record["id"])
 
 		"Weapons":
 			WEAPONS = {}
+			WEAPONS_NAME = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				WEAPONS[str(record["id"])] = record
-				WEAPONS_NAME[record["Name"]] = str(record["id"])
+				WEAPONS_NAME[record.get("Name", "")] = str(record["id"])
 
 		"Artifacts":
 			ARTIFACTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ARTIFACTS[str(record["id"])] = record
 
 		"Reactions":
 			REACTIONS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				REACTIONS[str(record["id"])] = record
 
 		"Abilities":
 			ABILITIES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ABILITIES[str(record["id"])] = record
 
 		"Companions":
 			COMPANIONS = {}
+			COMPANIONS_NAME = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				COMPANIONS[str(record["id"])] = record
-				COMPANIONS_NAME[record["Name"]] = str(record["id"])
+				COMPANIONS_NAME[record.get("Name", "")] = str(record["id"])
 
 		"Crafting_Recipes":
 			CRAFTING_RECIPES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CRAFTING_RECIPES[str(record["id"])] = record
 
 		"Items":
 			ITEMS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ITEMS[str(record["id"])] = record
 
 		"Enemies":
 			ENEMIES = {}
+			ENEMIES_NAME = {}
+			EnemyList = []
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ENEMIES[str(record["id"])] = record
-				EnemyList.append(record.get("name"))
-				ENEMIES_NAME[record["name"]] = str(record["id"])
+				EnemyList.append(record.get("name", ""))
+				ENEMIES_NAME[record.get("name", "")] = str(record["id"])
 
 		"BattleEnemies":
 			BATTLEENEMIES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				BATTLEENEMIES[str(record["id"])] = record
 
 		"Character_Weapons":
 			CHARACTER_WEAPONS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CHARACTER_WEAPONS[str(record["id"])] = record
 
 		"Character_Artifacts":
 			CHARACTER_ARTIFACTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CHARACTER_ARTIFACTS[str(record["id"])] = record
 
 		"Character_Items":
 			CHARACTER_ITEMS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CHARACTER_ITEMS[str(record["id"])] = record
 
 		"Talents":
 			TALENTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				TALENTS[str(record["id"])] = record
 
 		"Constellations":
 			CONSTELLATIONS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				CONSTELLATIONS[str(record["id"])] = record
 
 		"Material_Caches":
 			MATERIAL_CACHES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				MATERIAL_CACHES[str(record["id"])] = record
 
 		"Party":
 			PARTY = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				PARTY[str(record["id"])] = record
 
 		"Active_Abilities":
 			ACTIVE_ABILITIES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ACTIVE_ABILITIES[str(record["id"])] = record
 
 		"Active_Status_Effects":
 			ACTIVE_STATUS_EFFECTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				ACTIVE_STATUS_EFFECTS[str(record["id"])] = record
 
 		"Status_Effects":
 			STATUS_EFFECTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				STATUS_EFFECTS[str(record["id"])] = record
 
 		"Game_Config":
@@ -346,16 +388,20 @@ func _process_table(table_name: String, records: Array) -> void:
 			for record in records:
 				if typeof(record) != TYPE_DICTIONARY:
 					continue
-				GAME_CONFIG[str(record.get("key", ""))] = str(record.get("value", ""))
+				GAME_CONFIG[str(record.get("id", record.get("key", "")))] = record
 
 		"Minigames":
 			MINIGAMES = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				MINIGAMES[str(record["id"])] = record
 
 		"Minigames_Results":
 			MINIGAMES_RESULTS = {}
 			for record in records:
+				if typeof(record) != TYPE_DICTIONARY or not record.has("id"):
+					continue
 				MINIGAMES_RESULTS[str(record["id"])] = record
 		_:
 			pass
