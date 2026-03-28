@@ -45,21 +45,21 @@ var TABLES_TO_SAVE = ["Characters","BattleEnemies","Character Items","Character_
 var TABLES_TO_SYNC_OFTEN = ["Characters","BattleEnemies","Companions"]
 var BATTLE_TURN_ORDER = []
 var _current_region = ""
-var Current_Health
-var Current_Attack
-var Current_Defense
-var Current_Elemental_Mastery
-var Current_Energy_Recharge
-var Current_Critical_Damage
-var Current_Weapon
+var Current_Health: float = 0.0
+var Current_Attack: float = 0.0
+var Current_Defense: float = 0.0
+var Current_Elemental_Mastery: float = 0.0
+var Current_Energy_Recharge: float = 0.0
+var Current_Critical_Damage: float = 0.0
+var Current_Weapon = null
 var EnemyList = []
 var set_count = {}
-var set_pieces
-var Current_Party
+var set_pieces = null
+var Current_Party = null
 var total_records: int = 0
-var variable_name
-var request_start_time
-var elapsed
+var variable_name = ""
+var request_start_time: float = 0.0
+var elapsed: float = 0.0
 var set_modifiers := {}
 var artifact_set_calculated = 0
 var Region_Changed = 1
@@ -112,6 +112,8 @@ func normalize_text_filename(weapon_name: String) -> String:
 	return cleaned + ".png"
 
 func calculate_all_stats() -> void:
+	if not CHARACTERS_NAME.has(ACTIVE_USER_NAME):
+		return
 	var ACTIVE_CHARACTER_ID = CHARACTERS_NAME[ACTIVE_USER_NAME]
 	var character = CHARACTERS[ACTIVE_CHARACTER_ID]
 	Current_Region = CHARACTERS[CHARACTERS_NAME[ACTIVE_USER_NAME]].get("Current_Region")

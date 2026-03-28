@@ -433,7 +433,7 @@ func _build_suggest_panel() -> void:
 	_suggest_panel.name = "EnemySuggestPanel"
 	_suggest_panel.visible = false
 	_suggest_panel.top_level = true      # Control has this; positions in global coords
-	_suggest_panel.z_index = 10000       # Keep above nearby UI
+	_suggest_panel.z_index = 4096        # Keep above nearby UI (max is 4096)
 	_suggest_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	_suggest_scroll = ScrollContainer.new()
