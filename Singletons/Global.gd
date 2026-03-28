@@ -56,7 +56,7 @@ var EnemyList = []
 var set_count = {}
 var set_pieces
 var Current_Party
-var total_records
+var total_records: int = 0
 var variable_name
 var request_start_time
 var elapsed

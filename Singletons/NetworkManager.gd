@@ -83,18 +83,31 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 func _setup_upnp(port: int) -> void:
 	upnp = UPNP.new()
 	var discover_result := upnp.discover(2000, 2, "InternetGatewayDevice")
-	if discover_result == UPNP.UPNP_RESULT_SUCCESS:
-		var map_result := upnp.add_port_mapping(port, port, "GenshinDnD", "UDP")
-		if map_result == UPNP.UPNP_RESULT_SUCCESS:
-			_upnp_mapped = true
-			print("NetworkManager: UPNP port %d mapped successfully" % port)
-		else:
-			push_warning("NetworkManager: UPNP mapping failed: %s" % str(map_result))
+	if discover_result != UPNP.UPNP_RESULT_SUCCESS:
+		push_warning("NetworkManager: UPNP discovery failed (%s) — LAN-only mode" % str(discover_result))
+		return
 
-		public_ip = str(upnp.query_external_address())
+	# Try to get external IP even if mapping fails
+	var ext := upnp.query_external_address()
+	if ext != null and str(ext) != "":
+		public_ip = str(ext)
 		Global.PublicIP = public_ip
+
+	if upnp.get_device_count() == 0:
+		push_warning("NetworkManager: No UPNP devices found — LAN-only mode")
+		return
+
+	var dev := upnp.get_device(0)
+	if dev == null:
+		push_warning("NetworkManager: UPNP device is null — LAN-only mode")
+		return
+
+	var map_result := dev.add_port_mapping(port, port, "GenshinDnD", "UDP")
+	if map_result == UPNP.UPNP_RESULT_SUCCESS:
+		_upnp_mapped = true
+		print("NetworkManager: UPNP port %d mapped successfully" % port)
 	else:
-		push_warning("NetworkManager: UPNP discovery failed: %s" % str(discover_result))
+		push_warning("NetworkManager: UPNP port mapping failed (%s) — LAN still works" % str(map_result))
 
 # ─── JOINING ───
 
@@ -118,8 +131,10 @@ func disconnect_from_game() -> void:
 	_stop_beacon()
 	_stop_discovery()
 
-	if _upnp_mapped and upnp:
-		upnp.delete_port_mapping(DEFAULT_PORT, "UDP")
+	if _upnp_mapped and upnp and upnp.get_device_count() > 0:
+		var dev := upnp.get_device(0)
+		if dev:
+			dev.delete_port_mapping(DEFAULT_PORT, "UDP")
 		_upnp_mapped = false
 
 	if peer:
