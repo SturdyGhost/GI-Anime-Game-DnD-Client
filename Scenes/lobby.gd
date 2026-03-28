@@ -231,4 +231,7 @@ func _receive_game_start() -> void:
 	_go_to_game()
 
 func _go_to_game() -> void:
-	get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+	if Global.ACTIVE_USER_TYPE == "Player":
+		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+	elif Global.ACTIVE_USER_TYPE == "Dungeon Master":
+		get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
