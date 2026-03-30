@@ -240,7 +240,10 @@ func check_battle_end():
 			if updates.size() > 0:
 				Global.Update_Records(updates)
 			Global.end_battle_effects()
-		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
+		if Global.ACTIVE_USER_TYPE == "Player":
+			get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+		else:
+			get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
 
 
 func advance_turn():
