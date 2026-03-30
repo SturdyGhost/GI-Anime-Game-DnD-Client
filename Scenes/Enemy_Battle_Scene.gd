@@ -222,28 +222,48 @@ func check_battle_end():
 	if all_enemies_dead or all_players_down:
 		_battle_ending = true
 		print("Battle ending")
+
 		if NetworkManager.is_host:
-			# Clear battle enemies
-			for enemy in Global.BATTLEENEMIES.values():
-				Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
-			# Clear applied elements and restore health
-			var updates = []
-			for player_name2 in Global.PartyCharacters:
-				var cid = Global.CHARACTERS_NAME.get(player_name2, "")
-				if cid == "":
-					continue
-				var pd = Global.CHARACTERS.get(cid, {})
-				updates.append({"table": "Characters", "record_id": int(cid), "field": "Applied_Element", "value": "None"})
-				updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": pd.get("Max_Health", 0)})
-			for comp in Global.COMPANIONS.values():
-				updates.append({"table": "Companions", "record_id": int(comp.get("id")), "field": "Applied_Element", "value": "None"})
-			if updates.size() > 0:
-				Global.Update_Records(updates)
-			Global.end_battle_effects()
-		if Global.ACTIVE_USER_TYPE == "Player":
-			get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+			_host_battle_cleanup()
 		else:
-			get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
+			await Global.data_load_complete
+			_go_to_hub()
+
+func _host_battle_cleanup() -> void:
+	for enemy in Global.BATTLEENEMIES.values():
+		Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
+	var updates = []
+	for ability in Global.ACTIVE_ABILITIES.values():
+		if ability.get("Ability_Cooldown") > 0:
+			updates.append({"table": "Active_Abilities", "record_id": ability.get("id"), "field": "Ability_Cooldown", "value": 0})
+	for player_name2 in Global.PartyCharacters:
+		var cid = Global.CHARACTERS_NAME.get(player_name2, "")
+		if cid == "":
+			continue
+		var pd = Global.CHARACTERS.get(cid, {})
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Ready", "value": false})
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Applied_Element", "value": "None"})
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": pd.get("Max_Health", 0)})
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Skipped", "value": false})
+	for comp in Global.COMPANIONS.values():
+		updates.append({"table": "Companions", "record_id": int(comp.get("id")), "field": "Applied_Element", "value": "None"})
+	var buff_left = int(Global.Current_Party.get("Buff_Battles_Left", 0))
+	if buff_left - 1 <= 0:
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Buff_Battles_Left", "value": 0})
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Active_Food_Buff", "value": "None"})
+	else:
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Buff_Battles_Left", "value": buff_left - 1})
+	if updates.size() > 0:
+		Global.Update_Records(updates)
+	Global.end_battle_effects()
+	await get_tree().process_frame
+	_go_to_hub()
+
+func _go_to_hub() -> void:
+	if Global.ACTIVE_USER_TYPE == "Player":
+		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
 
 
 func advance_turn():
