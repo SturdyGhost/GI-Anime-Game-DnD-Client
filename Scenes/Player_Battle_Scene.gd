@@ -187,7 +187,11 @@ func _on_audio_stream_player_finished() -> void:
 func _on_button_pressed() -> void:
 	advance_turn()
 
+var _battle_ending := false
+
 func check_battle_end():
+	if _battle_ending:
+		return
 	var all_enemies_dead := true
 	var all_players_down := true
 
@@ -208,6 +212,7 @@ func check_battle_end():
 
 	# End battle if either condition is met
 	if all_enemies_dead or all_players_down:
+		_battle_ending = true
 		print("Battle ending")
 		for enemy in Global.BATTLEENEMIES.values():
 			Global.Remove_Record("BattleEnemies", enemy.get("id"))
