@@ -161,29 +161,11 @@ func _update_effects_display() -> void:
 		lbl.tooltip_text = ""
 		return
 
-	# Count non-passive effects for display
-	var display_effects = []
-	for fx in effects:
-		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
-			continue
-		display_effects.append(fx)
-
-	if display_effects.is_empty():
-		lbl.text = ""
-		lbl.tooltip_text = ""
-		return
-
-	# Short summary on card
-	var names = []
-	for fx in display_effects:
-		var n = fx.get("source_name", fx.get("effect_type", "?"))
-		if not names.has(n):
-			names.append(n)
-	lbl.text = "%d effect(s)" % display_effects.size()
+	lbl.text = "%d effect(s)" % effects.size()
 
 	# Detailed tooltip
 	var tip = ""
-	for fx in display_effects:
+	for fx in effects:
 		var dur_str = ""
 		var dur = fx.get("turns_remaining", 0)
 		if dur == -1:

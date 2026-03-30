@@ -94,21 +94,10 @@ func _update_effects_display() -> void:
 		lbl.tooltip_text = ""
 		return
 
-	var display_effects = []
-	for fx in effects:
-		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
-			continue
-		display_effects.append(fx)
-
-	if display_effects.is_empty():
-		lbl.text = ""
-		lbl.tooltip_text = ""
-		return
-
-	lbl.text = "%d effect(s)" % display_effects.size()
+	lbl.text = "%d effect(s)" % effects.size()
 
 	var tip = ""
-	for fx in display_effects:
+	for fx in effects:
 		var dur_str = ""
 		var dur = fx.get("turns_remaining", 0)
 		if dur == -1:

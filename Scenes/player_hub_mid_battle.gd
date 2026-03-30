@@ -281,10 +281,6 @@ func set_status_effects():
 
 	var entries: Array = []
 	for fx in effects:
-		# Skip gear passives — only show status effects, ability effects, reactions
-		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
-			continue
-
 		var dur = fx.get("turns_remaining", 0)
 		var dur_str = ""
 		if dur == -1:

@@ -238,8 +238,6 @@ func set_status_effects():
 
 	var entries: Array = []
 	for fx in effects:
-		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
-			continue
 		var dur = fx.get("turns_remaining", 0)
 		var dur_str = "perm" if dur == -1 else str(dur)
 		var desc = fx.get("description", "")
