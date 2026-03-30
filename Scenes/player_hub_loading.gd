@@ -30,8 +30,6 @@ func _on_all_tables_loaded():
 
 
 func update_progress_bar():
-	Tables_Processed += 1
-
 	var current_value = LoadingBar.value
 	var target_value = current_value
 

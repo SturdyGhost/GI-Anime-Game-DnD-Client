@@ -209,23 +209,37 @@ func check_battle_end():
 	var all_players_down := true
 
 	for enemy in Global.BATTLEENEMIES.values():
-		if enemy.get("Killed") == false:
+		if int(enemy.get("Current_Health", 1)) > 0:
 			all_enemies_dead = false
 			break
 
 	for player_name in Global.PartyCharacters:
 		var char_id = Global.CHARACTERS_NAME.get(player_name, "")
-		var health = Global.CHARACTERS.get(char_id, {}).get("Current_Health", 0)
-		if health > 0:
+		if int(Global.CHARACTERS.get(char_id, {}).get("Current_Health", 1)) > 0:
 			all_players_down = false
 			break
 
 	if all_enemies_dead or all_players_down:
 		_battle_ending = true
 		print("Battle ending")
-		for enemy in Global.BATTLEENEMIES.values():
-			Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
-		Global.end_battle_effects()
+		if NetworkManager.is_host:
+			# Clear battle enemies
+			for enemy in Global.BATTLEENEMIES.values():
+				Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
+			# Clear applied elements and restore health
+			var updates = []
+			for player_name2 in Global.PartyCharacters:
+				var cid = Global.CHARACTERS_NAME.get(player_name2, "")
+				if cid == "":
+					continue
+				var pd = Global.CHARACTERS.get(cid, {})
+				updates.append({"table": "Characters", "record_id": int(cid), "field": "Applied_Element", "value": "None"})
+				updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": pd.get("Max_Health", 0)})
+			for comp in Global.COMPANIONS.values():
+				updates.append({"table": "Companions", "record_id": int(comp.get("id")), "field": "Applied_Element", "value": "None"})
+			if updates.size() > 0:
+				Global.Update_Records(updates)
+			Global.end_battle_effects()
 		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
 

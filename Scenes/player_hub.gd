@@ -125,10 +125,11 @@ func _try_initial_setup() -> void:
 	set_ui()
 	role_check()
 	restore_health()
-	Market.Refresh_Stock(Global.Current_Region)
 	if Global.Luck_Set == false:
 		trigger_luck_popup()
 		Global.Luck_Set = true
+	else:
+		Market.Refresh_Stock(Global.Current_Region)
 
 func _on_data_load_complete():
 	if not _initial_setup_done:

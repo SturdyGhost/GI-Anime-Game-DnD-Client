@@ -12,7 +12,7 @@ signal host_ready         # fired on host after data loaded from disk
 const DEFAULT_PORT = 7777
 const DISCOVERY_PORT = 7778
 const MAX_CLIENTS = 8
-const BEACON_INTERVAL = 2.0
+const BEACON_INTERVAL = 0.5
 
 var is_host = false
 var is_connected_to_host = false
@@ -335,11 +335,12 @@ func _receive_table_sync(table_name: String, json_str: String) -> void:
 		Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
 		emit_signal("all_data_received")
 
-	# Always notify scenes that data changed (both initial and post-sync broadcasts)
-	var stat_tables = ["Characters", "Character_Weapons", "Character_Artifacts", "Companions"]
-	if table_name in stat_tables:
-		CharacterManager.recalculate_all()
-	Global.emit_signal("data_load_complete")
+	# Post-sync broadcasts only (not during initial sync) — recalculate if relevant
+	if _initial_sync_complete:
+		var stat_tables = ["Characters", "Character_Weapons", "Character_Artifacts", "Companions"]
+		if table_name in stat_tables:
+			CharacterManager.recalculate_all()
+		Global.emit_signal("data_load_complete")
 
 # ─── DELTA SYNC (Host -> All Clients) ───
 
