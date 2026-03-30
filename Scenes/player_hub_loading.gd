@@ -8,14 +8,10 @@ func _ready():
 	Global.table_loaded.connect(_on_table_loaded)
 	Global.data_load_complete.connect(_on_all_tables_loaded)
 
-	if NetworkManager.is_host:
-		# Host already loaded data in NetworkManager.host_game(), just proceed
-		# But if we get here before data_load_complete, wait for it
-		if Global.total_records > 0:
-			_on_all_tables_loaded()
-	# Client: data was already received via NetworkManager sync, data_load_complete already fired
-	# But connect the signal in case it fires again
-	if Global.total_records > 0 and not NetworkManager.is_host:
+	var has_data = not Global._synced.is_empty()
+	if NetworkManager.is_host and has_data:
+		_on_all_tables_loaded()
+	elif not NetworkManager.is_host and has_data:
 		_on_all_tables_loaded()
 
 
@@ -26,7 +22,7 @@ func _on_table_loaded(table_name: String, count: int):
 
 func _on_all_tables_loaded():
 	print("All tables loaded. Moving to hub.")
-	print("Total Records: " + str(Global.total_records))
+	print("All tables loaded, transitioning to hub.")
 	if Global.ACTIVE_USER_TYPE == "Player":
 		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 	elif Global.ACTIVE_USER_TYPE == "Dungeon Master":

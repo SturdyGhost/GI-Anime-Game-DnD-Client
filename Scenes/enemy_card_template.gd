@@ -30,14 +30,15 @@ var shield_duration: int = 0
 
 
 func _process(delta: float) -> void:
-	if eid != null:
-		if eid > 0:
-			set_card(str(int(eid)))
+	if is_queued_for_deletion():
+		return
+	if eid != null and eid > 0:
+		set_card(str(int(eid)))
 
 
 func set_card(id):
 	e = Global.BATTLEENEMIES.get(id, {})
-	if e.is_empty():
+	if e.is_empty() or CardName == null:
 		return
 	ename = str(e.get("EnemyName", ""))
 	eid = e["id"]
