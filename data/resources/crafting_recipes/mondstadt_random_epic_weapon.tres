@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_spc2k"]
+
+[resource]
+script = ExtResource("1_spc2k")
+id = 21
+product = "Mondstadt Random Epic Weapon"
+region = "Mondstadt"
+description = "Used to craft a random Epic weapon from Mondstadt."
+role = "Blacksmith"
+material = "Windwheel Aster"
+quantity = 20

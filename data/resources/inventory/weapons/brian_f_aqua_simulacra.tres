@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_m8qxo"]
+
+[resource]
+script = ExtResource("1_m8qxo")
+id = 5
+weapon_id = 85
+weapon_name = "Aqua Simulacra"
+owner = "Brian F."
+equipped = true
+refinement = 0
+quantity = 1
+rarity = "Legendary"
+region = "Inazuma"
+weapon_type = "Bow"
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 2.0
+stat_3_type = "Critical_Damage"
+stat_3_value = 1.0

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_tt8pr"]
+
+[resource]
+script = ExtResource("1_tt8pr")
+id = 4
+region = "Mondstadt"
+roll = 4
+materials = "[Raw Meat,Noctilucous Jade,Wheat,Cecilia]"

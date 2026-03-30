@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_vtsxw"]
+
+[resource]
+script = ExtResource("1_vtsxw")
+id = 102
+item_name = "Gold"
+type = "Currency"
+rarity = "Common"
+region = "All"
+description = "Used to buy things from most places. "
+value = 4
+buff_duration = 0

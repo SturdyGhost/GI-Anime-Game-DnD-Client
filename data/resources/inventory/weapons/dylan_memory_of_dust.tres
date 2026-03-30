@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_cb1im"]
+
+[resource]
+script = ExtResource("1_cb1im")
+id = 8
+weapon_id = 75
+weapon_name = "Memory of Dust"
+owner = "Dylan"
+equipped = true
+refinement = 0
+quantity = 1
+rarity = "Legendary"
+region = "Liyue"
+weapon_type = "Catalyst"
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 8.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0

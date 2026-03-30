@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_q80sh"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_x4xq7"]
+
+[sub_resource type="Resource" id="Resource_p6jvf"]
+script = ExtResource("2_x4xq7")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_q80sh")
+id = 45
+name = "Xingqiu"
+element = "Water"
+weapon = "Sword"
+region = "Mondstadt"
+lore = "Second son of the Feiyun Commerce Guild, Xingqiu lives by the chivalric codes he devours in books. He meddles cheerfully in injustices both petty and grand, then pays for broken vases with a wince and a bow. His swordplay is elegant, his ideals sincere, and his pranks…occasionally elaborate. He believes stories should be lived well, not merely read well."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_p6jvf")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

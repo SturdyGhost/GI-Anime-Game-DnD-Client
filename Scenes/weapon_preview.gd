@@ -18,14 +18,16 @@ const HIGHLIGHT_COLOR := "#E2C290" # your pale gold
 
 
 func set_stats(weapon):
-	WeaponNameLabel.text = weapon["Weapon"]
-	WeaponEffectLabel.text = weapon["Effect"]
-	var Stat1Type = weapon["Stat_1_Type"]
-	var Stat2Type = weapon["Stat_2_Type"]
-	var Stat3Type = weapon["Stat_3_Type"]
-	var Stat1Value = weapon["Stat_1_Value"]
-	var Stat2Value = weapon["Stat_2_Value"]
-	var Stat3Value = weapon["Stat_3_Value"]
+	if weapon.is_empty():
+		return
+	WeaponNameLabel.text = weapon.get("Weapon", "")
+	WeaponEffectLabel.text = weapon.get("Effect", "")
+	var Stat1Type = weapon.get("Stat_1_Type")
+	var Stat2Type = weapon.get("Stat_2_Type")
+	var Stat3Type = weapon.get("Stat_3_Type")
+	var Stat1Value = weapon.get("Stat_1_Value", 0)
+	var Stat2Value = weapon.get("Stat_2_Value", 0)
+	var Stat3Value = weapon.get("Stat_3_Value", 0)
 	if Stat1Type != null:
 		Stat1Label.text = Stat1Type+": "+ str(Stat1Value)
 	else:
@@ -48,51 +50,54 @@ func set_stats(weapon):
 		CurrentEnergyRechargeLabel.text = "Energy_Recharge: "+str(Global.Current_Energy_Recharge)
 		CurrentCriticalDamageLabel.text = "Critical_Damage: "+str(Global.Current_Critical_Damage)
 	else:
+		if Global.Current_Weapon == null or (Global.Current_Weapon is Dictionary and Global.Current_Weapon.is_empty()):
+			return
+		var cw = Global.Current_Weapon
 		var NewHealth = Global.Current_Health
 		var NewAttack = Global.Current_Attack
 		var NewDefense = Global.Current_Defense
 		var NewElementalMastery = Global.Current_Elemental_Mastery
 		var NewEnergyRecharge = Global.Current_Energy_Recharge
 		var NewCriticalDamage = Global.Current_Critical_Damage
-		match Global.Current_Weapon["Stat_1_Type"]:
+		match cw.get("Stat_1_Type"):
 			"Health":
-				NewHealth -= Global.Current_Weapon["Stat_1_Value"]
+				NewHealth -= cw.get("Stat_1_Value", 0)
 			"Attack":
-				NewAttack -= Global.Current_Weapon["Stat_1_Value"]
+				NewAttack -= cw.get("Stat_1_Value", 0)
 			"Defense":
-				NewDefense -= Global.Current_Weapon["Stat_1_Value"]
+				NewDefense -= cw.get("Stat_1_Value", 0)
 			"Elemental_Mastery":
-				NewElementalMastery -= Global.Current_Weapon["Stat_1_Value"]
+				NewElementalMastery -= cw.get("Stat_1_Value", 0)
 			"Energy_Recharge":
-				NewEnergyRecharge -= Global.Current_Weapon["Stat_1_Value"]
+				NewEnergyRecharge -= cw.get("Stat_1_Value", 0)
 			"Critical_Damage":
-				NewCriticalDamage -= Global.Current_Weapon["Stat_1_Value"]
-		match Global.Current_Weapon["Stat_2_Type"]:
+				NewCriticalDamage -= cw.get("Stat_1_Value", 0)
+		match cw.get("Stat_2_Type"):
 			"Health":
-				NewHealth -= Global.Current_Weapon["Stat_2_Value"]
+				NewHealth -= cw.get("Stat_2_Value", 0)
 			"Attack":
-				NewAttack -= Global.Current_Weapon["Stat_2_Value"]
+				NewAttack -= cw.get("Stat_2_Value", 0)
 			"Defense":
-				NewDefense -= Global.Current_Weapon["Stat_2_Value"]
+				NewDefense -= cw.get("Stat_2_Value", 0)
 			"Elemental_Mastery":
-				NewElementalMastery -= Global.Current_Weapon["Stat_2_Value"]
+				NewElementalMastery -= cw.get("Stat_2_Value", 0)
 			"Energy_Recharge":
-				NewEnergyRecharge -= Global.Current_Weapon["Stat_2_Value"]
+				NewEnergyRecharge -= cw.get("Stat_2_Value", 0)
 			"Critical_Damage":
-				NewCriticalDamage -= Global.Current_Weapon["Stat_2_Value"]
-		match Global.Current_Weapon["Stat_3_Type"]:
+				NewCriticalDamage -= cw.get("Stat_2_Value", 0)
+		match cw.get("Stat_3_Type"):
 			"Health":
-				NewHealth -= Global.Current_Weapon["Stat_3_Value"]
+				NewHealth -= cw.get("Stat_3_Value", 0)
 			"Attack":
-				NewAttack -= Global.Current_Weapon["Stat_3_Value"]
+				NewAttack -= cw.get("Stat_3_Value", 0)
 			"Defense":
-				NewDefense -= Global.Current_Weapon["Stat_3_Value"]
+				NewDefense -= cw.get("Stat_3_Value", 0)
 			"Elemental_Mastery":
-				NewElementalMastery -= Global.Current_Weapon["Stat_3_Value"]
+				NewElementalMastery -= cw.get("Stat_3_Value", 0)
 			"Energy_Recharge":
-				NewEnergyRecharge -= Global.Current_Weapon["Stat_3_Value"]
+				NewEnergyRecharge -= cw.get("Stat_3_Value", 0)
 			"Critical_Damage":
-				NewCriticalDamage -= Global.Current_Weapon["Stat_3_Value"]
+				NewCriticalDamage -= cw.get("Stat_3_Value", 0)
 		match Stat1Type:
 			"Health":
 				NewHealth += Stat1Value

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_g2rlt"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_ibv7m"]
+
+[sub_resource type="Resource" id="Resource_ci0wr"]
+script = ExtResource("1_g2rlt")
+trigger = "ON_HIT"
+condition = "IS_SHIELDED"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 4.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "While crystallize shield active, deal +4 damage."
+
+[resource]
+script = ExtResource("1_ibv7m")
+id = 4
+artifact_set = "Archaic Petra"
+bonus_type = 4
+effect = "Upon obtaining a shield from the earth reaction, while the reaction shield persists, deal +4 damage."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_ci0wr")]

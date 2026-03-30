@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_eombq"]
+
+[resource]
+script = ExtResource("1_eombq")
+id = 277
+product = "2-Star Fire Gem"
+region = "Liyue"
+description = "Exchanges 2 matching 1-star elemental gems for a 2-star version of the same type."
+role = "Artisan"
+material = "1-Star Fire Gem"
+quantity = 2

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_2srhq"]
+
+[resource]
+script = ExtResource("1_2srhq")
+id = 80
+item_name = "Tea Break Pancake"
+type = "Consumable"
+rarity = "Common"
+region = "Mondstadt"
+description = "Recovers 1 HP per turn over 10 turns."
+value = 300
+buff_duration = 0

@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_qdnjc"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_x2pvr"]
+
+[sub_resource type="Resource" id="Resource_34l2f"]
+script = ExtResource("1_x2pvr")
+trigger = "PASSIVE"
+condition = "ALLY_FROM_REGION"
+condition_value = "Liyue"
+effect_type = "DAMAGE_REDUCTION"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Liyue companion: take 2 less damage per hit. Otherwise take 4 extra per hit."
+
+[resource]
+script = ExtResource("1_qdnjc")
+id = 28
+name = "Lithic Blade"
+rarity = "Uncommon"
+region = "Liyue"
+weapon_type = "Claymore"
+effect = "If active companion is from Liyue take 2 less damage each hit. If not take 4 extra damage each hit."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_34l2f")]

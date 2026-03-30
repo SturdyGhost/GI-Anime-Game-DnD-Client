@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_2n3xs"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_1r8vb"]
+
+[sub_resource type="Resource" id="Resource_7o08e"]
+script = ExtResource("2_1r8vb")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_2n3xs")
+id = 125
+name = "Collei"
+element = "Nature"
+weapon = "Bow"
+region = "Sumeru"
+lore = "A Trainee Forest Ranger who is under the tutelage of Tighnari. She started her academic career a little later than her peers, so she is currently working hard to catch up.
+She hides the other side of her personality deep under the surface of optimism and kindness."
+unlocked = false
+active = false
+met = false
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_7o08e")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

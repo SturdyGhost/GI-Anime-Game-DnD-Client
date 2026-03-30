@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_p0ih5"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_pl7su"]
+
+[sub_resource type="Resource" id="Resource_umx1h"]
+script = ExtResource("1_pl7su")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_MULTIPLIER"
+effect_stat = "Health"
+effect_value = 0.2
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "HP increased by 20%"
+
+[sub_resource type="Resource" id="Resource_1akhr"]
+script = ExtResource("1_pl7su")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.1
+value_is_percent_of = "max_health"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Attacks add 10% max HP to roll"
+
+[resource]
+script = ExtResource("1_p0ih5")
+id = 99
+name = "Staff of Homa"
+rarity = "Legendary"
+region = "Liyue"
+weapon_type = "Polearm"
+effect = "HP is increased by 20%, additionally when doing attacks your EM or ATT have their roll increased by 10% max HP."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 2.0
+stat_3_type = "Critical_Damage"
+stat_3_value = 1.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_umx1h"), SubResource("Resource_1akhr")]

@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_dc841"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_p6k7y"]
+
+[sub_resource type="Resource" id="Resource_qi12y"]
+script = ExtResource("1_p6k7y")
+trigger = "ON_HIT"
+condition = "ENEMY_HAS_ELEMENT"
+condition_value = "Fire"
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 4.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+4 damage if enemy has Fire"
+
+[sub_resource type="Resource" id="Resource_jn6kr"]
+script = ExtResource("1_p6k7y")
+trigger = "ON_HIT"
+condition = "ENEMY_HAS_ELEMENT"
+condition_value = "Electric"
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 4.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+4 damage if enemy has Electric"
+
+[resource]
+script = ExtResource("1_dc841")
+id = 100
+name = "Lions Roar"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Sword"
+effect = "If the enemy has fire or electric applied to them, deal +4 damage."
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_qi12y"), SubResource("Resource_jn6kr")]

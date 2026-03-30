@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3 uid="uid://dglilrs4cyyl6"]
+
+[ext_resource type="Script" uid="uid://c3tbi5efln5uj" path="res://Scripts/resources/weapon_data.gd" id="1_20f7k"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_dcwq7"]
+
+[sub_resource type="Resource" id="Resource_05ru1"]
+script = ExtResource("1_dcwq7")
+trigger = "ON_BURST_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 0.02
+value_is_percent_of = "total_party_burst_cost"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Burst damage +2% per total party burst charge cost"
+
+[resource]
+script = ExtResource("1_20f7k")
+id = 7
+name = "Akuoumaru"
+rarity = "Epic"
+region = "Inazuma"
+weapon_type = "Claymore"
+effect = "For every Burst Charge cost your entire party has in total increase your burst damage by 2% (i.e. Dylan has burst with 10 charge cost, that’s a 20% increase for you)"
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_05ru1")]

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_jpyyi"]
+
+[resource]
+script = ExtResource("1_jpyyi")
+id = 11
+weapon_id = 0
+weapon_name = "Lion’s Roar"
+owner = "Dylan"
+equipped = false
+refinement = 0
+quantity = 1
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Sword"
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0

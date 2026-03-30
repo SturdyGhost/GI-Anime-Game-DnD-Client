@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_uss58"]
+
+[resource]
+script = ExtResource("1_uss58")
+id = 52
+item_name = "Barbeque Ribs"
+type = "Consumable"
+rarity = "Common"
+region = "Mondstadt"
+description = "Increases all party members ATT by 3 for next battle."
+value = 300
+buff_duration = 1

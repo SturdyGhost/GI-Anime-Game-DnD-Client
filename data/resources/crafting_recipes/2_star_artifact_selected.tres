@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_fkc5s"]
+
+[resource]
+script = ExtResource("1_fkc5s")
+id = 189
+product = "2-Star Artifact Selected"
+region = "Inazuma"
+description = "Exchanges three 2-Star artifacts for another 2-Star artifact from any known set that you choose."
+role = "Artisan"
+material = ""
+quantity = 3

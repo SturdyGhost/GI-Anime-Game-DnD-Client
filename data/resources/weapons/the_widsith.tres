@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_evnkm"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_gknkv"]
+
+[sub_resource type="Resource" id="Resource_f5ams"]
+script = ExtResource("1_gknkv")
+trigger = "ONCE_PER_BATTLE"
+condition = "DICE_ROLL_CHECK"
+condition_value = "11+"
+effect_type = "STAT_BONUS"
+effect_stat = "Elemental_Mastery"
+effect_value = 5.0
+value_is_percent_of = ""
+effect_dice = "1d20"
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Start of battle D20: ≤10 → +5 ATT, >10 → +5 EM."
+
+[resource]
+script = ExtResource("1_evnkm")
+id = 5
+name = "The Widsith"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Catalyst"
+effect = "At the start of the battle roll a D20, if 10 or lower +5 ATT, if higher then 10 +5 EM"
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 3.0
+stat_2_type = "Critical_Damage"
+stat_2_value = 0.75
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_f5ams")]

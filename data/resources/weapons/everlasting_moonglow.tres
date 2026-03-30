@@ -1,0 +1,85 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_5hw4x"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_ujmg4"]
+
+[sub_resource type="Resource" id="Resource_b1ex8"]
+script = ExtResource("1_5hw4x")
+trigger = "ON_HEAL"
+condition = "NONE"
+condition_value = ""
+effect_type = "HEAL"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Heals +1"
+
+[sub_resource type="Resource" id="Resource_2mb44"]
+script = ExtResource("1_5hw4x")
+trigger = "ON_NORMAL_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.1
+value_is_percent_of = "max_health"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Normal attacks +10% max HP"
+
+[sub_resource type="Resource" id="Resource_qjdua"]
+script = ExtResource("1_5hw4x")
+trigger = "ON_BURST_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "BURST_CHARGE_GAIN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = "1d4"
+effect_element = ""
+target = "SELF"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "After burst, normal hits give 1D4 energy for 2 turns"
+
+[resource]
+script = ExtResource("1_ujmg4")
+id = 64
+name = "Everlasting Moonglow"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Catalyst"
+effect = "Everytime you heal, add +1 to it. Normal attacks do extra damage equal to 10% max hp. For 2 turns after using your burst every opponent hit by your normal attack will give you 1 D4 of energy."
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 4.0
+stat_2_type = "Health"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_b1ex8"), SubResource("Resource_2mb44"), SubResource("Resource_qjdua")]

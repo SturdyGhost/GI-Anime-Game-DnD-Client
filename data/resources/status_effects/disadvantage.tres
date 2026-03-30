@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_gfj2t"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_tsjxq"]
+
+[sub_resource type="Resource" id="Resource_6s38i"]
+script = ExtResource("1_tsjxq")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "ROLL_DISADVANTAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Roll twice, take the worse result."
+
+[resource]
+script = ExtResource("1_gfj2t")
+id = 8
+name = "Disadvantage"
+description = "You roll 2 dice rolls and take the worse of the two."
+effects = [SubResource("Resource_6s38i")]

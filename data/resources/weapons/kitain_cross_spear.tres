@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_ao0c3"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_iav4n"]
+
+[sub_resource type="Resource" id="Resource_4lqo5"]
+script = ExtResource("1_iav4n")
+trigger = "ON_SKILL_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "BURST_CHARGE_LOSE"
+effect_stat = ""
+effect_value = 4.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Skill damage +10%. After skill lose 4 charges, gain 1.5 (×ER) per turn for 3 turns."
+
+[resource]
+script = ExtResource("1_ao0c3")
+id = 17
+name = "Kitain Cross Spear"
+rarity = "Rare"
+region = "Inazuma"
+weapon_type = "Polearm"
+effect = "Increase skill damage by 10%, after using your skill lose 4 burst charges (not multiplied by ER) but gain 1.5 burst charges (multiplied by your ER) back at the start of your turn for 3 turns."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_4lqo5")]

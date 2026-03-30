@@ -47,22 +47,26 @@ func set_card(cname):
 	if s.get("Applied_Element") != "None":
 		CardAppliedElement.texture = load("res://UI/Element Icons/"+s.get("Applied_Element")+".png")
 		CardAppliedElement.tooltip_text = ""
-		for reaction in Global.REACTIONS.values():
-			if reaction.get("First_Element") == s.get("Applied_Element"):
-				CardAppliedElement.tooltip_text += reaction.get("Second_Element")+" - "+split_at_space_after_limit(reaction.get("Effect"), 100)+"\n \n"
+		for reaction in GameDB.reactions_for_element(s.get("Applied_Element")):
+			CardAppliedElement.tooltip_text += reaction.second_element+" - "+split_at_space_after_limit(reaction.effect, 100)+"\n \n"
 	else:
 		CardAppliedElement.texture = null
 
 
 func set_companion_card(cname):
-	for companion in Global.COMPANIONS.values():
-		if companion.get("Name") == cname:
-			type = "Companion"
-			tableid = companion.get("id")
-			s = companion
-			
-		
-		pass
+	var comp_id = Global.COMPANIONS_NAME.get(cname, "")
+	if comp_id != "":
+		s = Global.COMPANIONS.get(comp_id, null)
+	else:
+		for companion in Global.COMPANIONS.values():
+			if companion.get("Name") == cname:
+				s = companion
+				break
+	if s == null:
+		push_warning("set_companion_card: companion '%s' not found" % cname)
+		return
+	type = "Companion"
+	tableid = s.get("id")
 	CardName.text = cname
 	card_name = cname
 	hp_cur = s.get("Current_Health")
@@ -82,9 +86,8 @@ func set_companion_card(cname):
 	if s.get("Applied_Element") != "None":
 		CardAppliedElement.texture = load("res://UI/Element Icons/"+s.get("Applied_Element")+".png")
 		CardAppliedElement.tooltip_text = ""
-		for reaction in Global.REACTIONS.values():
-			if reaction.get("First_Element") == s.get("Applied_Element"):
-				CardAppliedElement.tooltip_text += reaction.get("Second_Element")+" - "+split_at_space_after_limit(reaction.get("Effect"), 100)+"\n \n"
+		for reaction in GameDB.reactions_for_element(s.get("Applied_Element")):
+			CardAppliedElement.tooltip_text += reaction.second_element+" - "+split_at_space_after_limit(reaction.effect, 100)+"\n \n"
 	else:
 		CardAppliedElement.texture = null
 
@@ -111,9 +114,9 @@ func update_stats():
 	var s
 	match type:
 		"Character":
-			s = Global.CHARACTERS[str(float(tableid))]
+			s = Global.CHARACTERS[str(tableid)]
 		"Companion":
-			s = Global.COMPANIONS[str(float(tableid))]
+			s = Global.COMPANIONS[str(tableid)]
 	hp_cur = s.get("Current_Health")
 	hp_max = s.get("Max_Health")
 	pct = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
@@ -129,9 +132,8 @@ func update_stats():
 	if s.get("Applied_Element") != "None":
 		CardAppliedElement.texture = load("res://UI/Element Icons/"+s.get("Applied_Element")+".png")
 		CardAppliedElement.tooltip_text = ""
-		for reaction in Global.REACTIONS.values():
-			if reaction.get("First_Element") == s.get("Applied_Element"):
-				CardAppliedElement.tooltip_text += reaction.get("Second_Element")+" - "+split_at_space_after_limit(reaction.get("Effect"), 100)+"\n \n"
+		for reaction in GameDB.reactions_for_element(s.get("Applied_Element")):
+			CardAppliedElement.tooltip_text += reaction.second_element+" - "+split_at_space_after_limit(reaction.effect, 100)+"\n \n"
 	else:
 		CardAppliedElement.texture = null
 	if hp_cur <= 0:

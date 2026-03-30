@@ -1,0 +1,78 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_7vdol"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_alyg4"]
+
+[sub_resource type="Resource" id="Resource_alyg4"]
+script = ExtResource("1_alyg4")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "BURST_CHARGE_GAIN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = "Energy_Recharge"
+effect_dice = "1d4"
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Gain 1d4 burst charges x ER after"
+
+[resource]
+script = ExtResource("1_7vdol")
+id = 397
+name = "Brian C. – Skill"
+element = "Nature"
+description = "Choose a tile within 2 tiles. Enemies on that tile and adjacent tiles take Nature damage.
+
+Escalation: d4 → d6 → d8 → d10 → d12 → d20 (must roll above half to succeed), Damage = cumulative result of success rolls (pre-multiplier). Failure results in 0 damage. Gain 1d4 burst charges × ER after."
+dice_count = 1
+dice_die = 10
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "global"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 1
+charge_cost = 0
+cooldown = 2
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_alyg4")]

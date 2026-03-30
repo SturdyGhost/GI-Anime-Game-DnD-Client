@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_1f1np"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_245uu"]
+
+[sub_resource type="Resource" id="Resource_qlvor"]
+script = ExtResource("1_245uu")
+trigger = "ON_CHARGED_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "MOVEMENT_BONUS"
+effect_stat = ""
+effect_value = 5.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Charged attack hit: move up to 5 tiles after"
+
+[resource]
+script = ExtResource("1_1f1np")
+id = 61
+name = "Prototype Crescent"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Bow"
+effect = "Dealing damage with a charged attack allows you to move up to 5 spaces afterwards."
+stat_1_type = "Attack"
+stat_1_value = 5.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_qlvor")]

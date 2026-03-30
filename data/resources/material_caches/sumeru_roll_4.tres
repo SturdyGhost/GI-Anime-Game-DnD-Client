@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_n0m02"]
+
+[resource]
+script = ExtResource("1_n0m02")
+id = 16
+region = "Sumeru"
+roll = 4
+materials = ""

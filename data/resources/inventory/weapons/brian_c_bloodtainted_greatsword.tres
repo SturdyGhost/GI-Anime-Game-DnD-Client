@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_o2njv"]
+
+[resource]
+script = ExtResource("1_o2njv")
+id = 1
+weapon_id = 45
+weapon_name = "Bloodtainted Greatsword"
+owner = "Brian C."
+equipped = false
+refinement = 0
+quantity = 1
+rarity = "Common"
+region = "Mondstadt"
+weapon_type = "Claymore"
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 2.0
+stat_3_type = ""
+stat_3_value = 0.0

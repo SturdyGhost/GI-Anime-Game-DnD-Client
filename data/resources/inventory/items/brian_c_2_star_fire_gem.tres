@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_u86l8"]
+
+[resource]
+script = ExtResource("1_u86l8")
+id = 77
+item_name = "2-Star Fire Gem"
+owner = "Brian C."
+quantity = 0
+rarity = "Common"
+type = "2-Star Gem"

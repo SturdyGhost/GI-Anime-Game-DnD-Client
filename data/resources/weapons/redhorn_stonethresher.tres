@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_ea3m7"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_fxtv0"]
+
+[sub_resource type="Resource" id="Resource_hllee"]
+script = ExtResource("1_fxtv0")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_MULTIPLIER"
+effect_stat = "Defense"
+effect_value = 0.25
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Def increased by 25%"
+
+[sub_resource type="Resource" id="Resource_565qh"]
+script = ExtResource("1_fxtv0")
+trigger = "ON_NORMAL_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = "defense"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Normal/charged +50% def as damage"
+
+[resource]
+script = ExtResource("1_ea3m7")
+id = 90
+name = "Redhorn Stonethresher"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Claymore"
+effect = "Def is increased by 25%, when you land a normal or charged attack increase its’ damage by 50% of your defense."
+stat_1_type = "Defense"
+stat_1_value = 4.0
+stat_2_type = "Critical_Damage"
+stat_2_value = 1.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_hllee"), SubResource("Resource_565qh")]

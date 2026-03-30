@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_ikibr"]
+
+[resource]
+script = ExtResource("1_ikibr")
+id = 2
+region = "Mondstadt"
+roll = 2
+materials = "[Sugar,Iron Chunk,Glaze Lily]"

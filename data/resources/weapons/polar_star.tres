@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_2h5t4"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_31m1c"]
+
+[sub_resource type="Resource" id="Resource_phe2f"]
+script = ExtResource("1_31m1c")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_1mub7"]
+script = ExtResource("1_31m1c")
+trigger = "ON_HIT"
+condition = "STACKS_AT_MAX"
+condition_value = ""
+effect_type = "STAT_MULTIPLIER"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 4
+stack_value = 0.0
+unique_per = "attack_type"
+resets_on = ""
+effect_id = ""
+description = "At 4 unique attack type stacks, +50% ATT+EM"
+
+[resource]
+script = ExtResource("1_2h5t4")
+id = 44
+name = "Polar Star"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Bow"
+effect = "Lower the requirement to crit (20) by 3. After using any type of attack, gain 1 stack (max 4) that lasts until the end of battle. You may only gain 1 stack per attack type (i.e. normal attack, charged attack, etc.)  At max stacks gain 50% more Att + EM."
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_phe2f"), SubResource("Resource_1mub7")]

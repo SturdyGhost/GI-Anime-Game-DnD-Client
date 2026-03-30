@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_t3b72"]
+
+[resource]
+script = ExtResource("1_t3b72")
+id = 30
+product = "Skyrider Greatsword"
+region = "Mondstadt"
+description = "4 ATT"
+role = "Blacksmith"
+material = "1-Star Wind Gem"
+quantity = 1

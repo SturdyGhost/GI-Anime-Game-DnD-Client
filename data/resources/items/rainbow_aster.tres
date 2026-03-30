@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_md7ko"]
+
+[resource]
+script = ExtResource("1_md7ko")
+id = 19
+item_name = "Rainbow Aster"
+type = "Consumable"
+rarity = "Uncommon"
+region = "Inazuma"
+description = "Restores 10 HP + 1 HP per turn for 5 turns."
+value = 600
+buff_duration = 0

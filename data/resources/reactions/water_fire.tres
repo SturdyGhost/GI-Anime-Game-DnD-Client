@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_pk2pm"]
+
+[resource]
+script = ExtResource("1_pk2pm")
+id = 19
+first_element = "Water"
+second_element = "Fire"
+outcome = "UNFAVORABLE"
+effect = "Triggers a steam reaction making the attack deal no damage. The target becomes enraged, dealing double damage on their next attack."
+effects = []

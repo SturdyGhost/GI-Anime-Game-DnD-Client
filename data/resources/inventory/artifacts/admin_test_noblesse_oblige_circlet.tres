@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_l2ec5"]
+
+[resource]
+script = ExtResource("1_l2ec5")
+id = 45
+artifact_set = "Noblesse Oblige"
+owner = "Admin - Test"
+type = "Circlet of Principles"
+equipped = false
+rarity = 0
+stat_1_type = "Defense"
+stat_1_value = 1.0
+stat_2_type = "Defense"
+stat_2_value = 1.1

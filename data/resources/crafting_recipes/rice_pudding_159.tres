@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_6ql4l"]
+
+[resource]
+script = ExtResource("1_6ql4l")
+id = 159
+product = "Rice Pudding"
+region = "Mondstadt"
+description = "Increases all party members EM by 4 for next 2 battles."
+role = "Artisan"
+material = "Violetgrass"
+quantity = 4

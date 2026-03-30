@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_wr5v0"]
+
+[resource]
+script = ExtResource("1_wr5v0")
+id = 28
+item_name = "Cor Lapis"
+owner = "Dylan"
+quantity = 16
+rarity = "Uncommon"
+type = "Alloy"

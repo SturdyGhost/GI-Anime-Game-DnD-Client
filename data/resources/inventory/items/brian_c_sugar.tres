@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_u0gto"]
+
+[resource]
+script = ExtResource("1_u0gto")
+id = 60
+item_name = "Sugar"
+owner = "Brian C."
+quantity = 25
+rarity = "Common"
+type = "Sugar"

@@ -169,13 +169,13 @@ func _on_confirm_button_pressed() -> void:
 	for rec_id in equipped_ids:
 		if rec_id == target_id:
 			continue
-		updates.append({"table": "Character_Weapons", "record_id": float(rec_id), "field": "Equipped", "value": false})
+		updates.append({"table": "Character_Weapons", "record_id": int(rec_id), "field": "Equipped", "value": false})
 		# local cache to keep UI steady
 		Global.CHARACTER_WEAPONS[rec_id]["Equipped"] = false
 
 	# --------- PASS 2: EQUIP TARGET ---------
 	if target_id != "":
-		updates.append({"table": "Character_Weapons", "record_id": float(target_id), "field": "Equipped", "value": true})
+		updates.append({"table": "Character_Weapons", "record_id": int(target_id), "field": "Equipped", "value": true})
 		Global.CHARACTER_WEAPONS[target_id]["Equipped"] = true
 
 
@@ -333,7 +333,7 @@ func _on_confirm_give_button_pressed() -> void:
 	if ReceiverOptionButton.get_selected_id() > 0 and selected_weapon != original_weapon:
 		updates.append({
 			"table": "Character_Weapons", 
-			"record_id": float(selected_weapon.get("id")), 
+			"record_id": int(selected_weapon.get("id")),
 			"field": "Owner", 
 			"value": ReceiverOptionButton.get_item_text(ReceiverOptionButton.get_selected_id())})
 		Global.Update_Records(updates)

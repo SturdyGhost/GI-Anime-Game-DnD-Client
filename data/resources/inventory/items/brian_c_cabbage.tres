@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_cellc"]
+
+[resource]
+script = ExtResource("1_cellc")
+id = 34
+item_name = "Cabbage"
+owner = "Brian C."
+quantity = 1
+rarity = "Common"
+type = "Vegetables"

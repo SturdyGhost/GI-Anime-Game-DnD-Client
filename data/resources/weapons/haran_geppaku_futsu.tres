@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_ehyd6"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_qsei6"]
+
+[sub_resource type="Resource" id="Resource_bs5ry"]
+script = ExtResource("1_ehyd6")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_a4usy"]
+script = ExtResource("1_ehyd6")
+trigger = "ON_SKILL_USE"
+condition = "ATTACK_TYPE"
+condition_value = "Normal"
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 2
+duration_actions = 0
+max_stacks = 2
+stack_value = 0.5
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "When ally uses skill, gain stack (max 2). On your skill, consume stacks: normal attacks deal 50% more per stack for 2 turns."
+
+[resource]
+script = ExtResource("1_qsei6")
+id = 109
+name = "Haran Geppaku Futsu"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Sword"
+effect = "Lower the requirement to crit (20) by 3. When a party member uses their skill, gain 1 stack (max 2 stacks), when you use your skill, consume all stacks to have normal attacks deal 50% more damage per stack for 2 turns."
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_bs5ry"), SubResource("Resource_a4usy")]

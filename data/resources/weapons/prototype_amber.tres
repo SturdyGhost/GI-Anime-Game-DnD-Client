@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_fe8od"]
+
+[resource]
+script = ExtResource("1_fe8od")
+id = 107
+name = "Prototype Amber"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Catalyst"
+effect = "After using burst all party members will restore 1 D4 of health every turn for 2 turns."
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 3.0
+stat_2_type = "Health"
+stat_2_value = 3.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

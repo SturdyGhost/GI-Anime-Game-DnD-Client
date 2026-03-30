@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_ibabi"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_7ssdq"]
+
+[sub_resource type="Resource" id="Resource_mfwhs"]
+script = ExtResource("2_7ssdq")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_ibabi")
+id = 48
+name = "Albedo"
+element = "Earth"
+weapon = "Sword"
+region = "Liyue"
+lore = "Chief Alchemist of the Knights of Favonius, Albedo treats alchemy as both science and art. He dissects the world with a calm, almost clinical curiosity, yet his sketches and sculptures reveal a quiet reverence for beauty. Rumors whisper that his research brushes against the boundary between creation and life itself, but he keeps dangerous knowledge caged behind precise ethics. He mentors Sucrose with generous patience and relies on discipline to keep his own questions from consuming him. To Mondstadt he is a courteous consultant; to a rare few, he is a friend who values truth more than applause, and who will set down his chalk when a human heart needs attention more than a formula does."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = "Brian F."
+stats = SubResource("Resource_mfwhs")
+current_health = 57
+max_health = 57
+burst_charges = 2
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

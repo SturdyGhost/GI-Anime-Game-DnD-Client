@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_m0uv8"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_tbuxu"]
+
+[sub_resource type="Resource" id="Resource_5ohm5"]
+script = ExtResource("1_tbuxu")
+trigger = "ON_SKILL_USE"
+condition = "ATTACK_TYPE"
+condition_value = "Skill"
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 3
+stack_value = 0.5
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On skill use gain stack (max 3, 3 turns each). Per stack skill deals 50% more damage."
+
+[resource]
+script = ExtResource("1_m0uv8")
+id = 87
+name = "Kaguras Verity"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Catalyst"
+effect = "When using your skill gain 1 stack (max 3 stacks, each stack lasts for 3 turns). For each stack you have when using your skill it will deal 50% more damage."
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 4.0
+stat_2_type = "Critical_Damage"
+stat_2_value = 1.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_5ohm5")]

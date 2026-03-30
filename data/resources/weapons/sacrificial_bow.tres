@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_a7weh"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_w2ddn"]
+
+[sub_resource type="Resource" id="Resource_m6yxb"]
+script = ExtResource("1_a7weh")
+trigger = "ON_SKILL_USE"
+condition = "DICE_ROLL_CHECK"
+condition_value = "even"
+effect_type = "COOLDOWN_RESET"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = "1d20"
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "After skill, D20 even = skill cooldown reset"
+
+[resource]
+script = ExtResource("1_w2ddn")
+id = 77
+name = "Sacrificial Bow"
+rarity = "Epic"
+region = "Mondstadt"
+weapon_type = "Bow"
+effect = "After using skill roll a D20, if the number is even, your skill immediately comes off of cooldown."
+stat_1_type = "Attack"
+stat_1_value = 3.0
+stat_2_type = "Energy_Recharge"
+stat_2_value = 0.75
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_m6yxb")]

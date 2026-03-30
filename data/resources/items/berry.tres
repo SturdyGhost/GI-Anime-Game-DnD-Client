@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_a3g3i"]
+
+[resource]
+script = ExtResource("1_a3g3i")
+id = 49
+item_name = "Berry"
+type = "Fruit"
+rarity = "Common"
+region = "Liyue"
+description = " "
+value = 4
+buff_duration = 0

@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_nihly"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_qqwf8"]
+
+[sub_resource type="Resource" id="Resource_tjco3"]
+script = ExtResource("1_qqwf8")
+trigger = "ON_BURST_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 1.25
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Burst damage +25%"
+
+[sub_resource type="Resource" id="Resource_msuwr"]
+script = ExtResource("1_qqwf8")
+trigger = "ON_BURST_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -5.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Burst crit threshold -5"
+
+[resource]
+script = ExtResource("1_nihly")
+id = 81
+name = "The Catch"
+rarity = "Epic"
+region = "Inazuma"
+weapon_type = "Polearm"
+effect = "Increase Burst damage by 25%. Lower the requirement to crit (20) by 5 when using your burst."
+stat_1_type = "Attack"
+stat_1_value = 1.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 1.0
+stat_3_type = "Energy_Recharge"
+stat_3_value = 0.75
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_tjco3"), SubResource("Resource_msuwr")]

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_j4pyu"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_vihyv"]
+
+[sub_resource type="Resource" id="Resource_763gk"]
+script = ExtResource("1_j4pyu")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Defense_Added_Stat_Bonus"
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+2 Defense."
+
+[resource]
+script = ExtResource("1_vihyv")
+id = 14
+artifact_set = "Husk of Opulent Dreams"
+bonus_type = 2
+effect = "Add 2 to your Defense."
+stat_modifier = "Defense_Added_Stat_Bonus"
+stat_modifier_value = 2.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_763gk")]

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_el0fy"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_nc4o5"]
+
+[sub_resource type="Resource" id="Resource_5xbm6"]
+script = ExtResource("1_nc4o5")
+trigger = "ON_CHARGED_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "After charged/skill, next basic/charged +2 to roll, +1 range. Wind attacks +2 damage."
+
+[resource]
+script = ExtResource("1_el0fy")
+id = 50
+artifact_set = "Desert Pavilion Chronicle"
+bonus_type = 4
+effect = "After you use a Charged Attack or Skill, your next Basic/Charged Attack gains +2 to its roll and may target +1 tile farther. If it deals Wind damage, add +2 damage."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_5xbm6")]

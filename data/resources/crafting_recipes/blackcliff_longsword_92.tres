@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_3ecnk"]
+
+[resource]
+script = ExtResource("1_3ecnk")
+id = 92
+product = "Blackcliff Longsword"
+region = "Liyue"
+description = "3 ATT, 0.75 CD
+When you kill an enemy immediately take another turn, when an enemy hits you, they immediately take another turn."
+role = "Blacksmith"
+material = "Treasure Hoarder Insignia"
+quantity = 35

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r5aql"]
+
+[resource]
+script = ExtResource("1_r5aql")
+id = 200
+product = "Grilled Unagi Fillet"
+region = "Liyue"
+description = "Increases Defense + Max Health by 3 for all party members for the next battle."
+role = "Artisan"
+material = "Violetgrass"
+quantity = 4

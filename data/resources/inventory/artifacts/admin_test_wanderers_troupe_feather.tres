@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_gopxr"]
+
+[resource]
+script = ExtResource("1_gopxr")
+id = 43
+artifact_set = "Wanderers Troupe"
+owner = "Admin - Test"
+type = "Feather of Death"
+equipped = false
+rarity = 0
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 2.0
+stat_2_type = "Attack"
+stat_2_value = -1.2

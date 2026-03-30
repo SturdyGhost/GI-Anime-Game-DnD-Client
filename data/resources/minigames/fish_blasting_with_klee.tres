@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MinigameData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/minigame_data.gd" id="1_wgrm2"]
+
+[resource]
+script = ExtResource("1_wgrm2")
+id = 1
+key = "KleeFishBlast"
+name = "Fish Blasting With Klee"
+description = "Klee has spotted a school of fish—and where there are fish, there are bombs! Lob explosives into the water to catch as many fish as you can before time runs out. Bombs explode in an area, so aim carefully to hit groups and keep your momentum going. Fewer bombs means every throw counts—precision and timing are the key to a big score."
+unlocked = true

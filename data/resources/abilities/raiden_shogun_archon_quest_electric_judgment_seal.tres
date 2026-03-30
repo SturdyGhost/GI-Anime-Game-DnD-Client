@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_eyhdf"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_qs8do"]
+
+[sub_resource type="Resource" id="Resource_eyhdf"]
+script = ExtResource("1_eyhdf")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "APPLY_STATUS"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "TARGET"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Marks lowest HP; next hit is guaranteed crit"
+
+[sub_resource type="Resource" id="Resource_3glr4"]
+script = ExtResource("1_eyhdf")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -99.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "TARGET"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Next hit vs marked target is guaranteed crit"
+
+[resource]
+script = ExtResource("1_qs8do")
+id = 3
+name = "Judgment Seal"
+element = "Electric"
+description = "Marks lowest HP; next hit vs them is guaranteed crit"
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = false
+bypass_defense = false
+targeting_type = "single"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = "lowest_hp"
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = "random"
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = "Judgment Seal"
+effect_mark_duration_rnds = 2
+effect_mark_consumed_on_hit = true
+effect_guaranteed_crit = true
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 0
+phase_idx = 1
+order = 3
+weight = 1.0
+effects = [SubResource("Resource_eyhdf"), SubResource("Resource_3glr4")]

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_mpk37"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_y0vft"]
+
+[sub_resource type="Resource" id="Resource_rfdjd"]
+script = ExtResource("1_y0vft")
+trigger = "START_OF_TURN"
+condition = "NONE"
+condition_value = ""
+effect_type = "REPEAT_LAST_ACTIONS"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Must repeat the same actions from last turn in the same order."
+
+[resource]
+script = ExtResource("1_mpk37")
+id = 21
+name = "Locked In"
+description = "You must repeat the same actions you took last turn in the same order if possible."
+effects = [SubResource("Resource_rfdjd")]

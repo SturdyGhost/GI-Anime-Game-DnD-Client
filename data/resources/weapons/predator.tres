@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_axdij"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_ntv0d"]
+
+[sub_resource type="Resource" id="Resource_ufbcp"]
+script = ExtResource("1_axdij")
+trigger = "ON_HIT"
+condition = "ELEMENT_MATCH"
+condition_value = "Ice"
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 4
+duration_actions = 0
+max_stacks = 2
+stack_value = 0.2
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On ice damage hit, gain stack (max 2, 4 turns). Per stack normal/charged +20%."
+
+[resource]
+script = ExtResource("1_ntv0d")
+id = 46
+name = "Predator"
+rarity = "Epic"
+region = "Inazuma"
+weapon_type = "Bow"
+effect = "When you deal Ice damage to an enemy you gain 1 stack (max 2 stacks) for 4 turns. Each stack increases Normal + Charged attack damage by 20%"
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_ufbcp")]

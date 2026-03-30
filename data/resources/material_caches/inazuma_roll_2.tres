@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_1sx6m"]
+
+[resource]
+script = ExtResource("1_1sx6m")
+id = 10
+region = "Inazuma"
+roll = 2
+materials = "[Crystal Marrow,Famed Handguard,Sharp Arrowhead,Raimei Angelfish]"

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_cvd42"]
+
+[resource]
+script = ExtResource("1_cvd42")
+id = 4
+weapon_id = 57
+weapon_name = "Ferrous Shadow"
+owner = "Brian C."
+equipped = false
+refinement = 1
+quantity = 1
+rarity = "Common"
+region = "Mondstadt"
+weapon_type = "Claymore"
+stat_1_type = "Attack"
+stat_1_value = 2.4
+stat_2_type = "Health"
+stat_2_value = 2.4
+stat_3_type = ""
+stat_3_value = 0.0

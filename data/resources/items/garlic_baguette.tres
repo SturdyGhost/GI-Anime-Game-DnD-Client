@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_sxsrf"]
+
+[resource]
+script = ExtResource("1_sxsrf")
+id = 46
+item_name = "Garlic Baguette"
+type = "Consumable"
+rarity = "Common"
+region = "Liyue"
+description = "When Attacking, Adds 1 to all party members roll for next battle."
+value = 500
+buff_duration = 1

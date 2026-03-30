@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_waaru"]
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_xspbw"]
+
+[sub_resource type="Resource" id="Resource_ceep8"]
+script = ExtResource("1_waaru")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "CHAIN_DAMAGE"
+effect_stat = ""
+effect_value = 0.25
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "CLOSEST_ENEMY"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "25% of damage dealt is also dealt to closest ally."
+
+[resource]
+script = ExtResource("1_xspbw")
+id = 18
+name = "Collateral Damage"
+description = "When you deal damage to a target, ¼ of the final damage dealt to them is also dealt to the ally closest to you."
+effects = [SubResource("Resource_ceep8")]

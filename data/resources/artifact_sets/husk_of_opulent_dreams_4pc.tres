@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_1kh47"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_ts7ns"]
+
+[sub_resource type="Resource" id="Resource_3jt85"]
+script = ExtResource("1_1kh47")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 4
+stack_value = 1.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On hit/being hit gain curiosity (max 4). Per stack +1 damage to defense-based and earth attacks."
+
+[resource]
+script = ExtResource("1_ts7ns")
+id = 16
+artifact_set = "Husk of Opulent Dreams"
+bonus_type = 4
+effect = "Every time you get hit or hit someone else gain 1 stack of curiosity (max 4). For every stack of curiosity that you have you will do +1 damage to attacks using Defense as your stat and +1 damage to earth attacks. These damage bonuses can stack with each other."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_3jt85")]

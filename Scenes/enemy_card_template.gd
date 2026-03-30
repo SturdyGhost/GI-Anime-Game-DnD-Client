@@ -9,7 +9,7 @@ var hp_cur
 var hp_max
 var pct
 var bar
-var eid
+var eid: int
 var status
 var shield_value
 var shield_hp: int = 0
@@ -32,16 +32,19 @@ var shield_duration: int = 0
 func _process(delta: float) -> void:
 	if eid != null:
 		if eid > 0:
-			set_card(str(eid))
+			set_card(str(int(eid)))
 
 
 func set_card(id):
-	e = Global.BATTLEENEMIES[id]
-	ename = str(e["EnemyName"])
+	e = Global.BATTLEENEMIES.get(id, {})
+	if e.is_empty():
+		return
+	ename = str(e.get("EnemyName", ""))
 	eid = e["id"]
 	enemyid = e["EnemyID"]
 	elem = str(e.get("AppliedElement","—"))
-	tier = str(Global.ENEMIES[str(float(enemyid))].get("tier"))
+	var edata = GameDB.get_enemy(int(enemyid))
+	tier = str(edata.tier) if edata else ""
 	phase = str(e.get("Phase","—"))
 	hp_cur = float(e.get("Current_Health",0.0))
 	hp_max= float(e.get("Max_Health",0.0))
@@ -60,9 +63,8 @@ func set_card(id):
 	if elem != "None":
 		CardElement.texture = load("res://UI/Element Icons/"+str(elem)+".png")
 		CardElement.tooltip_text = ""
-		for reaction in Global.REACTIONS.values():
-			if reaction.get("First_Element") == elem:
-				CardElement.tooltip_text += reaction.get("Second_Element")+" - "+split_at_space_after_limit(reaction.get("Effect"), 100)+"\n \n"
+		for reaction in GameDB.reactions_for_element(elem):
+			CardElement.tooltip_text += reaction.second_element + " - " + split_at_space_after_limit(reaction.effect, 100) + "\n \n"
 	if e.get("Killed", false):
 		self.modulate = Color(0.6, 0.6, 0.6, 0.8)
 	else:

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_dknnd"]
+
+[resource]
+script = ExtResource("1_dknnd")
+id = 15
+first_element = "Electric"
+second_element = "Fire"
+outcome = "FAVORABLE"
+effect = "Triggers a superconductive reaction causing an AoE explosion of fire damage. The size and damage of the explosion varies by dice roll. All units hit are knocked back to the edge of the explosion."
+effects = []

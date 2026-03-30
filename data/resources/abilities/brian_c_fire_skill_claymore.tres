@@ -1,0 +1,139 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_7os51"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_qvsls"]
+
+[sub_resource type="Resource" id="Resource_7os51"]
+script = ExtResource("1_7os51")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "APPLY_ELEMENT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Fire"
+target = "TARGET"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Apply fire to all units within 3 tiles"
+
+[sub_resource type="Resource" id="Resource_bhgx5"]
+script = ExtResource("1_7os51")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "TAUNT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Small units are taunted for next attack"
+
+[sub_resource type="Resource" id="Resource_cfb82"]
+script = ExtResource("1_7os51")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "ROLL_ADVANTAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Roll twice and take the better roll"
+
+[sub_resource type="Resource" id="Resource_hhskt"]
+script = ExtResource("1_7os51")
+trigger = "PASSIVE"
+condition = "ATTACK_TYPE"
+condition_value = "Normal"
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 5.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Allies next physical attack roll +5"
+
+[resource]
+script = ExtResource("1_qvsls")
+id = 415
+name = "Brian C. – Skill"
+element = "Fire"
+description = "Stab the ground causing it to erupt and apply fire to all units within 3 tiles. Small units are taunted for next attack during which you can roll twice and take the better roll. Allies will have their next physical attack roll have +5 added to it."
+dice_count = 1
+dice_die = 10
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "global"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 1
+charge_cost = 0
+cooldown = 3
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_7os51"), SubResource("Resource_bhgx5"), SubResource("Resource_cfb82"), SubResource("Resource_hhskt")]

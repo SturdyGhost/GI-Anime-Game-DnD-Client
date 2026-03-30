@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_qr1vo"]
+
+[resource]
+script = ExtResource("1_qr1vo")
+id = 228
+product = "2-Star Artifact Upgrader"
+region = "Mondstadt"
+description = "Exchanges three 1-Star artifacts for another 2-Star artifact from any known set randomly."
+role = "Artisan"
+material = ""
+quantity = 3

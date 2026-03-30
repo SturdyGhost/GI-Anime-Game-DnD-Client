@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=6 format=3 uid="uid://c8heglrhn1ggs"]
+
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_itr8t"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_k3i7h"]
+
+[sub_resource type="Resource" id="Resource_k3i7h"]
+script = ExtResource("1_k3i7h")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "EXTRA_ACTION"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Perform up to 2 Basic or Charged Attacks"
+
+[sub_resource type="Resource" id="Resource_w2wc7"]
+script = ExtResource("1_k3i7h")
+trigger = "ON_REACTION"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Double Nature reactions triggered"
+
+[sub_resource type="Resource" id="Resource_aysjm"]
+script = ExtResource("1_k3i7h")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PREVENT_MOVEMENT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Cannot move this turn"
+
+[resource]
+script = ExtResource("1_itr8t")
+id = 417
+name = "Brian C. – Burst"
+element = "Nature"
+description = "Cannot move this turn. Perform up to 2 Basic or Charged Attacks as Nature using EM. Double Nature reactions triggered. Roll 1d4; on 4 regain 6 charges."
+dice_count = 1
+dice_die = 10
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = ""
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "self"
+status_effects = ""
+movement = 0
+charge_cost = 12
+cooldown = 0
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_k3i7h"), SubResource("Resource_w2wc7"), SubResource("Resource_aysjm")]
+entity_type = ""
+entity_id = 0
+entity_name = ""
+weapon_type = ""
+ability_type = ""
+ability_cooldown = 0

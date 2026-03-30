@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_3fo5b"]
+
+[resource]
+script = ExtResource("1_3fo5b")
+id = 2
+first_element = "Ice"
+second_element = "Water"
+outcome = "UNFAVORABLE"
+effect = "Triggers a thawing reaction that restores the target to full health."
+effects = []

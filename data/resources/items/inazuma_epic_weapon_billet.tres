@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_mfa6h"]
+
+[resource]
+script = ExtResource("1_mfa6h")
+id = 61
+item_name = "Inazuma Epic Weapon Billet"
+type = "Billet"
+rarity = "Epic"
+region = "Inazuma"
+description = "Can be used by the Blacksmith to craft Epic tier weapons from Inazuma"
+value = 2500
+buff_duration = 0

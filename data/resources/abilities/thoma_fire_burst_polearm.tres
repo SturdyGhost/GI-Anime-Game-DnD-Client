@@ -1,0 +1,118 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_g58ai"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ja5db"]
+
+[sub_resource type="Resource" id="Resource_g58ai"]
+script = ExtResource("1_g58ai")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "SHIELD_GENERATE"
+effect_stat = ""
+effect_value = 0.25
+value_is_percent_of = "max_health"
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Shield on all allies (1/4 avg max HP)"
+
+[sub_resource type="Resource" id="Resource_32vh1"]
+script = ExtResource("1_g58ai")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "REAPPLY_ELEMENT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Fire"
+target = "ALL_ALLIES"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "While shielded fire continuously reapplied"
+
+[sub_resource type="Resource" id="Resource_uio1a"]
+script = ExtResource("1_g58ai")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "EXTEND_SHIELD"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On attack, extend shield 1 turn and restore 2 HP (max 3 turn extension)"
+
+[resource]
+script = ExtResource("1_ja5db")
+id = 371
+name = "Thoma – Burst"
+element = "Fire"
+description = "Generates a shield on all party members applying fire to them, this shield will absorb damage and has shield health equal to 1/4 average Max HP roll. While shielded, fire is continuously reapplied. Shield expires when health is gone or after 2 turns. Every time a party member shielded by this ability uses an attack their personal shield is extended 1 turn and 2 health is restored to the shield (cannot exceed max initial health, max 3 turn extension)"
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "allies"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = ""
+status_effects = ""
+movement = 0
+charge_cost = 12
+cooldown = 0
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_g58ai"), SubResource("Resource_32vh1"), SubResource("Resource_uio1a")]

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_agi3c"]
+
+[resource]
+script = ExtResource("1_agi3c")
+id = 11
+item_name = "Raw Meat"
+type = "Meat"
+rarity = "Common"
+region = "Mondstadt"
+description = " "
+value = 4
+buff_duration = 0

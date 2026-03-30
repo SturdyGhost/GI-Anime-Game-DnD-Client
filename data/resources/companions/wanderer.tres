@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_k363r"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_cbhl2"]
+
+[sub_resource type="Resource" id="Resource_ldgec"]
+script = ExtResource("2_cbhl2")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_k363r")
+id = 103
+name = "Wanderer"
+element = "Wind"
+weapon = "Catalyst"
+region = "Sumeru"
+lore = "Cut loose from his past, the Wanderer travels with a pride sharpened into armor. He distrusts sentiment and bristles at pity, choosing forward motion over apology. Yet even he cannot outrun the question of what a self is, once severed from the stories that named it. In moments between storms, he allows the possibility that purpose can be rewritten—and that choice can be its own kind of grace."
+unlocked = false
+active = false
+met = false
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_ldgec")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

@@ -22,13 +22,16 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if Global.CHARACTERS[Global.CHARACTERS_NAME[Global.Current_Party.get("Dungeon_Master")]].get("Ready") == true:
+	var _dm_name = Global.Current_Party.get("Dungeon_Master", "")
+	var _dm_id = Global.CHARACTERS_NAME.get(_dm_name, "")
+	if _dm_id != "" and Global.CHARACTERS.get(_dm_id, {}).get("Ready") == true:
 		get_tree().change_scene_to_file("res://Scenes/Player_Battle_Scene.tscn")
 
 func _check_ready_players():
 	var CharacterData
 	for PlayerName in Global.PartyCharacters:
-		CharacterData = Global.CHARACTERS[Global.CHARACTERS_NAME[PlayerName]]
+		var _pid = Global.CHARACTERS_NAME.get(PlayerName, "")
+		CharacterData = Global.CHARACTERS.get(_pid, {})
 		if CharacterData.get("Ready") == true:
 			if Ready_Players.has(PlayerName):
 				pass

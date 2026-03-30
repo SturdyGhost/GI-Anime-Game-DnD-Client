@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_4prtg"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_teh5q"]
+
+[sub_resource type="Resource" id="Resource_ge1a5"]
+script = ExtResource("1_teh5q")
+trigger = "ON_REACTION"
+condition = "REACTION_ELEMENT"
+condition_value = "Wind"
+effect_type = "EXTRA_TURN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On wind swirl reaction, gain another turn (2 turn CD)."
+
+[resource]
+script = ExtResource("1_4prtg")
+id = 13
+artifact_set = "Viridescent Venerer"
+bonus_type = 4
+effect = "When your applied wind is involved in a swirl reaction, immediately gain another turn. (2 turn cd)"
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_ge1a5")]

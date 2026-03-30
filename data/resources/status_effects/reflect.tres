@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_37xgi"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_j0lq1"]
+
+[sub_resource type="Resource" id="Resource_k1crh"]
+script = ExtResource("1_j0lq1")
+trigger = "ON_DAMAGE_TAKEN"
+condition = "NONE"
+condition_value = ""
+effect_type = "REFLECT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Next attack is reflected back at the attacker."
+
+[resource]
+script = ExtResource("1_37xgi")
+id = 4
+name = "Reflect"
+description = "The next attack that would hit this entity is reflected back at the attacker."
+effects = [SubResource("Resource_k1crh")]

@@ -19,10 +19,16 @@ func _ready() -> void:
 
 func _on_data_load_complete():
 	raw = Global.Current_Party.get("Turn_Order")
-	db_order = JSON.parse_string(str(raw))
-
-	# Optional: de-dup and strip empties just in case
+	if raw is Array:
+		db_order = raw.duplicate(true)
+	else:
+		db_order = JSON.parse_string(str(raw)) if raw != null else []
+	if not db_order is Array or db_order.is_empty():
+		db_order = []
+		return
 	db_order = db_order.filter(func(n): return typeof(n) == TYPE_STRING and n.strip_edges() != "")
+	if db_order.is_empty():
+		return
 	db_order = db_order.duplicate(true)
 	_set_order(db_order)
 
@@ -143,6 +149,8 @@ func _persist_to_db() -> void:
 
 	# ---- Prepare Update_Records payload ----
 	# Single field now: Turn_Order (send as an Array; your Flask/Noco stack will JSON-encode this)
+	if db_order.is_empty():
+		return
 	var updates: Array = [
 		{"table": "Party", "record_id": party_record_id, "field": "Turn_Order", "value": db_order},
 		{"table": "Party", "record_id": party_record_id, "field": "Current_Turn", "value": db_order[0]}

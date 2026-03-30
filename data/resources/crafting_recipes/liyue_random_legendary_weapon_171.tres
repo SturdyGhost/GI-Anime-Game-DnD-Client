@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_hnbr8"]
+
+[resource]
+script = ExtResource("1_hnbr8")
+id = 171
+product = "Liyue Random Legendary Weapon"
+region = "Liyue"
+description = "Used to craft a random Legendary weapon from Liyue."
+role = "Blacksmith"
+material = "Bamboo Segment"
+quantity = 35

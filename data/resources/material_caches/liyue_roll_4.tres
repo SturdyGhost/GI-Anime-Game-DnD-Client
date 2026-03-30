@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_g2axo"]
+
+[resource]
+script = ExtResource("1_g2axo")
+id = 8
+region = "Liyue"
+roll = 4
+materials = "[Crab,Clearwater Jade,Bamboo Shoot,Violetgrass]"

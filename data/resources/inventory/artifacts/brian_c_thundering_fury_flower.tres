@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_00q4s"]
+
+[resource]
+script = ExtResource("1_00q4s")
+id = 14
+artifact_set = "Thundering Fury"
+owner = "Brian C."
+type = "Flower of Life"
+equipped = true
+rarity = 2
+stat_1_type = "Attack"
+stat_1_value = 1.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 0.8

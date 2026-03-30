@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_l0j58"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_s2d14"]
+
+[sub_resource type="Resource" id="Resource_m1ydp"]
+script = ExtResource("2_s2d14")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_l0j58")
+id = 51
+name = "Raiden Shogun"
+element = "Electric"
+weapon = "Polearm"
+region = "Inazuma"
+lore = "The Electro Archon sought eternity and found its price. As ruler she cut away change to protect what she loved; as a person she learned that stillness can smother the very lives it hopes to preserve. The Raiden Shogun carries the paradox openly now: duty and compassion held in a single steady hand. Her presence is decisive, her introspection sincere, and her lightning both judgment and promise."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_m1ydp")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

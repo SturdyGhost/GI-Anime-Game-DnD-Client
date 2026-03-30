@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_wf2s6"]
+
+[resource]
+script = ExtResource("1_wf2s6")
+id = 49
+artifact_set = "Noblesse Oblige"
+owner = "Admin - Test"
+type = "Sands of Time"
+equipped = false
+rarity = 0
+stat_1_type = "Defense"
+stat_1_value = 1.0
+stat_2_type = "Attack"
+stat_2_value = -1.7

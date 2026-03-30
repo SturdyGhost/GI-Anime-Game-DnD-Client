@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_vrmqc"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_ype24"]
+
+[sub_resource type="Resource" id="Resource_vrwcr"]
+script = ExtResource("1_ype24")
+trigger = "ON_REACTION"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Attack"
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 1
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Once per battle after reaction: +2 ATT+EM rolls. Nature reactions give +1 burst charge."
+
+[resource]
+script = ExtResource("1_vrmqc")
+id = 48
+artifact_set = "Gilded Dreams"
+bonus_type = 4
+effect = "Once per battle, after you trigger an elemental reaction, gain +2 to Attack and Elemental Mastery rolls for the rest of the battle. 
+Anytime you trigger a Nature Reaction, gain +1 Burst charge."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_vrwcr")]

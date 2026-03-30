@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_gqk3c"]
+
+[resource]
+script = ExtResource("1_gqk3c")
+id = 35
+artifact_set = "Shimenawas Reminiscence"
+owner = "Admin - Test"
+type = "Goblet of Space"
+equipped = false
+rarity = 0
+stat_1_type = "Health"
+stat_1_value = 0.4
+stat_2_type = "Defense"
+stat_2_value = -0.9

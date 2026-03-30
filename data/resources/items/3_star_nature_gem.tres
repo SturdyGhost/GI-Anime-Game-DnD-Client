@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_f23cm"]
+
+[resource]
+script = ExtResource("1_f23cm")
+id = 88
+item_name = "3-Star Nature Gem"
+type = "3-Star Gem"
+rarity = "Rare"
+region = "Inazuma"
+description = " "
+value = 243
+buff_duration = 0

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_yl7b3"]
+
+[resource]
+script = ExtResource("1_yl7b3")
+id = 330
+item_name = "Noctilucous Jade"
+owner = "Brian C."
+quantity = 0
+rarity = "Common"
+type = "Supplementary Ore"

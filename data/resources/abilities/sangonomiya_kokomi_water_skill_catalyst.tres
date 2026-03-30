@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_2esi2"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ceab0"]
+
+[sub_resource type="Resource" id="Resource_2esi2"]
+script = ExtResource("1_2esi2")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "SUMMON"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Summon Bake-Kurage for follow up water attacks"
+
+[sub_resource type="Resource" id="Resource_o5v22"]
+script = ExtResource("1_2esi2")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "HEAL_PERCENT_DEALT"
+effect_stat = ""
+effect_value = 0.25
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Attacking ally healed for 1/4 damage dealt by Bake-Kurage"
+
+[resource]
+script = ExtResource("1_ceab0")
+id = 296
+name = "Sangonomiya Kokomi – Skill"
+element = "Water"
+description = "Summons a Bake-Kurage on any tile up to 5 away for 3 turns. Anytime an ally attacks within 5 tiles of it Bake-Kurage will do a follow up water attack on the same target using average current HP rolls. The attacking ally is also healed for ¼ of the damage dealt by Bake-Kurage."
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "range"
+targeting_radius = 0
+targeting_length = 5
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 5
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_2esi2"), SubResource("Resource_o5v22")]

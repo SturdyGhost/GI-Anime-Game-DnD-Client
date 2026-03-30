@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_b2qx3"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_fcriq"]
+
+[sub_resource type="Resource" id="Resource_mmkb0"]
+script = ExtResource("1_fcriq")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_blk67"]
+script = ExtResource("1_fcriq")
+trigger = "ON_CRIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Crits deal +2 damage"
+
+[resource]
+script = ExtResource("1_b2qx3")
+id = 41
+name = "Skyward Blade"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Sword"
+effect = "Lower the requirement to crit (20) by 3. Crits Deal +2 damage."
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Energy_Recharge"
+stat_2_value = 1.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_mmkb0"), SubResource("Resource_blk67")]

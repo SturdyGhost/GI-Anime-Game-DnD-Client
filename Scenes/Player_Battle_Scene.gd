@@ -40,7 +40,7 @@ func update_enemies():
 	var updates = []
 	for record in Global.BATTLEENEMIES.values():
 		var enemy_name = str(record.get("EnemyName"))
-		var enemy_id := str(int(record.get("id")))
+		var enemy_id := str(record.get("id"))
 
 		# Expected suffix format: " <id>"
 		var expected_suffix = " " + enemy_id
@@ -48,7 +48,7 @@ func update_enemies():
 		if not enemy_name.ends_with(expected_suffix):
 			updates.append({
 				"table": "BattleEnemies",
-				"record_id": str(int(record.get("id"))),
+				"record_id": record.get("id"),
 				"field": "EnemyName",
 				"value": enemy_name + expected_suffix
 			})
@@ -76,12 +76,14 @@ func _refresh_party() -> void:
 		if c != PartyTpl:
 			c.queue_free()
 	for member in Global.Current_Party.get("Turn_Order"):
+		if not Global.PartyCharacters.has(member) and not Global.PartyCompanions.has(member):
+			continue
 		var row = PartyTpl.instantiate()
 		row.visible = true
 		PartyRow.add_child(row)
 		if Global.PartyCharacters.has(member):
 			row.set_card(member)
-		else:
+		elif Global.PartyCompanions.has(member):
 			row.set_companion_card(member)
 
 func _update_party_ui():
@@ -95,10 +97,7 @@ func _refresh_enemies() -> void:
 			c.queue_free()
 	for e in Global.BATTLEENEMIES.values():
 		var card = EnemyTpl.instantiate()
-		if e.get("Fog") == false:
-			card.visible = true
-		else:
-			card.visible = false
+		card.visible = not bool(e.get("Fog", false))
 		EnemyFlow.add_child(card)
 		card.set_card(str(e.get("id")))
 
@@ -109,15 +108,15 @@ func _refresh_turns() -> void:
 	Original_Order = []
 	Original_Order = Global.Current_Party.get("Turn_Order")
 	for e in Global.BATTLEENEMIES.values():
-		if Original_Order.has(e.get("EnemyName")+" "+str(int(e.get("id")))):
+		if Original_Order.has(e.get("EnemyName") + " " + str(e.get("id"))):
 			pass
 		else:
-			Original_Order.append(e.get("EnemyName")+" "+str(int(e.get("id"))))
+			Original_Order.append(e.get("EnemyName") + " " + str(e.get("id")))
 	ordered = Original_Order
 	var current = str(Global.Current_Party.get("Current_Turn"))
-	print (current)
+	print(current)
 	var idx := ordered.find(current)
-	print (idx)
+	print(idx)
 	if idx >= 0:
 		var rot := []
 		for i in range(idx, ordered.size()):
@@ -130,15 +129,15 @@ func _refresh_turns() -> void:
 		var nm := str(ordered[i % ordered.size()])
 		var prefix := ("▶ " if i == 0 else ("⟶ " if i == 1 else ""))
 		var ii := TurnList.add_item(prefix + nm)
-		TurnList.set_item_selectable(ii,false)
-		if i >= ordered.size():TurnList.set_item_disabled(ii,true)
-		if idx > Original_Order.find(nm):TurnList.set_item_disabled(ii,true)
+		TurnList.set_item_selectable(ii, false)
+		if i >= ordered.size(): TurnList.set_item_disabled(ii, true)
+		if idx > Original_Order.find(nm): TurnList.set_item_disabled(ii, true)
 		if i == 0: TurnList.set_item_custom_bg_color(ii, COL_CURRENT)
 		elif i == 1: TurnList.set_item_custom_bg_color(ii, COL_NEXT)
 	TurnList.deselect_all()
 
 func set_background():
-	Background.texture = load("res://Background Images/BattleScene/"+Global.Current_Region+".png")
+	Background.texture = load("res://Background Images/BattleScene/" + Global.Current_Region + ".png")
 
 func load_region_music(region: String) -> void:
 	music_files.clear()
@@ -148,12 +147,12 @@ func load_region_music(region: String) -> void:
 	if dir:
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
-		
+
 		while file_name != "":
 			file_name = dir.get_next()
 			# Skip .import, hidden files, and folders
 			if file_name.ends_with(".import") or dir.current_is_dir():
-				var new_file_name = file_name.left(file_name.length()-7)
+				var new_file_name = file_name.left(file_name.length() - 7)
 				music_files.append(folder_path + new_file_name)
 				count += 1
 				file_name = dir.get_next()
@@ -163,18 +162,17 @@ func load_region_music(region: String) -> void:
 				music_files.append(folder_path + file_name)
 				count += 1
 
-
 			file_name = dir.get_next()
 
 		dir.list_dir_end()
 		print("Total music files loaded:", count)
 	else:
-		print("⚠️ Could not open music folder:", folder_path)
+		print("Could not open music folder:", folder_path)
 
 func play_next_track():
 	if Global.ACTIVE_USER_NAME == "Brian F.":
 		if music_files.is_empty():
-			print("⚠️ No music files found!")
+			print("No music files found!")
 			return
 		music_index = randi() % music_files.size()
 		var stream_path = music_files[music_index]
@@ -184,7 +182,6 @@ func play_next_track():
 
 func _on_audio_stream_player_finished() -> void:
 	play_next_track()
-	pass # Replace with function body.
 
 
 func _on_button_pressed() -> void:
@@ -213,45 +210,46 @@ func check_battle_end():
 	if all_enemies_dead or all_players_down:
 		print("Battle ending")
 		for enemy in Global.BATTLEENEMIES.values():
-			Global.Remove_Record("BattleEnemies",enemy.get("id"))
+			Global.Remove_Record("BattleEnemies", enemy.get("id"))
 		for status in Global.ACTIVE_STATUS_EFFECTS.values():
 			Global.Remove_Record("Active_Status_Effects", status.get("id"))
 		var updates = []
 		for ability in Global.ACTIVE_ABILITIES.values():
 			if ability.get("Ability_Cooldown") > 0:
 				updates.append({
-					"table": "Active_Abilities",            # Adjust if your table name differs
-					"record_id": ability.get("id"),  # Must be the Party's record id
+					"table": "Active_Abilities",
+					"record_id": ability.get("id"),
 					"field": "Ability_Cooldown",
 					"value": 0
-					})
+				})
 		for character in Global.CHARACTERS.values():
 			if character.get("Ready") == true:
 				updates.append({
-					"table": "Characters",            # Adjust if your table name differs
-					"record_id": character.get("id"),  # Must be the Party's record id
+					"table": "Characters",
+					"record_id": character.get("id"),
 					"field": "Ready",
 					"value": false
-					})
-		if int(Global.Current_Party.get("Buff_Battles_Left"))-1 == 0:
+				})
+		if int(Global.Current_Party.get("Buff_Battles_Left")) - 1 == 0:
 			updates.append({
-				"table": "Party",            # Adjust if your table name differs
-				"record_id": Global.Current_Party.get("id"),  # Must be the Party's record id
+				"table": "Party",
+				"record_id": Global.Current_Party.get("id"),
 				"field": "Buff_Battles_Left",
 				"value": 0
-				})
+			})
 			updates.append({
-				"table": "Party",            # Adjust if your table name differs
-				"record_id": Global.Current_Party.get("id"),  # Must be the Party's record id
+				"table": "Party",
+				"record_id": Global.Current_Party.get("id"),
 				"field": "Active_Food_Buff",
-				"value": "None"})
+				"value": "None"
+			})
 		else:
 			updates.append({
-				"table": "Party",            # Adjust if your table name differs
-				"record_id": Global.Current_Party.get("id"),  # Must be the Party's record id
+				"table": "Party",
+				"record_id": Global.Current_Party.get("id"),
 				"field": "Buff_Battles_Left",
-				"value": int(Global.Current_Party.get("Buff_Battles_Left"))-1
-				})
+				"value": int(Global.Current_Party.get("Buff_Battles_Left")) - 1
+			})
 		Global.Update_Records(updates)
 		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
@@ -259,10 +257,10 @@ func check_battle_end():
 func advance_turn():
 	var SecondTurnText = TurnList.get_item_text(1)
 	var updates = [{
-		"table": "Party",            # Adjust if your table name differs
-		"record_id": int(Global.Current_Party.get("id")),  # Must be the Party's record id
+		"table": "Party",
+		"record_id": Global.Current_Party.get("id"),
 		"field": "Current_Turn",
-		"value": str(SecondTurnText.right(SecondTurnText.length()-2))
+		"value": str(SecondTurnText.right(SecondTurnText.length() - 2))
 	}]
 	Global.Update_Records(updates)
 	await Global.data_load_complete
@@ -289,8 +287,6 @@ func check_turn_ui(current_turn):
 	else:
 			PlayerTurnUI.EndTurnButton.disabled = true
 			PlayerTurnUI.visible = false
-			pass
 
 func _on_visibility_toggle_button_pressed() -> void:
 	PlayerTurnUI.visible = true
-	pass # Replace with function body.

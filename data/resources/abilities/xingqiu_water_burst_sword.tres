@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_02yq3"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ni8om"]
+
+[sub_resource type="Resource" id="Resource_02yq3"]
+script = ExtResource("1_02yq3")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "DAMAGE_REDUCTION"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Damage from opponents cut in half (removes 1 sword per hit)"
+
+[sub_resource type="Resource" id="Resource_28w1r"]
+script = ExtResource("1_02yq3")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "APPLY_ELEMENT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Water"
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Converts charged attacks to water damage"
+
+[resource]
+script = ExtResource("1_ni8om")
+id = 363
+name = "Xingqui – Burst"
+element = "Water"
+description = "Summons a ring of 4 swords around Xingqui and all allies. While the swords are active, damage received from opponents are cut in half and 1 sword is removed from all members. Converts Xingqui’s charged attacks into Elemental Water damage, and allows him to move up to 5 tiles before using his skill or charged attack."
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "range"
+targeting_radius = 0
+targeting_length = 5
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = ""
+status_effects = ""
+movement = 0
+charge_cost = 14
+cooldown = 0
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_02yq3"), SubResource("Resource_28w1r")]

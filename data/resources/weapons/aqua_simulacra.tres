@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_fejmu"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_m8fjv"]
+
+[sub_resource type="Resource" id="Resource_ccgn1"]
+script = ExtResource("1_m8fjv")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_MULTIPLIER"
+effect_stat = "Health"
+effect_value = 0.3
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "HP increased by 30%"
+
+[sub_resource type="Resource" id="Resource_o5y4s"]
+script = ExtResource("1_m8fjv")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 1.3
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "All damage increased by 30%"
+
+[resource]
+script = ExtResource("1_fejmu")
+id = 85
+name = "Aqua Simulacra"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Bow"
+effect = "HP is increased by 30%, all damage you deal is increased by 30%."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 2.0
+stat_3_type = "Critical_Damage"
+stat_3_value = 1.0
+stat_modifier = "Health_Multiplier_Stat_Bonus"
+stat_modifier_value = 0.3
+effects = [SubResource("Resource_ccgn1"), SubResource("Resource_o5y4s")]

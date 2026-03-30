@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_tc5wm"]
+
+[resource]
+script = ExtResource("1_tc5wm")
+id = 17
+region = ""
+roll = 0
+materials = ""

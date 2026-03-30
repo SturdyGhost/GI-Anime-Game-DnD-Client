@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_cv0ef"]
+
+[resource]
+script = ExtResource("1_cv0ef")
+id = 318
+item_name = "White Iron Chunk"
+owner = "Brian C."
+quantity = 41
+rarity = "Common"
+type = "Ore"

@@ -17,6 +17,12 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 
 [autoload]
 
+GameDB="*res://Singletons/GameDB.gd"
+SaveManager="*res://Scripts/managers/save_manager.gd"
+CharacterManager="*res://Scripts/managers/character_manager.gd"
+PartyManager="*res://Scripts/managers/party_manager.gd"
+InventoryManager="*res://Scripts/managers/inventory_manager.gd"
+BattleManager="*res://Scripts/managers/battle_manager.gd"
 Global="*res://Singletons/Global.gd"
 DataStore="*res://Singletons/DataStore.gd"
 NetworkManager="*res://Singletons/NetworkManager.gd"

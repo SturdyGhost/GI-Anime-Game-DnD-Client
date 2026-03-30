@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_8uk8g"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_rqgmu"]
+
+[sub_resource type="Resource" id="Resource_opheh"]
+script = ExtResource("1_rqgmu")
+trigger = "ON_DAMAGE_TAKEN"
+condition = "ELEMENT_MATCH"
+condition_value = "Electric"
+effect_type = "DAMAGE_REDUCTION"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Electric damage taken reduced by half."
+
+[resource]
+script = ExtResource("1_8uk8g")
+id = 6
+artifact_set = "Thundersoother"
+bonus_type = 2
+effect = "Reduce damage taken from electric based attacks by half."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_opheh")]

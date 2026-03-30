@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_14hpv"]
+
+[resource]
+script = ExtResource("1_14hpv")
+id = 24
+item_name = "Grilled Unagi Fillet"
+type = "Consumable"
+rarity = "Uncommon"
+region = "Inazuma"
+description = "Increases Defense + Max Health by 3 for all party members for the next battle."
+value = 600
+buff_duration = 1

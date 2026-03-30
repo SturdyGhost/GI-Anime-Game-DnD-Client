@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_wed1o"]
+
+[resource]
+script = ExtResource("1_wed1o")
+id = 7
+item_name = "Sea Ganoderma"
+type = "Sugar"
+rarity = "Uncommon"
+region = "Inazuma"
+description = " "
+value = 5
+buff_duration = 0

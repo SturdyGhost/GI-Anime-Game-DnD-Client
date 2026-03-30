@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_cidjc"]
+
+[resource]
+script = ExtResource("1_cidjc")
+id = 12
+first_element = "Fire"
+second_element = "Electric"
+outcome = "UNFAVORABLE"
+effect = "Triggers a conductive reaction causing the attack to deal no damage and allowing the target to act twice on their turn."
+effects = []

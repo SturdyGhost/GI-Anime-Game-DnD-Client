@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_4lxmv"]
+
+[resource]
+script = ExtResource("1_4lxmv")
+id = 76
+item_name = "Raw Meat"
+owner = "Brian C."
+quantity = 19
+rarity = "Common"
+type = "Meat"

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_2m5jl"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_4k8c0"]
+
+[sub_resource type="Resource" id="Resource_k5bae"]
+script = ExtResource("1_4k8c0")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Elemental_Mastery_Added_Damage_Bonus"
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+2 damage to all Water/Ice attacks that hit."
+
+[resource]
+script = ExtResource("1_2m5jl")
+id = 38
+artifact_set = "Heart of Depth"
+bonus_type = 2
+effect = "Add 2 Damage to all Ice Attacks That Hit (i.e. if it misses no damage is added)
+"
+stat_modifier = "Elemental Mastery Added Damage Bonus"
+stat_modifier_value = 2.0
+condition = "Element"
+condition_value = "Ice"
+effects = [SubResource("Resource_k5bae")]

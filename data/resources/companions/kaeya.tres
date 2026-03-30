@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_egc1s"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_js8fq"]
+
+[sub_resource type="Resource" id="Resource_5evqo"]
+script = ExtResource("2_js8fq")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_egc1s")
+id = 10
+name = "Kaeya"
+element = "Ice"
+weapon = "Sword"
+region = "Mondstadt"
+lore = "A Cavalry Captain who hides sharp edges inside warmer ones, Kaeya collects secrets the way others collect souvenirs. He smiles through danger and deflects with banter, but beneath the style is a strategist who sees farther than most. Kaeya likes puzzles and people for similar reasons: both are more interesting when not everything is revealed at once. Loyalty, to him, is a personal choice renewed daily, not a flag planted once and forgotten."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_5evqo")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

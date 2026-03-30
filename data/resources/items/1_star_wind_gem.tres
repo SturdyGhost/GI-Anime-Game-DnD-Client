@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_8fdcx"]
+
+[resource]
+script = ExtResource("1_8fdcx")
+id = 57
+item_name = "1-Star Wind Gem"
+type = "1-Star Gem"
+rarity = "Common"
+region = "Mondstadt"
+description = " "
+value = 12
+buff_duration = 0

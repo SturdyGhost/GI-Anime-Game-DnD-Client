@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="OwnedWeapon" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_weapon.gd" id="1_14yc0"]
+
+[resource]
+script = ExtResource("1_14yc0")
+id = 2
+weapon_id = 66
+weapon_name = "Otherworldly Story"
+owner = "Dylan"
+equipped = false
+refinement = 1
+quantity = 1
+rarity = "Common"
+region = "Mondstadt"
+weapon_type = "Catalyst"
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 1.25
+stat_2_type = "Energy_Recharge"
+stat_2_value = 0.31
+stat_3_type = ""
+stat_3_value = 0.0

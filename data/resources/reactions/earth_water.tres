@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_r6sdv"]
+
+[resource]
+script = ExtResource("1_r6sdv")
+id = 26
+first_element = "Earth"
+second_element = "Water"
+outcome = "FAVORABLE"
+effect = "Triggers a crystallize reaction generating a shield for the attacker. This shield has 1D4 of health and lasts for 1 turn."
+effects = []

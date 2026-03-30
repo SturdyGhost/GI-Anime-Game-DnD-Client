@@ -42,11 +42,16 @@ const FISH_COLORS: Array = [
 ]
 
 func _ready() -> void:
-	start_button.pressed.connect(_start_game)
-	result_close_button.pressed.connect(_close_results)
-	result_panel.visible = false
-	score_label.text = "Score: 0"
-	timer_label.text = "0:30"
+	if start_button:
+		start_button.pressed.connect(_start_game)
+	if result_close_button:
+		result_close_button.pressed.connect(_close_results)
+	if result_panel:
+		result_panel.visible = false
+	if score_label:
+		score_label.text = "Score: 0"
+	if timer_label:
+		timer_label.text = "0:30"
 
 func _process(delta: float) -> void:
 	if not game_active:

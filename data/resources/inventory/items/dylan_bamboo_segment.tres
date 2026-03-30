@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_x3s6i"]
+
+[resource]
+script = ExtResource("1_x3s6i")
+id = 10
+item_name = "Bamboo Segment"
+owner = "Dylan"
+quantity = 19
+rarity = "Common"
+type = "Lumber"

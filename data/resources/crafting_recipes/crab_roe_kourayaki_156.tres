@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_u1hel"]
+
+[resource]
+script = ExtResource("1_u1hel")
+id = 156
+product = "Crab Roe Kourayaki"
+region = "Mondstadt"
+description = "Increase CD and ER by 0.75 for all party members for the next battle."
+role = "Artisan"
+material = "Sakura Bloom"
+quantity = 8

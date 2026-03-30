@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_kaup3"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_lqja3"]
+
+[sub_resource type="Resource" id="Resource_pggwf"]
+script = ExtResource("2_lqja3")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_kaup3")
+id = 20
+name = "Ayato"
+element = "Water"
+weapon = "Sword"
+region = "Inazuma"
+lore = "As Yashiro Commissioner, Ayato prefers invisible victories: a letter placed at the right time, a meeting that never needs to happen, a rumor that dissolves into nothing. He cultivates calm the way a gardener prunes chaos, disguising steel with hospitality and misdirection. Family anchors his choices; he shoulders burdens so that his sister and the clan can breathe. To rivals he is a smiling problem; to allies, an unfailing strategist whose tea is as deliberate as his plans."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_pggwf")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

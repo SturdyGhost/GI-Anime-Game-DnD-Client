@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_waqrh"]
+
+[resource]
+script = ExtResource("1_waqrh")
+id = 78
+item_name = "Shrimp Meat"
+owner = "Brian C."
+quantity = 23
+rarity = "Common"
+type = "Fish"

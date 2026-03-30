@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_n3q15"]
+
+[resource]
+script = ExtResource("1_n3q15")
+id = 11
+item_name = "Bamboo Shoot"
+owner = "Brian C."
+quantity = 120
+rarity = "Common"
+type = "Grains"

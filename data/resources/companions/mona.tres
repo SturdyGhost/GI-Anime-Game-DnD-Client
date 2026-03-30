@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_gsnc2"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_1g76v"]
+
+[sub_resource type="Resource" id="Resource_erbqj"]
+script = ExtResource("2_1g76v")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_gsnc2")
+id = 23
+name = "Mona"
+element = "Water"
+weapon = "Catalyst"
+region = "Mondstadt"
+lore = "Proud astrologer, perpetually broke tenant—Mona refuses to soften her readings to spare feelings or secure favors. She reads the night sky with exacting honesty, then wrestles with the daylight economics of rent and groceries. Her dignity is not a performance; it’s a standard she sets for herself, even when it costs her. Fate may be written, but Mona insists that character is chosen."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_erbqj")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

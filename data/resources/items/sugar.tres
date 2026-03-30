@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_05f54"]
+
+[resource]
+script = ExtResource("1_05f54")
+id = 55
+item_name = "Sugar"
+type = "Sugar"
+rarity = "Common"
+region = "Mondstadt"
+description = " "
+value = 4
+buff_duration = 0

@@ -69,8 +69,8 @@ func _build_values_snapshot() -> Dictionary:
 func _process(delta: float) -> void:
 	# This mirrors your running total preview based on point deltas
 	TotalAmountLabel.text = str((total_value
-		+ ((_curr_skill - _init_skill) * Global.scaling[SelectedStat])
-		+ ((_curr_base  - _init_base)  * Global.scaling[SelectedStat])
+		+ ((_curr_skill - _init_skill) * EntityStats.SCALING.get(SelectedStat.to_lower().replace(" ", "_"), 1.0))
+		+ ((_curr_base  - _init_base)  * EntityStats.SCALING.get(SelectedStat.to_lower().replace(" ", "_"), 1.0))
 		+ AddEdit)*(1+MultEdit))
 
 func update_stat_summary(stat) -> void:
@@ -82,7 +82,8 @@ func update_stat_summary(stat) -> void:
 
 	# --- Resolve active character data ---
 	var char_name: String = Global.ACTIVE_USER_NAME
-	var char_data: Dictionary = Global.CHARACTERS[Global.CHARACTERS_NAME[char_name]]
+	var _cid = Global.CHARACTERS_NAME.get(char_name, "")
+	var char_data: Dictionary = Global.CHARACTERS.get(_cid, {})
 
 	# Snapshot incoming values for temporary editing
 	_init_skill = int(char_data.get("%s_Skill_Points" % SelectedStat, 0))
@@ -119,7 +120,7 @@ func update_stat_summary(stat) -> void:
 	$TotalAmountLabel.text = str(total_value)
 
 	# --- Base & Skill points (apply scaling) ---
-	var scaling_value: float = float(Global.scaling.get(SelectedStat, 1.0))
+	var scaling_value: float = float(EntityStats.SCALING.get(SelectedStat.to_lower().replace(" ", "_"), 1.0))
 	var base_pts_val: float  = float(_init_base)  * scaling_value
 	var skill_pts_val: float = float(_init_skill) * scaling_value
 
@@ -405,7 +406,7 @@ func _to_text(val) -> String:
 func _queue_update(char_id, field: String, value) -> void:
 	var rec: Dictionary = {
 		"table": "Characters",
-		"record_id": float(char_id),
+		"record_id": int(char_id),
 		"field": field,
 		"value": value
 	}

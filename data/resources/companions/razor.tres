@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_8nps1"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_k7yr7"]
+
+[sub_resource type="Resource" id="Resource_mdveh"]
+script = ExtResource("2_k7yr7")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_8nps1")
+id = 38
+name = "Razor"
+element = "Electric"
+weapon = "Claymore"
+region = "Mondstadt"
+lore = "Raised by wolves beneath Mondstadt’s moon, Razor learned honesty before he learned grammar. He hunts cleanly, eats gratefully, and defends his pack—human and lupical alike—with fearless simplicity. Words come slowly but meaningfully; he trusts actions more. In a city of music and wine, Razor’s gifts are quieter: loyalty without question, courage without ego, and a grin that brightens any campfire."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_mdveh")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

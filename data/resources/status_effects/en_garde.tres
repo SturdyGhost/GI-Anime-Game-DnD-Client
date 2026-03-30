@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_0yqrf"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_cef5j"]
+
+[sub_resource type="Resource" id="Resource_2aylr"]
+script = ExtResource("1_cef5j")
+trigger = "ON_DAMAGE_TAKEN"
+condition = "NONE"
+condition_value = ""
+effect_type = "NEGATE_AND_STUN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ATTACKER"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Next attack deals no damage and stuns the attacker for 1 turn."
+
+[resource]
+script = ExtResource("1_0yqrf")
+id = 17
+name = "En Garde"
+description = "The attack against this unit deals no damage and the attacker is stunned for 1 turn."
+effects = [SubResource("Resource_2aylr")]

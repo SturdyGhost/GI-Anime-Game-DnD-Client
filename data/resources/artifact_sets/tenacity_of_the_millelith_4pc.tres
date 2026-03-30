@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_ajl8r"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_tkmgl"]
+
+[sub_resource type="Resource" id="Resource_1mh2a"]
+script = ExtResource("1_tkmgl")
+trigger = "ON_SKILL_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 1.25
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "After skill, all allies deal 25% more damage for 3 turns."
+
+[resource]
+script = ExtResource("1_ajl8r")
+id = 20
+artifact_set = "Tenacity of the Millelith"
+bonus_type = 4
+effect = "After using your skill, the damage dealt by all allies is increased by 25% for 3 turns."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_1mh2a")]

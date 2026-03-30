@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_k4ae1"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_trbv3"]
+
+[sub_resource type="Resource" id="Resource_tjnul"]
+script = ExtResource("2_trbv3")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_k4ae1")
+id = 1
+name = "Lisa"
+element = "Electric"
+weapon = "Catalyst"
+region = "Mondstadt"
+lore = "The Knights’ librarian could have been a legend of the Akademiya; instead she chose a life that pairs intellect with comfort—and naps. Lisa’s laziness is selective: she works quickly when it matters and refuses busyness for its own sake. She enjoys teasing those who underestimate her, then reminding them, gently, of the gulf between “clever” and “formidable.” Return your books on time; she will know if you don’t."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_tjnul")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_c76yn"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_luhgi"]
+
+[sub_resource type="Resource" id="Resource_xum5i"]
+script = ExtResource("1_c76yn")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Energy_Recharge_Added_Stat_Bonus"
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+0.5 Energy Recharge."
+
+[resource]
+script = ExtResource("1_luhgi")
+id = 19
+artifact_set = "Emblem of Severed Fate"
+bonus_type = 2
+effect = "+ 0.50% Energy Recharge"
+stat_modifier = "Energy_Recharge_Added_Stat_Bonus"
+stat_modifier_value = 0.5
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_xum5i")]

@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_gfwsg"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_yrbd3"]
+
+[sub_resource type="Resource" id="Resource_61nvh"]
+script = ExtResource("1_yrbd3")
+trigger = "ON_KILL"
+condition = "NONE"
+condition_value = ""
+effect_type = "EXTRA_TURN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On kill, take another turn"
+
+[sub_resource type="Resource" id="Resource_enyyj"]
+script = ExtResource("1_yrbd3")
+trigger = "ON_DAMAGE_TAKEN"
+condition = "NONE"
+condition_value = ""
+effect_type = "EXTRA_TURN"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ATTACKER"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "When enemy hits you, they gain another turn (max 1/turn)"
+
+[resource]
+script = ExtResource("1_gfwsg")
+id = 94
+name = "Blackcliff Agate"
+rarity = "Uncommon"
+region = "Liyue"
+weapon_type = "Catalyst"
+effect = "When you kill an enemy immediately take another turn, when they hit you they immediately gain another turn (max 1 per turn)"
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 2.0
+stat_2_type = "Energy_Recharge"
+stat_2_value = 0.75
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_61nvh"), SubResource("Resource_enyyj")]

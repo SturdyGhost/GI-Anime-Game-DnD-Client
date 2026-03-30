@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_rwu0c"]
+
+[resource]
+script = ExtResource("1_rwu0c")
+id = 36
+first_element = "Nature"
+second_element = "Ice"
+outcome = "FAVORABLE"
+effect = "The target deals -2 damage for 2 turns. Earth attacks against them deal +6 damage for 1 turn."
+effects = []

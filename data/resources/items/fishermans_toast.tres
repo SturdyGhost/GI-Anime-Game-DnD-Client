@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_rqurp"]
+
+[resource]
+script = ExtResource("1_rqurp")
+id = 62
+item_name = "Fishermans Toast"
+type = "Consumable"
+rarity = "Common"
+region = "Liyue"
+description = "When Attacking, Adds 2 to all party members roll for next battle."
+value = 500
+buff_duration = 1

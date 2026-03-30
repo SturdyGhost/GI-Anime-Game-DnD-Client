@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_8cbv2"]
+
+[resource]
+script = ExtResource("1_8cbv2")
+id = 74
+item_name = "Sharp Arrowhead"
+owner = "Dylan"
+quantity = 0
+rarity = "Uncommon"
+type = "Leather"

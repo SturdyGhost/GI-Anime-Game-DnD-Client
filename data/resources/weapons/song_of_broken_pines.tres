@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_kiwh0"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_owj7o"]
+
+[sub_resource type="Resource" id="Resource_eionq"]
+script = ExtResource("1_owj7o")
+trigger = "ON_HIT"
+condition = "ATTACK_TYPE"
+condition_value = "Normal"
+effect_type = "MOVEMENT_BONUS"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On normal/charged, allies may move their normal tiles"
+
+[resource]
+script = ExtResource("1_kiwh0")
+id = 58
+name = "Song of Broken Pines"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Claymore"
+effect = "Whenever you normal/charge attack all allies have the ability to move their normal number of tiles (not act)"
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Physical Damage"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_eionq")]

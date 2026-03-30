@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_q85bl"]
+
+[resource]
+script = ExtResource("1_q85bl")
+id = 35
+item_name = "Inazuma Legendary Weapon Billet"
+type = "Billet"
+rarity = "Legendary"
+region = "Inazuma"
+description = "Can be used by the Blacksmith to craft Legendary tier weapons from Inazuma"
+value = 5000
+buff_duration = 0

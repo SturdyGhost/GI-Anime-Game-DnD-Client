@@ -242,7 +242,7 @@ func _upsert_character_item(material_name: String, add_qty: int) -> void:
 
 	if existing_id != "":
 		var new_qty: int = existing_qty + add_qty
-		Global.Update_Records([{"table": "Character_Items", "record_id": float(existing_id),"field":"Quantity","value": new_qty }])
+		Global.Update_Records([{"table": "Character_Items", "record_id": int(existing_id),"field":"Quantity","value": new_qty }])
 	else:
 		# ✔ Insert(table: String, columns: Array, values: Array)
 		var Type

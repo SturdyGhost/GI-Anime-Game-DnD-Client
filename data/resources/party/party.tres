@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PartySaveData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/party_save_data.gd" id="1_4u4ok"]
+
+[resource]
+script = ExtResource("1_4u4ok")
+id = 1
+members = ["Brian C.", "Brian F.", "Dylan"]
+turn_order = ["Brian C.", "Brian F.", "Dylan", "Ayaka", "Yae Miko"]
+current_turn = ""
+mora = 0
+dungeon_master = "Chase"
+active_food_buff = "None"
+buff_battles_left = 0
+gambles = 0
+companion_limit = 1
+active_battle_id = ""

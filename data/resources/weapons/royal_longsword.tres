@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_3pjsy"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_al5ws"]
+
+[sub_resource type="Resource" id="Resource_11pph"]
+script = ExtResource("1_3pjsy")
+trigger = "ON_NON_CRIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 10
+stack_value = -2.0
+unique_per = ""
+resets_on = "ON_CRIT"
+effect_id = ""
+description = "On non-crit hit, crit threshold -2, resets on crit"
+
+[resource]
+script = ExtResource("1_al5ws")
+id = 20
+name = "Royal Longsword"
+rarity = "Epic"
+region = "Mondstadt"
+weapon_type = "Sword"
+effect = "Every time you deal damage, if it is not a crit, lower the requirement to crit (20) down by 2, once you do crit your requirement is reset."
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_11pph")]

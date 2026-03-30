@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_a5h35"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_utv0s"]
+
+[sub_resource type="Resource" id="Resource_boxlv"]
+script = ExtResource("1_a5h35")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Elemental_Mastery_Added_Damage_Bonus"
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+2 to all Wind damage rolls."
+
+[resource]
+script = ExtResource("1_utv0s")
+id = 26
+artifact_set = "Viridescent Venerer"
+bonus_type = 2
+effect = "Adds 2 to all rolls involving Wind Damage."
+stat_modifier = "Elemental_Mastery_Added_Damage_Bonus"
+stat_modifier_value = 2.0
+condition = "Element"
+condition_value = "Wind"
+effects = [SubResource("Resource_boxlv")]

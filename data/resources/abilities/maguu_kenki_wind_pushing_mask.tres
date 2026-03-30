@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ffh6m"]
+
+[resource]
+script = ExtResource("1_ffh6m")
+id = 163
+name = "Pushing Mask"
+element = "Wind"
+description = "Pushes a large mask in a 3-wide line at last hitter (≤10 for 1d8)."
+dice_count = 1
+dice_die = 8
+dice_flat = 0
+defense_threshold = 10
+blockable = true
+bypass_defense = false
+targeting_type = "line"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 3
+targeting_targets = 0
+selector = "last_hitter"
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 0
+phase_idx = 1
+order = 2
+weight = 1.0
+effects = []

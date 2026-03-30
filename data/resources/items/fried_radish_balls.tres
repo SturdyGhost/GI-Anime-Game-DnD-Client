@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_ih2gq"]
+
+[resource]
+script = ExtResource("1_ih2gq")
+id = 110
+item_name = "Fried Radish Balls"
+type = "Consumable"
+rarity = "Common"
+region = "Liyue"
+description = "Increases all party members CD by 1.0 for next 2 battles."
+value = 500
+buff_duration = 2

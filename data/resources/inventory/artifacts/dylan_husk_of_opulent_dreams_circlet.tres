@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_u1rqe"]
+
+[resource]
+script = ExtResource("1_u1rqe")
+id = 11
+artifact_set = "Husk of Opulent Dreams"
+owner = "Dylan"
+type = "Circlet of Principles"
+equipped = false
+rarity = 2
+stat_1_type = "Health"
+stat_1_value = -1.7
+stat_2_type = "Critical_Damage"
+stat_2_value = 1.8

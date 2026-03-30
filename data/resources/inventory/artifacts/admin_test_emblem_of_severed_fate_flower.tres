@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_4y637"]
+
+[resource]
+script = ExtResource("1_4y637")
+id = 47
+artifact_set = "Emblem of Severed Fate"
+owner = "Admin - Test"
+type = "Flower of Life"
+equipped = false
+rarity = 0
+stat_1_type = "Attack"
+stat_1_value = 0.6
+stat_2_type = ""
+stat_2_value = 0.0

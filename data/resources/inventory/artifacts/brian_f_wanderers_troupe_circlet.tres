@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_fw6u0"]
+
+[resource]
+script = ExtResource("1_fw6u0")
+id = 16
+artifact_set = "Wanderers Troupe"
+owner = "Brian F."
+type = "Circlet of Principles"
+equipped = true
+rarity = 2
+stat_1_type = "Critical_Damage"
+stat_1_value = 0.2
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 0.7

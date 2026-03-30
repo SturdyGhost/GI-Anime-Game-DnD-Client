@@ -9,36 +9,37 @@ signal connection_failed
 signal all_data_received  # fired on client after initial sync completes
 signal host_ready         # fired on host after data loaded from disk
 
-const DEFAULT_PORT := 7777
-const DISCOVERY_PORT := 7778
-const MAX_CLIENTS := 8
-const BEACON_INTERVAL := 2.0
+const DEFAULT_PORT = 7777
+const DISCOVERY_PORT = 7778
+const MAX_CLIENTS = 8
+const BEACON_INTERVAL = 2.0
 
-var is_host := false
-var is_connected_to_host := false
+var is_host = false
+var is_connected_to_host = false
 var peer: ENetMultiplayerPeer = null
 
 # Host tracks connected players: peer_id -> { "name": String, "character_id": String }
-var connected_players := {}
+var connected_players = {}
 
 # LAN discovery
 var _beacon_timer: Timer = null
 var _discovery_socket: PacketPeerUDP = null
 var _beacon_socket: PacketPeerUDP = null
-var discovered_hosts := []  # Array of { "ip": String, "port": int, "name": String, "players": int }
+var discovered_hosts = []  # Array of { "ip": String, "port": int, "name": String, "players": int }
 
 # UPNP
 var upnp: UPNP = null
-var public_ip := ""
-var _upnp_mapped := false
+var public_ip = ""
+var _upnp_mapped = false
 
 # Pause on disconnect
-var _paused_for_disconnect := false
-var _missing_peers := []
+var _paused_for_disconnect = false
+var _missing_peers = []
 
 # Initial sync tracking (client side)
-var _sync_tables_received := {}
-var _sync_total_expected := 0
+var _sync_tables_received = {}
+var _sync_total_expected = 0
+var _initial_sync_complete = false
 
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
@@ -56,7 +57,7 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 	_setup_upnp(port)
 
 	peer = ENetMultiplayerPeer.new()
-	var err := peer.create_server(port, MAX_CLIENTS)
+	var err = peer.create_server(port, MAX_CLIENTS)
 	if err != OK:
 		push_error("NetworkManager: Failed to create server on port %d: %s" % [port, error_string(err)])
 		return err
@@ -67,28 +68,32 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 	# Start LAN beacon
 	_start_beacon(port)
 
-	# Load data from disk
-	var all_data := DataStore.load_all_tables()
+	# Load data from disk (legacy tables + new save system)
+	var all_data = DataStore.load_all_tables()
 	for table_name in all_data.keys():
 		Global._process_table(table_name, all_data[table_name])
+
+	# Load or migrate the save file
+	SaveManager.set_host(true)
+	SaveManager.load_save()
 
 	if Global.ACTIVE_USER_TYPE == "Player":
 		Global.calculate_all_stats()
 
-	Global.Current_Region = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Current_Region")
+	Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
 	emit_signal("host_ready")
 	Global.emit_signal("data_load_complete")
 	return OK
 
 func _setup_upnp(port: int) -> void:
 	upnp = UPNP.new()
-	var discover_result := upnp.discover(2000, 2, "InternetGatewayDevice")
+	var discover_result = upnp.discover(2000, 2, "InternetGatewayDevice")
 	if discover_result != UPNP.UPNP_RESULT_SUCCESS:
 		push_warning("NetworkManager: UPNP discovery failed (%s) — LAN-only mode" % str(discover_result))
 		return
 
 	# Try to get external IP even if mapping fails
-	var ext := upnp.query_external_address()
+	var ext = upnp.query_external_address()
 	if ext != null and str(ext) != "":
 		public_ip = str(ext)
 		Global.PublicIP = public_ip
@@ -97,12 +102,12 @@ func _setup_upnp(port: int) -> void:
 		push_warning("NetworkManager: No UPNP devices found — LAN-only mode")
 		return
 
-	var dev := upnp.get_device(0)
+	var dev = upnp.get_device(0)
 	if dev == null:
 		push_warning("NetworkManager: UPNP device is null — LAN-only mode")
 		return
 
-	var map_result := dev.add_port_mapping(port, port, "GenshinDnD", "UDP")
+	var map_result = dev.add_port_mapping(port, port, "GenshinDnD", "UDP")
 	if map_result == UPNP.UPNP_RESULT_SUCCESS:
 		_upnp_mapped = true
 		print("NetworkManager: UPNP port %d mapped successfully" % port)
@@ -114,9 +119,10 @@ func _setup_upnp(port: int) -> void:
 func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
 	is_host = false
 	DataStore.set_host(false)
+	SaveManager.set_host(false)
 
 	peer = ENetMultiplayerPeer.new()
-	var err := peer.create_client(ip, port)
+	var err = peer.create_client(ip, port)
 	if err != OK:
 		push_error("NetworkManager: Failed to connect to %s:%d: %s" % [ip, port, error_string(err)])
 		return err
@@ -132,7 +138,7 @@ func disconnect_from_game() -> void:
 	_stop_discovery()
 
 	if _upnp_mapped and upnp and upnp.get_device_count() > 0:
-		var dev := upnp.get_device(0)
+		var dev = upnp.get_device(0)
 		if dev:
 			dev.delete_port_mapping(DEFAULT_PORT, "UDP")
 		_upnp_mapped = false
@@ -155,7 +161,7 @@ func start_discovery() -> void:
 
 	_discovery_socket = PacketPeerUDP.new()
 	_discovery_socket.set_broadcast_enabled(true)
-	var err := _discovery_socket.bind(DISCOVERY_PORT)
+	var err = _discovery_socket.bind(DISCOVERY_PORT)
 	if err != OK:
 		push_warning("NetworkManager: Could not bind discovery socket: %s" % error_string(err))
 		return
@@ -167,15 +173,15 @@ func poll_discovery() -> void:
 		return
 
 	while _discovery_socket.get_available_packet_count() > 0:
-		var data := _discovery_socket.get_packet().get_string_from_utf8()
-		var ip := _discovery_socket.get_packet_ip()
+		var data = _discovery_socket.get_packet().get_string_from_utf8()
+		var ip = _discovery_socket.get_packet_ip()
 		var parsed = JSON.parse_string(data)
 		if parsed == null or typeof(parsed) != TYPE_DICTIONARY:
 			continue
 		if not parsed.has("game") or parsed["game"] != "GenshinDnD":
 			continue
 
-		var entry := {
+		var entry = {
 			"ip": ip,
 			"port": int(parsed.get("port", DEFAULT_PORT)),
 			"name": str(parsed.get("host_name", "Unknown")),
@@ -183,7 +189,7 @@ func poll_discovery() -> void:
 		}
 
 		# Update or add
-		var found := false
+		var found = false
 		for i in discovered_hosts.size():
 			if discovered_hosts[i]["ip"] == ip:
 				discovered_hosts[i] = entry
@@ -212,7 +218,7 @@ func _start_beacon(port: int) -> void:
 func _send_beacon(port: int) -> void:
 	if _beacon_socket == null:
 		return
-	var payload := JSON.stringify({
+	var payload = JSON.stringify({
 		"game": "GenshinDnD",
 		"port": port,
 		"host_name": Global.ACTIVE_USER_NAME,
@@ -267,7 +273,7 @@ func _on_connection_failed() -> void:
 func _register_with_host(player_name: String, character_id: String) -> void:
 	if not is_host:
 		return
-	var sender := multiplayer.get_remote_sender_id()
+	var sender = multiplayer.get_remote_sender_id()
 	connected_players[sender] = { "name": player_name, "character_id": character_id }
 	print("NetworkManager: Player '%s' registered (peer %d)" % [player_name, sender])
 
@@ -293,8 +299,8 @@ func _send_full_sync_to_peer(peer_id: int) -> void:
 	_receive_sync_start.rpc_id(peer_id, Global.TABLES.size())
 
 	for table_name in Global.TABLES:
-		var records := DataStore.get_table_as_array(table_name)
-		var json_str := JSON.stringify(records)
+		var records = DataStore.get_table_as_array(table_name)
+		var json_str = JSON.stringify(records)
 		_receive_table_sync.rpc_id(peer_id, table_name, json_str)
 
 @rpc("authority", "reliable")
@@ -315,13 +321,25 @@ func _receive_table_sync(table_name: String, json_str: String) -> void:
 	Global.emit_signal("table_loaded", table_name, records.size())
 	print("NetworkManager: Synced table '%s' (%d records) [%d/%d]" % [table_name, records.size(), _sync_tables_received.size(), _sync_total_expected])
 
-	if _sync_tables_received.size() >= _sync_total_expected:
+	var _initial_sync_done = _sync_tables_received.size() >= _sync_total_expected
+	if not _initial_sync_done:
+		# Still waiting for more tables during initial sync
+		return
+
+	if not _initial_sync_complete:
+		# First time all tables arrived — initial sync finished
+		_initial_sync_complete = true
 		print("NetworkManager: All tables synced!")
 		if Global.ACTIVE_USER_TYPE == "Player":
 			Global.calculate_all_stats()
-		Global.Current_Region = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Current_Region")
+		Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
 		emit_signal("all_data_received")
-		Global.emit_signal("data_load_complete")
+
+	# Always notify scenes that data changed (both initial and post-sync broadcasts)
+	var stat_tables = ["Characters", "Character_Weapons", "Character_Artifacts", "Companions"]
+	if table_name in stat_tables:
+		CharacterManager.recalculate_all()
+	Global.emit_signal("data_load_complete")
 
 # ─── DELTA SYNC (Host -> All Clients) ───
 
@@ -329,15 +347,15 @@ func _receive_table_sync(table_name: String, json_str: String) -> void:
 func broadcast_table_update(table_name: String) -> void:
 	if not is_host:
 		return
-	var records := DataStore.get_table_as_array(table_name)
-	var json_str := JSON.stringify(records)
+	var records = DataStore.get_table_as_array(table_name)
+	var json_str = JSON.stringify(records)
 	_receive_table_sync.rpc(table_name, json_str)
 
 ## Broadcast a single record update (more efficient for field changes).
 func broadcast_record_update(table_name: String, record_id: String, data: Dictionary) -> void:
 	if not is_host:
 		return
-	var json_str := JSON.stringify(data)
+	var json_str = JSON.stringify(data)
 	_receive_record_update.rpc(table_name, record_id, json_str)
 
 @rpc("authority", "reliable")
@@ -345,8 +363,24 @@ func _receive_record_update(table_name: String, record_id: String, json_str: Str
 	var data = JSON.parse_string(json_str)
 	if data == null:
 		return
-	# Update the specific record in Global's dictionary
 	Global._apply_record_update(table_name, record_id, data)
+
+## Broadcast individual field changes (most efficient for Update_Records calls).
+func broadcast_field_updates(updates: Array) -> void:
+	if not is_host:
+		return
+	var json_str = JSON.stringify(updates)
+	_receive_field_updates.rpc(json_str)
+
+@rpc("authority", "reliable")
+func _receive_field_updates(json_str: String) -> void:
+	var updates = JSON.parse_string(json_str)
+	if updates == null or typeof(updates) != TYPE_ARRAY:
+		return
+	for u in updates:
+		Global._apply_update_to_save(u)
+	CharacterManager.recalculate_all()
+	Global.emit_signal("data_load_complete")
 
 # ─── CLIENT -> HOST REQUESTS ───
 
@@ -359,20 +393,27 @@ func request_update(updates_json: String) -> void:
 	if updates == null or typeof(updates) != TYPE_ARRAY:
 		return
 
-	var changed_tables := {}
+	var changed_tables = {}
 	for u in updates:
 		var table: String = str(u.get("table", ""))
-		var record_id: String = str(u.get("record_id", ""))
+		var record_id: String = str(int(u.get("record_id", 0)))
 		var field: String = str(u.get("field", ""))
 		var value = u.get("value")
 
 		Global._apply_local_update(table, record_id, field, value)
 		changed_tables[table] = true
 
-	# Save and broadcast each changed table
 	for table_name in changed_tables.keys():
 		DataStore.persist_table(table_name)
-		broadcast_table_update(table_name)
+	broadcast_field_updates(updates)
+
+	# Host doesn't receive its own RPC — emit locally so host UI refreshes
+	var stat_tables2 = ["Characters", "Character_Weapons", "Character_Artifacts", "Companions"]
+	for t in changed_tables.keys():
+		if t in stat_tables2:
+			CharacterManager.recalculate_all()
+			break
+	Global.emit_signal("data_load_complete")
 
 ## Client requests a record insertion.
 @rpc("any_peer", "reliable")
@@ -384,7 +425,7 @@ func request_insert(table: String, record_json: String, correlation_id: String) 
 		return
 
 	# Generate a new ID
-	var new_id := _next_id_for_table(table)
+	var new_id = _next_id_for_table(table)
 	record["id"] = new_id
 
 	# Insert into Global dict
@@ -395,7 +436,7 @@ func request_insert(table: String, record_json: String, correlation_id: String) 
 	broadcast_table_update(table)
 
 	# Notify the requesting peer
-	var sender := multiplayer.get_remote_sender_id()
+	var sender = multiplayer.get_remote_sender_id()
 	_receive_insert_result.rpc_id(sender, correlation_id, table, new_id, record_json, true)
 
 @rpc("authority", "reliable")
@@ -417,9 +458,9 @@ func request_remove(table: String, record_id: int) -> void:
 
 func _next_id_for_table(table_name: String) -> int:
 	var dict: Dictionary = DataStore._get_global_dict(table_name)
-	var max_id := 0
+	var max_id = 0
 	for key in dict.keys():
-		var id_val := int(key)
+		var id_val = int(key)
 		if id_val > max_id:
 			max_id = id_val
 	return max_id + 1
@@ -428,10 +469,10 @@ func _next_id_for_table(table_name: String) -> int:
 
 ## Host applies updates locally, saves, and broadcasts.
 func host_update_records(updates: Array) -> void:
-	var changed_tables := {}
+	var changed_tables = {}
 	for u in updates:
 		var table: String = str(u.get("table", ""))
-		var record_id: String = str(u.get("record_id", ""))
+		var record_id: String = str(int(u.get("record_id", 0)))
 		var field: String = str(u.get("field", ""))
 		var value = u.get("value")
 
@@ -440,18 +481,27 @@ func host_update_records(updates: Array) -> void:
 
 	for table_name in changed_tables.keys():
 		DataStore.persist_table(table_name)
-		broadcast_table_update(table_name)
+	broadcast_field_updates(updates)
+
+	# Host doesn't receive its own RPC — emit locally so host UI refreshes
+	var stat_tables = ["Characters", "Character_Weapons", "Character_Artifacts", "Companions"]
+	for t in changed_tables.keys():
+		if t in stat_tables:
+			CharacterManager.recalculate_all()
+			break
+	Global.emit_signal("data_load_complete")
 
 ## Host inserts a record locally, saves, and broadcasts.
 func host_insert(table: String, columns: Array, values: Array) -> int:
-	var new_id := _next_id_for_table(table)
-	var record := { "id": new_id }
+	var new_id = _next_id_for_table(table)
+	var record = { "id": new_id }
 	for i in columns.size():
 		record[columns[i]] = values[i]
 
 	Global._insert_record(table, str(new_id), record)
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
+	Global.emit_signal("data_load_complete")
 	return new_id
 
 ## Host removes a record locally, saves, and broadcasts.
@@ -459,6 +509,7 @@ func host_remove(table: String, record_id: int) -> void:
 	Global._remove_record(table, str(record_id))
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
+	Global.emit_signal("data_load_complete")
 
 # ─── LOG OPERATIONS (host-only, saved to JSON) ───
 
@@ -469,8 +520,8 @@ func host_log(payload: Dictionary) -> void:
 		return
 
 	# Load existing log, append, save
-	var log_records := DataStore.load_table("log")
-	var new_id := log_records.size() + 1
+	var log_records = DataStore.load_table("log")
+	var new_id = log_records.size() + 1
 	payload["id"] = new_id
 	payload["created_at"] = Time.get_datetime_string_from_system()
 	log_records.append(payload)
@@ -481,8 +532,8 @@ func host_combat_log(payload: Dictionary) -> void:
 		_request_combat_log.rpc_id(1, JSON.stringify(payload))
 		return
 
-	var log_records := DataStore.load_table("battle_log")
-	var new_id := log_records.size() + 1
+	var log_records = DataStore.load_table("battle_log")
+	var new_id = log_records.size() + 1
 	payload["id"] = new_id
 	payload["created_at"] = Time.get_datetime_string_from_system()
 	log_records.append(payload)

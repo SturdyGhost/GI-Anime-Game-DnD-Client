@@ -1,0 +1,139 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_ctywd"]
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_qbb5h"]
+
+[sub_resource type="Resource" id="Resource_ctywd"]
+script = ExtResource("1_ctywd")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "DOUBLE_ACTION"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "May perform 2 charged attacks per turn"
+
+[sub_resource type="Resource" id="Resource_x61ba"]
+script = ExtResource("1_ctywd")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "+2 water damage to all hits"
+
+[sub_resource type="Resource" id="Resource_1xxpu"]
+script = ExtResource("1_ctywd")
+trigger = "ON_CHARGED_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Charged attack damage doubled after all boosts"
+
+[sub_resource type="Resource" id="Resource_sp2vi"]
+script = ExtResource("1_ctywd")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "APPLY_ELEMENT"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Water"
+target = "SELF"
+duration = 3
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Charged attacks deal water damage using EM"
+
+[resource]
+script = ExtResource("1_qbb5h")
+id = 434
+name = "Brian F. – Burst"
+element = "Water"
+description = "Enter the Twilight Justice state for 3 turns, while active you may move up to your normal distance while still charge attacking. Charged attacks deal water damage that scale off your EM. You may perform 2 charged attacks per turn while this is active. +2 water damage to all hits you do while active. Charged attacks will hit a tile instead of a unit and do not knock enemies back. Charged Attack damage after all other boosts/multipliers shall be doubled. You do not generate burst charges in this state."
+dice_count = 1
+dice_die = 12
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "global"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 0
+charge_cost = 16
+cooldown = 0
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_ctywd"), SubResource("Resource_x61ba"), SubResource("Resource_1xxpu"), SubResource("Resource_sp2vi")]

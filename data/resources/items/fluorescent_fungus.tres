@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_tjxy0"]
+
+[resource]
+script = ExtResource("1_tjxy0")
+id = 60
+item_name = "Fluorescent Fungus"
+type = "Beans"
+rarity = "Uncommon"
+region = "Inazuma"
+description = " "
+value = 5
+buff_duration = 0

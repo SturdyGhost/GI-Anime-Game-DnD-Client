@@ -15,6 +15,7 @@ extends Control
 @onready var BtnSituation: Button = $Layout/MainSplit/Tabs/BattlePrep/BP_HBox/EnemyEditorPanel/EnemyEditorVBox/BtnSituation
 @onready var RestoreBattle = $RestoreBattleButton
 @onready var BattlePrepTab = $Layout/MainSplit/Tabs/BattlePrep
+@onready var DataEditorTab = $Layout/MainSplit/Tabs/DataEditor
 var http: Node  # kept for compat, no longer used for HTTP
 
 var owners: Array = []
@@ -30,6 +31,30 @@ var active_companion_members = []
 var _items_by_name: Dictionary = {}     # "ItemName" -> item_record
 var _weapons_by_name: Dictionary = {}   # "WeaponName" -> weapon_record
 
+# ── Artifact Generation state ──
+var _art_panel: VBoxContainer
+var _art_set1_btn: OptionButton
+var _art_set2_btn: OptionButton
+var _art_rolls: Array = []  # 9 SpinBoxes: [set_d10, type_d12, substat_d20, s1_stat, s1_sign, s1_val, s2_stat, s2_sign, s2_val]
+var _art_sub2_row: HBoxContainer
+var _art_status: Label
+
+# ── Data Editor state ──
+var _de_table_btn: OptionButton
+var _de_record_btn: OptionButton
+var _de_fields_container: VBoxContainer
+var _de_scroll: ScrollContainer
+var _de_confirm_btn: Button
+var _de_revert_btn: Button
+var _de_delete_btn: Button
+var _de_new_btn: Button
+var _de_status_label: Label
+var _de_snapshot: Dictionary = {}      # field -> original value (for revert)
+var _de_inputs: Dictionary = {}        # field -> input Control
+var _de_current_table: String = ""
+var _de_current_rid: String = ""
+const _DE_TABLES: Array = ["Characters", "Companions", "Party", "Character_Weapons", "Character_Artifacts", "Character_Items", "BattleEnemies", "Active_Status_Effects", "Game_Config"]
+
 func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
@@ -44,6 +69,8 @@ func _ready() -> void:
 	EnemyName.focus_exited.connect(func() -> void: _hide_suggest_panel())
 	pass  # http node removed
 	_refresh_specifics_options()
+	_build_data_editor()
+	_build_artifact_panel()
 
 func _process(delta: float) -> void:
 	check_matches()
@@ -72,6 +99,12 @@ func _on_object_selected(_idx: int) -> void:
 
 func _refresh_specifics_options() -> void:
 	SpecificsObjectButton.clear()
+	# Hide/show artifact panel based on category
+	if _art_panel:
+		var category_check = ObjectButton.get_item_text(ObjectButton.selected)
+		_art_panel.visible = (category_check == "Artifacts")
+		QuantityText.visible = (category_check != "Artifacts")
+		SpecificsObjectButton.visible = (category_check != "Artifacts")
 
 	var category: String = ObjectButton.get_item_text(ObjectButton.selected)
 
@@ -91,7 +124,6 @@ func _refresh_specifics_options() -> void:
 		return
 
 	if category == "Artifacts":
-		# Intentionally not implemented yet (manual setup)
 		return
 
 	if category == "Weapons":
@@ -263,7 +295,7 @@ func _process_misc(action_text: String, owner_name: String, property_name: Strin
 			return
 
 		var char_record_id: String = str(int(Global.CHARACTERS_NAME[owner_name]))
-		var char_rec: Dictionary = Global.CHARACTERS[str(float(char_record_id))]
+		var char_rec: Dictionary = Global.CHARACTERS[char_record_id]
 
 		var current_level: int = int(float(char_rec.get("Level", 0)))
 		var level_cap: int = int(float(char_rec.get("Level_Cap", 0)))
@@ -615,5 +647,585 @@ func _on_restore_battle_button_pressed() -> void:
 	for child in get_children():
 		if child.name == "Player_Battle_Scene":
 			child.visible = true
-			
 	pass # Replace with function body.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ARTIFACT GENERATION (Party Management tab)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+func _build_artifact_panel() -> void:
+	var pm_panel = $Layout/MainSplit/Tabs/PartyManagement/Panel
+	if pm_panel == null:
+		return
+
+	_art_panel = VBoxContainer.new()
+	_art_panel.position = Vector2(64, 310)
+	_art_panel.size = Vector2(2000, 900)
+	_art_panel.add_theme_constant_override("separation", 12)
+	_art_panel.visible = false
+	pm_panel.add_child(_art_panel)
+
+	# ── Row 1: Set selection ──
+	var set_row = HBoxContainer.new()
+	set_row.add_theme_constant_override("separation", 12)
+	_art_panel.add_child(set_row)
+
+	set_row.add_child(_art_label("Set 1:"))
+	_art_set1_btn = OptionButton.new()
+	_art_set1_btn.custom_minimum_size.x = 250
+	set_row.add_child(_art_set1_btn)
+
+	set_row.add_child(_art_label("Set 2:"))
+	_art_set2_btn = OptionButton.new()
+	_art_set2_btn.custom_minimum_size.x = 250
+	set_row.add_child(_art_set2_btn)
+
+	# Populate set dropdowns from unique artifact set names
+	var set_names = []
+	for a in Global.ARTIFACTS.values():
+		var sn = a.get("Artifact_Set", "")
+		if sn != "" and not set_names.has(sn):
+			set_names.append(sn)
+	set_names.sort()
+	for sn in set_names:
+		_art_set1_btn.add_item(sn)
+		_art_set2_btn.add_item(sn)
+	if _art_set2_btn.item_count > 1:
+		_art_set2_btn.selected = 1
+
+	# ── Row 2: Piece determination rolls ──
+	_art_panel.add_child(_art_label("— Piece Determination —"))
+	var r1 = HBoxContainer.new()
+	r1.add_theme_constant_override("separation", 12)
+	_art_panel.add_child(r1)
+	_art_rolls.clear()
+	_art_rolls.append(_art_spin(r1, "D10 (Set)", 1, 10))
+	_art_rolls.append(_art_spin(r1, "D12 (Piece Type)", 1, 12))
+	var d20_substats = _art_spin(r1, "D20 (Substats: 13+=two)", 1, 20)
+	d20_substats.value_changed.connect(func(v): _art_update_sub2_visibility())
+	_art_rolls.append(d20_substats)
+
+	# ── Row 3: Substat 1 ──
+	_art_panel.add_child(_art_label("— Substat 1 —"))
+	var r2 = HBoxContainer.new()
+	r2.add_theme_constant_override("separation", 12)
+	_art_panel.add_child(r2)
+	_art_rolls.append(_art_spin(r2, "D8/D10 (Stat Type)", 1, 10))
+	_art_rolls.append(_art_spin(r2, "D12 (Sign: 7+=pos)", 1, 12))
+	_art_rolls.append(_art_spin(r2, "D20 (Value x0.1)", 1, 20))
+
+	# ── Row 4: Substat 2 ──
+	var sub2_label = _art_label("— Substat 2 (if D20 >= 13) —")
+	_art_panel.add_child(sub2_label)
+	_art_sub2_row = HBoxContainer.new()
+	_art_sub2_row.add_theme_constant_override("separation", 12)
+	_art_panel.add_child(_art_sub2_row)
+	_art_rolls.append(_art_spin(_art_sub2_row, "D8/D10 (Stat Type)", 1, 10))
+	_art_rolls.append(_art_spin(_art_sub2_row, "D12 (Sign: 7+=pos)", 1, 12))
+	_art_rolls.append(_art_spin(_art_sub2_row, "D20 (Value x0.1)", 1, 20))
+	sub2_label.visible = false
+	_art_sub2_row.visible = false
+
+	# ── Row 5: Generate button + status ──
+	var btn_row = HBoxContainer.new()
+	btn_row.add_theme_constant_override("separation", 12)
+	_art_panel.add_child(btn_row)
+	var gen_btn = Button.new()
+	gen_btn.text = "Generate Artifact"
+	gen_btn.pressed.connect(_art_on_generate)
+	btn_row.add_child(gen_btn)
+	_art_status = Label.new()
+	_art_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_row.add_child(_art_status)
+
+func _art_label(t: String) -> Label:
+	var l = Label.new()
+	l.text = t
+	return l
+
+func _art_spin(parent: Node, hint: String, min_val: int, max_val: int) -> SpinBox:
+	var hb = HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 4)
+	parent.add_child(hb)
+	var l = Label.new()
+	l.text = hint + ":"
+	l.custom_minimum_size.x = 200
+	hb.add_child(l)
+	var sb = SpinBox.new()
+	sb.min_value = min_val
+	sb.max_value = max_val
+	sb.value = min_val
+	sb.custom_minimum_size.x = 80
+	hb.add_child(sb)
+	return sb
+
+func _art_update_sub2_visibility() -> void:
+	var has_two = int(_art_rolls[2].value) >= 13
+	# Sub2 label is the node before _art_sub2_row
+	if _art_sub2_row:
+		_art_sub2_row.visible = has_two
+		# The label before it
+		var idx = _art_sub2_row.get_index()
+		var parent = _art_sub2_row.get_parent()
+		if idx > 0:
+			parent.get_child(idx - 1).visible = has_two
+
+func _art_resolve_stat(die_roll: int, piece_type: String) -> String:
+	var is_special = piece_type in ["Sands of Time", "Goblet of Space", "Circlet of Principles"]
+	if is_special:
+		# D10: 1-2 Health, 3-4 Attack, 5-6 Defense, 7-8 EM, 9-10 unique
+		match die_roll:
+			1, 2: return "Health"
+			3, 4: return "Attack"
+			5, 6: return "Defense"
+			7, 8: return "Elemental_Mastery"
+			9, 10:
+				match piece_type:
+					"Sands of Time": return "Energy_Recharge"
+					"Goblet of Space": return "Universal_Added_Damage_Bonus"
+					"Circlet of Principles": return "Critical_Damage"
+	else:
+		# D8: 1-2 Health, 3-4 Attack, 5-6 Defense, 7-8 EM
+		match die_roll:
+			1, 2: return "Health"
+			3, 4: return "Attack"
+			5, 6: return "Defense"
+			7, 8: return "Elemental_Mastery"
+	return "Health"
+
+func _art_resolve_piece(d12: int) -> String:
+	if d12 <= 3: return "Flower of Life"
+	if d12 <= 6: return "Feather of Death"
+	if d12 <= 8: return "Sands of Time"
+	if d12 <= 10: return "Goblet of Space"
+	return "Circlet of Principles"
+
+func _art_on_generate() -> void:
+	var owner_name = CharacterButton.get_item_text(CharacterButton.selected)
+
+	# Read all rolls
+	var d10_set = int(_art_rolls[0].value)
+	var d12_type = int(_art_rolls[1].value)
+	var d20_substats = int(_art_rolls[2].value)
+	var s1_stat_die = int(_art_rolls[3].value)
+	var s1_sign_die = int(_art_rolls[4].value)
+	var s1_val_die = int(_art_rolls[5].value)
+	var s2_stat_die = int(_art_rolls[6].value)
+	var s2_sign_die = int(_art_rolls[7].value)
+	var s2_val_die = int(_art_rolls[8].value)
+
+	# Determine set
+	var set_name: String
+	if d10_set <= 5:
+		set_name = _art_set1_btn.get_item_text(_art_set1_btn.selected)
+	else:
+		set_name = _art_set2_btn.get_item_text(_art_set2_btn.selected)
+
+	# Determine piece type
+	var piece_type = _art_resolve_piece(d12_type)
+
+	# Determine substats count
+	var has_two_stats = d20_substats >= 13
+
+	# Substat 1
+	var stat_1_type = _art_resolve_stat(s1_stat_die, piece_type)
+	var stat_1_sign = 1.0 if s1_sign_die >= 7 else -1.0
+	var stat_1_value = stat_1_sign * s1_val_die * 0.1
+
+	# Substat 2
+	var stat_2_type = ""
+	var stat_2_value = 0.0
+	if has_two_stats:
+		stat_2_type = _art_resolve_stat(s2_stat_die, piece_type)
+		var stat_2_sign = 1.0 if s2_sign_die >= 7 else -1.0
+		stat_2_value = stat_2_sign * s2_val_die * 0.1
+
+	# Insert the artifact
+	var columns = ["Artifact_Set", "Owner", "Type", "Equipped", "Rarity",
+		"Stat_1_Type", "Stat_1_Value", "Stat_2_Type", "Stat_2_Value"]
+	var values = [set_name, owner_name, piece_type, false, 5,
+		stat_1_type, snapped(stat_1_value, 0.01),
+		stat_2_type, snapped(stat_2_value, 0.01)]
+
+	Global.Insert("Character_Artifacts", columns, values)
+
+	# Status feedback
+	var msg = "%s: %s %s — %s: %.2f" % [owner_name, set_name, piece_type, stat_1_type, stat_1_value]
+	if has_two_stats:
+		msg += ", %s: %.2f" % [stat_2_type, stat_2_value]
+	_art_status.text = msg
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATA EDITOR TAB
+# ═══════════════════════════════════════════════════════════════════════════════
+
+func _build_data_editor() -> void:
+	if DataEditorTab == null:
+		return
+	var root = VBoxContainer.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("separation", 8)
+	DataEditorTab.add_child(root)
+
+	# ── Top bar: table + record selectors ──
+	var top = HBoxContainer.new()
+	top.add_theme_constant_override("separation", 8)
+	root.add_child(top)
+
+	var tbl_label = Label.new()
+	tbl_label.text = "Table:"
+	top.add_child(tbl_label)
+
+	_de_table_btn = OptionButton.new()
+	_de_table_btn.custom_minimum_size.x = 200
+	for t in _DE_TABLES:
+		_de_table_btn.add_item(t)
+	_de_table_btn.item_selected.connect(_de_on_table_selected)
+	top.add_child(_de_table_btn)
+
+	var rec_label = Label.new()
+	rec_label.text = "Record:"
+	top.add_child(rec_label)
+
+	_de_record_btn = OptionButton.new()
+	_de_record_btn.custom_minimum_size.x = 300
+	_de_record_btn.item_selected.connect(_de_on_record_selected)
+	top.add_child(_de_record_btn)
+
+	# ── Scrollable field editor ──
+	_de_scroll = ScrollContainer.new()
+	_de_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_de_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(_de_scroll)
+
+	_de_fields_container = VBoxContainer.new()
+	_de_fields_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_de_fields_container.add_theme_constant_override("separation", 4)
+	_de_scroll.add_child(_de_fields_container)
+
+	# ── Bottom bar: buttons + status ──
+	var bottom = HBoxContainer.new()
+	bottom.add_theme_constant_override("separation", 12)
+	root.add_child(bottom)
+
+	_de_confirm_btn = Button.new()
+	_de_confirm_btn.text = "Confirm Changes"
+	_de_confirm_btn.pressed.connect(_de_on_confirm)
+	_de_confirm_btn.disabled = true
+	bottom.add_child(_de_confirm_btn)
+
+	_de_revert_btn = Button.new()
+	_de_revert_btn.text = "Revert"
+	_de_revert_btn.pressed.connect(_de_on_revert)
+	_de_revert_btn.disabled = true
+	bottom.add_child(_de_revert_btn)
+
+	var spacer = Control.new()
+	spacer.custom_minimum_size.x = 24
+	bottom.add_child(spacer)
+
+	_de_new_btn = Button.new()
+	_de_new_btn.text = "New Record"
+	_de_new_btn.pressed.connect(_de_on_new_record)
+	bottom.add_child(_de_new_btn)
+
+	_de_delete_btn = Button.new()
+	_de_delete_btn.text = "Delete Record"
+	_de_delete_btn.pressed.connect(_de_on_delete)
+	bottom.add_child(_de_delete_btn)
+
+	_de_status_label = Label.new()
+	_de_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(_de_status_label)
+
+	# Load first table
+	_de_on_table_selected(0)
+
+func _de_on_table_selected(_idx: int) -> void:
+	_de_current_table = _de_table_btn.get_item_text(_idx)
+	_de_record_btn.clear()
+	_de_clear_fields()
+	_de_status_label.text = ""
+
+	var table_data: Dictionary = Global._synced.get(_de_current_table, {})
+	if table_data.is_empty():
+		_de_record_btn.add_item("(no records)")
+		return
+
+	# Sort record IDs numerically
+	var ids = table_data.keys()
+	ids.sort_custom(func(a, b): return int(a) < int(b))
+
+	for rid in ids:
+		var rec = table_data[rid]
+		var display = str(rid)
+		# Show name if available for easier identification
+		if rec.has("Name") and rec["Name"] != null:
+			display = "%s — %s" % [rid, str(rec["Name"])]
+		elif rec.has("Weapon") and rec["Weapon"] != null:
+			display = "%s — %s" % [rid, str(rec["Weapon"])]
+		elif rec.has("Artifact_Set") and rec["Artifact_Set"] != null:
+			display = "%s — %s (%s)" % [rid, str(rec["Artifact_Set"]), str(rec.get("Type", ""))]
+		elif rec.has("Item") and rec["Item"] != null:
+			display = "%s — %s" % [rid, str(rec["Item"])]
+		elif rec.has("Dungeon_Master") and rec["Dungeon_Master"] != null:
+			display = "%s — Party (%s)" % [rid, str(rec["Dungeon_Master"])]
+		_de_record_btn.add_item(display)
+		_de_record_btn.set_item_metadata(_de_record_btn.item_count - 1, str(rid))
+
+	if _de_record_btn.item_count > 0:
+		_de_on_record_selected(0)
+
+func _de_on_record_selected(_idx: int) -> void:
+	if _idx < 0 or _idx >= _de_record_btn.item_count:
+		return
+	_de_current_rid = str(_de_record_btn.get_item_metadata(_idx))
+	_de_load_record()
+
+func _de_load_record() -> void:
+	_de_clear_fields()
+	_de_snapshot.clear()
+	_de_inputs.clear()
+	_de_status_label.text = ""
+	_de_confirm_btn.disabled = true
+	_de_revert_btn.disabled = true
+
+	var table_data = Global._synced.get(_de_current_table, {})
+	var rec = table_data.get(_de_current_rid, {})
+	if rec.is_empty():
+		return
+
+	# Sort keys: id first, Name second, then alphabetical
+	var keys = rec.keys()
+	keys.sort()
+	var sorted_keys = []
+	if "id" in keys:
+		sorted_keys.append("id")
+		keys.erase("id")
+	if "Name" in keys:
+		sorted_keys.append("Name")
+		keys.erase("Name")
+	sorted_keys.append_array(keys)
+
+	for field in sorted_keys:
+		var value = rec[field]
+		_de_snapshot[field] = value
+		var row = _de_make_field_row(field, value)
+		_de_fields_container.add_child(row)
+
+func _de_make_field_row(field: String, value) -> HBoxContainer:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+
+	var label = Label.new()
+	label.text = field
+	label.custom_minimum_size.x = 280
+	row.add_child(label)
+
+	var input: Control
+	var is_readonly = (field == "id")
+
+	if value is bool:
+		var cb = CheckBox.new()
+		cb.button_pressed = value
+		cb.disabled = is_readonly
+		cb.toggled.connect(func(_v): _de_mark_dirty())
+		input = cb
+	elif value is int:
+		var sb = SpinBox.new()
+		sb.min_value = -999999
+		sb.max_value = 999999
+		sb.value = value
+		sb.editable = not is_readonly
+		sb.custom_minimum_size.x = 200
+		sb.value_changed.connect(func(_v): _de_mark_dirty())
+		input = sb
+	elif value is float:
+		var sb = SpinBox.new()
+		sb.min_value = -999999.0
+		sb.max_value = 999999.0
+		sb.step = 0.01
+		sb.value = value
+		sb.editable = not is_readonly
+		sb.custom_minimum_size.x = 200
+		sb.value_changed.connect(func(_v): _de_mark_dirty())
+		input = sb
+	elif value is Array:
+		var le = LineEdit.new()
+		var parts = []
+		for v in value:
+			parts.append(str(v))
+		le.text = ", ".join(parts)
+		le.editable = not is_readonly
+		le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		le.text_changed.connect(func(_t): _de_mark_dirty())
+		input = le
+	else:
+		# String or null — use LineEdit
+		var le = LineEdit.new()
+		le.text = str(value) if value != null else ""
+		le.editable = not is_readonly
+		le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		le.text_changed.connect(func(_t): _de_mark_dirty())
+		input = le
+
+	row.add_child(input)
+	_de_inputs[field] = input
+	return row
+
+func _de_mark_dirty() -> void:
+	_de_confirm_btn.disabled = false
+	_de_revert_btn.disabled = false
+	_de_status_label.text = "Unsaved changes"
+
+func _de_clear_fields() -> void:
+	for child in _de_fields_container.get_children():
+		child.queue_free()
+	_de_inputs.clear()
+
+func _de_read_input(field: String) -> Variant:
+	var input = _de_inputs.get(field)
+	if input == null:
+		return _de_snapshot.get(field)
+	if input is CheckBox:
+		return input.button_pressed
+	elif input is SpinBox:
+		# Preserve int vs float from original
+		var orig = _de_snapshot.get(field)
+		if orig is int:
+			return int(input.value)
+		return input.value
+	elif input is LineEdit:
+		var orig = _de_snapshot.get(field)
+		if orig is Array:
+			# Parse comma-separated back to array
+			var parts = []
+			for p in input.text.split(","):
+				parts.append(p.strip_edges())
+			return parts
+		if orig is int:
+			return int(input.text) if input.text.is_valid_int() else 0
+		if orig is float:
+			return float(input.text) if input.text.is_valid_float() else 0.0
+		return input.text
+	return _de_snapshot.get(field)
+
+func _de_on_confirm() -> void:
+	if _de_current_table == "" or _de_current_rid == "":
+		return
+
+	var updates = []
+	for field in _de_inputs.keys():
+		if field == "id":
+			continue
+		var new_val = _de_read_input(field)
+		var old_val = _de_snapshot.get(field)
+		if _de_values_differ(old_val, new_val):
+			updates.append({
+				"table": _de_current_table,
+				"record_id": int(_de_current_rid),
+				"field": field,
+				"value": new_val
+			})
+
+	if updates.is_empty():
+		_de_status_label.text = "No changes detected"
+		_de_confirm_btn.disabled = true
+		_de_revert_btn.disabled = true
+		return
+
+	Global.Update_Records(updates)
+
+	# Update snapshot to new values
+	for u in updates:
+		_de_snapshot[u["field"]] = u["value"]
+
+	_de_confirm_btn.disabled = true
+	_de_revert_btn.disabled = true
+	_de_status_label.text = "Saved %d field(s)" % updates.size()
+
+func _de_on_revert() -> void:
+	# Restore all inputs to snapshot values
+	for field in _de_inputs.keys():
+		var input = _de_inputs[field]
+		var orig = _de_snapshot.get(field)
+		if input is CheckBox:
+			input.button_pressed = bool(orig) if orig != null else false
+		elif input is SpinBox:
+			input.value = float(orig) if orig != null else 0.0
+		elif input is LineEdit:
+			if orig is Array:
+				var parts = []
+				for v in orig:
+					parts.append(str(v))
+				input.text = ", ".join(parts)
+			else:
+				input.text = str(orig) if orig != null else ""
+	_de_confirm_btn.disabled = true
+	_de_revert_btn.disabled = true
+	_de_status_label.text = "Reverted"
+
+func _de_values_differ(a, b) -> bool:
+	if typeof(a) != typeof(b):
+		return str(a) != str(b)
+	return a != b
+
+func _de_on_new_record() -> void:
+	if _de_current_table == "":
+		return
+
+	var table_data: Dictionary = Global._synced.get(_de_current_table, {})
+
+	# Build a blank record using the first existing record as a field template
+	var template: Dictionary = {}
+	if not table_data.is_empty():
+		var first = table_data.values()[0]
+		for key in first.keys():
+			var v = first[key]
+			if key == "id":
+				template[key] = 0  # placeholder, Insert assigns real id
+			elif v is bool:
+				template[key] = false
+			elif v is int:
+				template[key] = 0
+			elif v is float:
+				template[key] = 0.0
+			elif v is Array:
+				template[key] = []
+			else:
+				template[key] = ""
+	else:
+		template = {"id": 0, "Name": ""}
+
+	# Build columns/values for Insert (skip id — host assigns it)
+	var columns = []
+	var values = []
+	for key in template.keys():
+		if key == "id":
+			continue
+		columns.append(key)
+		values.append(template[key])
+
+	Global.Insert(_de_current_table, columns, values)
+	_de_status_label.text = "New record created"
+
+	# Refresh after a short delay to let the insert propagate
+	await get_tree().create_timer(0.3).timeout
+	_de_on_table_selected(_de_table_btn.selected)
+	# Select the last record (newest)
+	if _de_record_btn.item_count > 0:
+		_de_record_btn.selected = _de_record_btn.item_count - 1
+		_de_on_record_selected(_de_record_btn.item_count - 1)
+
+func _de_on_delete() -> void:
+	if _de_current_table == "" or _de_current_rid == "":
+		return
+
+	var rid = int(_de_current_rid)
+	Global.Remove_Record(_de_current_table, rid)
+	_de_status_label.text = "Deleted record %d from %s" % [rid, _de_current_table]
+	_de_clear_fields()
+
+	# Refresh table list
+	await get_tree().create_timer(0.3).timeout
+	_de_on_table_selected(_de_table_btn.selected)

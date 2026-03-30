@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_rbklj"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_sj77g"]
+
+[sub_resource type="Resource" id="Resource_cpluf"]
+script = ExtResource("1_sj77g")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_hlpk4"]
+script = ExtResource("1_sj77g")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.1
+value_is_percent_of = "current_health"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Attacks deal +10% current HP"
+
+[resource]
+script = ExtResource("1_rbklj")
+id = 6
+name = "Primordial Jade-Winged Spear"
+rarity = "Legendary"
+region = "Liyue"
+weapon_type = "Polearm"
+effect = "Lower the requirement to crit (20) by 3. Attacks deal extra damage equal to 10% current HP."
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Health"
+stat_2_value = 4.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_cpluf"), SubResource("Resource_hlpk4")]

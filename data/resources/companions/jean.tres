@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_1cpe0"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_si20u"]
+
+[sub_resource type="Resource" id="Resource_ebk4n"]
+script = ExtResource("2_si20u")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_1cpe0")
+id = 58
+name = "Jean"
+element = "Wind"
+weapon = "Sword"
+region = "Mondstadt"
+lore = "Acting Grand Master Jean is the rhythm of Mondstadt’s heartbeat—reliable, gentle, and stubborn in the best way. She delegates poorly because she cares deeply, shouldering problems others never see. Yet she listens, learns, and trusts, letting her city grow into its freedom. Jean’s strength lies not in heroic flourishes but in the humility to keep showing up, again and again, until the work is done and the people are safe."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_ebk4n")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

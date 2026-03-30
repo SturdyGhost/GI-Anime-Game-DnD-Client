@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_a3xsu"]
+
+[resource]
+script = ExtResource("1_a3xsu")
+id = 31
+first_element = "Fire"
+second_element = "Ice"
+outcome = "UNFAVORABLE"
+effect = "Triggers an extinguishing reaction causing the attack to heal the target instead of damaging them."
+effects = []

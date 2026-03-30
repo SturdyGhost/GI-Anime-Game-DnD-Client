@@ -908,7 +908,7 @@ func _on_confirm_pressed() -> void:
 		# CHARACTER_ITEMS keys may be strings: access by string key safely
 		var key = str(rid)
 		print (consumption)
-		var current_amount = _as_int(Global.CHARACTER_ITEMS[str(float(rid))].get("Quantity", 0))
+		var current_amount = _as_int(Global.CHARACTER_ITEMS[str(int(rid))].get("Quantity", 0))
 		var new_qty = current_amount - _as_int(c["take"])
 		updates.append({
 			"table": "Character_Items",

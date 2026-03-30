@@ -42,7 +42,8 @@ func get_data():
 		if constellation.get("Name") == Global.ACTIVE_USER_NAME:
 			PlayerConstellations.append(constellation)
 	for ability in Global.ACTIVE_ABILITIES.values():
-		if ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID and ability.get("Entity_Type") == "Character":
+		var eid = ability.get("Entity_ID")
+		if eid != null and int(eid) == Global.ACTIVE_USER_RECORD_ID and ability.get("Entity_Type") == "Character":
 			PlayerAbilities.append(ability)
 			pass
 
@@ -114,7 +115,12 @@ func init_rowes():
 			for ability_key in Ability_Keys:
 				for ability in PlayerAbilities:
 					if ability.get("Element") == child.name and ability.get("Weapon_Type") == weapontype and UnlockedElement == true and ability.get("Ability_Type") == ability_key:
-						var ability_data = Global.ABILITIES[str(ability.get("Ability_ID"))]
+						var aid = ability.get("Ability_ID")
+						if aid == null:
+							continue
+						var ability_data = Global.ABILITIES.get(str(int(aid)), {})
+						if ability_data.is_empty():
+							continue
 						Ability_Data.append({ability.get("id"): ability_data})
 						var NewRow = AbilityTableRowScene.instantiate()
 						child.Rows.add_child(NewRow)

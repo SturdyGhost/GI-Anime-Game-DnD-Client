@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_2by7d"]
+
+[resource]
+script = ExtResource("1_2by7d")
+id = 38
+item_name = "Sakura Bloom"
+type = "Grains"
+rarity = "Uncommon"
+region = "Inazuma"
+description = " "
+value = 5
+buff_duration = 0

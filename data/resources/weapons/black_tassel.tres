@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_miyr4"]
+
+[resource]
+script = ExtResource("1_miyr4")
+id = 21
+name = "Black Tassel"
+rarity = "Common"
+region = "Mondstadt"
+weapon_type = "Polearm"
+effect = ""
+stat_1_type = "Attack"
+stat_1_value = 1.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 1.0
+stat_3_type = "Health"
+stat_3_value = 2.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

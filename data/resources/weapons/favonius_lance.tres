@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_8iale"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_qum1w"]
+
+[sub_resource type="Resource" id="Resource_3w3xg"]
+script = ExtResource("1_qum1w")
+trigger = "ON_CRIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "BURST_CHARGE_FULL"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On crit with normal/charged, gain full burst charges"
+
+[resource]
+script = ExtResource("1_8iale")
+id = 18
+name = "Favonius Lance"
+rarity = "Epic"
+region = "Mondstadt"
+weapon_type = "Polearm"
+effect = "When using a normal or charged attack if you crit, gain full cost of burst charges."
+stat_1_type = "Attack"
+stat_1_value = 3.0
+stat_2_type = "Energy_Recharge"
+stat_2_value = 0.75
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_3w3xg")]

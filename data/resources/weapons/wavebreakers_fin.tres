@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_3jppc"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_144wu"]
+
+[sub_resource type="Resource" id="Resource_kxehv"]
+script = ExtResource("1_3jppc")
+trigger = "ON_BURST_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 0.02
+value_is_percent_of = "total_party_burst_cost"
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Burst damage +2% per total party burst charge cost"
+
+[resource]
+script = ExtResource("1_144wu")
+id = 37
+name = "Wavebreakers Fin"
+rarity = "Epic"
+region = "Inazuma"
+weapon_type = "Polearm"
+effect = "For every Burst Charge cost your entire party has in total increase your burst damage by 2% (i.e. Dylan has burst with 10 charge cost, that’s a 20% increase for you)"
+stat_1_type = "Attack"
+stat_1_value = 6.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_kxehv")]

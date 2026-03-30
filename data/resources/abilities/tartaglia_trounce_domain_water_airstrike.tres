@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_kqi3t"]
+
+[resource]
+script = ExtResource("1_kqi3t")
+id = 44
+name = "Airstrike"
+element = "Water"
+description = "Arrows fall 4 tiles out in all 8 directions; each impact hits its tile + surrounding tiles."
+dice_count = 1
+dice_die = 10
+dice_flat = 0
+defense_threshold = 12
+blockable = true
+bypass_defense = false
+targeting_type = "radial_directions"
+targeting_radius = 4
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = "eight_directions"
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = "Riptide"
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = true
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = ""
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 0
+phase_idx = 1
+order = 2
+weight = 1.0
+effects = []

@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_em2fd"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_id5el"]
+
+[sub_resource type="Resource" id="Resource_37hqn"]
+script = ExtResource("1_id5el")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Attack"
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "ATT/EM increased by ER value"
+
+[sub_resource type="Resource" id="Resource_l8mt5"]
+script = ExtResource("1_id5el")
+trigger = "ON_BURST_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "STAT_BONUS"
+effect_stat = "Energy_Recharge"
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "After burst +1.0 ER for 2 turns"
+
+[resource]
+script = ExtResource("1_em2fd")
+id = 53
+name = "Engulfing Lightning"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Polearm"
+effect = "Attack / EM is increased by whatever Energy Recharge is. For 2 turns after using your burst increase your ER by an additional 1.0"
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 2.0
+stat_3_type = "Energy_Recharge"
+stat_3_value = 1.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_37hqn"), SubResource("Resource_l8mt5")]

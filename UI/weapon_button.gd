@@ -64,6 +64,8 @@ func set_weapon():
 		shrink_text_to_fit($WeaponLabel)
 	var WeaponIconPath = "res://UI/Weapon Icons/" + Global.normalize_text_filename(str(Weapon))
 	$WeaponIcon.texture = load(WeaponIconPath)
+	if Weapon_Data == null:
+		return
 	if Weapon_Data.has("Effect") and Weapon_Data.get("Effect") != null:
 		var WeaponEffect = Weapon_Data["Effect"]
 		$Tooltip/Label.text = WeaponEffect

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_gcmqx"]
+
+[resource]
+script = ExtResource("1_gcmqx")
+id = 53
+item_name = "Clearwater Jade"
+owner = "Dylan"
+quantity = 20
+rarity = "Common"
+type = "Supplementary Ore"

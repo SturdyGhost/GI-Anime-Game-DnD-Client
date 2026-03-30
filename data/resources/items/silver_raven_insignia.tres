@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_g5t0r"]
+
+[resource]
+script = ExtResource("1_g5t0r")
+id = 18
+item_name = "Silver Raven Insignia"
+type = "Alloy"
+rarity = "Common"
+region = "Liyue"
+description = "Steel made using Iron and Coal"
+value = 4
+buff_duration = 0

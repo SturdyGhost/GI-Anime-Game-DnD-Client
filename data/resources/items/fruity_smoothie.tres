@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_jo612"]
+
+[resource]
+script = ExtResource("1_jo612")
+id = 51
+item_name = "Fruity Smoothie"
+type = "Consumable"
+rarity = "Common"
+region = "Mondstadt"
+description = "Increases all party members ER by 0.5 for next battle."
+value = 300
+buff_duration = 1

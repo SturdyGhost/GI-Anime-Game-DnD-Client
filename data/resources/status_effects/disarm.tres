@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_2ge4d"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_v6h3n"]
+
+[sub_resource type="Resource" id="Resource_jg4yp"]
+script = ExtResource("1_v6h3n")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "DISARM"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Cannot attack until weapon is recovered. May swap to same type from inventory (counts as action)."
+
+[resource]
+script = ExtResource("1_2ge4d")
+id = 10
+name = "Disarm"
+description = "Weapon is knocked away from the unit, cannot attack until weapon is recovered. May swap to a weapon in inventory of the same type (counts as action). If a weapon is not picked up by battle end it is lost. Typically a condition unique to Brian C."
+effects = [SubResource("Resource_jg4yp")]

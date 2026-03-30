@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_2jvlm"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_c6r0t"]
+
+[sub_resource type="Resource" id="Resource_c6r0t"]
+script = ExtResource("1_c6r0t")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "SHIELD_GENERATE"
+effect_stat = ""
+effect_value = 0.25
+value_is_percent_of = "defense"
+effect_dice = ""
+effect_element = ""
+target = "ALL_ALLIES"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Shield on non-earth allies (1/4 Avg Defense Roll, no expiration)"
+
+[resource]
+script = ExtResource("1_2jvlm")
+id = 368
+name = "Yun Jin – Skill"
+element = "Earth"
+description = "Generates a shield around all allied party members that are not of the earth type element. This shield absorbs 1/4 Avg Defense Roll with no duration expiration. Recasting will reset the shield health to the new value but is not additive."
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = true
+bypass_defense = false
+targeting_type = "allies"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = ""
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 5
+phase_idx = 1
+order = 0
+weight = 1.0
+effects = [SubResource("Resource_c6r0t")]

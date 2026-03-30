@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_juxb2"]
+
+[resource]
+script = ExtResource("1_juxb2")
+id = 29
+item_name = "Fish"
+type = "Fish"
+rarity = "Common"
+region = "Mondstadt"
+description = " "
+value = 4
+buff_duration = 0

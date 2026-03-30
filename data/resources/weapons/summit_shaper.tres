@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_6k3gj"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_hb5kl"]
+
+[sub_resource type="Resource" id="Resource_fqayl"]
+script = ExtResource("1_hb5kl")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "SHIELD_BONUS"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Shields absorb 2 extra damage"
+
+[sub_resource type="Resource" id="Resource_nskrk"]
+script = ExtResource("1_hb5kl")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 3
+stack_value = 1.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On hit +1 dmg (max 3), while shielded +2 per stack"
+
+[resource]
+script = ExtResource("1_6k3gj")
+id = 9
+name = "Summit Shaper"
+rarity = "Legendary"
+region = "Liyue"
+weapon_type = "Sword"
+effect = "Shields absorb 2 extra damage. Damaging opponents provides a +1 damage buff (max 3 stacks). While shielded this buff is +2 per stack."
+stat_1_type = "Attack"
+stat_1_value = 8.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_fqayl"), SubResource("Resource_nskrk")]

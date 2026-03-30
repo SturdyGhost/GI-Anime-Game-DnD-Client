@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/enemy_data.gd" id="1_0ccmk"]
+
+[resource]
+script = ExtResource("1_0ccmk")
+id = 2
+name = "Raiden Shogun (Archon Quest)"
+tier = "story_boss"
+size_tiles = 1
+phase_count = 3
+hp_per_phase = 150
+phase1_hp = 0
+phase2_hp = 0
+phase3_hp = 0
+phase4_hp = 0
+phase1_name = "Eyes of Judgment"
+phase2_name = "Plane of Euthymia"
+phase3_name = "Musou Isshin"
+phase4_name = ""
+turn_structure = "players_all_then_boss"
+defense_scale_per_asc = 0.5
+res_pyro = 1.0
+res_hydro = 1.0
+res_electro = 0.0
+res_cryo = 1.0
+res_anemo = 1.0
+res_geo = 1.0
+res_dendro = 1.0
+notes = "Quest boss version. Attacks after all players each round."

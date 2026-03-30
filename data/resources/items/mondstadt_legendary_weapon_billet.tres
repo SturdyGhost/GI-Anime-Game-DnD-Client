@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_4d6qu"]
+
+[resource]
+script = ExtResource("1_4d6qu")
+id = 44
+item_name = "Mondstadt Legendary Weapon Billet"
+type = "Billet"
+rarity = "Legendary"
+region = "Mondstadt"
+description = "Can be used by the Blacksmith to craft Legendary tier weapons from Mondstadt"
+value = 5000
+buff_duration = 0

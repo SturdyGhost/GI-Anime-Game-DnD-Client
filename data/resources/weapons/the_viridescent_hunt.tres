@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_0b57s"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_xj572"]
+
+[sub_resource type="Resource" id="Resource_we6gv"]
+script = ExtResource("1_xj572")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_2pkxh"]
+script = ExtResource("1_xj572")
+trigger = "ON_CRIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "CHAIN_DAMAGE"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "CLOSEST_ENEMY"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On crit, deal half damage to closest enemy of target."
+
+[resource]
+script = ExtResource("1_0b57s")
+id = 65
+name = "The Viridescent Hunt"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Bow"
+effect = "Lower the requirement to crit (20) by 3, when you do crit, deal half the damage dealt to the closest enemy of the target."
+stat_1_type = "Attack"
+stat_1_value = 3.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 3.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_we6gv"), SubResource("Resource_2pkxh")]

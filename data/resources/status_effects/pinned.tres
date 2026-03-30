@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_hjfv1"]
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_q7r5n"]
+
+[sub_resource type="Resource" id="Resource_nxknx"]
+script = ExtResource("1_hjfv1")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PREVENT_ROTATION"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Cannot rotate or change facing direction."
+
+[resource]
+script = ExtResource("1_q7r5n")
+id = 24
+name = "Pinned"
+description = "You may not rotate or change facing direction."
+effects = [SubResource("Resource_nxknx")]

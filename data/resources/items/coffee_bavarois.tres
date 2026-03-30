@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_fqdhr"]
+
+[resource]
+script = ExtResource("1_fqdhr")
+id = 48
+item_name = "Coffee Bavarois"
+type = "Consumable"
+rarity = "Common"
+region = "Liyue"
+description = "Triples amount of materials a character gathers when they next go out to collect some."
+value = 500
+buff_duration = 0

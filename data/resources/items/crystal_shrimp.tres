@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_e22fb"]
+
+[resource]
+script = ExtResource("1_e22fb")
+id = 41
+item_name = "Crystal Shrimp"
+type = "Consumable"
+rarity = "Common"
+region = "Liyue"
+description = "Increases all party members DEF by 4 for next 2 battles."
+value = 500
+buff_duration = 2

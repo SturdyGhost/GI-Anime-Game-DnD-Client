@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_3t4vk"]
+
+[resource]
+script = ExtResource("1_3t4vk")
+id = 93
+item_name = "Liyue Epic Weapon Billet"
+type = "Billet"
+rarity = "Epic"
+region = "Liyue"
+description = "Can be used by the Blacksmith to craft Epic tier weapons from Liyue"
+value = 2500
+buff_duration = 0

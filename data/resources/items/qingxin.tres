@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_63tv4"]
+
+[resource]
+script = ExtResource("1_63tv4")
+id = 13
+item_name = "Qingxin"
+type = "Sugar"
+rarity = "Common"
+region = "Liyue"
+description = " "
+value = 4
+buff_duration = 0

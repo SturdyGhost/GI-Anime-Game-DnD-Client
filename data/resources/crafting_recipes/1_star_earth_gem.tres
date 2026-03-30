@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_pkio7"]
+
+[resource]
+script = ExtResource("1_pkio7")
+id = 270
+product = "1-Star Earth Gem"
+region = "Mondstadt"
+description = "Exchanges any 2 1-star elemental gems for a 1-star gem of their choosing element."
+role = "Artisan"
+material = "1-Star Gem"
+quantity = 2

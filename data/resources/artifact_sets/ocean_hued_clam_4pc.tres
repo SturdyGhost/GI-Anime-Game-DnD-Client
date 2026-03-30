@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_8mudu"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_ka88q"]
+
+[sub_resource type="Resource" id="Resource_l1p3x"]
+script = ExtResource("1_8mudu")
+trigger = "ON_HEAL"
+condition = "NONE"
+condition_value = ""
+effect_type = "CHAIN_DAMAGE"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = "damage_dealt"
+effect_dice = ""
+effect_element = ""
+target = "CLOSEST_ENEMY"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On heal, wave hits nearest enemy for total amount healed."
+
+[resource]
+script = ExtResource("1_ka88q")
+id = 5
+artifact_set = "Ocean-Hued Clam"
+bonus_type = 4
+effect = "When you perform a healing action a wave of water casts out from you at the nearest enemy dealing equal damage to the total amount healed. (The total amount healed does not care about who it was that was healed)"
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_l1p3x")]

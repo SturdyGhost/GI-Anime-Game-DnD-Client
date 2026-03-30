@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_mfhhv"]
+
+[resource]
+script = ExtResource("1_mfhhv")
+id = 50
+item_name = "Dendrobium"
+owner = "Brian C."
+quantity = 36
+rarity = "Uncommon"
+type = "Vegetables"

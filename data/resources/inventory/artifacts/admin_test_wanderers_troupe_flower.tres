@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_5tnj5"]
+
+[resource]
+script = ExtResource("1_5tnj5")
+id = 29
+artifact_set = "Wanderers Troupe"
+owner = "Admin - Test"
+type = "Flower of Life"
+equipped = false
+rarity = 0
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 2.0
+stat_2_type = ""
+stat_2_value = 0.0

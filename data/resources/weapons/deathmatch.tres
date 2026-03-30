@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_jaset"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_sb1b7"]
+
+[sub_resource type="Resource" id="Resource_ivmwf"]
+script = ExtResource("1_sb1b7")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "CRIT_THRESHOLD"
+effect_stat = ""
+effect_value = -3.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Lower crit threshold by 3"
+
+[sub_resource type="Resource" id="Resource_hv0iv"]
+script = ExtResource("1_sb1b7")
+trigger = "PASSIVE"
+condition = "ENEMY_COUNT_NEARBY"
+condition_value = "2+_3tiles"
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 5.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "2+ enemies within 3 tiles: +5 damage +5 defense. Otherwise -5 damage -5 defense."
+
+[resource]
+script = ExtResource("1_jaset")
+id = 89
+name = "Deathmatch"
+rarity = "Epic"
+region = "Liyue"
+weapon_type = "Polearm"
+effect = "Lower the requirement to crit (20) by 3, if there are 2+ enemies within 3 tiles of you, deal +5 damage, +5 defense, if there are not, deal -5 damage, -5 defense."
+stat_1_type = "Attack"
+stat_1_value = 3.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 3.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_ivmwf"), SubResource("Resource_hv0iv")]

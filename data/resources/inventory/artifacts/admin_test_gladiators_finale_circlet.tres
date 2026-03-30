@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_xuvp3"]
+
+[resource]
+script = ExtResource("1_xuvp3")
+id = 54
+artifact_set = "Gladiators Finale"
+owner = "Admin - Test"
+type = "Circlet of Principles"
+equipped = true
+rarity = 0
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 1.5
+stat_2_type = "Attack"
+stat_2_value = 1.8

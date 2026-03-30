@@ -146,11 +146,11 @@ func _get_companion_abilities(name: String) -> Dictionary:
 	var out: Dictionary = {}
 	for row in Global.COMPANIONS.values():
 		if row.get("Name", "") == name:
-			Companion_ID = row.get("id")
+			Companion_ID = int(row.get("id"))
 	for ability in Global.ACTIVE_ABILITIES.values():
-		if ability.get("Entity_Type") == "Companion" and ability.get("Entity_ID") == Companion_ID:
+		if ability.get("Entity_Type") == "Companion" and int(ability.get("Entity_ID")) == Companion_ID:
 			var t = str(ability.get("Ability_Type", ""))
-			out[t] = Global.ABILITIES[str(ability.get("Ability_ID"))]
+			out[t] = Global.ABILITIES[str(int(ability.get("Ability_ID")))]
 	return out
 
 func _build_change_menu() -> void:
@@ -244,14 +244,14 @@ func _on_use_companion_button_pressed() -> void:
 	for name in Companion_List:
 		for companion in Global.COMPANIONS.values():
 			if companion.get("Name") != new_name and companion.get("Player_Chosen") == true:
-				updates.append({"table": "Companions","record_id": companion.get("id"),"field": "Player_Chosen","value": false})
-				updates.append({"table": "Companions","record_id": companion.get("id"),"field": "Active","value": false})
+				updates.append({"table": "Companions","record_id": int(companion.get("id")),"field": "Player_Chosen","value": false})
+				updates.append({"table": "Companions","record_id": int(companion.get("id")),"field": "Active","value": false})
 				old_name.append(companion.get("Name"))
 	for name in Companion_List:
 		for companion in Global.COMPANIONS.values():
 			if companion.get("Name") == name:
-				updates.append({"table": "Companions","record_id": companion.get("id"),"field": "Player_Chosen","value": true})
-				updates.append({"table": "Companions","record_id": companion.get("id"),"field": "Active","value": true})
+				updates.append({"table": "Companions","record_id": int(companion.get("id")),"field": "Player_Chosen","value": true})
+				updates.append({"table": "Companions","record_id": int(companion.get("id")),"field": "Active","value": true})
 				new_list.append(companion.get("Name"))
 	# Update DB: Characters for each party member, and Party row fields that equal old_name.
 

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="PlayerData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/player_data.gd" id="1_lt8l0"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_4k072"]
+
+[sub_resource type="Resource" id="Resource_38y7o"]
+script = ExtResource("2_4k072")
+health_base = 26
+attack_base = 10
+defense_base = 8
+elemental_mastery_base = 10
+energy_recharge_base = 10.0
+critical_damage_base = 8.0
+health_skill = 0
+attack_skill = 2
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 1
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_lt8l0")
+id = 3
+name = "Dylan"
+email = "7f84a82126b0835548ad6fc8926881a18757e5d25b225f14cc5a5d7b9ae44ccf"
+user_type = "Player"
+portrait = "paimon-s-paintings-set-14-5.png"
+level = 53
+level_cap = 60
+ascension_rank = 3
+ascension_material = "Electric Gem"
+element = "Nature"
+role = "Blacksmith"
+current_region = "Sumeru"
+daily_luck = 36
+stats = SubResource("Resource_38y7o")
+current_health = 52
+max_health = 52
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0
+ready = false
+dm_overrides = {}

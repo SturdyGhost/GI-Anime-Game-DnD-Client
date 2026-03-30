@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_6oxm0"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_kpj48"]
+
+[sub_resource type="Resource" id="Resource_lm5ek"]
+script = ExtResource("1_kpj48")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PREVENT_BURST_CHARGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Cannot generate burst charges."
+
+[resource]
+script = ExtResource("1_6oxm0")
+id = 13
+name = "Burst Bust"
+description = "Cannot generate burst charges while active."
+effects = [SubResource("Resource_lm5ek")]

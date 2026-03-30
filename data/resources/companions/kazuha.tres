@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_nswfh"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_2tu5t"]
+
+[sub_resource type="Resource" id="Resource_8stea"]
+script = ExtResource("2_2tu5t")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_nswfh")
+id = 28
+name = "Kazuha"
+element = "Wind"
+weapon = "Sword"
+region = "Inazuma"
+lore = "A wandering samurai and poet, Kazuha treats the world like a page the wind keeps turning. He speaks softly, fights cleanly, and listens for quiet truths in maple leaves and friendships alike. Loss taught him to travel lightly; kindness taught him to linger when someone needs a hand. Kazuha’s blade moves like a verse—measured, elegant, and finished before most realize it began."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_8stea")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

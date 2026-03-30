@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_rqhc7"]
+
+[resource]
+script = ExtResource("1_rqhc7")
+id = 10
+first_element = "Wind"
+second_element = "Fire"
+outcome = "FAVORABLE"
+effect = "Triggers a swirling reaction reapplying the non-wind element to the target, dealing 1D4 of reaction damage, and forcing the target to receive double damage from the next hit matching that element."
+effects = []

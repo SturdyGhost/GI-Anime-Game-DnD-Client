@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_177jc"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_foeq7"]
+
+[sub_resource type="Resource" id="Resource_ts25m"]
+script = ExtResource("1_foeq7")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "MOVEMENT_COST"
+effect_stat = ""
+effect_value = 0.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Each tile of movement counts as 0.5."
+
+[resource]
+script = ExtResource("1_177jc")
+id = 5
+name = "Quick"
+description = "Each tile of movement counts as ½ rather than 1."
+effects = [SubResource("Resource_ts25m")]

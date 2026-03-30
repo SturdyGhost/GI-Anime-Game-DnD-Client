@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_rxrj5"]
+
+[resource]
+script = ExtResource("1_rxrj5")
+id = 4
+item_name = "4-Star Ice Gem"
+type = "4-Star Gem"
+rarity = "Epic"
+region = "Sumeru"
+description = " "
+value = 1094
+buff_duration = 0

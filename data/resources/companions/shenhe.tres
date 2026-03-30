@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_qtrjn"]
+[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_gbwci"]
+
+[sub_resource type="Resource" id="Resource_u1xih"]
+script = ExtResource("2_gbwci")
+health_base = 0
+attack_base = 0
+defense_base = 0
+elemental_mastery_base = 0
+energy_recharge_base = 0.0
+critical_damage_base = 0.0
+health_skill = 0
+attack_skill = 0
+defense_skill = 0
+elemental_mastery_skill = 0
+energy_recharge_skill = 0.0
+critical_damage_skill = 0.0
+unspent_skill_points = 0
+unspent_base_points = 0
+
+[resource]
+script = ExtResource("1_qtrjn")
+id = 30
+name = "Shenhe"
+element = "Ice"
+weapon = "Polearm"
+region = "Inazuma"
+lore = "Tempered by adeptal tutelage and a past that would have broken a lesser spirit, Shenhe moves like a winter prayer. She is distant not from disdain but from discipline, keeping her emotions bound so that others are safe. In Liyue’s markets and mountains she learns a language gentler than exorcism, discovering that warmth is not weakness and that protection can be offered with open hands as well as cold steel."
+unlocked = false
+active = false
+met = true
+player_chosen = false
+owner = ""
+stats = SubResource("Resource_u1xih")
+current_health = 57
+max_health = 57
+burst_charges = 0
+shield_health = 0
+shield_duration = 0
+applied_element = "None"
+skipped = false
+skip_duration = 0

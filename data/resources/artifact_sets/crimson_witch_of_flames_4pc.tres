@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_30fu0"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_vqo7i"]
+
+[sub_resource type="Resource" id="Resource_gdd28"]
+script = ExtResource("1_vqo7i")
+trigger = "ON_REACTION"
+condition = "REACTION_ELEMENT"
+condition_value = "Fire"
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 1.5
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Fire reaction damage x1.5."
+
+[sub_resource type="Resource" id="Resource_kpaw4"]
+script = ExtResource("1_vqo7i")
+trigger = "ON_SKILL_USE"
+condition = "ELEMENT_MATCH"
+condition_value = "Fire"
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = "1d4"
+effect_element = ""
+target = "SELF"
+duration = -1
+duration_actions = 0
+max_stacks = 99
+stack_value = 2.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On skill use, gain D4 stacks. Per stack +2 to fire rolls."
+
+[resource]
+script = ExtResource("1_30fu0")
+id = 9
+artifact_set = "Crimson Witch of Flames"
+bonus_type = 4
+effect = "Damage from reactions involving fire deal 1.5 times more damage, each time you use your skill gain a D4 of stacks until the end of the battle, for each stack you have add an additional 2 to all rolls involving fire damage."
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_gdd28"), SubResource("Resource_kpaw4")]

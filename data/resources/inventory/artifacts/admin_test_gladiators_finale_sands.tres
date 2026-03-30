@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_m2dvo"]
+
+[resource]
+script = ExtResource("1_m2dvo")
+id = 52
+artifact_set = "Gladiators Finale"
+owner = "Admin - Test"
+type = "Sands of Time"
+equipped = true
+rarity = 0
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 1.3
+stat_2_type = "Attack"
+stat_2_value = 0.8

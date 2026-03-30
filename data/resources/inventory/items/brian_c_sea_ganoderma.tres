@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_npj3m"]
+
+[resource]
+script = ExtResource("1_npj3m")
+id = 8
+item_name = "Sea Ganoderma"
+owner = "Brian C."
+quantity = 15
+rarity = "Uncommon"
+type = "Sugar"

@@ -321,13 +321,13 @@ func _on_confirm_button_pressed() -> void:
 				"field": "Equipped",
 				"value": false
 			})
-			var Current = (0+Global.CHARACTERS[str(Global.ACTIVE_USER_RECORD_ID)].get("Universal_Added_Damage_Bonus"))
+			var Current = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
 			var changed = 0
 			if rec.get("Stat_1_Type") == "Universal_Added_Damage_Bonus":
-				Current -= rec.get("Stat_1_Value")
+				Current -= float(rec.get("Stat_1_Value", 0))
 				changed = 1
 			if rec.get("Stat_2_Type") == "Universal_Added_Damage_Bonus":
-				Current -= rec.get("Stat_2_Value")
+				Current -= float(rec.get("Stat_2_Value", 0))
 				changed = 1
 			if changed == 1:
 				updates.append({
@@ -381,13 +381,13 @@ func _on_confirm_button_pressed() -> void:
 		"field": "Equipped",
 		"value": true
 	})
-	var current = Global.CHARACTERS[str(Global.ACTIVE_USER_RECORD_ID)].get("Universal_Added_Damage_Bonus")
+	var current = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
 	var changed = 0
 	if selected_artifact.get("Stat1") == "Universal_Added_Damage_Bonus":
-		current += selected_artifact.get("Stat1Value")
+		current += float(selected_artifact.get("Stat1Value", 0))
 		changed = 1
 	elif selected_artifact.get("Stat2") == "Universal_Added_Damage_Bonus":
-		current += selected_artifact.get("Stat2Value")
+		current += float(selected_artifact.get("Stat2Value", 0))
 		changed = 1
 	if changed == 1:
 		updates.append({
@@ -445,7 +445,7 @@ func _on_give_confirm_button_pressed() -> void:
 		var updates = []
 		updates.append({
 			"table": "Character_Artifacts", 
-			"record_id": float(selected_artifact.get("RecordID")), 
+			"record_id": int(selected_artifact.get("RecordID")),
 			"field": "Owner", 
 			"value": ReceiverOptionButton.get_item_text(ReceiverOptionButton.get_selected_id())})
 		Global.Update_Records(updates)

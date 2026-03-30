@@ -21,22 +21,14 @@ var Ascension
 var Player_data
 var Luck_set = false
 
+var _initial_setup_done := false
+
 func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
-	var path = "res://Background Music/Inazuma/Player HUB/1-01 Inazuma.mp3"  # replace with your actual file
-	set_ui()
-	pass  # http node removed
-	role_check()
-	restore_health()
-	Market.Refresh_Stock(Global.Current_Region)
-	if Global.Luck_Set == false:
-		trigger_luck_popup()
-		Global.Luck_Set = true
-		
-	#$UI/NameLabel.text = Global.ACTIVE_USER_NAME
-	pass
+	# If data is already available (host, or client already synced), run setup now
+	_try_initial_setup()
 
 func trigger_luck_popup():
 	var s: PackedScene = preload("res://Scenes/DailyLuck.tscn")
@@ -50,7 +42,7 @@ func restore_health():
 		if character.get("Max_Health") != null:
 			updates.append({
 			"table": "Characters",            # Adjust if your table name differs
-			"record_id": character.get("id"),  # Must be the Party's record id
+			"record_id": int(character.get("id")),  # Must be the Party's record id
 			"field": "Current_Health",
 			"value": character.get("Max_Health")})
 	Global.Update_Records(updates)
@@ -74,6 +66,8 @@ func assign_party():
 			if Global.PartyCompanions.has(companion.get("Name")) == false:
 				Global.PartyCompanions.append(companion.get("Name"))
 func role_check():
+	if Player_data == null or Player_data.is_empty():
+		return
 	var role = Player_data.get("Role")
 	if role == "Scribe":
 		$"UI/BottomHotbar/HBoxContainer/Crafting Button".disabled = true
@@ -122,14 +116,25 @@ func play_next_track():
 		player.stream = load(stream_path)
 		player.play()
 
-func _on_data_load_complete():
-	print("✅ Global data has finished loading!")
-
+func _try_initial_setup() -> void:
+	if _initial_setup_done:
+		return
+	if not Global.CHARACTERS_NAME.has(Global.ACTIVE_USER_NAME):
+		return
+	_initial_setup_done = true
 	set_ui()
-	#await get_tree().create_timer(3.0).timeout
-	pass  # polling removed — data synced via ENet
-	$UI/TopHotbar/Party2Portrait/ElementTexture
-	# Your logic here
+	role_check()
+	restore_health()
+	Market.Refresh_Stock(Global.Current_Region)
+	if Global.Luck_Set == false:
+		trigger_luck_popup()
+		Global.Luck_Set = true
+
+func _on_data_load_complete():
+	if not _initial_setup_done:
+		_try_initial_setup()
+	else:
+		set_ui()
 
 func _on_audio_stream_player_2d_finished() -> void:
 	play_next_track()
@@ -145,6 +150,8 @@ func set_background():
 		print("⚠️ Background image not found:", path)
 
 func set_ui():
+	if not Global.CHARACTERS_NAME.has(Global.ACTIVE_USER_NAME):
+		return
 	assign_party()
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
 
@@ -170,13 +177,14 @@ func set_ui():
 	Level.text = "Level: "+str(int(Player_data.get("Level")))+"/"+str(int(Player_data.get("Level_Cap")))
 	var array = 0
 	for player in Global.PartyCharacters:
-		array += Global.CHARACTERS[Global.CHARACTERS_NAME[player]].get("Max_Health")
-	Global.AverageHealth = array/Global.PartyCharacters.size()
+		var _pid = Global.CHARACTERS_NAME.get(player, "")
+		array += Global.CHARACTERS.get(_pid, {}).get("Max_Health", 0)
+	Global.AverageHealth = array / max(Global.PartyCharacters.size(), 1)
 	var updates = []
 	for Companion in Global.COMPANIONS.values():
 		if Companion.get("Current_Health") != Global.AverageHealth:
-			updates.append({"table": "Companions","record_id": Companion.get("id"),"field": "Current_Health","value": Global.AverageHealth})
-			updates.append({"table": "Companions","record_id": Companion.get("id"),"field": "Max_Health","value": Global.AverageHealth})
+			updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Current_Health","value": Global.AverageHealth})
+			updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Max_Health","value": Global.AverageHealth})
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 	if Global.Region_Changed == 1:
@@ -193,19 +201,20 @@ func _apply_stat(btn, key: String, val) -> void:
 	btn.StatValue = val
 	btn.AddedRoll        = pd.get("%s_Added_Roll_Bonus" % key, 0) \
 						+ pd.get("%s_Manual_Roll_Added_Amount_Override" % key, 0) \
-						+ pd.get("Universal_Added_Roll_Bonus")
+						+ pd.get("Universal_Added_Roll_Bonus", 0)
 	btn.MultipliedRoll  = 1 + pd.get("%s_Multiplier_Roll_Bonus" % key, 0.0) \
 						  + pd.get("%s_Manual_Roll_Multiplier_Amount_Override" % key, 0.0)\
-						+ pd.get("Universal_Multiplier_Roll_Bonus")
+						+ pd.get("Universal_Multiplier_Roll_Bonus", 0.0)
 	btn.AddedDamage     = pd.get("%s_Added_Damage_Bonus" % key, 0) \
 						+ pd.get("%s_Manual_Damage_Added_Amount_Override" % key, 0)\
-						+ pd.get("Universal_Added_Damage_Bonus")
+						+ pd.get("Universal_Added_Damage_Bonus", 0)
 	btn.MultipliedDamage = 1 + pd.get("%s_Multiplier_Damage_Bonus" % key, 0.0) \
 						   + pd.get("%s_Manual_Damage_Multiplier_Amount_Override" % key, 0.0)\
-						+ pd.get("Universal_Multiplier_Damage_Bonus")
+						+ pd.get("Universal_Multiplier_Damage_Bonus", 0.0)
 
 func set_stats():
-	Player_data = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]]
+	var _sid = Global.CHARACTERS_NAME.get(Global.ACTIVE_USER_NAME, "")
+	Player_data = Global.CHARACTERS.get(_sid, {})
 	var rows = [
 	[HealthButton,            "Health",             Global.Current_Health],
 	[AttackButton,            "Attack",             Global.Current_Attack],
@@ -412,7 +421,7 @@ func _on_check_characters_response(_result, _code, _headers, _body):
 	pass
 
 func set_region_button_options():
-	Ascension = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Ascension_Rank")
+	Ascension = Player_data.get("Ascension_Rank", 0)
 	for item in RegionButton.get_popup().get_item_count():
 		if RegionButton.get_item_text(item) == Global.Current_Region:
 			RegionButton.selected = item
@@ -424,8 +433,8 @@ func set_element_button_options():
 	for weapon in Global.CHARACTER_WEAPONS.values():
 		if weapon.get("Owner") == Global.ACTIVE_USER_NAME and weapon.get("Equipped") == true:
 			weapon_type = weapon.get("Type")
-	var current_element = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Element")
-	var element = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("Ascension_Material")
+	var current_element = Player_data.get("Element", "")
+	var element = Player_data.get("Ascension_Material", "")
 	var base_element = element.left(element.length() -4)
 	for item in ElementButton.get_popup().get_item_count():
 		if ElementButton.get_item_text(item) == current_element:
@@ -437,7 +446,11 @@ func set_element_button_options():
 			ElementButton.set_item_disabled(item,false)
 		var ability_count = 0
 		for ability in Global.ACTIVE_ABILITIES.values():
-			if ability.get("Element") == ElementButton.get_item_text(item) and ability.get("Weapon_Type") == weapon_type and ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID and ability.get("Entity_Type") == "Character":
+			var eid = ability.get("Entity_ID")
+			if ability.get("Element") == ElementButton.get_item_text(item) \
+			and str(ability.get("Weapon_Type", "")) == str(weapon_type) \
+			and eid != null and int(eid) == Global.ACTIVE_USER_RECORD_ID \
+			and ability.get("Entity_Type") == "Character":
 				ability_count += 1
 		if ability_count == 0:
 			ElementButton.set_item_disabled(item,true)
@@ -455,38 +468,23 @@ func _on_region_button_item_selected(index: int) -> void:
 		_region_busy = false
 		return
 
-	# 1) Local apply first (triggers your music setter if you made it a property)
-	var original_region = Global.Current_Region
 	Global.Current_Region = region
 
-	# 2) Build updates + tag fields so stale polls don’t revert
-	var updates: Array = []
-	var players = ["Dylan", "Brian F.", "Brian C."]  # or however you track players
-	for name in players:
-		var rid = Global.CHARACTERS_NAME[name]
-		# local cache so UI stays consistent
-		Global.CHARACTERS[rid]["Current_Region"] = region
-		# stale-guard no longer needed — ENet handles sync
-		updates.append({
-			"table": "Characters",
-			"record_id": float(rid),
-			"field": "Current_Region",
-			"value": region
-		})
+	var party_id = int(Global.Current_Party.get("id", 0))
+	if party_id == 0:
+		_region_busy = false
+		return
 
-	# 3) Update UI now, then send
+	Global.Update_Records([{
+		"table": "Party",
+		"record_id": party_id,
+		"field": "Current_Region",
+		"value": region
+	}])
+
 	set_ui()
-	Global.Update_Records(updates)
-	Global.Log(
-	"location",
-	"change_region",
-	"Region",
-	str(index),
-	{"old_region": original_region},
-	{"new_region": Global.Current_Region})
 
-	# tiny debounce so rapid clicks don’t overlap writes
-	await get_tree().create_timer(0.6).timeout
+	await get_tree().create_timer(0.3).timeout
 	_region_busy = false
 
 
@@ -498,57 +496,46 @@ func _on_element_button_item_selected(index: int) -> void:
 	_element_busy = true
 
 	var new_element = ElementButton.get_item_text(index)
-	var rid = Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]
-	var old = Global.CHARACTERS[rid].get("Element")
-	var weap
-	var weap_type
+	var rid = Global.CHARACTERS_NAME.get(Global.ACTIVE_USER_NAME, "")
+	if rid == "":
+		_element_busy = false
+		return
+	var char_data = Global._synced.get("Characters", {}).get(rid, {})
+	var old = char_data.get("Element", "")
+	var weap_type = ""
 	for weapon in Global.CHARACTER_WEAPONS.values():
 		if weapon.get("Owner") == Global.ACTIVE_USER_NAME and weapon.get("Equipped") == true:
-			weap = weapon
-			weap_type = weapon.get("Type")
+			weap_type = str(weapon.get("Type", ""))
+			break
 	if new_element == old:
 		_element_busy = false
 		return
-	
+
 	# check if user has at least one ability for this weapon + element
 	var has_matching_ability := false
-
 	for ability in Global.ACTIVE_ABILITIES.values():
+		var eid = ability.get("Entity_ID")
 		if ability.get("Entity_Type") == "Character" \
-		and str(ability.get("Entity_ID")) == str(Global.ACTIVE_USER_RECORD_ID) \
-		and str(ability.get("Weapon_Type")) == str(weap_type) \
-		and str(ability.get("Element")) == str(new_element):
+		and eid != null and int(eid) == Global.ACTIVE_USER_RECORD_ID \
+		and str(ability.get("Weapon_Type", "")) == weap_type \
+		and str(ability.get("Element", "")) == new_element:
 			has_matching_ability = true
 			break
 
 	if not has_matching_ability:
-		print("No abilities match this element + weapon type. Exiting.")
 		_element_busy = false
 		return
-	
 
-	# 1) Local apply
-	Global.CHARACTERS[rid]["Element"] = new_element
-
-	# 2) Tag + send
-	# stale-guard removed — ENet sync
 	Global.Update_Records([{
 		"table": "Characters",
-		"record_id": float(rid),
+		"record_id": int(rid),
 		"field": "Element",
 		"value": new_element
 	}])
-	Global.Log(
-	"character",
-	"change_element",
-	"Element",
-	str(index),
-	{"old_element": old},
-	{"new_element": new_element})
-	# 3) Update UI now
+
 	set_ui()
 
-	await get_tree().create_timer(0.6).timeout
+	await get_tree().create_timer(0.3).timeout
 	_element_busy = false
 
 func _open_artifact_detail(slot_short: String) -> void:

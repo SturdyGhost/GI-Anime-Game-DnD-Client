@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_8cuke"]
+
+[resource]
+script = ExtResource("1_8cuke")
+id = 37
+first_element = "Nature"
+second_element = "Earth"
+outcome = "FAVORABLE"
+effect = "Yourself or an ally of your choice within 3 tiles takes half damage the next time they are attacked. They additionally add +4 to their next defense roll."
+effects = []

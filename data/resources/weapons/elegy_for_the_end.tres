@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_7q7t2"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_jd2n1"]
+
+[sub_resource type="Resource" id="Resource_4n10h"]
+script = ExtResource("1_7q7t2")
+trigger = "ON_SKILL_USE"
+condition = "NONE"
+condition_value = ""
+effect_type = "FLAT_DAMAGE"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = "1d6"
+effect_element = ""
+target = "ALL_ALLIES"
+duration = 1
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On skill/burst allies add 1D6 to next elemental attack"
+
+[resource]
+script = ExtResource("1_jd2n1")
+id = 51
+name = "Elegy For The End"
+rarity = "Legendary"
+region = "Mondstadt"
+weapon_type = "Bow"
+effect = "When the wielder uses skill/burst all allies add 1 D6 of damage to their next elemental attack."
+stat_1_type = "Elemental_Mastery"
+stat_1_value = 4.0
+stat_2_type = "Energy_Recharge"
+stat_2_value = 1.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = [SubResource("Resource_4n10h")]

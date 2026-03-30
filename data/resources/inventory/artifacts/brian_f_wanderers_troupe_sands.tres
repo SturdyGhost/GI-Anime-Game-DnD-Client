@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="OwnedArtifact" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_artifact.gd" id="1_p0yw7"]
+
+[resource]
+script = ExtResource("1_p0yw7")
+id = 9
+artifact_set = "Wanderers Troupe"
+owner = "Brian F."
+type = "Sands of Time"
+equipped = true
+rarity = 2
+stat_1_type = "Health"
+stat_1_value = 1.5
+stat_2_type = "Attack"
+stat_2_value = 0.8

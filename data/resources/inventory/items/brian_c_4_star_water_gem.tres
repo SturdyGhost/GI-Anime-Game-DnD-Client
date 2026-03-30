@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_ple6s"]
+
+[resource]
+script = ExtResource("1_ple6s")
+id = 304
+item_name = "4-Star Water Gem"
+owner = "Brian C."
+quantity = 0
+rarity = "Epic"
+type = "4-Star Gem"

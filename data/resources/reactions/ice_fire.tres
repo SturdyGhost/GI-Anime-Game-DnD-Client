@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ReactionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/reaction_data.gd" id="1_1fbxm"]
+
+[resource]
+script = ExtResource("1_1fbxm")
+id = 30
+first_element = "Ice"
+second_element = "Fire"
+outcome = "FAVORABLE"
+effect = "Triggers a melting reaction that roots the target and causes the attack to deal 1.5x damage."
+effects = []

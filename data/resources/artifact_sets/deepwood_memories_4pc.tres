@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="ArtifactSetData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_a1vwj"]
+[ext_resource type="Script" path="res://Scripts/resources/artifact_set_data.gd" id="1_y4vlj"]
+
+[sub_resource type="Resource" id="Resource_wttbw"]
+script = ExtResource("1_a1vwj")
+trigger = "ON_HIT"
+condition = "ELEMENT_MATCH"
+condition_value = "Nature"
+effect_type = "DEFENSE_REDUCTION"
+effect_stat = ""
+effect_value = 4.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "TARGET"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Nature damage reduces target defense roll by 4."
+
+[sub_resource type="Resource" id="Resource_u5ykn"]
+script = ExtResource("1_a1vwj")
+trigger = "ON_REACTION"
+condition = "REACTION_ELEMENT"
+condition_value = "Nature"
+effect_type = "HEAL"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "On nature reaction, heal 1 HP."
+
+[resource]
+script = ExtResource("1_y4vlj")
+id = 42
+artifact_set = "Deepwood Memories"
+bonus_type = 4
+effect = "Anytime you, or anyone in your party deals Nature Damage, the target's defense roll has 4 subtracted from it. When you trigger a Nature reaction, heal 1 Health. "
+stat_modifier = ""
+stat_modifier_value = 0.0
+condition = ""
+condition_value = ""
+effects = [SubResource("Resource_wttbw"), SubResource("Resource_u5ykn")]

@@ -30,7 +30,7 @@ split_offset = 1800
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-current_tab = 2
+current_tab = 1
 
 [node name="PartyManagement" type="Control" parent="Layout/MainSplit/Tabs"]
 visible = false
@@ -113,45 +113,11 @@ offset_right = 2086.0
 offset_bottom = 289.0
 text = "Confirm"
 
-[node name="ResearchProgression" type="Control" parent="Layout/MainSplit/Tabs"]
-visible = false
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-metadata/_tab_index = 1
-
-[node name="RP_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ProjectList" type="Tree" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ResearchButtons" type="HBoxContainer" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox"]
-layout_mode = 2
-
-[node name="BtnAssign" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
-layout_mode = 2
-text = "Assign Player"
-
-[node name="BtnSpeedUp" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
-layout_mode = 2
-text = "Speed Up"
-
-[node name="BtnComplete" type="Button" parent="Layout/MainSplit/Tabs/ResearchProgression/RP_VBox/ResearchButtons"]
-layout_mode = 2
-text = "Complete Early"
-
 [node name="BattlePrep" type="Control" parent="Layout/MainSplit/Tabs"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-metadata/_tab_index = 2
+metadata/_tab_index = 1
 
 [node name="BP_HBox" type="HBoxContainer" parent="Layout/MainSplit/Tabs/BattlePrep"]
 layout_mode = 0
@@ -208,23 +174,12 @@ layout_mode = 2
 disabled = true
 text = "Trigger Battle Situation"
 
-[node name="ActiveBattle" type="Control" parent="Layout/MainSplit/Tabs"]
+[node name="DataEditor" type="Control" parent="Layout/MainSplit/Tabs"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-metadata/_tab_index = 3
-
-[node name="AB_VBox" type="VBoxContainer" parent="Layout/MainSplit/Tabs/ActiveBattle"]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="BattleEmbedPlaceholder" type="Label" parent="Layout/MainSplit/Tabs/ActiveBattle/AB_VBox"]
-layout_mode = 2
-text = "Battle Scene Embed (placeholder)"
+metadata/_tab_index = 2
 
 [node name="DMLogPanel" type="PanelContainer" parent="Layout/MainSplit"]
 custom_minimum_size = Vector2(420, 0)

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="OwnedItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/save/owned_item.gd" id="1_pu8ih"]
+
+[resource]
+script = ExtResource("1_pu8ih")
+id = 56
+item_name = "Sashimi Platter"
+owner = "Brian F."
+quantity = 0
+rarity = "Uncommon"
+type = "Consumable"

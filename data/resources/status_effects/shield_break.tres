@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/status_effect_data.gd" id="1_wre80"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_y57sp"]
+
+[sub_resource type="Resource" id="Resource_m42ck"]
+script = ExtResource("1_y57sp")
+trigger = "ON_DAMAGE_TAKEN"
+condition = "NONE"
+condition_value = ""
+effect_type = "PERCENT_DAMAGE"
+effect_stat = ""
+effect_value = 2.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Incoming damage is doubled."
+
+[sub_resource type="Resource" id="Resource_7esjr"]
+script = ExtResource("1_y57sp")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "PREVENT_SHIELD"
+effect_stat = ""
+effect_value = 0.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Cannot gain a new shield or eat food items."
+
+[resource]
+script = ExtResource("1_wre80")
+id = 19
+name = "Shield-Break"
+description = "Any incoming damage is doubled. While this status is active, I cannot gain a new shield and cannot eat any food items."
+effects = [SubResource("Resource_m42ck"), SubResource("Resource_7esjr")]

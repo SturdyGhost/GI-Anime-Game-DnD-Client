@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/enemy_data.gd" id="1_jp41y"]
+
+[resource]
+script = ExtResource("1_jp41y")
+id = 21
+name = "Thunder Manifestation"
+tier = "world_boss"
+size_tiles = 3
+phase_count = 2
+hp_per_phase = 0
+phase1_hp = 200
+phase2_hp = 200
+phase3_hp = 0
+phase4_hp = 0
+phase1_name = "Storm Incarnate"
+phase2_name = "Thundering Aegis"
+phase3_name = ""
+phase4_name = ""
+turn_structure = "players_all_then_boss"
+defense_scale_per_asc = 0.0
+res_pyro = 1.0
+res_hydro = 1.0
+res_electro = 1.0
+res_cryo = 1.0
+res_anemo = 1.0
+res_geo = 1.0
+res_dendro = 1.0
+notes = ""

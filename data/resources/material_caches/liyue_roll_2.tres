@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_3etcb"]
+
+[resource]
+script = ExtResource("1_3etcb")
+id = 6
+region = "Liyue"
+roll = 2
+materials = "[Qingxin,Silver Raven Insignia,Silk Flower,Shrimp Meat]"

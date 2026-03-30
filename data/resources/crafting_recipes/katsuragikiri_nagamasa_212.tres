@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_fdg6s"]
+
+[resource]
+script = ExtResource("1_fdg6s")
+id = 212
+product = "Katsuragikiri Nagamasa"
+region = "Inazuma"
+description = "1 ATT, 1 EM, 0.75 ER
+Increases skill damage by 10%, after using your skill lose 4 burst charges (not multiplied by ER) but gain 2 burst charges (multiplied by ER) back at the start of your turn for 3 turns."
+role = "Blacksmith"
+material = "Otogi Wood"
+quantity = 35
