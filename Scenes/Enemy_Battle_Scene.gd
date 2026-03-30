@@ -68,11 +68,17 @@ func _refresh_all() -> void:
 	_refresh_turns()
 
 func _on_data_load_complete():
+	if _battle_ending:
+		return
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_build_battlers()
 	_update_party_ui()
 	check_battle_end()
-	Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
+	if _battle_ending:
+		return
+	var ct = Global.Current_Party.get("Current_Turn", "")
+	if Global.BattlerData.has(ct):
+		Global.Current_Battler_Data = Global.BattlerData[ct]
 
 func _refresh_party() -> void:
 	for c in PartyRow.get_children():

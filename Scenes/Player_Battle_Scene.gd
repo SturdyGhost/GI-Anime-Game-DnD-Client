@@ -64,11 +64,17 @@ func _refresh_all() -> void:
 
 
 func _on_data_load_complete():
+	if _battle_ending:
+		return
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_update_party_ui()
 	check_battle_end()
+	if _battle_ending:
+		return
 	_refresh_enemies()
-	Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
+	var ct = Global.Current_Party.get("Current_Turn", "")
+	if Global.BattlerData.has(ct):
+		Global.Current_Battler_Data = Global.BattlerData[ct]
 
 
 func _refresh_party() -> void:
@@ -203,8 +209,8 @@ func check_battle_end():
 
 	# Check players
 	for player_name in Global.PartyCharacters:
-		var char_id = Global.CHARACTERS_NAME[player_name]
-		var health = Global.CHARACTERS[char_id].get("Current_Health")
+		var char_id = Global.CHARACTERS_NAME.get(player_name, "")
+		var health = Global.CHARACTERS.get(char_id, {}).get("Current_Health", 0)
 
 		if health > 0:
 			all_players_down = false
@@ -214,49 +220,54 @@ func check_battle_end():
 	if all_enemies_dead or all_players_down:
 		_battle_ending = true
 		print("Battle ending")
-		for enemy in Global.BATTLEENEMIES.values():
-			Global.Remove_Record("BattleEnemies", enemy.get("id"))
-		for status in Global.ACTIVE_STATUS_EFFECTS.values():
-			Global.Remove_Record("Active_Status_Effects", status.get("id"))
-		var updates = []
-		for ability in Global.ACTIVE_ABILITIES.values():
-			if ability.get("Ability_Cooldown") > 0:
+
+		# Only the host does cleanup — clients just transition
+		if NetworkManager.is_host:
+			for enemy in Global.BATTLEENEMIES.values():
+				Global.Remove_Record("BattleEnemies", enemy.get("id"))
+			for status in Global.ACTIVE_STATUS_EFFECTS.values():
+				Global.Remove_Record("Active_Status_Effects", status.get("id"))
+			var updates = []
+			for ability in Global.ACTIVE_ABILITIES.values():
+				if ability.get("Ability_Cooldown") > 0:
+					updates.append({
+						"table": "Active_Abilities",
+						"record_id": ability.get("id"),
+						"field": "Ability_Cooldown",
+						"value": 0
+					})
+			for character in Global.CHARACTERS.values():
+				if character.get("Ready") == true:
+					updates.append({
+						"table": "Characters",
+						"record_id": character.get("id"),
+						"field": "Ready",
+						"value": false
+					})
+			var buff_left = int(Global.Current_Party.get("Buff_Battles_Left", 0))
+			if buff_left - 1 <= 0:
 				updates.append({
-					"table": "Active_Abilities",
-					"record_id": ability.get("id"),
-					"field": "Ability_Cooldown",
+					"table": "Party",
+					"record_id": Global.Current_Party.get("id"),
+					"field": "Buff_Battles_Left",
 					"value": 0
 				})
-		for character in Global.CHARACTERS.values():
-			if character.get("Ready") == true:
 				updates.append({
-					"table": "Characters",
-					"record_id": character.get("id"),
-					"field": "Ready",
-					"value": false
+					"table": "Party",
+					"record_id": Global.Current_Party.get("id"),
+					"field": "Active_Food_Buff",
+					"value": "None"
 				})
-		if int(Global.Current_Party.get("Buff_Battles_Left")) - 1 == 0:
-			updates.append({
-				"table": "Party",
-				"record_id": Global.Current_Party.get("id"),
-				"field": "Buff_Battles_Left",
-				"value": 0
-			})
-			updates.append({
-				"table": "Party",
-				"record_id": Global.Current_Party.get("id"),
-				"field": "Active_Food_Buff",
-				"value": "None"
-			})
-		else:
-			updates.append({
-				"table": "Party",
-				"record_id": Global.Current_Party.get("id"),
-				"field": "Buff_Battles_Left",
-				"value": int(Global.Current_Party.get("Buff_Battles_Left")) - 1
-			})
-		Global.Update_Records(updates)
-		Global.end_battle_effects()
+			else:
+				updates.append({
+					"table": "Party",
+					"record_id": Global.Current_Party.get("id"),
+					"field": "Buff_Battles_Left",
+					"value": buff_left - 1
+				})
+			Global.Update_Records(updates)
+			Global.end_battle_effects()
+
 		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
 
