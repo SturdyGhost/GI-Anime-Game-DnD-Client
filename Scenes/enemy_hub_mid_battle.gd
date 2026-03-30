@@ -575,9 +575,6 @@ func process_turn():
 	)
 	Global.Update_Records(updates)
 
-	# Sync effects to all clients after turn processing
-	if NetworkManager.is_host and Global.effect_processor:
-		Global.sync_active_effects()
 
 
 # =============================================================================

@@ -362,13 +362,16 @@ func sync_active_effects() -> void:
 	var effects_data = effect_processor.serialize_all()
 	_synced["ActiveEffects"] = effects_data
 	if NetworkManager.is_host:
+		var json_test = JSON.stringify(effects_data)
+		if json_test == null or json_test == "":
+			push_warning("sync_active_effects: effects_data failed to serialize")
+			return
 		NetworkManager.broadcast_field_updates([{
 			"table": "ActiveEffects",
 			"record_id": 0,
 			"field": "_all",
 			"value": effects_data
 		}])
-		emit_signal("data_load_complete")
 
 ## Get active effects display data for a battler (from _synced, works on all clients).
 func get_battler_effects(battler_name: String) -> Array:
@@ -427,6 +430,7 @@ func calculate_all_stats() -> void:
 
 # ── Network-aware write operations (kept for compat) ────────────────────────
 func Update_Records(updates: Array) -> void:
+	print("Global.Update_Records: %d updates, is_host=%s" % [updates.size(), str(NetworkManager.is_host)])
 	if NetworkManager.is_host:
 		NetworkManager.host_update_records(updates)
 	else:

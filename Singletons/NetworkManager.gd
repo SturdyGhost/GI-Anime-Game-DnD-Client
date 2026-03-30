@@ -370,12 +370,15 @@ func broadcast_field_updates(updates: Array) -> void:
 	if not is_host:
 		return
 	var json_str = JSON.stringify(updates)
+	print("NetworkManager: broadcasting %d field updates (%d bytes)" % [updates.size(), json_str.length()])
 	_receive_field_updates.rpc(json_str)
 
 @rpc("authority", "reliable")
 func _receive_field_updates(json_str: String) -> void:
+	print("NetworkManager: received field updates (%d bytes)" % json_str.length())
 	var updates = JSON.parse_string(json_str)
 	if updates == null or typeof(updates) != TYPE_ARRAY:
+		push_error("NetworkManager: failed to parse field updates")
 		return
 	for u in updates:
 		Global._apply_update_to_save(u)
@@ -389,8 +392,10 @@ func _receive_field_updates(json_str: String) -> void:
 func request_update(updates_json: String) -> void:
 	if not is_host:
 		return
+	print("NetworkManager: host received request_update from peer %d" % multiplayer.get_remote_sender_id())
 	var updates = JSON.parse_string(updates_json)
 	if updates == null or typeof(updates) != TYPE_ARRAY:
+		push_error("NetworkManager: failed to parse request_update")
 		return
 
 	var changed_tables = {}
