@@ -272,6 +272,42 @@ func _resolve_stat(battler_name: String, stat_ref: String, context: Dictionary) 
 			return float(context.get("damage_dealt", 0))
 	return 0.0
 
+# ─── Serialization (for network sync) ────────────────────────────────────────
+
+## Serialize all active effects for every battler into a dict for _synced.
+## Returns { battler_name: [ { display fields }, ... ] }
+func serialize_all() -> Dictionary:
+	var result = {}
+	for battler_name in _active_effects.keys():
+		result[battler_name] = serialize_battler(battler_name)
+	return result
+
+## Serialize active effects for one battler into an array of display dicts.
+func serialize_battler(battler_name: String) -> Array:
+	var arr = []
+	for state in _active_effects.get(battler_name, []):
+		if not state.is_active:
+			continue
+		arr.append({
+			"source_type": state.source_type,
+			"source_name": state.source_name,
+			"effect_type": state.effect.effect_type,
+			"effect_stat": state.effect.effect_stat,
+			"trigger": state.effect.trigger,
+			"description": state.effect.description,
+			"value": state.current_value(),
+			"turns_remaining": state.turns_remaining,
+			"stacks": state.current_stacks,
+			"max_stacks": state.effect.max_stacks,
+			"target": state.effect.target,
+			"element": state.effect.effect_element,
+		})
+	return arr
+
+## Get battler names that have registered effects.
+func get_battler_names() -> Array:
+	return _active_effects.keys()
+
 # ─── Debug ───────────────────────────────────────────────────────────────────
 
 func debug_print(battler_name: String) -> void:

@@ -231,50 +231,49 @@ func set_item_targets():
 
 
 func set_status_effects():
-	print("Set Status Effects function running")
+	StatusEffectList.clear()
 
-	if StatusEffectList.item_count > 0:
-		StatusEffectList.clear()
+	var b_name = str(Current_Turn) if Current_Turn != null else ""
+	var effects = Global.get_battler_effects(b_name)
 
-	if Current_Turn != null and Global.BattlerData.size() > 0:
-		var entries: Array = []
+	var entries: Array = []
+	for fx in effects:
+		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
+			continue
+		var dur = fx.get("turns_remaining", 0)
+		var dur_str = "perm" if dur == -1 else str(dur)
+		var desc = fx.get("description", "")
+		if desc == "":
+			desc = "%s %s" % [fx.get("effect_type", ""), fx.get("effect_stat", "")]
+		var stacks_str = ""
+		if fx.get("stacks", 0) > 0:
+			stacks_str = " [%d/%d]" % [fx.get("stacks"), fx.get("max_stacks", 0)]
+		entries.append({
+			"name": fx.get("source_name", "Unknown"),
+			"duration": dur, "dur_str": dur_str,
+			"description": desc, "source_type": fx.get("source_type", ""),
+			"stacks_str": stacks_str, "effect_type": fx.get("effect_type", ""),
+		})
 
-		for item in Global.ACTIVE_STATUS_EFFECTS.values():
-			if int(item.get("Entity_ID")) == int(Global.Current_Battler_Data.get("id")) \
-			and item.get("Entity_Type") == Global.Current_Battler_Data.get("type"):
-				var status_id := int(item.get("Status_ID"))
-				var status_res: StatusEffectData = GameDB.get_status_effect(status_id)
-				var se_name := status_res.name if status_res else ""
-				var se_desc := status_res.description if status_res else ""
-				var duration: int = int(item.get("Duration", 0))
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var da: int = int(a.get("duration", 0))
+		var db: int = int(b.get("duration", 0))
+		if da != db:
+			return da < db
+		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
+	)
 
-				entries.append({
-					"name": se_name,
-					"duration": duration,
-					"description": se_desc,
-					"status_effect_res": status_res,
-					"active_item": item
-				})
+	for e in entries:
+		StatusEffectList.add_item("%s - %s%s" % [e.get("dur_str"), e.get("name"), e.get("stacks_str")])
+		var idx = StatusEffectList.get_item_count() - 1
+		var tip = "Source: %s\nType: %s\nTurns Left: %s%s\n\n%s" % [
+			e.get("source_type"), e.get("effect_type"),
+			e.get("dur_str"), e.get("stacks_str"), e.get("description")
+		]
+		StatusEffectList.set_item_tooltip(idx, _wrap_text(tip, 100))
 
-		entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-			var da: int = int(a.get("duration", 0))
-			var db: int = int(b.get("duration", 0))
-			if da != db:
-				return da < db
-			var na: String = str(a.get("name", "")).to_lower()
-			var nb: String = str(b.get("name", "")).to_lower()
-			return na < nb
-		)
-
-		for e in entries:
-			StatusEffectList.add_item(str(e.get("duration")) + " - " + e.get("name", ""))
-			var idx = StatusEffectList.get_item_count() - 1
-			var desc = "Turns Left: " + str(e.get("duration")) + "\nName: " + e.get("name") + "\nDescription: " + str(e.get("description", ""))
-			desc = _wrap_text(desc, 100)
-			StatusEffectList.set_item_tooltip(idx, desc)
-
-		if StatusEffectList.item_count == 0:
-			StatusEffectList.add_item("None")
+	if StatusEffectList.item_count == 0:
+		StatusEffectList.add_item("None")
 
 
 # =============================================================================
@@ -345,6 +344,18 @@ func process_turn():
 	var item_target_text: String = ItemUsedTarget.get_item_text(ItemUsedTarget.selected)
 	var attack_used_text: String = AttackUsedButton.get_item_text(AttackUsedButton.selected)
 	var critical_hit: bool = CritBox.button_pressed
+	var battler_name: String = str(Current_Turn) if Current_Turn != null else ""
+
+	# ----- Turn start effects (host only) -----
+	if NetworkManager.is_host and Global.effect_processor and battler_name != "":
+		var start_ctx = {}
+		if Global.Current_Battler_Data:
+			start_ctx = {
+				"current_health": Global.Current_Battler_Data.get("current_health", 0),
+				"max_health": Global.Current_Battler_Data.get("max_health", 0),
+				"burst_charges": Global.Current_Battler_Data.get("burst_charges", 0),
+			}
+		var _start_actions = Global.effect_processor.on_turn_start(battler_name, start_ctx)
 
 	# ----- Per-target collection -----
 	var targets: Array = []
@@ -390,18 +401,35 @@ func process_turn():
 		if t_elem != "None":
 			elements_unique[t_elem] = true
 			_apply_element(t_table, t_id, t_elem, updates)
-			# Check if a reaction occurred (element was already applied)
 			var _record := _get_target_record(t_table, t_id)
 			if _record.size() > 0:
-				var elem_field := "Applied_Element" if t_table == "Characters" else "AppliedElement"
-				# If we just set it to "None" in updates, that means a reaction happened
+				var elem_field := "Applied_Element" if t_table in ["Characters", "Companions"] else "AppliedElement"
 				for u in updates:
 					if u.get("table") == t_table and u.get("record_id") == int(t_id) \
 					and u.get("field") == elem_field and u.get("value") == "None":
 						t_reaction = true
-						# The current element was whatever was on the target before
 						t_current_element = _record.get(elem_field, "None")
 						break
+
+			# --- Reaction effects (host only) ---
+			if t_reaction and NetworkManager.is_host and Global.effect_processor and battler_name != "":
+				var react_ctx = {"reaction_element": t_current_element, "attack_element": t_elem, "element": t_elem, "is_crit": critical_hit}
+				var react_actions = Global.effect_processor.process_trigger(battler_name, "ON_REACTION", react_ctx)
+				for act in react_actions:
+					if act.get("effect_type") == "FLAT_DAMAGE":
+						t_damage += int(act.get("value", 0))
+					elif act.get("effect_type") == "PERCENT_DAMAGE":
+						t_damage = int(t_damage * act.get("value", 1.0))
+
+		# --- Damage modifiers from effects (host only) ---
+		if NetworkManager.is_host and Global.effect_processor and battler_name != "" and t_damage > 0:
+			var hit_ctx = {"attack_type": t_type, "element": t_elem, "is_crit": critical_hit, "target_element": t_current_element}
+			var flat_mod = Global.effect_processor.sum_flat_damage(battler_name, "ON_HIT", hit_ctx)
+			var mult_mod = Global.effect_processor.damage_multiplier(battler_name, "ON_HIT", hit_ctx)
+			if critical_hit:
+				flat_mod += Global.effect_processor.sum_flat_damage(battler_name, "ON_CRIT", hit_ctx)
+				mult_mod *= Global.effect_processor.damage_multiplier(battler_name, "ON_CRIT", hit_ctx)
+			t_damage = int((t_damage + flat_mod) * mult_mod)
 
 		# -- HP / KO handling --
 		var t_type_lower: String = t_type.to_lower()
@@ -425,30 +453,20 @@ func process_turn():
 						if int(move.get("Ability_ID")) == int(ability.get("id")):
 							Current_Battler_Selected_Move = move
 
-		# Status effect from the selected move
+		# Apply status effect to target via EffectProcessor
 		if Current_Battler_Selected_Move_Data != null \
 		and int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
 			t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
 			t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration", 0))
 
-			var found_existing = false
-			for active_status in Global.ACTIVE_STATUS_EFFECTS.values():
-				if int(active_status.get("Status_ID", 0)) == t_effect_status \
-				and str(active_status.get("Entity_Type")) == str(t_entity_type) \
-				and int(active_status.get("Entity_ID", 0)) == int(t_id):
-					found_existing = true
-					updates.append({
-						"table": "Active_Status_Effects",
-						"record_id": int(active_status.get("id")),
-						"field": "Duration",
-						"value": int(t_effect_status_duration + 1)
-					})
-					break
-
-			if not found_existing:
-				var cols = ["Entity_ID", "Entity_Type", "Status_ID", "Duration"]
-				var vals = [int(t_id), str(t_entity_type), int(t_effect_status), int(t_effect_status_duration + 1)]
-				Global.Insert("Active_Status_Effects", cols, vals)
+			if NetworkManager.is_host and Global.effect_processor:
+				var status_data = GameDB.status_effects.get(t_effect_status, null)
+				var status_name = status_data.name if status_data else "Status_%d" % t_effect_status
+				var status_effects = StatusEffectsMap.get_effects(status_name)
+				for eff in status_effects:
+					if eff.duration == 0:
+						eff.duration = t_effect_status_duration + 1
+					Global.effect_processor.add_effect(t_name, eff, "status", status_name)
 
 		# -- Ability cooldown --
 		if Current_Battler_Selected_Move_Data != null \
@@ -558,6 +576,10 @@ func process_turn():
 		misc
 	)
 	Global.Update_Records(updates)
+
+	# Sync effects to all clients after turn processing
+	if NetworkManager.is_host and Global.effect_processor:
+		Global.sync_active_effects()
 
 
 # =============================================================================
@@ -675,23 +697,16 @@ func _resolve_damage(row_data: Dictionary, t_table: String, t_id, t_type: String
 # =============================================================================
 
 func _process_cooldowns_and_status(updates: Array) -> void:
-	var battler_type: String = Global.Current_Battler_Data.get("type")
-	var battler_id: int = int(Global.Current_Battler_Data.get("id"))
+	var b_name = str(Current_Turn) if Current_Turn != null else ""
+	var battler_type: String = Global.Current_Battler_Data.get("type") if Global.Current_Battler_Data else ""
+	var battler_id: int = int(Global.Current_Battler_Data.get("id")) if Global.Current_Battler_Data else 0
 
-	# Subtract 1 turn from status effects
-	for entry in Global.ACTIVE_STATUS_EFFECTS.values():
-		if entry.get("Entity_Type") == battler_type \
-		and int(entry.get("Entity_ID")) == battler_id:
-			if int(entry.get("Duration")) - 1 > 0:
-				updates.append({
-					"table": "Active_Status_Effects",
-					"record_id": int(entry.get("id")),
-					"field": "Duration",
-					"value": int(entry.get("Duration")) - 1})
-			else:
-				Global.Remove_Record("Active_Status_Effects", int(entry.get("id")))
+	# Tick effect durations via processor (host only)
+	if NetworkManager.is_host and Global.effect_processor and b_name != "":
+		Global.effect_processor.on_turn_end(b_name)
+		Global.sync_active_effects()
 
-	# Subtract 1 turn from ability cooldowns
+	# Subtract 1 turn from ability cooldowns (kept separate from effects)
 	for entry in Global.ACTIVE_ABILITIES.values():
 		if entry.get("Entity_Type") == battler_type \
 		and int(entry.get("Entity_ID")) == battler_id \

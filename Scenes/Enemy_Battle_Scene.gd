@@ -108,6 +108,9 @@ func _build_battlers() -> void:
 	if Original_Order.size() > 0:
 		Global.BattlerData = BattlerState.build_all(Original_Order)
 		Global.Current_Battler_Data = Global.BattlerData[Global.Current_Party.get("Current_Turn")]
+		# Register all battlers with the effect processor (host only)
+		if NetworkManager.is_host and Global.effect_processor == null:
+			Global.start_battle_effects(Global.BattlerData)
 
 func _refresh_turns() -> void:
 	TurnList.clear()
@@ -211,6 +214,7 @@ func check_battle_end():
 		print("Battle ending")
 		for enemy in Global.BATTLEENEMIES.values():
 			Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
+		Global.end_battle_effects()
 		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
 

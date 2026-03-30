@@ -74,6 +74,60 @@ func set_card(id):
 		var tex = load(path)
 		if tex is Texture2D:
 			CardPortrait.texture = tex
+	_update_effects_display()
+
+func _update_effects_display() -> void:
+	if not has_node("EffectsLabel"):
+		var lbl = Label.new()
+		lbl.name = "EffectsLabel"
+		lbl.position = Vector2(0, 200)
+		lbl.custom_minimum_size = Vector2(200, 20)
+		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+		add_child(lbl)
+
+	var lbl = $EffectsLabel
+	var battler_label = str(ename) + " " + str(int(eid))
+	var effects = Global.get_battler_effects(battler_label)
+	if effects.is_empty():
+		lbl.text = ""
+		lbl.tooltip_text = ""
+		return
+
+	var display_effects = []
+	for fx in effects:
+		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
+			continue
+		display_effects.append(fx)
+
+	if display_effects.is_empty():
+		lbl.text = ""
+		lbl.tooltip_text = ""
+		return
+
+	lbl.text = "%d effect(s)" % display_effects.size()
+
+	var tip = ""
+	for fx in display_effects:
+		var dur_str = ""
+		var dur = fx.get("turns_remaining", 0)
+		if dur == -1:
+			dur_str = "permanent"
+		elif dur > 0:
+			dur_str = "%d turn(s)" % dur
+		else:
+			dur_str = "instant"
+		var stacks_str = ""
+		if fx.get("stacks", 0) > 0:
+			stacks_str = " [%d/%d stacks]" % [fx.get("stacks"), fx.get("max_stacks", 0)]
+		var desc = fx.get("description", "")
+		if desc == "":
+			desc = "%s %s" % [fx.get("effect_type", ""), fx.get("effect_stat", "")]
+		tip += "%s (%s)%s — %s\n  %s\n\n" % [
+			fx.get("source_name", "Unknown"), dur_str, stacks_str,
+			fx.get("source_type", ""), desc.strip_edges()
+		]
+	lbl.tooltip_text = tip.strip_edges()
 
 func _apply_shield_border(has_shield: bool) -> void:
 	if has_shield:

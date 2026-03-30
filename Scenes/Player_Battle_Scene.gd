@@ -251,6 +251,7 @@ func check_battle_end():
 				"value": int(Global.Current_Party.get("Buff_Battles_Left")) - 1
 			})
 		Global.Update_Records(updates)
+		Global.end_battle_effects()
 		get_tree().change_scene_to_file("res://Scenes/player_hub_loading.tscn")
 
 

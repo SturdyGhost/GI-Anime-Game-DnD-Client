@@ -311,6 +311,85 @@ var BATTLE_TURNS: Array = []
 var BATTLE_TURN_ORDER: Array = []
 var BATTLE_PARTICIPANTS: Array = []
 
+# ── Effect Processor (host-only, authoritative for all combat effects) ──────
+var effect_processor: EffectProcessor = null
+
+## Called at battle start (host only). Registers all battlers with their effects.
+func start_battle_effects(battler_data: Dictionary) -> void:
+	effect_processor = EffectProcessor.new()
+	for battler_name in battler_data.keys():
+		var bd = battler_data[battler_name]
+		var effects: Array = []
+		var b_type = bd.get("type", "")
+
+		# Weapon effects (Characters now, Companions/Enemies future-proofed)
+		var weapon_data = bd.get("entity_weapon_data")
+		if weapon_data != null and not weapon_data.is_empty():
+			var wname = str(weapon_data.get("Weapon", ""))
+			if wname != "":
+				effects.append_array(WeaponEffects.get_effects(wname))
+
+		# Artifact set bonuses
+		var equipped_artifacts = []
+		for a in CHARACTER_ARTIFACTS.values():
+			if a.get("Owner") == battler_name and a.get("Equipped") == true:
+				equipped_artifacts.append(a)
+		var set_pieces = {}
+		for a in equipped_artifacts:
+			var sn = a.get("Artifact_Set", "")
+			if sn != "":
+				set_pieces[sn] = set_pieces.get(sn, 0) + 1
+		for sn in set_pieces:
+			for bonus_type in [2, 4]:
+				if set_pieces[sn] >= bonus_type:
+					effects.append_array(ArtifactEffects.get_effects(sn, bonus_type))
+
+		# Ability effects
+		var abilities = bd.get("entity_current_ability_data", {})
+		for ability in abilities.values():
+			var aid = ability.get("id", 0)
+			if aid > 0:
+				effects.append_array(AbilityEffects.get_effects(int(aid)))
+
+		effect_processor.register_battler(battler_name, effects)
+
+	sync_active_effects()
+
+## Serialize and broadcast active effects to all clients.
+func sync_active_effects() -> void:
+	if effect_processor == null:
+		return
+	var effects_data = effect_processor.serialize_all()
+	_synced["ActiveEffects"] = effects_data
+	if NetworkManager.is_host:
+		NetworkManager.broadcast_field_updates([{
+			"table": "ActiveEffects",
+			"record_id": 0,
+			"field": "_all",
+			"value": effects_data
+		}])
+		emit_signal("data_load_complete")
+
+## Get active effects display data for a battler (from _synced, works on all clients).
+func get_battler_effects(battler_name: String) -> Array:
+	var all_fx = _synced.get("ActiveEffects", {})
+	return all_fx.get(battler_name, [])
+
+## Clean up at battle end.
+func end_battle_effects() -> void:
+	if effect_processor != null:
+		effect_processor.clear_all()
+		effect_processor = null
+	_synced.erase("ActiveEffects")
+	if NetworkManager.is_host:
+		NetworkManager.broadcast_field_updates([{
+			"table": "ActiveEffects",
+			"record_id": 0,
+			"field": "_all",
+			"value": {}
+		}])
+		emit_signal("data_load_complete")
+
 # ── Correlation ID for inserts ───────────────────────────────────────────────
 var _next_insert_corr_id: String = ""
 func set_next_correlation_id(id_value: String) -> void:
@@ -391,6 +470,11 @@ func _apply_update_to_save(u: Dictionary) -> void:
 	var rid: int = int(u.get("record_id", 0))
 	var field: String = str(u.get("field", ""))
 	var value = u.get("value")
+
+	# Special: ActiveEffects is a whole-dict replacement, not per-record
+	if table == "ActiveEffects" and field == "_all":
+		_synced["ActiveEffects"] = value if value != null else {}
+		return
 
 	# Always update _synced (the host-authoritative data)
 	if _synced.has(table) and _synced[table].has(str(rid)):

@@ -114,9 +114,11 @@ func update_stats():
 	var s
 	match type:
 		"Character":
-			s = Global.CHARACTERS[str(tableid)]
+			s = Global.CHARACTERS.get(str(tableid), {})
 		"Companion":
-			s = Global.COMPANIONS[str(tableid)]
+			s = Global.COMPANIONS.get(str(tableid), {})
+	if s.is_empty():
+		return
 	hp_cur = s.get("Current_Health")
 	hp_max = s.get("Max_Health")
 	pct = (hp_cur / hp_max) * 100.0 if hp_max > 0.0 else 0.0
@@ -140,7 +142,73 @@ func update_stats():
 		self.modulate = Color(0.6, 0.6, 0.6, 0.8)
 	else:
 		self.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	pass
+	_update_effects_display()
+
+func _update_effects_display() -> void:
+	if not has_node("EffectsLabel"):
+		var lbl = Label.new()
+		lbl.name = "EffectsLabel"
+		lbl.position = Vector2(0, 170)
+		lbl.custom_minimum_size = Vector2(200, 20)
+		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+		add_child(lbl)
+
+	var lbl = $EffectsLabel
+	var effects = Global.get_battler_effects(card_name)
+	if effects.is_empty():
+		lbl.text = ""
+		lbl.tooltip_text = ""
+		return
+
+	# Count non-passive effects for display
+	var display_effects = []
+	for fx in effects:
+		if fx.get("trigger") == "PASSIVE" and fx.get("source_type") == "gear":
+			continue
+		display_effects.append(fx)
+
+	if display_effects.is_empty():
+		lbl.text = ""
+		lbl.tooltip_text = ""
+		return
+
+	# Short summary on card
+	var names = []
+	for fx in display_effects:
+		var n = fx.get("source_name", fx.get("effect_type", "?"))
+		if not names.has(n):
+			names.append(n)
+	lbl.text = "%d effect(s)" % display_effects.size()
+
+	# Detailed tooltip
+	var tip = ""
+	for fx in display_effects:
+		var dur_str = ""
+		var dur = fx.get("turns_remaining", 0)
+		if dur == -1:
+			dur_str = "permanent"
+		elif dur > 0:
+			dur_str = "%d turn(s)" % dur
+		else:
+			dur_str = "instant"
+
+		var stacks_str = ""
+		if fx.get("stacks", 0) > 0:
+			stacks_str = " [%d/%d stacks]" % [fx.get("stacks"), fx.get("max_stacks", 0)]
+
+		var desc = fx.get("description", "")
+		if desc == "":
+			desc = "%s %s" % [fx.get("effect_type", ""), fx.get("effect_stat", "")]
+
+		tip += "%s (%s)%s — %s\n  %s\n\n" % [
+			fx.get("source_name", "Unknown"),
+			dur_str,
+			stacks_str,
+			fx.get("source_type", ""),
+			desc.strip_edges()
+		]
+	lbl.tooltip_text = tip.strip_edges()
 
 
 func _apply_shield_border(has_shield: bool) -> void:
