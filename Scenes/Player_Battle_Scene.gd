@@ -252,8 +252,6 @@ func _host_battle_cleanup() -> void:
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 	Global.end_battle_effects()
-	# Wait a frame for broadcasts to send before transitioning
-	await get_tree().process_frame
 	_go_to_hub()
 
 func _go_to_hub() -> void:
