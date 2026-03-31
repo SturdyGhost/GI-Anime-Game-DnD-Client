@@ -123,21 +123,58 @@ func _try_initial_setup() -> void:
 		return
 	if not Global.CHARACTERS_NAME.has(Global.ACTIVE_USER_NAME):
 		return
+	# Wait for connection if we're a client
+	if not NetworkManager.is_host and not NetworkManager.is_connected_to_host:
+		_show_reconnect_popup()
+		return
 	_initial_setup_done = true
 	set_ui()
+	set_background()
 	role_check()
 	restore_health()
 	if Global.Luck_Set == false:
 		trigger_luck_popup()
 		Global.Luck_Set = true
 	else:
-		Market.Refresh_Stock(Global.Current_Region)
+		call_deferred("_deferred_market_refresh")
+
+func _deferred_market_refresh() -> void:
+	Market.Refresh_Stock(Global.Current_Region)
 
 func _on_data_load_complete():
 	if not _initial_setup_done:
 		_try_initial_setup()
 	else:
 		set_ui()
+		set_background()
+
+var _reconnect_popup: Panel = null
+
+func _show_reconnect_popup() -> void:
+	if _reconnect_popup != null:
+		return
+	_reconnect_popup = Panel.new()
+	_reconnect_popup.set_anchors_preset(Control.PRESET_CENTER)
+	_reconnect_popup.custom_minimum_size = Vector2(400, 100)
+	_reconnect_popup.position = Vector2(760, 490)
+	var lbl = Label.new()
+	lbl.text = "Reconnecting to host..."
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_reconnect_popup.add_child(lbl)
+	add_child(_reconnect_popup)
+	# Poll until reconnected
+	_poll_reconnect()
+
+func _poll_reconnect() -> void:
+	while not NetworkManager.is_connected_to_host:
+		await get_tree().create_timer(0.5).timeout
+	# Connected — remove popup and continue setup
+	if _reconnect_popup:
+		_reconnect_popup.queue_free()
+		_reconnect_popup = null
+	_try_initial_setup()
 
 func _on_audio_stream_player_2d_finished() -> void:
 	play_next_track()

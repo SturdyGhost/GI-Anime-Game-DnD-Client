@@ -65,9 +65,26 @@ var Stock = {
 var _rng: RandomNumberGenerator
 var _daily_luck: int = 50  # set this from your game each day
 
+var _item_value_cache: Dictionary = {}    # item_name -> value
+var _weapon_recipe_cache: Dictionary = {}  # weapon_name -> recipe or null
+
 func _ready() -> void:
 	_rng = RandomNumberGenerator.new()
 	_rng.randomize()
+
+func _build_caches() -> void:
+	# Cache item values for O(1) lookup instead of O(n) per item
+	_item_value_cache.clear()
+	for it in Global.ITEMS.values():
+		var name_key = str(it.get("Item", ""))
+		if name_key != "":
+			_item_value_cache[name_key] = int(it.get("Value", 0))
+	# Cache weapon -> recipe mapping
+	_weapon_recipe_cache.clear()
+	for recipe in Global.CRAFTING_RECIPES.values():
+		var product = str(recipe.get("Product", ""))
+		if product != "":
+			_weapon_recipe_cache[product] = recipe
 
 # --------------------------
 # Luck API
@@ -107,6 +124,7 @@ func _buy_price_with_luck(base_value: float, luck_value: int) -> int:
 # Public API
 # --------------------------
 func Refresh_Stock(current_region: String) -> void:
+	_build_caches()
 	Stock["Weapons"] = []
 	Stock["Artifacts"] = []
 	Stock["Consumables"] = []
@@ -284,15 +302,14 @@ func _price_weapon(w: Dictionary, current_region: String) -> int:
 	var weapon_name = w.get("Name")
 	var craftable = false
 	var craft_cost = 0.0
-	for recipe_id in Global.CRAFTING_RECIPES.keys():
-		var r: Dictionary = Global.CRAFTING_RECIPES[recipe_id]
-		if r.get("Product") == weapon_name:
-			craftable = true
-			var item_name2 =  r.get("Material")
-			var qty2 = int(r.get("Quantity", r.get("Qty", 0)))
-			if item_name2 != null and item_name2 != "":
-				var unit_val2 = _lookup_item_value(item_name2)
-				craft_cost += float(unit_val2 * qty2)
+	var recipe = _weapon_recipe_cache.get(weapon_name)
+	if recipe != null:
+		craftable = true
+		var item_name2 = recipe.get("Material")
+		var qty2 = int(recipe.get("Quantity", recipe.get("Qty", 0)))
+		if item_name2 != null and item_name2 != "":
+			var unit_val2 = _lookup_item_value(item_name2)
+			craft_cost += float(unit_val2 * qty2)
 
 	var base_price = 0.0
 	if craftable == true:
@@ -599,11 +616,7 @@ func _build_store_item_from_item(it: Dictionary, current_region: String) -> Dict
 	}
 
 func _lookup_item_value(item_name: String) -> int:
-	for id in Global.ITEMS.keys():
-		var it: Dictionary = Global.ITEMS[id]
-		if it.get("Item") == item_name:
-			return int(it.get("Value"))
-	return 0
+	return _item_value_cache.get(item_name, 0)
 
 func _apply_region_markup(base_price: float, item_region: String, current_region: String) -> float:
 	if item_region == null or current_region == null:
