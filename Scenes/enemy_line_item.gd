@@ -127,13 +127,14 @@ func setup_from_name(name: String) -> void:
 
 	
 
-	# HP: Current = Max on load
+	# HP: Use hp_per_phase if set, otherwise use phase-specific HP
 	var current_phase = 1
-	if row.get("hp_per_phase") != null:
-		_max_hp = int(row.get("hp_per_phase"))
+	var hpp = row.get("hp_per_phase", 0)
+	if hpp != null and int(hpp) > 0:
+		_max_hp = int(hpp)
 	else:
 		var key = "phase%s_hp" % str(int(current_phase))
-		_max_hp = row.get(key)
+		_max_hp = int(row.get(key, 1))
 	if _max_hp <= 0:
 		_max_hp = 1
 	_cur_hp = _max_hp
