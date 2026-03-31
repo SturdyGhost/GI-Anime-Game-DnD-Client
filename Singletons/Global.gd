@@ -320,13 +320,18 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 	for battler_name in battler_data.keys():
 		var bd = battler_data[battler_name]
 
+		# Only register persistent effects at battle start. Triggered effects
+		# (ON_HIT, ON_CRIT, ON_SKILL_USE, etc.) fire when the ability/weapon is used.
+		var persistent_triggers = ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]
+
 		# Weapon effects
 		var weapon_data = bd.get("entity_weapon_data")
 		if weapon_data != null and not weapon_data.is_empty():
 			var wname = str(weapon_data.get("Weapon", ""))
 			if wname != "":
 				for eff in WeaponEffects.get_effects(wname):
-					effect_processor.add_effect(battler_name, eff, "weapon", wname)
+					if eff.trigger in persistent_triggers:
+						effect_processor.add_effect(battler_name, eff, "weapon", wname)
 
 		# Artifact set bonuses
 		var equipped_artifacts = []
@@ -343,12 +348,8 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 				if set_pieces[sn] >= bonus_type:
 					var label = "%s %dpc" % [sn, bonus_type]
 					for eff in ArtifactEffects.get_effects(sn, bonus_type):
-						effect_processor.add_effect(battler_name, eff, "artifact", label)
-
-		# Ability effects — only register persistent effects at battle start
-		# (PASSIVE, START_OF_TURN, END_OF_TURN). Triggered effects like ON_HIT
-		# are processed contextually when the ability is used during a turn.
-		var persistent_triggers = ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]
+						if eff.trigger in persistent_triggers:
+							effect_processor.add_effect(battler_name, eff, "artifact", label)
 		var abilities = bd.get("entity_current_ability_data", {})
 		for ability in abilities.values():
 			var aid = ability.get("id", 0)
