@@ -396,7 +396,9 @@ func set_ui():
 	set_stats()
 	Mora.text = str(Global.Current_Party.get("Mora"))
 	if Global.Current_Battler_Data != null:
-		BurstChargeLabel.text = "Burst Charges: " + str(int(Global.Current_Battler_Data.get("burst_charges", 0))) + "/" + str(int(Global.Current_Battler_Data.get("max_burst_charges", 0)))
+		var bc = Global.Current_Battler_Data.get("burst_charges")
+		var mbc = Global.Current_Battler_Data.get("max_burst_charges")
+		BurstChargeLabel.text = "Burst Charges: %d/%d" % [int(bc) if bc != null else 0, int(mbc) if mbc != null else 0]
 	for child in TargetList.get_children():
 		child.queue_free()
 	TilesMovedEdit.text = str(0)
