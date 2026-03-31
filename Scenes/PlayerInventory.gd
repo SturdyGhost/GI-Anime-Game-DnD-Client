@@ -352,6 +352,7 @@ func transfer_item(giver,receiver,item_name,quantity):
 		var vals = [receiver, item_name, i_type,i_rarity,quantity,i_description]
 		Global.Insert("Character_Items",cols,vals)
 	Global.Update_Records(updates)
+	Toast.show("Gave %d %s to %s" % [quantity, item_name, receiver])
 	Global.Log(
 	"inventory",
 	"transfer_item",

@@ -168,6 +168,7 @@ func _on_stock_ready() -> void:
 		_stock_thread.wait_to_finish()
 	_stock_thread = null
 	print("Market: stock generation complete")
+	Toast.show("Market stock updated")
 	emit_signal("stock_ready")
 
 func Get_Shop(shop_name: String) -> Array:

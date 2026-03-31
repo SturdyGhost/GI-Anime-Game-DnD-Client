@@ -29,6 +29,7 @@ NetworkManager="*res://Singletons/NetworkManager.gd"
 Market="*res://Singletons/Market.gd"
 ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"
+Toast="*res://Singletons/Toast.gd"
 
 [display]
 
