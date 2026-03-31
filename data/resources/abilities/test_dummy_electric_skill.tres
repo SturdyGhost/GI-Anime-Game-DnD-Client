@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_q68bo")
 id = 502
-name = "Test Dummy – Skill"
+name = "Test Dummy – Shock (Stun)"
 element = "Electric"
 description = "Electric shock that stuns the target for 2 turns. Tests status effect application via EffectProcessor."
 dice_count = 1

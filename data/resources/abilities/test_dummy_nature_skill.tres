@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_q68bo")
 id = 503
-name = "Test Dummy – Skill"
+name = "Test Dummy – Empower (Advantage)"
 element = "Nature"
 description = "Grants Advantage to self for 2 turns. Tests self-targeting effect application."
 dice_count = 0

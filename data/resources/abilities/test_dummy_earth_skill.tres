@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_q68bo")
 id = 505
-name = "Test Dummy – Skill"
+name = "Test Dummy – Entangle (Root)"
 element = "Earth"
 description = "Roots target for 1 turn. Tests Root status preventing movement."
 dice_count = 1
