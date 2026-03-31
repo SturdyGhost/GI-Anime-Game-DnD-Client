@@ -320,20 +320,20 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 	for battler_name in battler_data.keys():
 		var bd = battler_data[battler_name]
 
-		# Only register persistent effects at battle start. Triggered effects
-		# (ON_HIT, ON_CRIT, ON_SKILL_USE, etc.) fire when the ability/weapon is used.
-		var persistent_triggers = ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]
+		# Always-visible sources: weapon, artifact, food buff, passive abilities
+		# Register ALL their effects regardless of trigger type.
+		# Triggered sources: skill, burst, basic/charged attack
+		# Their effects only appear when the ability is used (wired in process_turn).
 
-		# Weapon effects
+		# Weapon effects — always visible
 		var weapon_data = bd.get("entity_weapon_data")
 		if weapon_data != null and not weapon_data.is_empty():
 			var wname = str(weapon_data.get("Weapon", ""))
 			if wname != "":
 				for eff in WeaponEffects.get_effects(wname):
-					if eff.trigger in persistent_triggers:
-						effect_processor.add_effect(battler_name, eff, "weapon", wname)
+					effect_processor.add_effect(battler_name, eff, "weapon", wname)
 
-		# Artifact set bonuses
+		# Artifact set bonuses — always visible
 		var equipped_artifacts = []
 		for a in CHARACTER_ARTIFACTS.values():
 			if a.get("Owner") == battler_name and a.get("Equipped") == true:
@@ -348,8 +348,10 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 				if set_pieces[sn] >= bonus_type:
 					var label = "%s %dpc" % [sn, bonus_type]
 					for eff in ArtifactEffects.get_effects(sn, bonus_type):
-						if eff.trigger in persistent_triggers:
-							effect_processor.add_effect(battler_name, eff, "artifact", label)
+						effect_processor.add_effect(battler_name, eff, "artifact", label)
+
+		# Ability effects — only register Passive abilities at battle start.
+		# Skill/Burst/Basic/Charged effects fire when used (in process_turn).
 		var abilities = bd.get("entity_current_ability_data", {})
 		for ability in abilities.values():
 			var aid = ability.get("id", 0)
@@ -358,22 +360,16 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 			var aid_int = int(aid)
 			if aid_int <= 0:
 				continue
+			var atype = str(ability.get("Ability_Type", ability.get("ability_type", "")))
+			if atype.to_lower() != "passive":
+				continue
 			var ability_res: AbilityData = GameDB.get_ability(aid_int)
 			var ability_name = ability_res.name if ability_res else "Ability %d" % aid_int
-			var atype = str(ability.get("Ability_Type", ability.get("ability_type", "")))
-			var source_type = "ability"
-			match atype.to_lower():
-				"basic attack", "charged attack": source_type = "basic"
-				"skill": source_type = "skill"
-				"burst": source_type = "burst"
-				"passive": source_type = "passive"
 			if ability_res and ability_res.effects.size() > 0:
 				for eff in ability_res.effects:
-					if eff.trigger in persistent_triggers:
-						effect_processor.add_effect(battler_name, eff, source_type, ability_name)
+					effect_processor.add_effect(battler_name, eff, "passive", ability_name)
 			for eff in AbilityEffects.get_effects(aid_int):
-				if eff.trigger in persistent_triggers:
-					effect_processor.add_effect(battler_name, eff, source_type, ability_name)
+				effect_processor.add_effect(battler_name, eff, "passive", ability_name)
 
 	sync_active_effects()
 
