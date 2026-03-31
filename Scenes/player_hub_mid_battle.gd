@@ -56,14 +56,9 @@ func _ready() -> void:
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
 	tree_exiting.connect(_disconnect_signals)
-
-func _disconnect_signals() -> void:
-	var handler = Callable(self, "_on_data_load_complete")
-	if Global.is_connected("data_load_complete", handler):
-		Global.disconnect("data_load_complete", handler)
+	print("[player_hub_mid_battle] _ready: setting up battlers and UI")
 	set_battlers()
 	set_ui()
-	pass  # http node removed
 	set_targets()
 	set_attacks()
 	set_items()
@@ -72,7 +67,11 @@ func _disconnect_signals() -> void:
 	await get_tree().create_timer(1.5).timeout
 	if Global.BattlerData == {}:
 		_refresh_data()
-	pass
+
+func _disconnect_signals() -> void:
+	var handler = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", handler):
+		Global.disconnect("data_load_complete", handler)
 
 
 func _refresh_data():
@@ -616,6 +615,7 @@ func _on_bug_button_pressed() -> void:
 # ---------------------------------------------------------------------------
 
 func process_turn():
+	print("[player_hub_mid_battle] process_turn: battler=%s" % Global.ACTIVE_USER_NAME)
 	var updates = []
 	var spaces_moved: int = int(TilesMovedEdit.text)
 	var burst_charges_gained: int = int(BurstChargesEdit.text)

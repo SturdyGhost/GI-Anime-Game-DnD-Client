@@ -24,6 +24,7 @@ var Original_Order = []
 
 
 func _ready() -> void:
+	print("[Player_Battle_Scene] _ready: initializing battle")
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
@@ -34,7 +35,9 @@ func _ready() -> void:
 	set_background()
 	load_region_music(Global.Current_Region)
 	play_next_track()
-	check_turn_ui(Global.Current_Party.get("Current_Turn"))
+	var ct = Global.Current_Party.get("Current_Turn", "")
+	print("[Player_Battle_Scene] Current turn: %s, enemies: %d, party: %d" % [ct, Global.BATTLEENEMIES.size(), Global.PartyCharacters.size()])
+	check_turn_ui(ct)
 
 func _disconnect_signals() -> void:
 	var h = Callable(self, "_on_data_load_complete")
@@ -72,6 +75,7 @@ func _refresh_all() -> void:
 func _on_data_load_complete():
 	if _battle_ending:
 		return
+	print("[Player_Battle_Scene] _on_data_load_complete")
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_update_party_ui()
 	check_battle_end()
@@ -211,6 +215,7 @@ func check_battle_end():
 		if int(enemy.get("Current_Health", 1)) > 0:
 			all_enemies_dead = false
 			break
+	print("[Player_Battle_Scene] check_battle_end: enemies=%d, all_dead=%s, is_host=%s" % [Global.BATTLEENEMIES.size(), str(all_enemies_dead), str(NetworkManager.is_host)])
 
 	for player_name in Global.PartyCharacters:
 		var char_id = Global.CHARACTERS_NAME.get(player_name, "")
@@ -258,6 +263,7 @@ func _host_battle_cleanup() -> void:
 	_go_to_hub()
 
 func _go_to_hub() -> void:
+	print("[Player_Battle_Scene] _go_to_hub: type=%s" % Global.ACTIVE_USER_TYPE)
 	if Global.ACTIVE_USER_TYPE == "Player":
 		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 	else:
@@ -265,6 +271,7 @@ func _go_to_hub() -> void:
 
 
 func advance_turn():
+	print("[Player_Battle_Scene] advance_turn")
 	var SecondTurnText = TurnList.get_item_text(1)
 	var updates = [{
 		"table": "Party",

@@ -23,6 +23,7 @@ var Original_Order = []
 
 
 func _ready() -> void:
+	print("[Enemy_Battle_Scene] _ready: initializing battle")
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
@@ -34,7 +35,9 @@ func _ready() -> void:
 	set_background()
 	load_region_music(Global.Current_Region)
 	play_next_track()
-	check_turn_ui(Global.Current_Party.get("Current_Turn"))
+	var ct = Global.Current_Party.get("Current_Turn", "")
+	print("[Enemy_Battle_Scene] Current turn: %s, enemies: %d, party: %d" % [ct, Global.BATTLEENEMIES.size(), Global.PartyCharacters.size()])
+	check_turn_ui(ct)
 	_build_battlers()
 
 func _disconnect_signals() -> void:
@@ -76,12 +79,14 @@ func _refresh_all() -> void:
 func _on_data_load_complete():
 	if _battle_ending:
 		return
+	print("[Enemy_Battle_Scene] _on_data_load_complete: turn=%s" % str(Global.Current_Party.get("Current_Turn", "")))
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_build_battlers()
 	_update_party_ui()
 	check_battle_end()
 	if _battle_ending:
 		return
+	_refresh_enemies()
 	var ct = Global.Current_Party.get("Current_Turn", "")
 	if Global.BattlerData.has(ct):
 		Global.Current_Battler_Data = Global.BattlerData[ct]
@@ -262,6 +267,7 @@ func _host_battle_cleanup() -> void:
 	_go_to_hub()
 
 func _go_to_hub() -> void:
+	print("[Enemy_Battle_Scene] _go_to_hub: type=%s" % Global.ACTIVE_USER_TYPE)
 	if Global.ACTIVE_USER_TYPE == "Player":
 		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 	else:
@@ -269,6 +275,7 @@ func _go_to_hub() -> void:
 
 
 func advance_turn():
+	print("[Enemy_Battle_Scene] advance_turn")
 	var SecondTurnText = TurnList.get_item_text(1)
 	var updates = [{
 		"table": "Party",

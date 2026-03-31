@@ -48,19 +48,18 @@ func _ready() -> void:
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
 	tree_exiting.connect(_disconnect_signals)
-
-func _disconnect_signals() -> void:
-	var handler = Callable(self, "_on_data_load_complete")
-	if Global.is_connected("data_load_complete", handler):
-		Global.disconnect("data_load_complete", handler)
+	print("[enemy_hub_mid_battle] _ready: setting up UI")
 	set_ui()
-	pass  # http node removed
 	set_targets()
 	set_attacks()
 	set_items()
 	set_status_effects()
 	set_battle_id()
-	pass
+
+func _disconnect_signals() -> void:
+	var handler = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", handler):
+		Global.disconnect("data_load_complete", handler)
 
 
 func _process(_delta: float) -> void:
