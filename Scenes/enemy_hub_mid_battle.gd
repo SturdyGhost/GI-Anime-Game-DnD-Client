@@ -381,7 +381,7 @@ func process_turn():
 		var t_elem: String = row.AppliedElement.get_item_text(row.AppliedElement.selected)
 		var t_killed: bool = row.KilledStatus.button_pressed
 		var t_table = row.TargetTable
-		var t_id = row.TargetID
+		var t_id = row.TargetID if row.TargetID != null else 0
 		var t_reaction = false
 		var t_current_element = "None"
 		var t_effect_status = 0

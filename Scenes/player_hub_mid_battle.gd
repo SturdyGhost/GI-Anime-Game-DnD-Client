@@ -666,7 +666,7 @@ func process_turn():
 		var t_killed: bool = row.KilledStatus.button_pressed
 		var t_shield_hit: bool = row.ShieldHit.button_pressed
 		var t_table = row.TargetTable
-		var t_id = row.TargetID
+		var t_id = row.TargetID if row.TargetID != null else 0
 		var t_reaction = false
 		var t_current_element = "None"
 		var t_effect_status_target = "self"
@@ -716,8 +716,8 @@ func process_turn():
 
 		# --- HP / Shield / KO logic ---
 		var t_type_lower: String = t_type.to_lower()
-		if t_table != null and t_id != null and t_type_lower in ["damage", "true damage", "healed", "shielded"]:
-			var record_id: int = int(t_id)
+		if t_table != null and t_id != null and str(t_id) != "" and t_type_lower in ["damage", "true damage", "healed", "shielded"]:
+			var record_id: int = int(t_id) if t_id != null else 0
 			var key: String = str(record_id)
 			var row_data: Dictionary = {}
 
