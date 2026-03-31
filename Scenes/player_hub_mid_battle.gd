@@ -213,7 +213,8 @@ func set_attacks():
 				if cooldown == 0 and charge_cost == 0:
 					AttackUsedButton.add_item(name_text)
 				elif charge_cost > 0:
-					if int(Global.Current_Battler_Data.get("burst_charges", 0)) >= charge_cost:
+					var _bc = Global.Current_Battler_Data.get("burst_charges")
+					if (_bc if _bc != null else 0) >= charge_cost:
 						AttackUsedButton.add_item(name_text)
 					else:
 						AttackUsedButton.add_item(name_text + " - Not enough charges.")
@@ -1096,8 +1097,13 @@ func _process_cooldowns_and_status(updates: Array) -> void:
 		Global.sync_active_effects()
 
 	# Subtract turn from Move Cooldowns for this entity (kept separate from effects)
+	var _cbd_type = Global.Current_Battler_Data.get("type") if Global.Current_Battler_Data else ""
+	var _cbd_id = Global.Current_Battler_Data.get("id") if Global.Current_Battler_Data else 0
 	for entry in Global.ACTIVE_ABILITIES.values():
-		if entry.get("Entity_Type") == Global.Current_Battler_Data.get("type") and int(entry.get("Entity_ID")) == int(Global.Current_Battler_Data.get("id")) and entry.get("Ability_Cooldown") > 0:
+		var _eid = entry.get("Entity_ID")
+		if _eid == null:
+			continue
+		if entry.get("Entity_Type") == _cbd_type and int(_eid) == int(_cbd_id) and entry.get("Ability_Cooldown") > 0:
 			updates.append({
 				"table": "Active_Abilities",
 				"record_id": int(entry.get("id")),
