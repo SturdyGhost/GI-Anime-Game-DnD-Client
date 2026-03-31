@@ -2104,31 +2104,5 @@
     "res_dendro": 1,
     "notes": "Holiday event boss. 5x5 tile Whopperflower variant.",
     "id": 81
-  },
-  {
-    "id": 100,
-    "name": "Test Dummy",
-    "tier": "common",
-    "size_tiles": 1,
-    "phase_count": 2,
-    "hp_per_phase": 0,
-    "phase1_hp": 100,
-    "phase2_hp": 50,
-    "phase3_hp": 0,
-    "phase4_hp": 0,
-    "phase1_name": "Training Mode",
-    "phase2_name": "Enraged",
-    "phase3_name": null,
-    "phase4_name": null,
-    "turn_structure": "standard",
-    "defense_scale_per_asc": 0.0,
-    "res_pyro": 1.0,
-    "res_hydro": 1.0,
-    "res_electro": 0.5,
-    "res_cryo": 1.5,
-    "res_anemo": 1.0,
-    "res_geo": 1.0,
-    "res_dendro": 1.0,
-    "notes": "Test enemy for validating the effect system. Weak to Electric, resistant to Ice. Phase 2 at 50 HP."
   }
 ]
