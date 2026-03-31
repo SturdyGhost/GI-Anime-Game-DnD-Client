@@ -6913,5 +6913,85 @@
     "Ability_Type": "Burst",
     "Entity_Type": "Companion",
     "Ability_Cooldown": 0
+  },
+  {
+    "id": 501,
+    "Entity_ID": 100,
+    "Ability_ID": 500,
+    "Weapon_Type": null,
+    "Element": "Physical",
+    "Ability_Type": "Basic Attack",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 502,
+    "Entity_ID": 100,
+    "Ability_ID": 501,
+    "Weapon_Type": null,
+    "Element": "Fire",
+    "Ability_Type": "Charged Attack",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 503,
+    "Entity_ID": 100,
+    "Ability_ID": 502,
+    "Weapon_Type": null,
+    "Element": "Electric",
+    "Ability_Type": "Skill",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 504,
+    "Entity_ID": 100,
+    "Ability_ID": 503,
+    "Weapon_Type": null,
+    "Element": "Nature",
+    "Ability_Type": "Skill",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 505,
+    "Entity_ID": 100,
+    "Ability_ID": 504,
+    "Weapon_Type": null,
+    "Element": "Ice",
+    "Ability_Type": "Burst",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 506,
+    "Entity_ID": 100,
+    "Ability_ID": 505,
+    "Weapon_Type": null,
+    "Element": "Earth",
+    "Ability_Type": "Skill",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 507,
+    "Entity_ID": 100,
+    "Ability_ID": 506,
+    "Weapon_Type": null,
+    "Element": "Wind",
+    "Ability_Type": "Skill",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
+  },
+  {
+    "id": 508,
+    "Entity_ID": 100,
+    "Ability_ID": 507,
+    "Weapon_Type": null,
+    "Element": "Fire",
+    "Ability_Type": "Passive",
+    "Entity_Type": "Enemy",
+    "Ability_Cooldown": 0
   }
 ]

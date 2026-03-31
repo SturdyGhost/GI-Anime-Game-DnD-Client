@@ -2119,4 +2119,20 @@ static func get_effects(ability_id: int) -> Array:
 			e_dot.description = "Abyssal Corruption: 1d6 damage at end of occupant's turn (persists)"
 			return [e_dot]
 
+		# =====================================================================
+		#  TEST DUMMY ABILITIES (ID 100)
+		# =====================================================================
+
+		# Test Dummy – Passive: Fire Aura (START_OF_TURN DOT to all nearby)
+		507:
+			var e_aura = GameEffect.new()
+			e_aura.trigger = "START_OF_TURN"
+			e_aura.effect_type = "FLAT_DAMAGE"
+			e_aura.effect_value = 2.0
+			e_aura.effect_element = "Fire"
+			e_aura.target = "ALL_ENEMIES"
+			e_aura.duration = -1  # permanent
+			e_aura.description = "Fire Aura: 2 flat Fire damage to all nearby at turn start"
+			return [e_aura]
+
 	return []
