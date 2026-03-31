@@ -319,15 +319,14 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 	effect_processor = EffectProcessor.new()
 	for battler_name in battler_data.keys():
 		var bd = battler_data[battler_name]
-		var effects: Array = []
-		var b_type = bd.get("type", "")
 
-		# Weapon effects (Characters now, Companions/Enemies future-proofed)
+		# Weapon effects
 		var weapon_data = bd.get("entity_weapon_data")
 		if weapon_data != null and not weapon_data.is_empty():
 			var wname = str(weapon_data.get("Weapon", ""))
 			if wname != "":
-				effects.append_array(WeaponEffects.get_effects(wname))
+				for eff in WeaponEffects.get_effects(wname):
+					effect_processor.add_effect(battler_name, eff, "weapon", wname)
 
 		# Artifact set bonuses
 		var equipped_artifacts = []
@@ -342,21 +341,34 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 		for sn in set_pieces:
 			for bonus_type in [2, 4]:
 				if set_pieces[sn] >= bonus_type:
-					effects.append_array(ArtifactEffects.get_effects(sn, bonus_type))
+					var label = "%s %dpc" % [sn, bonus_type]
+					for eff in ArtifactEffects.get_effects(sn, bonus_type):
+						effect_processor.add_effect(battler_name, eff, "artifact", label)
 
 		# Ability effects — from embedded .tres effects array + hardcoded AbilityEffects
 		var abilities = bd.get("entity_current_ability_data", {})
 		for ability in abilities.values():
 			var aid = ability.get("id", 0)
-			if aid != null and int(aid) > 0:
-				# Load from the AbilityData resource's effects array
-				var ability_res: AbilityData = GameDB.get_ability(int(aid))
-				if ability_res and ability_res.effects.size() > 0:
-					effects.append_array(ability_res.effects)
-				# Also check hardcoded AbilityEffects (legacy)
-				effects.append_array(AbilityEffects.get_effects(int(aid)))
-
-		effect_processor.register_battler(battler_name, effects)
+			if aid == null:
+				continue
+			var aid_int = int(aid)
+			if aid_int <= 0:
+				continue
+			var ability_res: AbilityData = GameDB.get_ability(aid_int)
+			var ability_name = ability_res.name if ability_res else "Ability %d" % aid_int
+			# Determine source label from ability type
+			var atype = str(ability.get("Ability_Type", ability.get("ability_type", "")))
+			var source_type = "ability"
+			match atype.to_lower():
+				"basic attack", "charged attack": source_type = "basic"
+				"skill": source_type = "skill"
+				"burst": source_type = "burst"
+				"passive": source_type = "passive"
+			if ability_res and ability_res.effects.size() > 0:
+				for eff in ability_res.effects:
+					effect_processor.add_effect(battler_name, eff, source_type, ability_name)
+			for eff in AbilityEffects.get_effects(aid_int):
+				effect_processor.add_effect(battler_name, eff, source_type, ability_name)
 
 	sync_active_effects()
 

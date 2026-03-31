@@ -635,7 +635,7 @@ func process_turn():
 	var item_target_text: String = ItemUsedTarget.get_item_text(ItemUsedTarget.selected)
 	var attack_used_text: String = AttackUsedButton.get_item_text(AttackUsedButton.selected)
 	var critical_hit: bool = CritBox.button_pressed
-	var battler_name: String = Global.ACTIVE_USER_NAME
+	var battler_name: String = str(Current_Turn) if Current_Turn != null else Global.ACTIVE_USER_NAME
 
 	# ----- Turn start effects (host only) -----
 	if NetworkManager.is_host and Global.effect_processor:
@@ -1119,7 +1119,7 @@ func _resolve_damage(row_data: Dictionary, t_table: String, t_id, t_type: String
 
 ## Tick effect durations and ability cooldowns for the current battler at end of turn.
 func _process_cooldowns_and_status(updates: Array) -> void:
-	var b_name = Global.ACTIVE_USER_NAME
+	var b_name = str(Current_Turn) if Current_Turn != null else Global.ACTIVE_USER_NAME
 
 	# Tick effect durations via processor (host only) — only this battler's effects
 	if NetworkManager.is_host and Global.effect_processor:
