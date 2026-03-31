@@ -35,7 +35,7 @@ func _ready() -> void:
 	_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_container)
 
-func show(message: String, level: int = Level.INFO, duration: float = DURATION) -> void:
+func notify(message: String, level: int = Level.INFO, duration: float = DURATION) -> void:
 	# Trim old toasts
 	while _container.get_child_count() >= MAX_TOASTS:
 		_container.get_child(0).queue_free()

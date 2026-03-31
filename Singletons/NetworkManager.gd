@@ -257,26 +257,26 @@ func _on_peer_disconnected(id: int) -> void:
 		connected_players.erase(id)
 		_missing_peers.append(id)
 		print("NetworkManager: Peer %d disconnected (%d remaining)" % [id, connected_players.size()])
-		Toast.show("%s disconnected" % player_name, Toast.WARNING)
+		Toast.notify("%s disconnected" % player_name, Toast.WARNING)
 	emit_signal("player_disconnected", id)
 
 func _on_connected_to_server() -> void:
 	print("NetworkManager: Connected to host!")
 	is_connected_to_host = true
 	_register_with_host.rpc_id(1, Global.ACTIVE_USER_NAME, str(Global.ACTIVE_USER_RECORD_ID))
-	Toast.show("Connected to host", Toast.SUCCESS)
+	Toast.notify("Connected to host", Toast.SUCCESS)
 	emit_signal("connection_succeeded")
 
 func _on_connection_failed() -> void:
 	print("NetworkManager: Connection failed!")
 	is_connected_to_host = false
-	Toast.show("Connection failed", Toast.ERROR)
+	Toast.notify("Connection failed", Toast.ERROR)
 	emit_signal("connection_failed")
 
 func _on_server_disconnected() -> void:
 	print("NetworkManager: Lost connection to host — attempting reconnect to %s:%d" % [_last_host_ip, _last_host_port])
 	is_connected_to_host = false
-	Toast.show("Lost connection to host — reconnecting...", Toast.WARNING, 5.0)
+	Toast.notify("Lost connection to host — reconnecting...", Toast.WARNING, 5.0)
 	if _last_host_ip != "":
 		_attempt_reconnect()
 
@@ -293,9 +293,9 @@ func _attempt_reconnect() -> void:
 		await get_tree().create_timer(3.0).timeout
 		if is_connected_to_host:
 			print("NetworkManager: Reconnected successfully!")
-			Toast.show("Reconnected to host", Toast.SUCCESS)
+			Toast.notify("Reconnected to host", Toast.SUCCESS)
 			return
-	Toast.show("Failed to reconnect after 5 attempts", Toast.ERROR, 5.0)
+	Toast.notify("Failed to reconnect after 5 attempts", Toast.ERROR, 5.0)
 	push_warning("NetworkManager: Failed to reconnect after 5 attempts")
 
 # ─── PLAYER REGISTRATION ───
@@ -307,7 +307,7 @@ func _register_with_host(player_name: String, character_id: String) -> void:
 	var sender = multiplayer.get_remote_sender_id()
 	connected_players[sender] = { "name": player_name, "character_id": character_id }
 	print("NetworkManager: Player '%s' registered (peer %d)" % [player_name, sender])
-	Toast.show("%s joined" % player_name, Toast.SUCCESS)
+	Toast.notify("%s joined" % player_name, Toast.SUCCESS)
 
 	# Check if this was a reconnecting player
 	if _missing_peers.has(sender):

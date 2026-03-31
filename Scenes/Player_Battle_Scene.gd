@@ -25,7 +25,7 @@ var Original_Order = []
 
 func _ready() -> void:
 	print("[Player_Battle_Scene] _ready: initializing battle")
-	Toast.show("Battle started", Toast.WARNING)
+	Toast.notify("Battle started", Toast.WARNING)
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
@@ -273,7 +273,7 @@ func _host_battle_cleanup() -> void:
 
 func _go_to_hub() -> void:
 	print("[Player_Battle_Scene] _go_to_hub: type=%s" % Global.ACTIVE_USER_TYPE)
-	Toast.show("Battle ended — returning to hub", Toast.SUCCESS)
+	Toast.notify("Battle ended — returning to hub", Toast.SUCCESS)
 	if Global.ACTIVE_USER_TYPE == "Player":
 		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
 	else:

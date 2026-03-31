@@ -509,7 +509,7 @@ func _on_region_button_item_selected(index: int) -> void:
 		return
 
 	Global.Current_Region = region
-	Toast.show("Region changed to %s" % region)
+	Toast.notify("Region changed to %s" % region)
 
 	var party_id = int(Global.Current_Party.get("id", 0))
 	if party_id == 0:
@@ -567,7 +567,7 @@ func _on_element_button_item_selected(index: int) -> void:
 		_element_busy = false
 		return
 
-	Toast.show("Element changed to %s" % new_element)
+	Toast.notify("Element changed to %s" % new_element)
 	Global.Update_Records([{
 		"table": "Characters",
 		"record_id": int(rid),
