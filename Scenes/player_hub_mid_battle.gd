@@ -1173,11 +1173,17 @@ func _process_cooldowns_and_status(updates: Array) -> void:
 	# Subtract turn from Move Cooldowns for this entity (kept separate from effects)
 	var _cbd_type = Global.Current_Battler_Data.get("type") if Global.Current_Battler_Data else ""
 	var _cbd_id = Global.Current_Battler_Data.get("id") if Global.Current_Battler_Data else 0
+	# For enemies, Active_Abilities uses EnemyData.id not BattleEnemy record ID
+	var _match_id = _cbd_id
+	if _cbd_type == "Enemy" and Global.Current_Battler_Data:
+		var _edef_id = Global.Current_Battler_Data.get("entity_data", {}).get("EnemyID")
+		if _edef_id != null:
+			_match_id = int(_edef_id)
 	for entry in Global.ACTIVE_ABILITIES.values():
 		var _eid = entry.get("Entity_ID")
 		if _eid == null:
 			continue
-		if entry.get("Entity_Type") == _cbd_type and int(_eid) == int(_cbd_id) and entry.get("Ability_Cooldown") > 0:
+		if entry.get("Entity_Type") == _cbd_type and int(_eid) == int(_match_id) and entry.get("Ability_Cooldown") > 0:
 			updates.append({
 				"table": "Active_Abilities",
 				"record_id": int(entry.get("id")),

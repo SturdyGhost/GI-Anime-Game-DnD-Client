@@ -556,10 +556,12 @@ func process_turn():
 				"value": Current_Battler_Selected_Move_Data.get("cooldown")})
 
 		# -- Burst charge cost subtraction --
-		if Current_Battler_Selected_Move_Data != null \
-		and Current_Battler_Selected_Move_Data.get("charge_cost") != 0:
-			var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
-			var new_value = int(old_value - Current_Battler_Selected_Move_Data.get("charge_cost"))
+		var _cc = Current_Battler_Selected_Move_Data.get("charge_cost") if Current_Battler_Selected_Move_Data else null
+		if Current_Battler_Selected_Move_Data != null and _cc != null and int(_cc) > 0:
+			var old_value = Global.Current_Battler_Data.get("entity_data", {}).get("Burst_Charges")
+			if old_value == null:
+				old_value = 0
+			var new_value = int(old_value) - int(_cc)
 			if new_value <= 0:
 				new_value = 0
 			var table: String
@@ -775,6 +777,12 @@ func _process_cooldowns_and_status(updates: Array) -> void:
 	var b_name = str(Current_Turn) if Current_Turn != null else ""
 	var battler_type: String = Global.Current_Battler_Data.get("type") if Global.Current_Battler_Data else ""
 	var battler_id: int = int(Global.Current_Battler_Data.get("id")) if Global.Current_Battler_Data else 0
+	# For enemies, Active_Abilities uses the EnemyData.id (e.g. 100), not the BattleEnemy record ID
+	var match_id: int = battler_id
+	if battler_type == "Enemy" and Global.Current_Battler_Data:
+		var enemy_def_id = Global.Current_Battler_Data.get("entity_data", {}).get("EnemyID")
+		if enemy_def_id != null:
+			match_id = int(enemy_def_id)
 
 	# Tick effect durations via processor (host only)
 	if NetworkManager.is_host and Global.effect_processor and b_name != "":
@@ -787,7 +795,7 @@ func _process_cooldowns_and_status(updates: Array) -> void:
 		if _eid == null:
 			continue
 		if entry.get("Entity_Type") == battler_type \
-		and int(_eid) == battler_id \
+		and int(_eid) == match_id \
 		and entry.get("Ability_Cooldown") > 0:
 			updates.append({
 				"table": "Active_Abilities",
