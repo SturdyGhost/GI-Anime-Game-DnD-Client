@@ -1,13 +1,35 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_q68bo"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="2_fx"]
+
+[sub_resource type="Resource" id="fx_stun"]
+script = ExtResource("2_fx")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "SKIP_TURN"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Electric"
+target = "TARGET"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Stun: target skips their next 2 turns"
 
 [resource]
 script = ExtResource("1_q68bo")
 id = 502
 name = "Test Dummy – Shock (Stun)"
 element = "Electric"
-description = "Electric shock that stuns the target for 2 turns. Tests status effect application via EffectProcessor."
+description = "Electric shock that stuns the target for 2 turns."
 dice_count = 1
 dice_die = 12
 dice_flat = 0
@@ -51,4 +73,4 @@ cooldown = 3
 phase_idx = 1
 order = 0
 weight = 1.0
-effects = []
+effects = [SubResource("fx_stun")]

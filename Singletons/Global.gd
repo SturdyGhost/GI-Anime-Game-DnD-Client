@@ -344,11 +344,16 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 				if set_pieces[sn] >= bonus_type:
 					effects.append_array(ArtifactEffects.get_effects(sn, bonus_type))
 
-		# Ability effects
+		# Ability effects — from embedded .tres effects array + hardcoded AbilityEffects
 		var abilities = bd.get("entity_current_ability_data", {})
 		for ability in abilities.values():
 			var aid = ability.get("id", 0)
-			if aid > 0:
+			if aid != null and int(aid) > 0:
+				# Load from the AbilityData resource's effects array
+				var ability_res: AbilityData = GameDB.get_ability(int(aid))
+				if ability_res and ability_res.effects.size() > 0:
+					effects.append_array(ability_res.effects)
+				# Also check hardcoded AbilityEffects (legacy)
 				effects.append_array(AbilityEffects.get_effects(int(aid)))
 
 		effect_processor.register_battler(battler_name, effects)

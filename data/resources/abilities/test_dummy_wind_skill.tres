@@ -1,13 +1,35 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_q68bo"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="2_fx"]
+
+[sub_resource type="Resource" id="fx_fear"]
+script = ExtResource("2_fx")
+trigger = "ON_HIT"
+condition = "NONE"
+condition_value = ""
+effect_type = "FEAR"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = ""
+target = "TARGET"
+duration = 2
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Fear: target must move away from caster for 2 turns"
 
 [resource]
 script = ExtResource("1_q68bo")
 id = 506
 name = "Test Dummy – Howl (Fear)"
 element = "Wind"
-description = "Terrifies the target for 2 turns. Tests Fear status effect."
+description = "Terrifies the target for 2 turns."
 dice_count = 0
 dice_die = 0
 dice_flat = 0
@@ -51,4 +73,4 @@ cooldown = 3
 phase_idx = 1
 order = 0
 weight = 1.0
-effects = []
+effects = [SubResource("fx_fear")]

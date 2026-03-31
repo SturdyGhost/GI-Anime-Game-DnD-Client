@@ -1,13 +1,35 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_q68bo"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="2_fx"]
+
+[sub_resource type="Resource" id="fx_shield"]
+script = ExtResource("2_fx")
+trigger = "PASSIVE"
+condition = "NONE"
+condition_value = ""
+effect_type = "SHIELD_GENERATE"
+effect_stat = ""
+effect_value = 20.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Ice"
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Generate a 20 HP ice shield on self"
 
 [resource]
 script = ExtResource("1_q68bo")
 id = 504
 name = "Test Dummy – Burst"
 element = "Ice"
-description = "Massive ice blast. Generates a 20 HP shield on self. Costs 10 burst charges. Tests burst cost + shield generation."
+description = "Massive ice blast. Generates a 20 HP shield on self. Costs 10 burst charges."
 dice_count = 2
 dice_die = 12
 dice_flat = 4
@@ -51,4 +73,4 @@ cooldown = 0
 phase_idx = 1
 order = 0
 weight = 1.0
-effects = []
+effects = [SubResource("fx_shield")]
