@@ -27,11 +27,6 @@ func _ready() -> void:
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
 	tree_exiting.connect(_disconnect_signals)
-
-func _disconnect_signals() -> void:
-	var h = Callable(self, "_on_data_load_complete")
-	if Global.is_connected("data_load_complete", h):
-		Global.disconnect("data_load_complete", h)
 	if PlayerTurnUI.has_signal("turn_ended"):
 		PlayerTurnUI.turn_ended.connect(_on_child_turn_ended)
 	_set_party_and_companions()
@@ -41,6 +36,11 @@ func _disconnect_signals() -> void:
 	play_next_track()
 	check_turn_ui(Global.Current_Party.get("Current_Turn"))
 	_build_battlers()
+
+func _disconnect_signals() -> void:
+	var h = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", h):
+		Global.disconnect("data_load_complete", h)
 
 
 func _on_child_turn_ended() -> void:
