@@ -735,9 +735,9 @@ func process_turn():
 				var damage_result := _resolve_damage(row_data, t_table, t_id, t_type, t_damage, record_id, t_entity_type, t_shield_hit, updates)
 				t_killed = damage_result.get("killed", t_killed)
 
-		# --- Ability status effect application on targets ---
+		# --- Ability lookup + auto element application ---
 		if attack_used_text != "None":
-			for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
+			for ability in Global.Current_Battler_Data.get("entity_current_ability_data", {}).values():
 				if ability.get("name") == attack_used_text:
 					Current_Battler_Selected_Move_Data = ability
 					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data", {}).values():
@@ -745,6 +745,24 @@ func process_turn():
 						var a_id = ability.get("id")
 						if m_aid != null and a_id != null and int(m_aid) == int(a_id):
 							Current_Battler_Selected_Move = move
+
+			# Auto-apply element from ability if not manually set
+			if Current_Battler_Selected_Move_Data and t_elem == "None":
+				var ability_elem = str(Current_Battler_Selected_Move_Data.get("element", "Physical"))
+				if ability_elem != "Physical" and ability_elem != "":
+					t_elem = ability_elem
+					elements_unique[t_elem] = true
+					var elem_result := _apply_element(t_table, t_id, t_elem, updates)
+					t_reaction = elem_result.get("reaction", false)
+					t_current_element = elem_result.get("current_element", "None")
+					if t_reaction and NetworkManager.is_host and Global.effect_processor:
+						var react_ctx = {"reaction_element": t_current_element, "attack_element": t_elem, "element": t_elem, "is_crit": critical_hit}
+						var react_actions = Global.effect_processor.process_trigger(battler_name, "ON_REACTION", react_ctx)
+						for act in react_actions:
+							if act.get("effect_type") == "FLAT_DAMAGE":
+								t_damage += int(act.get("value", 0))
+							elif act.get("effect_type") == "PERCENT_DAMAGE":
+								t_damage = int(t_damage * act.get("value", 1.0))
 
 		if Current_Battler_Selected_Move_Data:
 			# Put ability on cooldown
@@ -757,8 +775,13 @@ func process_turn():
 
 			# Subtract burst charge cost
 			if Current_Battler_Selected_Move_Data.get("charge_cost", 0) > 0:
-				var old_value = Global.Current_Battler_Data.get("entity_data").get("Burst_Charges")
-				var new_value = int(old_value - Current_Battler_Selected_Move_Data.get("charge_cost"))
+				var old_value = Global.Current_Battler_Data.get("entity_data", {}).get("Burst_Charges")
+				if old_value == null:
+					old_value = 0
+				var charge_cost_val = Current_Battler_Selected_Move_Data.get("charge_cost", 0)
+				if charge_cost_val == null:
+					charge_cost_val = 0
+				var new_value = int(old_value) - int(charge_cost_val)
 				if new_value <= 0:
 					new_value = 0
 				var table: String = ""
@@ -774,21 +797,28 @@ func process_turn():
 						"field": "Burst_Charges",
 						"value": new_value})
 
-			# Apply status effect to target via EffectProcessor
-			if int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
+			# Apply status effect via EffectProcessor
+			var raw_es = Current_Battler_Selected_Move_Data.get("effect_status", 0)
+			if raw_es != null and int(raw_es) > 0 and NetworkManager.is_host and Global.effect_processor:
 				t_effect_status_target = str(Current_Battler_Selected_Move_Data.get("effect_status_target", "target"))
-				t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
-				t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration_rounds", 0))
+				t_effect_status = int(raw_es)
+				var raw_dur = Current_Battler_Selected_Move_Data.get("effect_status_duration_rounds", 0)
+				t_effect_status_duration = int(raw_dur) if raw_dur != null else 0
 
-				if t_effect_status_target == "target" and NetworkManager.is_host and Global.effect_processor:
-					# Look up status name from GameDB
-					var status_data = GameDB.status_effects.get(t_effect_status, null)
-					var status_name = status_data.name if status_data else "Status_%d" % t_effect_status
-					var status_effects = StatusEffectsMap.get_effects(status_name)
-					for eff in status_effects:
-						if eff.duration == 0:
-							eff.duration = t_effect_status_duration + 1
-						Global.effect_processor.add_effect(t_name, eff, "status", status_name)
+				var status_data = GameDB.status_effects.get(t_effect_status, null)
+				var status_name = status_data.name if status_data else "Status_%d" % t_effect_status
+				var status_effects = StatusEffectsMap.get_effects(status_name)
+
+				# Determine who gets the effect
+				var effect_target_name = t_name  # default: the target
+				if t_effect_status_target == "self":
+					effect_target_name = battler_name  # apply to the caster
+
+				for eff in status_effects:
+					if eff.duration == 0:
+						eff.duration = t_effect_status_duration + 1
+					Global.effect_processor.add_effect(effect_target_name, eff, "status", status_name)
+				print("[process_turn] Applied status '%s' to %s for %d turns" % [status_name, effect_target_name, t_effect_status_duration])
 
 		if t_killed:
 			killed_names.append(t_name)

@@ -450,9 +450,9 @@ func process_turn():
 				if int(row_data.get("Current_Health", 0)) == 0 and t_type_lower in ["damage", "true damage"]:
 					t_killed = true
 
-		# -- Move selection & status application --
+		# -- Move selection + auto element application --
 		if attack_used_text != "None":
-			for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
+			for ability in Global.Current_Battler_Data.get("entity_current_ability_data", {}).values():
 				if ability.get("name") == attack_used_text:
 					Current_Battler_Selected_Move_Data = ability
 					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data", {}).values():
@@ -461,20 +461,53 @@ func process_turn():
 						if m_aid != null and a_id != null and int(m_aid) == int(a_id):
 							Current_Battler_Selected_Move = move
 
-		# Apply status effect to target via EffectProcessor
-		if Current_Battler_Selected_Move_Data != null \
-		and int(Current_Battler_Selected_Move_Data.get("effect_status", 0)) > 0:
-			t_effect_status = int(Current_Battler_Selected_Move_Data.get("effect_status"))
-			t_effect_status_duration = int(Current_Battler_Selected_Move_Data.get("effect_status_duration", 0))
+			# Auto-apply element from ability if not manually set
+			if Current_Battler_Selected_Move_Data and t_elem == "None":
+				var ability_elem = str(Current_Battler_Selected_Move_Data.get("element", "Physical"))
+				if ability_elem != "Physical" and ability_elem != "":
+					t_elem = ability_elem
+					elements_unique[t_elem] = true
+					_apply_element(t_table, t_id, t_elem, updates)
+					var _record := _get_target_record(t_table, t_id)
+					if _record.size() > 0:
+						var elem_field := "Applied_Element" if t_table in ["Characters", "Companions"] else "AppliedElement"
+						for u in updates:
+							if u.get("table") == t_table and u.get("record_id") == int(t_id) \
+							and u.get("field") == elem_field and u.get("value") == "None":
+								t_reaction = true
+								t_current_element = _record.get(elem_field, "None")
+								break
+					if t_reaction and NetworkManager.is_host and Global.effect_processor and battler_name != "":
+						var react_ctx = {"reaction_element": t_current_element, "attack_element": t_elem, "element": t_elem, "is_crit": critical_hit}
+						var react_actions = Global.effect_processor.process_trigger(battler_name, "ON_REACTION", react_ctx)
+						for act in react_actions:
+							if act.get("effect_type") == "FLAT_DAMAGE":
+								t_damage += int(act.get("value", 0))
+							elif act.get("effect_type") == "PERCENT_DAMAGE":
+								t_damage = int(t_damage * act.get("value", 1.0))
 
-			if NetworkManager.is_host and Global.effect_processor:
+		# Apply status effect via EffectProcessor
+		if Current_Battler_Selected_Move_Data != null:
+			var raw_es2 = Current_Battler_Selected_Move_Data.get("effect_status", 0)
+			if raw_es2 != null and int(raw_es2) > 0 and NetworkManager.is_host and Global.effect_processor:
+				t_effect_status = int(raw_es2)
+				var raw_dur2 = Current_Battler_Selected_Move_Data.get("effect_status_duration", 0)
+				t_effect_status_duration = int(raw_dur2) if raw_dur2 != null else 0
+				var est = str(Current_Battler_Selected_Move_Data.get("effect_status_target", "target"))
+
 				var status_data = GameDB.status_effects.get(t_effect_status, null)
 				var status_name = status_data.name if status_data else "Status_%d" % t_effect_status
 				var status_effects = StatusEffectsMap.get_effects(status_name)
+
+				var effect_target_name = t_name
+				if est == "self":
+					effect_target_name = battler_name
+
 				for eff in status_effects:
 					if eff.duration == 0:
 						eff.duration = t_effect_status_duration + 1
-					Global.effect_processor.add_effect(t_name, eff, "status", status_name)
+					Global.effect_processor.add_effect(effect_target_name, eff, "status", status_name)
+				print("[process_turn] Applied status '%s' to %s for %d turns" % [status_name, effect_target_name, t_effect_status_duration])
 
 		# -- Ability cooldown --
 		if Current_Battler_Selected_Move_Data != null \
