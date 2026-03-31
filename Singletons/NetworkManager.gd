@@ -248,11 +248,8 @@ func _on_peer_disconnected(id: int) -> void:
 	print("NetworkManager: Peer disconnected: %d" % id)
 	if is_host:
 		connected_players.erase(id)
-		# Pause the game until they reconnect
 		_missing_peers.append(id)
-		_paused_for_disconnect = true
-		get_tree().paused = true
-		print("NetworkManager: Game paused — waiting for peer %d to reconnect" % id)
+		print("NetworkManager: Peer %d disconnected (%d remaining)" % [id, connected_players.size()])
 	emit_signal("player_disconnected", id)
 
 func _on_connected_to_server() -> void:

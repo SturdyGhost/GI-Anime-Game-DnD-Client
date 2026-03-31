@@ -37,16 +37,18 @@ func trigger_luck_popup():
 	add_child(dlg)
 
 func restore_health():
+	if not NetworkManager.is_host:
+		return
 	var updates = []
 	for character in Global.CHARACTERS.values():
 		if character.get("Max_Health") != null:
 			updates.append({
-			"table": "Characters",            # Adjust if your table name differs
-			"record_id": int(character.get("id")),  # Must be the Party's record id
+			"table": "Characters",
+			"record_id": int(character.get("id")),
 			"field": "Current_Health",
 			"value": character.get("Max_Health")})
-	Global.Update_Records(updates)
-	pass
+	if updates.size() > 0:
+		Global.Update_Records(updates)
 func assign_party():
 	Global.PartyCharacters = []
 	Global.PartyCompanions = []
