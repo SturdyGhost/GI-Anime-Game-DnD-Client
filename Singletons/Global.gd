@@ -345,7 +345,10 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 					for eff in ArtifactEffects.get_effects(sn, bonus_type):
 						effect_processor.add_effect(battler_name, eff, "artifact", label)
 
-		# Ability effects — from embedded .tres effects array + hardcoded AbilityEffects
+		# Ability effects — only register persistent effects at battle start
+		# (PASSIVE, START_OF_TURN, END_OF_TURN). Triggered effects like ON_HIT
+		# are processed contextually when the ability is used during a turn.
+		var persistent_triggers = ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]
 		var abilities = bd.get("entity_current_ability_data", {})
 		for ability in abilities.values():
 			var aid = ability.get("id", 0)
@@ -356,7 +359,6 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 				continue
 			var ability_res: AbilityData = GameDB.get_ability(aid_int)
 			var ability_name = ability_res.name if ability_res else "Ability %d" % aid_int
-			# Determine source label from ability type
 			var atype = str(ability.get("Ability_Type", ability.get("ability_type", "")))
 			var source_type = "ability"
 			match atype.to_lower():
@@ -366,9 +368,11 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 				"passive": source_type = "passive"
 			if ability_res and ability_res.effects.size() > 0:
 				for eff in ability_res.effects:
-					effect_processor.add_effect(battler_name, eff, source_type, ability_name)
+					if eff.trigger in persistent_triggers:
+						effect_processor.add_effect(battler_name, eff, source_type, ability_name)
 			for eff in AbilityEffects.get_effects(aid_int):
-				effect_processor.add_effect(battler_name, eff, source_type, ability_name)
+				if eff.trigger in persistent_triggers:
+					effect_processor.add_effect(battler_name, eff, source_type, ability_name)
 
 	sync_active_effects()
 
