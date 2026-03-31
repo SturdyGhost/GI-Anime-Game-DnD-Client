@@ -713,8 +713,11 @@ func _process_cooldowns_and_status(updates: Array) -> void:
 
 	# Subtract 1 turn from ability cooldowns (kept separate from effects)
 	for entry in Global.ACTIVE_ABILITIES.values():
+		var _eid = entry.get("Entity_ID")
+		if _eid == null:
+			continue
 		if entry.get("Entity_Type") == battler_type \
-		and int(entry.get("Entity_ID")) == battler_id \
+		and int(_eid) == battler_id \
 		and entry.get("Ability_Cooldown") > 0:
 			updates.append({
 				"table": "Active_Abilities",
