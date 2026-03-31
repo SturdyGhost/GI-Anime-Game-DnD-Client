@@ -509,6 +509,43 @@ func process_turn():
 					Global.effect_processor.add_effect(effect_target_name, eff, "status", status_name)
 				print("[process_turn] Applied status '%s' to %s for %d turns" % [status_name, effect_target_name, t_effect_status_duration])
 
+		# -- Fire triggered effects from the ability --
+		if Current_Battler_Selected_Move_Data != null and NetworkManager.is_host and Global.effect_processor:
+			var aid_val2 = Current_Battler_Selected_Move_Data.get("id")
+			if aid_val2 != null:
+				var ability_res2: AbilityData = GameDB.get_ability(int(aid_val2))
+				if ability_res2 and ability_res2.effects.size() > 0:
+					var atype_str2 = str(Current_Battler_Selected_Move.get("Ability_Type", "")) if Current_Battler_Selected_Move else ""
+					var use_trigger2 = ""
+					match atype_str2.to_lower():
+						"skill": use_trigger2 = "ON_SKILL_USE"
+						"burst": use_trigger2 = "ON_BURST_USE"
+						_: use_trigger2 = "ON_HIT"
+					var hit_ctx2 = {
+						"attack_type": t_type if t_type != null else "",
+						"element": t_elem, "is_crit": critical_hit,
+						"target_element": t_current_element,
+					}
+					for eff in ability_res2.effects:
+						if eff.trigger in ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]:
+							continue
+						if eff.trigger == use_trigger2 or eff.trigger == "ON_HIT":
+							var fx_target = battler_name if eff.target == "SELF" else (t_name if t_name != "" else battler_name)
+							Global.effect_processor.add_effect(fx_target, eff, "ability", ability_res2.name)
+							print("[process_turn] Triggered effect '%s' on %s from %s" % [eff.effect_type, fx_target, ability_res2.name])
+				# Legacy AbilityEffects
+				for eff in AbilityEffects.get_effects(int(aid_val2)):
+					if eff.trigger in ["PASSIVE", "START_OF_TURN", "END_OF_TURN"]:
+						continue
+					var atype_str3 = str(Current_Battler_Selected_Move.get("Ability_Type", "")) if Current_Battler_Selected_Move else ""
+					var use_trigger3 = "ON_HIT"
+					match atype_str3.to_lower():
+						"skill": use_trigger3 = "ON_SKILL_USE"
+						"burst": use_trigger3 = "ON_BURST_USE"
+					if eff.trigger == use_trigger3 or eff.trigger == "ON_HIT":
+						var fx_target = battler_name if eff.target == "SELF" else (t_name if t_name != "" else battler_name)
+						Global.effect_processor.add_effect(fx_target, eff, "ability", ability_res2.name)
+
 		# -- Ability cooldown --
 		if Current_Battler_Selected_Move_Data != null \
 		and Current_Battler_Selected_Move_Data.get("cooldown") != 0:
