@@ -194,9 +194,12 @@ func set_attacks():
 		if popup:
 			popup.set_item_tooltip(none_index, "No attack used this turn.")
 
-		for item in Global.BattlerData[Current_Turn].get("entity_current_active_ability_data").values():
+		for item in Global.BattlerData[Current_Turn].get("entity_current_active_ability_data", {}).values():
 			if item.get("Ability_Type") != "Passive":
-				var ability_id: int = int(item.get("Ability_ID"))
+				var raw_aid = item.get("Ability_ID")
+				if raw_aid == null:
+					continue
+				var ability_id: int = int(raw_aid)
 				var ability: AbilityData = GameDB.get_ability(ability_id)
 				if ability == null:
 					continue
@@ -345,7 +348,10 @@ func _check_ability_options():
 	for ability in Global.ACTIVE_ABILITIES.values():
 		if int(ability.get("Entity_ID")) == int(Global.ACTIVE_USER_RECORD_ID) and ability.get("Element") == Player_data.get("Element") and ability.get("Weapon_Type") == Weapon_Data.get("Type") and ability.get("Entity_Type") == "Character":
 			var item_id
-			var ability_id: int = int(ability.get("Ability_ID"))
+			var raw_ability_id = ability.get("Ability_ID")
+			if raw_ability_id == null:
+				continue
+			var ability_id: int = int(raw_ability_id)
 			if ability.get("Ability_Type") == "Skill":
 				var skill: AbilityData = GameDB.get_ability(ability_id)
 				if skill == null:
@@ -731,8 +737,10 @@ func process_turn():
 			for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
 				if ability.get("name") == attack_used_text:
 					Current_Battler_Selected_Move_Data = ability
-					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data").values():
-						if int(move.get("Ability_ID")) == int(ability.get("id")):
+					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data", {}).values():
+						var m_aid = move.get("Ability_ID")
+						var a_id = ability.get("id")
+						if m_aid != null and a_id != null and int(m_aid) == int(a_id):
 							Current_Battler_Selected_Move = move
 
 		if Current_Battler_Selected_Move_Data:

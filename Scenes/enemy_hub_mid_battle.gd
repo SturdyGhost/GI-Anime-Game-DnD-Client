@@ -166,9 +166,12 @@ func set_attacks():
 		if popup:
 			popup.set_item_tooltip(none_index, "No attack used this turn.")
 
-		for item in Global.BattlerData[Current_Turn].get("entity_current_active_ability_data").values():
+		for item in Global.BattlerData[Current_Turn].get("entity_current_active_ability_data", {}).values():
 			if item.get("Ability_Type") != "Passive":
-				var ability_id := int(item.get("Ability_ID"))
+				var raw_aid = item.get("Ability_ID")
+				if raw_aid == null:
+					continue
+				var ability_id := int(raw_aid)
 				var ability_res: AbilityData = GameDB.get_ability(ability_id)
 				var cooldown = item.get("Ability_Cooldown")
 				var ability_name := ability_res.name if ability_res else "Unnamed"
@@ -452,8 +455,10 @@ func process_turn():
 			for ability in Global.Current_Battler_Data.get("entity_current_ability_data").values():
 				if ability.get("name") == attack_used_text:
 					Current_Battler_Selected_Move_Data = ability
-					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data").values():
-						if int(move.get("Ability_ID")) == int(ability.get("id")):
+					for move in Global.Current_Battler_Data.get("entity_current_active_ability_data", {}).values():
+						var m_aid = move.get("Ability_ID")
+						var a_id = ability.get("id")
+						if m_aid != null and a_id != null and int(m_aid) == int(a_id):
 							Current_Battler_Selected_Move = move
 
 		# Apply status effect to target via EffectProcessor
