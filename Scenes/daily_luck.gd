@@ -13,4 +13,5 @@ func _on_button_pressed() -> void:
 
 func _refresh_and_close() -> void:
 	Market.Refresh_Stock(Global.Current_Region)
+	# Thread-based now — safe to close immediately
 	queue_free()

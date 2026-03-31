@@ -1,5 +1,7 @@
 extends Node
 
+signal stock_ready
+
 # --------------------------
 # Config
 # --------------------------
@@ -67,6 +69,8 @@ var _daily_luck: int = 50  # set this from your game each day
 
 var _item_value_cache: Dictionary = {}    # item_name -> value
 var _weapon_recipe_cache: Dictionary = {}  # weapon_name -> recipe or null
+var _stock_thread: Thread = null
+var _stock_generating := false
 
 func _ready() -> void:
 	_rng = RandomNumberGenerator.new()
@@ -124,7 +128,22 @@ func _buy_price_with_luck(base_value: float, luck_value: int) -> int:
 # Public API
 # --------------------------
 func Refresh_Stock(current_region: String) -> void:
+	if _stock_generating:
+		return
+	_stock_generating = true
 	_build_caches()
+
+	# Snapshot data the thread needs (read-only copies)
+	var weapons_data = Global.WEAPONS.duplicate(true)
+	var items_data = Global.ITEMS.duplicate(true)
+	var artifacts_data = Global.ARTIFACTS.duplicate(true)
+
+	if _stock_thread != null and _stock_thread.is_started():
+		_stock_thread.wait_to_finish()
+	_stock_thread = Thread.new()
+	_stock_thread.start(_generate_all_stock.bind(current_region))
+
+func _generate_all_stock(current_region: String) -> void:
 	Stock["Weapons"] = []
 	Stock["Artifacts"] = []
 	Stock["Consumables"] = []
@@ -141,6 +160,15 @@ func Refresh_Stock(current_region: String) -> void:
 	_sort_all_shops()
 	Apply_Price_Variance()
 	Sell_Offers.clear()
+	_stock_generating = false
+	call_deferred("_on_stock_ready")
+
+func _on_stock_ready() -> void:
+	if _stock_thread != null and _stock_thread.is_started():
+		_stock_thread.wait_to_finish()
+	_stock_thread = null
+	print("Market: stock generation complete")
+	emit_signal("stock_ready")
 
 func Get_Shop(shop_name: String) -> Array:
 	if not (shop_name in Stock):
