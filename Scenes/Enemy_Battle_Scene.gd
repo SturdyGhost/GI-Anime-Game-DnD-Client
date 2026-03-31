@@ -26,6 +26,12 @@ func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
+	tree_exiting.connect(_disconnect_signals)
+
+func _disconnect_signals() -> void:
+	var h = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", h):
+		Global.disconnect("data_load_complete", h)
 	if PlayerTurnUI.has_signal("turn_ended"):
 		PlayerTurnUI.turn_ended.connect(_on_child_turn_ended)
 	_set_party_and_companions()
@@ -236,15 +242,12 @@ func _host_battle_cleanup() -> void:
 	for ability in Global.ACTIVE_ABILITIES.values():
 		if ability.get("Ability_Cooldown") > 0:
 			updates.append({"table": "Active_Abilities", "record_id": ability.get("id"), "field": "Ability_Cooldown", "value": 0})
-	for player_name2 in Global.PartyCharacters:
-		var cid = Global.CHARACTERS_NAME.get(player_name2, "")
-		if cid == "":
-			continue
-		var pd = Global.CHARACTERS.get(cid, {})
-		updates.append({"table": "Characters", "record_id": int(cid), "field": "Ready", "value": false})
-		updates.append({"table": "Characters", "record_id": int(cid), "field": "Applied_Element", "value": "None"})
-		updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": pd.get("Max_Health", 0)})
-		updates.append({"table": "Characters", "record_id": int(cid), "field": "Skipped", "value": false})
+	for char in Global.CHARACTERS.values():
+		var cid = int(char.get("id", 0))
+		updates.append({"table": "Characters", "record_id": cid, "field": "Ready", "value": false})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Applied_Element", "value": "None"})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Current_Health", "value": char.get("Max_Health", 0)})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Skipped", "value": false})
 	for comp in Global.COMPANIONS.values():
 		updates.append({"table": "Companions", "record_id": int(comp.get("id")), "field": "Applied_Element", "value": "None"})
 	var buff_left = int(Global.Current_Party.get("Buff_Battles_Left", 0))

@@ -55,6 +55,12 @@ func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
+	tree_exiting.connect(_disconnect_signals)
+
+func _disconnect_signals() -> void:
+	var handler = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", handler):
+		Global.disconnect("data_load_complete", handler)
 	set_battlers()
 	set_ui()
 	pass  # http node removed

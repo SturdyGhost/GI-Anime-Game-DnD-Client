@@ -391,7 +391,6 @@ func end_battle_effects() -> void:
 			"field": "_all",
 			"value": {}
 		}])
-		emit_signal("data_load_complete")
 
 # ── Correlation ID for inserts ───────────────────────────────────────────────
 var _next_insert_corr_id: String = ""
