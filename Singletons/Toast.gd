@@ -1,10 +1,16 @@
 extends CanvasLayer
 ## Toast banner system — shows temporary notifications at the top of the screen.
-## Usage: Toast.show("Region changed to Liyue")
-## Usage: Toast.show("Disconnected from host", Toast.ERROR)
-## Usage: Toast.show("Brian C. connected", Toast.SUCCESS)
+## Usage: Toast.notify("Region changed to Liyue")
+## Usage: Toast.notify("Disconnected from host", Toast.ERROR)
+## Usage: Toast.notify("Brian C. connected", Toast.SUCCESS)
 
 enum Level { INFO, SUCCESS, WARNING, ERROR }
+
+# Expose enum values directly so callers use Toast.SUCCESS not Toast.Level.SUCCESS
+const INFO := Level.INFO
+const SUCCESS := Level.SUCCESS
+const WARNING := Level.WARNING
+const ERROR := Level.ERROR
 
 const DURATION := 3.0
 const FADE_TIME := 0.4
