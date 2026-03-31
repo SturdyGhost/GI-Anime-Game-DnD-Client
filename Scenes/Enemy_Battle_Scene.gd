@@ -241,8 +241,13 @@ func check_battle_end():
 			_go_to_hub()
 
 func _host_battle_cleanup() -> void:
+	print("[Enemy_Battle_Scene] _host_battle_cleanup: starting")
+	# Remove enemies from _synced locally (no per-enemy broadcast)
 	for enemy in Global.BATTLEENEMIES.values():
-		Global.Remove_Record("BattleEnemies", int(enemy.get("id")))
+		Global._remove_record("BattleEnemies", str(int(enemy.get("id"))))
+	DataStore.persist_table("BattleEnemies")
+
+	# Build all cleanup updates in one batch
 	var updates = []
 	for ability in Global.ACTIVE_ABILITIES.values():
 		if ability.get("Ability_Cooldown") > 0:
@@ -261,9 +266,16 @@ func _host_battle_cleanup() -> void:
 		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Active_Food_Buff", "value": "None"})
 	else:
 		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Buff_Battles_Left", "value": buff_left - 1})
+
+	# Apply locally + single broadcast for field updates
 	if updates.size() > 0:
 		Global.Update_Records(updates)
+
+	# Single broadcast of the now-empty BattleEnemies table to clients
+	NetworkManager.broadcast_table_update("BattleEnemies")
+
 	Global.end_battle_effects()
+	print("[Enemy_Battle_Scene] _host_battle_cleanup: done, transitioning")
 	_go_to_hub()
 
 func _go_to_hub() -> void:

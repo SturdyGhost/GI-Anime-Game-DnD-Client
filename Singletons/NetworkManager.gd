@@ -41,11 +41,15 @@ var _sync_tables_received = {}
 var _sync_total_expected = 0
 var _initial_sync_complete = false
 
+var _last_host_ip: String = ""
+var _last_host_port: int = DEFAULT_PORT
+
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 # ─── HOSTING ───
 
@@ -120,6 +124,8 @@ func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
 	is_host = false
 	DataStore.set_host(false)
 	SaveManager.set_host(false)
+	_last_host_ip = ip
+	_last_host_port = port
 
 	peer = ENetMultiplayerPeer.new()
 	var err = peer.create_client(ip, port)
@@ -264,6 +270,28 @@ func _on_connection_failed() -> void:
 	is_connected_to_host = false
 	emit_signal("connection_failed")
 
+func _on_server_disconnected() -> void:
+	print("NetworkManager: Lost connection to host — attempting reconnect to %s:%d" % [_last_host_ip, _last_host_port])
+	is_connected_to_host = false
+	if _last_host_ip != "":
+		_attempt_reconnect()
+
+func _attempt_reconnect() -> void:
+	for attempt in range(5):
+		print("NetworkManager: Reconnect attempt %d/5" % (attempt + 1))
+		peer = ENetMultiplayerPeer.new()
+		var err = peer.create_client(_last_host_ip, _last_host_port)
+		if err != OK:
+			await get_tree().create_timer(1.0).timeout
+			continue
+		multiplayer.multiplayer_peer = peer
+		# Wait up to 3 seconds for connection
+		await get_tree().create_timer(3.0).timeout
+		if is_connected_to_host:
+			print("NetworkManager: Reconnected successfully!")
+			return
+	push_warning("NetworkManager: Failed to reconnect after 5 attempts")
+
 # ─── PLAYER REGISTRATION ───
 
 @rpc("any_peer", "reliable")
@@ -288,6 +316,10 @@ func _register_with_host(player_name: String, character_id: String) -> void:
 		_paused_for_disconnect = false
 		get_tree().paused = false
 		print("NetworkManager: All players reconnected — game resumed")
+
+	# Send full sync to the reconnecting player
+	print("NetworkManager: Sending full sync to reconnected peer %d" % sender)
+	_send_full_sync_to_peer(sender)
 
 # ─── FULL SYNC (Host -> Client, chunked per table) ───
 
