@@ -532,6 +532,7 @@ func process_turn():
 						if eff.trigger == use_trigger2 or eff.trigger == "ON_HIT":
 							var fx_target = battler_name if eff.target == "SELF" else (t_name if t_name != "" else battler_name)
 							Global.effect_processor.add_effect(fx_target, eff, "ability", ability_res2.name)
+							_apply_immediate_effect(eff, fx_target, updates)
 							print("[process_turn] Triggered effect '%s' on %s from %s" % [eff.effect_type, fx_target, ability_res2.name])
 				# Legacy AbilityEffects
 				for eff in AbilityEffects.get_effects(int(aid_val2)):
@@ -545,6 +546,7 @@ func process_turn():
 					if eff.trigger == use_trigger3 or eff.trigger == "ON_HIT":
 						var fx_target = battler_name if eff.target == "SELF" else (t_name if t_name != "" else battler_name)
 						Global.effect_processor.add_effect(fx_target, eff, "ability", ability_res2.name)
+						_apply_immediate_effect(eff, fx_target, updates)
 
 		# -- Ability cooldown --
 		if Current_Battler_Selected_Move_Data != null \
@@ -772,6 +774,44 @@ func _resolve_damage(row_data: Dictionary, t_table: String, t_id, t_type: String
 # =============================================================================
 #  Helper: tick down cooldowns and status effect durations for current battler
 # =============================================================================
+
+func _apply_immediate_effect(eff: GameEffect, target_name: String, updates: Array) -> void:
+	var target_table = ""
+	var target_rid = 0
+	var cid = Global.CHARACTERS_NAME.get(target_name, "")
+	if cid != "":
+		target_table = "Characters"
+		target_rid = int(cid)
+	else:
+		var comp_id = Global.COMPANIONS_NAME.get(target_name, "")
+		if comp_id != "":
+			target_table = "Companions"
+			target_rid = int(comp_id)
+		else:
+			for e in Global.BATTLEENEMIES.values():
+				var label = str(e.get("EnemyName", "")) + " " + str(e.get("id", ""))
+				if label == target_name:
+					target_table = "BattleEnemies"
+					target_rid = int(e.get("id"))
+					break
+	if target_table == "" or target_rid == 0:
+		return
+	match eff.effect_type:
+		"SHIELD_GENERATE":
+			var shield_val = int(eff.effect_value)
+			updates.append({"table": target_table, "record_id": target_rid, "field": "Shield_Health", "value": shield_val})
+			updates.append({"table": target_table, "record_id": target_rid, "field": "Shield_Duration", "value": 4})
+		"HEAL":
+			var heal_val = int(eff.effect_value)
+			var rec = {}
+			if target_table == "Characters":
+				rec = Global.CHARACTERS.get(str(target_rid), {})
+			elif target_table == "Companions":
+				rec = Global.COMPANIONS.get(str(target_rid), {})
+			var cur_hp = int(rec.get("Current_Health", 0))
+			var max_hp = int(rec.get("Max_Health", cur_hp))
+			var new_hp = min(cur_hp + heal_val, max_hp)
+			updates.append({"table": target_table, "record_id": target_rid, "field": "Current_Health", "value": new_hp})
 
 func _process_cooldowns_and_status(updates: Array) -> void:
 	var b_name = str(Current_Turn) if Current_Turn != null else ""

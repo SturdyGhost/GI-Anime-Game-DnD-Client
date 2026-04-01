@@ -17,7 +17,11 @@ static func from_effect(eff: GameEffect, src_type: String = "", src_name: String
 	s.effect = eff
 	s.source_type = src_type
 	s.source_name = src_name
-	s.turns_remaining = eff.duration
+	# PASSIVE effects with duration=0 are permanent (not instant)
+	if eff.trigger == "PASSIVE" and eff.duration == 0:
+		s.turns_remaining = -1
+	else:
+		s.turns_remaining = eff.duration
 	s.actions_remaining = eff.duration_actions
 	if eff.is_stackable():
 		s.current_stacks = 1

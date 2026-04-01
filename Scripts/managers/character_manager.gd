@@ -67,6 +67,12 @@ func _calculate_from_resources(player_name: String, player: PlayerData) -> Calcu
 		if player.dm_overrides.has(override_key):
 			value += float(player.dm_overrides[override_key])
 
+		# Apply effect processor stat bonuses/multipliers (if in battle)
+		if Global.effect_processor:
+			var cap_stat = stat.capitalize().replace(" ", "_")
+			value += Global.effect_processor.stat_bonus(player_name, cap_stat)
+			value *= Global.effect_processor.stat_multiplier(player_name, cap_stat)
+
 		# Store
 		match stat:
 			"health": calc.health = snapped(value, 0.01)
@@ -154,6 +160,12 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 						if bonus.condition == "Element" and pd.get("Element", "") != bonus.condition_value:
 							continue
 					value += bonus.stat_modifier_value
+
+		# Apply effect processor stat bonuses/multipliers (if in battle)
+		if Global.effect_processor:
+			var cap_stat2 = stat.capitalize().replace(" ", "_")
+			value += Global.effect_processor.stat_bonus(player_name, cap_stat2)
+			value *= Global.effect_processor.stat_multiplier(player_name, cap_stat2)
 
 		match stat:
 			"health": calc.health = snapped(value, 0.01)
