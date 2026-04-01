@@ -302,18 +302,7 @@ func assign_party():
 
 func check_turn_ui(current_turn):
 	_refresh_turns()
-	if current_turn == Global.ACTIVE_USER_NAME:
-		PlayerTurnUI.EndTurnButton.disabled = false
-		PlayerTurnUI.visible = true
-	elif Global.COMPANIONS_NAME.has(current_turn):
-		if Global.COMPANIONS[Global.COMPANIONS_NAME[current_turn]].get("Owner") == Global.ACTIVE_USER_NAME:
-			PlayerTurnUI.EndTurnButton.disabled = false
-			PlayerTurnUI.visible = true
-	elif Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].get("UserType") == "Dungeon Master":
-			PlayerTurnUI.EndTurnButton.disabled = false
-	else:
-			PlayerTurnUI.EndTurnButton.disabled = true
-			PlayerTurnUI.visible = false
+	# player_hub_mid_battle manages its own visibility based on whose turn it is.
 
 func _on_visibility_toggle_button_pressed() -> void:
 	PlayerTurnUI.visible = true

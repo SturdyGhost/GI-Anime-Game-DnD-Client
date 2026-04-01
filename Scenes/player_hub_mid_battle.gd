@@ -97,20 +97,22 @@ func _on_data_load_complete():
 	else:
 		Turn_Type = "Enemy"
 
-	# Determine visibility: players see popup on their turn (or companion's),
-	# host sees popup only on enemy turns
+	# Determine if this UI should be visible
 	var is_my_turn = (str(Current_Turn) == Global.ACTIVE_USER_NAME)
 	var is_my_companion = Global.PartyCompanions.has(str(Current_Turn))
 	var is_enemy_turn = (Turn_Type == "Enemy")
-
+	var should_show = false
 	if NetworkManager.is_host:
-		self.visible = is_enemy_turn
+		should_show = is_enemy_turn
 	else:
-		self.visible = is_my_turn or is_my_companion
+		should_show = is_my_turn or is_my_companion
 
-	# Check if current battler is stunned (SKIP_TURN effect)
-	if self.visible and _is_battler_stunned(str(Current_Turn)):
+	# If stunned, show skip popup INSTEAD of the full UI
+	if should_show and _is_battler_stunned(str(Current_Turn)):
+		self.visible = false
 		_show_skip_turn_popup()
+	else:
+		self.visible = should_show
 
 
 func check_current_turn_battler_status():
@@ -1324,42 +1326,48 @@ func _is_battler_stunned(b_name: String) -> bool:
 	return false
 
 func _show_skip_turn_popup() -> void:
-	# Hide normal turn UI, show skip confirmation
-	var popup = Panel.new()
-	popup.name = "SkipTurnPopup"
-	popup.set_anchors_preset(Control.PRESET_CENTER)
-	popup.custom_minimum_size = Vector2(450, 120)
-	popup.position = Vector2(1000, 600)
+	# Remove any existing popup
+	var existing = get_parent().get_node_or_null("SkipTurnPopup")
+	if existing:
+		existing.queue_free()
+
+	var bg = ColorRect.new()
+	bg.name = "SkipTurnPopup"
+	bg.color = Color(0, 0, 0, 0.6)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(500, 140)
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.size = Vector2(500, 140)
+	panel.position = Vector2(-250, -70)
+	bg.add_child(panel)
 
 	var vbox = VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	vbox.add_theme_constant_override("separation", 12)
-	popup.add_child(vbox)
-
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	vbox.add_child(margin)
+	vbox.add_theme_constant_override("separation", 16)
+	panel.add_child(vbox)
 
 	var lbl = Label.new()
 	lbl.text = "%s's turn is skipped! (Stunned)" % str(Current_Turn)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	margin.add_child(lbl)
+	lbl.add_theme_font_size_override("font_size", 20)
+	vbox.add_child(lbl)
 
 	var btn = Button.new()
 	btn.text = "Confirm"
 	btn.pressed.connect(func():
-		# Tick effects for this battler
 		var updates = []
 		_process_cooldowns_and_status(updates)
 		if updates.size() > 0:
 			Global.Update_Records(updates)
-		popup.queue_free()
+		if NetworkManager.is_host and Global.effect_processor:
+			Global.sync_active_effects()
+		bg.queue_free()
 		emit_signal("turn_ended")
 	)
 	vbox.add_child(btn)
-	add_child(popup)
+	get_parent().add_child(bg)
 
 func _on_end_turn_button_pressed() -> void:
 	process_turn()

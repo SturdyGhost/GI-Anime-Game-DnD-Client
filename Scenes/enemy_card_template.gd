@@ -70,8 +70,8 @@ func set_card(id):
 		self.modulate = Color(0.6, 0.6, 0.6, 0.8)
 	else:
 		self.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	var path = str("res://UI/Enemy Portraits/" + ename + ".png")
-	if path != "":
+	var path = "res://UI/Enemy Portraits/" + ename + ".png"
+	if ResourceLoader.exists(path):
 		var tex = load(path)
 		if tex is Texture2D:
 			CardPortrait.texture = tex

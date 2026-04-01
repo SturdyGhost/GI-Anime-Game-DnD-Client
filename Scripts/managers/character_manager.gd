@@ -67,11 +67,8 @@ func _calculate_from_resources(player_name: String, player: PlayerData) -> Calcu
 		if player.dm_overrides.has(override_key):
 			value += float(player.dm_overrides[override_key])
 
-		# Apply effect processor stat bonuses/multipliers (if in battle)
-		if Global.effect_processor:
-			var cap_stat = stat.capitalize().replace(" ", "_")
-			value += Global.effect_processor.stat_bonus(player_name, cap_stat)
-			value *= Global.effect_processor.stat_multiplier(player_name, cap_stat)
+		# Apply effect stat bonuses/multipliers from processor (host) or synced data (client)
+		value = _apply_effect_stat_mods(player_name, stat, value)
 
 		# Store
 		match stat:
@@ -161,11 +158,8 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 							continue
 					value += bonus.stat_modifier_value
 
-		# Apply effect processor stat bonuses/multipliers (if in battle)
-		if Global.effect_processor:
-			var cap_stat2 = stat.capitalize().replace(" ", "_")
-			value += Global.effect_processor.stat_bonus(player_name, cap_stat2)
-			value *= Global.effect_processor.stat_multiplier(player_name, cap_stat2)
+		# Apply effect stat bonuses/multipliers from processor (host) or synced data (client)
+		value = _apply_effect_stat_mods(player_name, stat, value)
 
 		match stat:
 			"health": calc.health = snapped(value, 0.01)
@@ -202,6 +196,36 @@ func recalculate_all() -> void:
 	else:
 		for name in Global._synced_name.get("Characters", {}).keys():
 			calculate_stats(name)
+
+# ── Effect Stat Modifiers ────────────────────────────────────────────────────
+
+## Apply STAT_BONUS and STAT_MULTIPLIER from effects. Works on both host (processor)
+## and client (reads from synced ActiveEffects data).
+func _apply_effect_stat_mods(player_name: String, stat: String, value: float) -> float:
+	var cap_stat = stat.capitalize().replace(" ", "_")
+
+	# Host path: query the processor directly
+	if Global.effect_processor:
+		value += Global.effect_processor.stat_bonus(player_name, cap_stat)
+		value *= Global.effect_processor.stat_multiplier(player_name, cap_stat)
+		return value
+
+	# Client path: read from synced effects data
+	var synced_fx = Global._synced.get("ActiveEffects", {}).get(player_name, [])
+	var bonus_total = 0.0
+	var mult_total = 1.0
+	for fx in synced_fx:
+		var fx_stat = str(fx.get("effect_stat", ""))
+		if fx_stat != cap_stat:
+			continue
+		match fx.get("effect_type", ""):
+			"STAT_BONUS":
+				bonus_total += float(fx.get("value", 0))
+			"STAT_MULTIPLIER":
+				mult_total *= (1.0 + float(fx.get("value", 0)))
+	value += bonus_total
+	value *= mult_total
+	return value
 
 # ── Abilities ────────────────────────────────────────────────────────────────
 
