@@ -99,7 +99,11 @@ func _on_data_load_complete():
 
 	# Determine if this UI should be visible
 	var is_my_turn = (str(Current_Turn) == Global.ACTIVE_USER_NAME)
-	var is_my_companion = Global.PartyCompanions.has(str(Current_Turn))
+	var is_my_companion = false
+	if Global.PartyCompanions.has(str(Current_Turn)):
+		var comp_id = Global.COMPANIONS_NAME.get(str(Current_Turn), "")
+		var comp_data = Global.COMPANIONS.get(comp_id, {})
+		is_my_companion = (comp_data.get("Owner", "") == Global.ACTIVE_USER_NAME)
 	var is_enemy_turn = (Turn_Type == "Enemy")
 	var should_show = false
 	if NetworkManager.is_host:
