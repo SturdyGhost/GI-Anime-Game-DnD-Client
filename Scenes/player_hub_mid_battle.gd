@@ -85,19 +85,32 @@ func _refresh_data():
 
 
 func _on_data_load_complete():
-	print("Global data has finished loading!")
 	Current_Turn = Global.Current_Party.get("Current_Turn")
 	_refresh_data()
 	if battle_id == null:
 		battle_id = Global.Current_Party.get("Active_Battle_ID")
 
-	pass  # polling removed — ENet sync
-	if Global.PartyCharacters.has(Global.Current_Party.get("Current_Turn")):
+	if Global.PartyCharacters.has(str(Current_Turn)):
 		Turn_Type = "Character"
-	elif Global.PartyCompanions.has(Global.Current_Party.get("Current_Turn")):
+	elif Global.PartyCompanions.has(str(Current_Turn)):
 		Turn_Type = "Companion"
 	else:
 		Turn_Type = "Enemy"
+
+	# Determine visibility: players see popup on their turn (or companion's),
+	# host sees popup only on enemy turns
+	var is_my_turn = (str(Current_Turn) == Global.ACTIVE_USER_NAME)
+	var is_my_companion = Global.PartyCompanions.has(str(Current_Turn))
+	var is_enemy_turn = (Turn_Type == "Enemy")
+
+	if NetworkManager.is_host:
+		self.visible = is_enemy_turn
+	else:
+		self.visible = is_my_turn or is_my_companion
+
+	# Check if current battler is stunned (SKIP_TURN effect)
+	if self.visible and _is_battler_stunned(str(Current_Turn)):
+		_show_skip_turn_popup()
 
 
 func check_current_turn_battler_status():
@@ -1303,9 +1316,74 @@ func _wrap_text(text: String, limit: int) -> String:
 # Signal handlers
 # ---------------------------------------------------------------------------
 
+func _is_battler_stunned(b_name: String) -> bool:
+	var effects = Global.get_battler_effects(b_name)
+	for fx in effects:
+		if fx.get("effect_type") in ["SKIP_TURN", "FREEZE"]:
+			return true
+	return false
+
+func _show_skip_turn_popup() -> void:
+	# Hide normal turn UI, show skip confirmation
+	var popup = Panel.new()
+	popup.name = "SkipTurnPopup"
+	popup.set_anchors_preset(Control.PRESET_CENTER)
+	popup.custom_minimum_size = Vector2(450, 120)
+	popup.position = Vector2(1000, 600)
+
+	var vbox = VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 12)
+	popup.add_child(vbox)
+
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 16)
+	vbox.add_child(margin)
+
+	var lbl = Label.new()
+	lbl.text = "%s's turn is skipped! (Stunned)" % str(Current_Turn)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	margin.add_child(lbl)
+
+	var btn = Button.new()
+	btn.text = "Confirm"
+	btn.pressed.connect(func():
+		# Tick effects for this battler
+		var updates = []
+		_process_cooldowns_and_status(updates)
+		if updates.size() > 0:
+			Global.Update_Records(updates)
+		popup.queue_free()
+		emit_signal("turn_ended")
+	)
+	vbox.add_child(btn)
+	add_child(popup)
+
 func _on_end_turn_button_pressed() -> void:
 	process_turn()
+	# Reset UI for next turn
+	_reset_turn_ui()
 	emit_signal("turn_ended")
+
+func _reset_turn_ui() -> void:
+	# Clear targets
+	for child in TargetList.get_children():
+		child.queue_free()
+	TargetSelection.deselect_all()
+	# Reset attack selection
+	if AttackUsedButton.item_count > 0:
+		AttackUsedButton.selected = 0
+	# Reset input fields
+	TilesMovedEdit.text = "0"
+	BurstChargesEdit.text = "0"
+	PassiveStacksEdit.text = "0"
+	AttackRollEdit.text = "0"
+	CritBox.button_pressed = false
+	# Reset item selection
+	if ItemUsedButton.item_count > 0:
+		ItemUsedButton.selected = 0
 
 
 func _on_target_selection_multi_selected(index: int, selected: bool) -> void:

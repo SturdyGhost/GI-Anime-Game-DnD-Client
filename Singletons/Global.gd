@@ -371,6 +371,8 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 			for eff in AbilityEffects.get_effects(aid_int):
 				effect_processor.add_effect(battler_name, eff, "passive", ability_name)
 
+	# Recalculate stats now that effects are registered (weapon/artifact stat bonuses)
+	CharacterManager.recalculate_all()
 	sync_active_effects()
 
 ## Serialize and broadcast active effects to all clients.
