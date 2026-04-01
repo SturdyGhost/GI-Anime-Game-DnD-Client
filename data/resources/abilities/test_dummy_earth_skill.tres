@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3 uid="uid://ce0fx6ufkv3y7"]
 
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_q68bo"]
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="2_fx"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_q68bo"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="2_fx"]
 
 [sub_resource type="Resource" id="fx_root"]
 script = ExtResource("2_fx")
@@ -74,3 +74,9 @@ phase_idx = 1
 order = 0
 weight = 1.0
 effects = [SubResource("fx_root")]
+entity_type = ""
+entity_id = 0
+entity_name = ""
+weapon_type = ""
+ability_type = ""
+ability_cooldown = 0
