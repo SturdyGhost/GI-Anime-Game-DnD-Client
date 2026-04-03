@@ -54,8 +54,19 @@ func set_card(id):
 	CardName.text = str(str(ename)+" "+str(int(eid)))
 	CardSubText.text = "Phase: "+ phase +"\n"+"Status Effect: \n"+status
 	CardTier.text = tier.capitalize()
-	CardHealthBar.value = pct
-	CardHealthText.text = ( "Doing great" if pct >= 75.0 else ("Hurting a bit" if pct >= 50.0 else ("In trouble" if pct >= 25.0 else "On last legs")) )
+	CardHealthBar.visible = false
+	var condition_text = "Doing great" if pct >= 75.0 else ("Hurting a bit" if pct >= 50.0 else ("In trouble" if pct >= 25.0 else "Real ragged"))
+	CardHealthText.text = condition_text
+	# Color-code the condition text
+	if pct >= 75.0:
+		CardHealthText.add_theme_color_override("font_color", Color(0.133, 0.773, 0.369))  # green
+	elif pct >= 50.0:
+		CardHealthText.add_theme_color_override("font_color", Color(0.918, 0.702, 0.031))  # yellow
+	elif pct >= 25.0:
+		CardHealthText.add_theme_color_override("font_color", Color(0.918, 0.702, 0.031))  # yellow
+	else:
+		CardHealthText.add_theme_color_override("font_color", Color(0.937, 0.267, 0.267))  # red
+	CardHealthText.add_theme_font_size_override("font_size", 16)
 	shield_value = e.get("Shield_Health")
 	if shield_value != null:
 		shield_hp = int(shield_value)

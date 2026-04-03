@@ -31,6 +31,10 @@ ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"
 Toast="*res://Singletons/Toast.gd"
 
+[debug]
+
+gdscript/warnings/enable=false
+
 [display]
 
 window/size/viewport_width=2560

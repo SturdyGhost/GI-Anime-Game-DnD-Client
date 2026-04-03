@@ -11,6 +11,7 @@ var ACTIVE_USER_RECORD_ID: int = 0
 var PublicIP = ""
 var Luck_Set: bool = false
 var Region_Changed: int = 1
+var _returned_from_battle: bool = false
 
 # ── Synced table data (populated by host on both host+client via _process_table)
 var _synced: Dictionary = {}          # { "TableName": { "rid": {record}, ... } }

@@ -204,13 +204,13 @@ func recalculate_all() -> void:
 func _apply_effect_stat_mods(player_name: String, stat: String, value: float) -> float:
 	var cap_stat = stat.capitalize().replace(" ", "_")
 
-	# Host path: query the processor directly
+	# Host path: query the processor directly (battle active)
 	if Global.effect_processor:
 		value += Global.effect_processor.stat_bonus(player_name, cap_stat)
 		value *= Global.effect_processor.stat_multiplier(player_name, cap_stat)
 		return value
 
-	# Client path: read from synced effects data
+	# Client path: read from synced effects data (battle active on client)
 	var synced_fx = Global._synced.get("ActiveEffects", {}).get(player_name, [])
 	var bonus_total = 0.0
 	var mult_total = 1.0
@@ -223,6 +223,26 @@ func _apply_effect_stat_mods(player_name: String, stat: String, value: float) ->
 				bonus_total += float(fx.get("value", 0))
 			"STAT_MULTIPLIER":
 				mult_total *= (1.0 + float(fx.get("value", 0)))
+
+	# Fallback: if no battle effects, check weapon/artifact passive effects directly
+	# This makes weapon effects like "+30% HP" apply outside of battle too
+	if synced_fx.is_empty():
+		for weapon in Global.CHARACTER_WEAPONS.values():
+			if weapon.get("Owner") != player_name or weapon.get("Equipped") != true:
+				continue
+			var weapon_name = str(weapon.get("Weapon", weapon.get("Name", "")))
+			var effects = WeaponEffects.get_effects(weapon_name)
+			for eff in effects:
+				if eff.trigger != "PASSIVE":
+					continue
+				if eff.effect_stat != cap_stat:
+					continue
+				match eff.effect_type:
+					"STAT_BONUS":
+						bonus_total += eff.effect_value
+					"STAT_MULTIPLIER":
+						mult_total *= (1.0 + eff.effect_value)
+
 	value += bonus_total
 	value *= mult_total
 	return value

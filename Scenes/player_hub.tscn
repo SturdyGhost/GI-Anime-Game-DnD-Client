@@ -353,7 +353,6 @@ offset_right = 758.0
 offset_bottom = 160.0
 scale = Vector2(1.1, 1.1)
 tooltip_text = "Check Rules/Gameplay Functions"
-disabled = true
 texture_normal = ExtResource("22_q3m0e")
 texture_pressed = ExtResource("23_7y6pu")
 texture_hover = ExtResource("24_xkwd6")
@@ -761,6 +760,7 @@ autoplay = true
 [connection signal="item_selected" from="UI/TopHotbar/ElementButton" to="." method="_on_element_button_item_selected"]
 [connection signal="pressed" from="UI/TopHotbar/BugButton" to="." method="_on_bug_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="UI/TopHotbar/RulesButton" to="." method="_on_rules_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/RefreshButton" to="." method="_on_refresh_button_pressed"]
 [connection signal="pressed" from="UI/TopHotbar/CompanionsButton" to="." method="_on_companions_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Market Button" to="." method="_on_market_button_pressed"]

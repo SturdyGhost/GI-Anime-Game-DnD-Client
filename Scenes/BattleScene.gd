@@ -1,0 +1,1939 @@
+extends Control
+
+# =============================================================================
+#  Preloads
+# =============================================================================
+
+# Target rows are now built programmatically (no external scene needed)
+
+# =============================================================================
+#  Theme Colors
+# =============================================================================
+
+const BG_DEEP = Color(0.039, 0.051, 0.075)
+const BG_PANEL = Color(0.071, 0.086, 0.118)
+const BG_CARD = Color(0.102, 0.122, 0.169)
+const BORDER_SUBTLE = Color(0.165, 0.188, 0.251)
+const TEXT_PRIMARY = Color(0.941, 0.949, 0.973)
+const TEXT_SECONDARY = Color(0.69, 0.722, 0.8)
+const TEXT_MUTED = Color(0.533, 0.573, 0.659)
+const ACCENT = Color(0.788, 0.659, 0.298)
+const COL_CURRENT = Color(0.886, 0.761, 0.564, 0.28)
+const COL_NEXT = Color(0.545, 0.827, 0.867, 0.18)
+
+# =============================================================================
+#  Node References (set in _build_ui)
+# =============================================================================
+
+var _background: TextureRect
+var _turn_list: ItemList
+var _round_label: Label
+var _turn_badge: Label
+var _enemy_grid: GridContainer
+var _action_dock: PanelContainer
+var _attack_select: OptionButton
+var _target_list: ItemList
+var _results_container: VBoxContainer
+var _attack_roll_spin: SpinBox
+var _tiles_moved_spin: SpinBox
+var _burst_gained_spin: SpinBox
+var _passive_stacks_spin: SpinBox
+var _crit_toggle: CheckButton
+var _item_select: OptionButton
+var _item_desc: Label
+var _item_target_select: OptionButton
+var _food_buff_label: Label
+var _burst_count_label: Label
+var _end_turn_btn: Button
+var _party_list: VBoxContainer
+var _stun_overlay: ColorRect
+var _stun_title: Label
+var _stun_text: Label
+var _stun_btn: Button
+var _audio: AudioStreamPlayer
+var _attack_tab: VBoxContainer
+var _effects_tab: VBoxContainer
+var _stats_tab: VBoxContainer
+var _tab_btn_attack: Button
+var _tab_btn_effects: Button
+var _tab_btn_stats: Button
+var _my_stats_container: VBoxContainer
+var _my_effects_container: VBoxContainer
+var _center_split: VSplitContainer
+var _outer_split: HSplitContainer
+var _inner_split: HSplitContainer
+var _party_split: VSplitContainer
+var _info_split: VSplitContainer
+var _dock_split: VSplitContainer
+var _attack_hsplit_l: HSplitContainer
+var _attack_hsplit_r: HSplitContainer
+var _target_vsplit: VSplitContainer
+
+const LAYOUT_SAVE_PATH = "user://battle_layout.cfg"
+
+# =============================================================================
+#  State
+# =============================================================================
+
+var Original_Order: Array = []
+var Current_Turn = null
+var Turn_Type: String = ""
+var battle_id = null
+var turn_no: int = 0
+var music_files: Array = []
+var music_index: int = -1
+var _battle_ending = false
+var _battle_logger: BattleLogger = null
+var _last_logged_turn: String = ""
+var _battle_ending_summary_shown: bool = false
+
+
+# =============================================================================
+#  Lifecycle
+# =============================================================================
+
+func _ready():
+	_build_ui()
+	_apply_tooltip_theme()
+
+	# Connect signals
+	Global.connect("data_load_complete", _on_data_load_complete)
+	tree_exiting.connect(_disconnect_signals)
+	_end_turn_btn.pressed.connect(_on_end_turn_pressed)
+	_stun_btn.pressed.connect(_on_stun_confirm)
+	# multi_selected fires for shift+click range; gui_input handles single left-click toggle
+	_target_list.multi_selected.connect(_on_target_multi_selected)
+	_target_list.gui_input.connect(_on_target_list_input)
+	_tab_btn_attack.pressed.connect(func(): _switch_tab("attack"))
+	_tab_btn_effects.pressed.connect(func(): _switch_tab("effects"))
+	_tab_btn_stats.pressed.connect(func(): _switch_tab("stats"))
+	_item_select.item_selected.connect(_on_item_selected)
+	_audio.finished.connect(_on_audio_finished)
+	if NetworkManager.is_host:
+		NetworkManager.combat_log_received.connect(_on_combat_log_received)
+	else:
+		NetworkManager.battle_summary_received.connect(_on_battle_summary_received)
+
+	# Connect split container dragged signals to save layout
+	_outer_split.dragged.connect(func(_ofs): _save_layout())
+	_inner_split.dragged.connect(func(_ofs): _save_layout())
+	_center_split.dragged.connect(func(_ofs): _save_layout())
+	_party_split.dragged.connect(func(_ofs): _save_layout())
+	_info_split.dragged.connect(func(_ofs): _save_layout())
+	_dock_split.dragged.connect(func(_ofs): _save_layout())
+	_attack_hsplit_l.dragged.connect(func(_ofs): _save_layout())
+	_attack_hsplit_r.dragged.connect(func(_ofs): _save_layout())
+	_target_vsplit.dragged.connect(func(_ofs): _save_layout())
+
+	# Restore saved layout (must happen after _build_ui and after a frame for sizing)
+	_load_layout.call_deferred()
+
+	# Setup
+	_setup_turn_order()
+	_build_battlers()
+	_refresh_all()
+	_update_dock_visibility()
+	_set_background()
+	_start_music()
+	Toast.notify("Battle started", Toast.WARNING)
+
+
+func _disconnect_signals():
+	var h = Callable(self, "_on_data_load_complete")
+	if Global.is_connected("data_load_complete", h):
+		Global.disconnect("data_load_complete", h)
+	if NetworkManager.combat_log_received.is_connected(_on_combat_log_received):
+		NetworkManager.combat_log_received.disconnect(_on_combat_log_received)
+	if NetworkManager.battle_summary_received.is_connected(_on_battle_summary_received):
+		NetworkManager.battle_summary_received.disconnect(_on_battle_summary_received)
+
+
+# =============================================================================
+#  UI Construction Helpers
+# =============================================================================
+
+const BG_INSET = Color(0.055, 0.067, 0.098)
+const BG_HOVER = Color(0.133, 0.157, 0.22)
+const BORDER_FOCUS = Color(0.29, 0.435, 0.647)
+const HP_GREEN = Color(0.133, 0.773, 0.369)
+
+# ── Reusable style factories ──
+
+func _sb(bg: Color, border = BORDER_SUBTLE, bw = 1, radius = 6, margins = Vector4(8, 4, 8, 4)) -> StyleBoxFlat:
+	var s = StyleBoxFlat.new()
+	s.bg_color = bg
+	s.border_color = border
+	s.set_border_width_all(bw)
+	s.set_corner_radius_all(radius)
+	s.content_margin_left = margins.x
+	s.content_margin_top = margins.y
+	s.content_margin_right = margins.z
+	s.content_margin_bottom = margins.w
+	return s
+
+func _lbl(text: String, size: int = 14, color: Color = TEXT_PRIMARY, bold = false) -> Label:
+	var l = Label.new()
+	l.text = text
+	var settings_script = preload("res://Scenes/settings_popup.gd")
+	l.add_theme_font_size_override("font_size", settings_script.scaled_font(size))
+	l.add_theme_color_override("font_color", color)
+	return l
+
+func _section_label(text: String) -> Label:
+	var l = _lbl(text, 13, TEXT_MUTED)
+	l.uppercase = true
+	return l
+
+func _style_button(btn: Button, bg = BG_CARD, border = BORDER_SUBTLE, text_color = TEXT_PRIMARY) -> void:
+	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_color_override("font_color", text_color)
+	btn.add_theme_color_override("font_hover_color", Color.WHITE)
+	btn.add_theme_stylebox_override("normal", _sb(bg, border, 1, 4, Vector4(12, 6, 12, 6)))
+	btn.add_theme_stylebox_override("hover", _sb(BG_HOVER, BORDER_FOCUS, 1, 4, Vector4(12, 6, 12, 6)))
+	btn.add_theme_stylebox_override("pressed", _sb(BG_INSET, ACCENT, 1, 4, Vector4(12, 6, 12, 6)))
+	btn.add_theme_stylebox_override("focus", _sb(bg, BORDER_FOCUS, 1, 4, Vector4(12, 6, 12, 6)))
+	btn.add_theme_stylebox_override("disabled", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(12, 6, 12, 6)))
+	btn.add_theme_color_override("font_disabled_color", TEXT_MUTED)
+
+func _style_option(opt: OptionButton) -> void:
+	opt.add_theme_font_size_override("font_size", 14)
+	opt.add_theme_color_override("font_color", TEXT_PRIMARY)
+	opt.add_theme_stylebox_override("normal", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(8, 4, 8, 4)))
+	opt.add_theme_stylebox_override("hover", _sb(BG_HOVER, BORDER_FOCUS, 1, 4, Vector4(8, 4, 8, 4)))
+	opt.add_theme_stylebox_override("pressed", _sb(BG_INSET, ACCENT, 1, 4, Vector4(8, 4, 8, 4)))
+	opt.add_theme_stylebox_override("focus", _sb(BG_INSET, BORDER_FOCUS, 1, 4, Vector4(8, 4, 8, 4)))
+
+func _style_itemlist(il: ItemList) -> void:
+	il.add_theme_font_size_override("font_size", 14)
+	il.add_theme_color_override("font_color", TEXT_PRIMARY)
+	il.add_theme_color_override("font_selected_color", ACCENT)
+	il.add_theme_stylebox_override("panel", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(4, 4, 4, 4)))
+	il.add_theme_stylebox_override("selected", _sb(Color(0.102, 0.122, 0.169), ACCENT, 1, 2, Vector4(4, 2, 4, 2)))
+	il.add_theme_stylebox_override("selected_focus", _sb(Color(0.102, 0.122, 0.169), ACCENT, 1, 2, Vector4(4, 2, 4, 2)))
+
+func _make_spinbox(prefix_text: String, max_val: int = 100) -> HBoxContainer:
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var lbl = _lbl(prefix_text, 14, TEXT_SECONDARY)
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(lbl)
+	var spin = SpinBox.new()
+	spin.max_value = max_val
+	spin.min_value = 0
+	spin.value = 0
+	spin.custom_minimum_size.x = 70
+	spin.add_theme_font_size_override("font_size", 14)
+	# Style the internal LineEdit
+	var le_style = _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(6, 2, 6, 2))
+	spin.get_line_edit().add_theme_stylebox_override("normal", le_style)
+	spin.get_line_edit().add_theme_stylebox_override("focus", _sb(BG_INSET, ACCENT, 1, 4, Vector4(6, 2, 6, 2)))
+	spin.get_line_edit().add_theme_color_override("font_color", TEXT_PRIMARY)
+	spin.get_line_edit().add_theme_font_size_override("font_size", 14)
+	row.add_child(spin)
+	return row
+
+func _get_spin(row: HBoxContainer) -> SpinBox:
+	for c in row.get_children():
+		if c is SpinBox:
+			return c
+	return null
+
+func _apply_tooltip_theme() -> void:
+	var tt_panel = StyleBoxFlat.new()
+	tt_panel.bg_color = Color(0.05, 0.06, 0.08, 0.97)
+	tt_panel.border_color = Color(0.25, 0.28, 0.35)
+	tt_panel.set_border_width_all(1)
+	tt_panel.set_corner_radius_all(4)
+	tt_panel.content_margin_left = 8
+	tt_panel.content_margin_right = 8
+	tt_panel.content_margin_top = 6
+	tt_panel.content_margin_bottom = 6
+
+	var t = Theme.new()
+	t.set_stylebox("panel", "TooltipPanel", tt_panel)
+	# Scale tooltip font with user's font scale setting (default 26 at 100%)
+	var font_scale = 1.0
+	var cfg = ConfigFile.new()
+	if cfg.load("user://ui_settings.cfg") == OK:
+		font_scale = cfg.get_value("ui", "font_scale", 100.0) / 100.0
+	t.set_font_size("font_size", "TooltipLabel", int(26 * font_scale))
+	t.set_color("font_color", "TooltipLabel", Color(0.88, 0.9, 0.95))
+	self.theme = t
+
+
+func _tab_button(text: String, is_active = false) -> Button:
+	var btn = Button.new()
+	btn.text = text
+	btn.flat = true
+	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_color_override("font_color", ACCENT if is_active else TEXT_MUTED)
+	btn.add_theme_color_override("font_hover_color", TEXT_PRIMARY)
+	# Underline effect via bottom border
+	var normal_sb = StyleBoxFlat.new()
+	normal_sb.bg_color = Color.TRANSPARENT
+	normal_sb.border_color = ACCENT if is_active else Color.TRANSPARENT
+	normal_sb.border_width_bottom = 2 if is_active else 0
+	normal_sb.content_margin_left = 16
+	normal_sb.content_margin_right = 16
+	normal_sb.content_margin_top = 6
+	normal_sb.content_margin_bottom = 6
+	btn.add_theme_stylebox_override("normal", normal_sb)
+	var hover_sb = normal_sb.duplicate()
+	hover_sb.bg_color = BG_CARD
+	btn.add_theme_stylebox_override("hover", hover_sb)
+	return btn
+
+
+# =============================================================================
+#  _build_ui — Programmatic UI Construction
+# =============================================================================
+
+func _build_ui():
+	# ── Background ──
+	_background = TextureRect.new()
+	_background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_background.modulate = Color(0.3, 0.3, 0.3, 0.4)
+	_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_background)
+
+	# ── Deep background fill ──
+	var bg_fill = ColorRect.new()
+	bg_fill.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg_fill.color = BG_DEEP
+	bg_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(bg_fill)
+	move_child(bg_fill, 0)
+
+	# ── Main 3-column layout (resizable via HSplitContainers) ──
+	_outer_split = HSplitContainer.new()
+	_outer_split.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_outer_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	add_child(_outer_split)
+
+	# We nest two HSplitContainers: [Turn | [Center | Party]]
+	# so both dividers are draggable
+	var layout = _outer_split  # reference for turn panel
+
+	# ═══════════════════════════════════════════════════════════
+	#  LEFT: Turn Order (190px)
+	# ═══════════════════════════════════════════════════════════
+	var turn_panel = PanelContainer.new()
+	turn_panel.custom_minimum_size.x = 190
+	turn_panel.add_theme_stylebox_override("panel", _sb(BG_PANEL, BORDER_SUBTLE, 0, 0, Vector4(6, 4, 6, 4)))
+	layout.add_child(turn_panel)
+
+	var turn_vbox = VBoxContainer.new()
+	turn_vbox.add_theme_constant_override("separation", 2)
+	turn_panel.add_child(turn_vbox)
+
+	var turn_header = HBoxContainer.new()
+	turn_vbox.add_child(turn_header)
+	var tt = _lbl("TURN ORDER", 13, TEXT_MUTED)
+	tt.uppercase = true
+	tt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	turn_header.add_child(tt)
+	_round_label = _lbl("R1", 13, TEXT_MUTED)
+	turn_header.add_child(_round_label)
+
+	# Separator line
+	var turn_sep = HSeparator.new()
+	turn_sep.add_theme_stylebox_override("separator", _sb(BORDER_SUBTLE, Color.TRANSPARENT, 0, 0, Vector4(0, 1, 0, 1)))
+	turn_vbox.add_child(turn_sep)
+
+	_turn_list = ItemList.new()
+	_turn_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_style_itemlist(_turn_list)
+	_turn_list.add_theme_stylebox_override("panel", _sb(Color.TRANSPARENT, Color.TRANSPARENT, 0, 0, Vector4(2, 2, 2, 2)))
+	turn_vbox.add_child(_turn_list)
+
+	# Inner split: center + party (second draggable divider)
+	_inner_split = HSplitContainer.new()
+	_inner_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inner_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	layout.add_child(_inner_split)
+
+	# ═══════════════════════════════════════════════════════════
+	#  CENTER: Enemies + Action Dock (resizable split)
+	# ═══════════════════════════════════════════════════════════
+	var center = VBoxContainer.new()
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.add_theme_constant_override("separation", 0)
+	_inner_split.add_child(center)
+
+	# ── Global bar (turn badge) ──
+	var top_bar = PanelContainer.new()
+	top_bar.add_theme_stylebox_override("panel", _sb(BG_PANEL, BORDER_SUBTLE, 0, 0, Vector4(12, 4, 12, 4)))
+	center.add_child(top_bar)
+	var top_sep = HSeparator.new()
+	top_sep.add_theme_stylebox_override("separator", _sb(BORDER_SUBTLE, Color.TRANSPARENT, 0, 0, Vector4(0, 1, 0, 0)))
+	center.add_child(top_sep)
+
+	_turn_badge = _lbl("", 15, TEXT_PRIMARY)
+	_turn_badge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_turn_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	top_bar.add_child(_turn_badge)
+
+	# ── VSplitContainer: drag to resize enemy area vs action dock ──
+	_center_split = VSplitContainer.new()
+	_center_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_center_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_center_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	center.add_child(_center_split)
+
+	# Top half: enemy arena
+	var enemy_scroll = ScrollContainer.new()
+	enemy_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	enemy_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_center_split.add_child(enemy_scroll)
+
+	var enemy_pad = MarginContainer.new()
+	enemy_pad.add_theme_constant_override("margin_left", 12)
+	enemy_pad.add_theme_constant_override("margin_right", 12)
+	enemy_pad.add_theme_constant_override("margin_top", 8)
+	enemy_pad.add_theme_constant_override("margin_bottom", 8)
+	enemy_pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enemy_pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	enemy_scroll.add_child(enemy_pad)
+
+	_enemy_grid = GridContainer.new()
+	_enemy_grid.columns = 3
+	_enemy_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_enemy_grid.add_theme_constant_override("h_separation", 8)
+	_enemy_grid.add_theme_constant_override("v_separation", 8)
+	enemy_pad.add_child(_enemy_grid)
+
+	# Bottom half: action dock
+	_action_dock = PanelContainer.new()
+	_action_dock.add_theme_stylebox_override("panel", _sb(BG_PANEL, Color.TRANSPARENT, 0, 0, Vector4(8, 0, 8, 4)))
+	_action_dock.visible = false
+	_center_split.add_child(_action_dock)
+
+	var dock_outer = VBoxContainer.new()
+	dock_outer.add_theme_constant_override("separation", 2)
+	_action_dock.add_child(dock_outer)
+
+	# ── Dock tab bar (fixed at top, not in split) ──
+	var dock_tabs = HBoxContainer.new()
+	dock_tabs.add_theme_constant_override("separation", 0)
+	dock_outer.add_child(dock_tabs)
+
+	_tab_btn_attack = _tab_button("TURN ACTIONS", true)
+	dock_tabs.add_child(_tab_btn_attack)
+	_tab_btn_effects = _tab_button("EFFECTS")
+	dock_tabs.add_child(_tab_btn_effects)
+	_tab_btn_stats = _tab_button("STATS")
+	dock_tabs.add_child(_tab_btn_stats)
+
+	var tab_sep = HSeparator.new()
+	tab_sep.add_theme_stylebox_override("separator", _sb(BORDER_SUBTLE, Color.TRANSPARENT, 0, 0, Vector4(0, 1, 0, 0)))
+	dock_outer.add_child(tab_sep)
+
+	# ── Dock body + bottom bar in a VSplit (resizable) ──
+	_dock_split = VSplitContainer.new()
+	_dock_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_dock_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dock_outer.add_child(_dock_split)
+
+	# Top of split: scrollable content
+	var dock_scroll = ScrollContainer.new()
+	dock_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	dock_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dock_scroll.custom_minimum_size.y = 150
+	_dock_split.add_child(dock_scroll)
+
+	var dock_content = VBoxContainer.new()
+	dock_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dock_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dock_scroll.add_child(dock_content)
+
+	# ── ATTACK TAB (3-column HSplitContainer, all resizable) ──
+	var attack_wrapper = VBoxContainer.new()
+	attack_wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attack_wrapper.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dock_content.add_child(attack_wrapper)
+	# Store reference so tab switching works
+	_attack_tab = attack_wrapper
+
+	_attack_hsplit_l = HSplitContainer.new()
+	_attack_hsplit_l.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_attack_hsplit_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_l.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	attack_wrapper.add_child(_attack_hsplit_l)
+
+	# Left: ability select
+	var ability_col = VBoxContainer.new()
+	ability_col.custom_minimum_size.x = 160
+	ability_col.add_theme_constant_override("separation", 4)
+	ability_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_l.add_child(ability_col)
+
+	ability_col.add_child(_section_label("Attack"))
+	_attack_select = OptionButton.new()
+	_attack_select.custom_minimum_size.x = 150
+	_style_option(_attack_select)
+	ability_col.add_child(_attack_select)
+
+	# Right side of left split: center + right in another HSplit
+	_attack_hsplit_r = HSplitContainer.new()
+	_attack_hsplit_r.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_attack_hsplit_r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_r.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_l.add_child(_attack_hsplit_r)
+
+	# Center: targets + results (in a VSplit so target list vs results are resizable)
+	_target_vsplit = VSplitContainer.new()
+	_target_vsplit.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_target_vsplit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_r.add_child(_target_vsplit)
+
+	# Top of target split: target selection
+	var target_top = VBoxContainer.new()
+	target_top.add_theme_constant_override("separation", 4)
+	_target_vsplit.add_child(target_top)
+
+	target_top.add_child(_section_label("Select Targets"))
+	_target_list = ItemList.new()
+	_target_list.select_mode = ItemList.SELECT_MULTI
+	_target_list.custom_minimum_size.y = 60
+	_target_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_style_itemlist(_target_list)
+	target_top.add_child(_target_list)
+
+	# Bottom of target split: results (target rows) — fills all remaining space
+	var target_bottom = VBoxContainer.new()
+	target_bottom.add_theme_constant_override("separation", 2)
+	target_bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	target_bottom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_target_vsplit.add_child(target_bottom)
+
+	target_bottom.add_child(_section_label("Results"))
+	var results_scroll = ScrollContainer.new()
+	results_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	results_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	results_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	results_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	target_bottom.add_child(results_scroll)
+
+	_results_container = VBoxContainer.new()
+	_results_container.add_theme_constant_override("separation", 4)
+	_results_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_results_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	results_scroll.add_child(_results_container)
+
+	# Right: turn data + items
+	var right_col = VBoxContainer.new()
+	right_col.custom_minimum_size.x = 190
+	right_col.add_theme_constant_override("separation", 3)
+	right_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_attack_hsplit_r.add_child(right_col)
+
+	# Roll panel card
+	var roll_card = PanelContainer.new()
+	roll_card.add_theme_stylebox_override("panel", _sb(BG_CARD, BORDER_SUBTLE, 1, 6, Vector4(8, 6, 8, 6)))
+	right_col.add_child(roll_card)
+
+	var roll_vbox = VBoxContainer.new()
+	roll_vbox.add_theme_constant_override("separation", 3)
+	roll_card.add_child(roll_vbox)
+
+	roll_vbox.add_child(_section_label("Turn Data"))
+
+	var ar_row = _make_spinbox("Attack Roll")
+	roll_vbox.add_child(ar_row)
+	_attack_roll_spin = _get_spin(ar_row)
+
+	var tm_row = _make_spinbox("Tiles Moved", 20)
+	roll_vbox.add_child(tm_row)
+	_tiles_moved_spin = _get_spin(tm_row)
+
+	var bg_row = _make_spinbox("Burst Gained", 20)
+	roll_vbox.add_child(bg_row)
+	_burst_gained_spin = _get_spin(bg_row)
+
+	var ps_row = _make_spinbox("Passive Stacks", 50)
+	roll_vbox.add_child(ps_row)
+	_passive_stacks_spin = _get_spin(ps_row)
+
+	_crit_toggle = CheckButton.new()
+	_crit_toggle.text = "Critical Hit"
+	_crit_toggle.add_theme_font_size_override("font_size", 14)
+	_crit_toggle.add_theme_color_override("font_color", TEXT_PRIMARY)
+	roll_vbox.add_child(_crit_toggle)
+
+	# Item use card
+	var item_card = PanelContainer.new()
+	item_card.add_theme_stylebox_override("panel", _sb(BG_CARD, BORDER_SUBTLE, 1, 6, Vector4(8, 6, 8, 6)))
+	right_col.add_child(item_card)
+
+	var item_vbox = VBoxContainer.new()
+	item_vbox.add_theme_constant_override("separation", 3)
+	item_card.add_child(item_vbox)
+
+	item_vbox.add_child(_section_label("Use Item"))
+
+	_item_select = OptionButton.new()
+	_item_select.custom_minimum_size.x = 180
+	_style_option(_item_select)
+	item_vbox.add_child(_item_select)
+
+	_item_desc = _lbl("No item selected", 13, TEXT_MUTED)
+	_item_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_item_desc.custom_minimum_size.x = 170
+	item_vbox.add_child(_item_desc)
+
+	item_vbox.add_child(_section_label("Target"))
+
+	_item_target_select = OptionButton.new()
+	_item_target_select.custom_minimum_size.x = 180
+	_style_option(_item_target_select)
+	item_vbox.add_child(_item_target_select)
+
+	# ── EFFECTS TAB (hidden by default) ──
+	_effects_tab = VBoxContainer.new()
+	_effects_tab.visible = false
+	_effects_tab.add_theme_constant_override("separation", 4)
+	dock_content.add_child(_effects_tab)
+
+	# ── STATS TAB (hidden by default) ──
+	_stats_tab = VBoxContainer.new()
+	_stats_tab.visible = false
+	_stats_tab.add_theme_constant_override("separation", 4)
+	dock_content.add_child(_stats_tab)
+
+	# ── Bottom bar (in dock_split so resizable against content above) ──
+	var bottom_bar = HBoxContainer.new()
+	bottom_bar.add_theme_constant_override("separation", 10)
+	_dock_split.add_child(bottom_bar)
+
+	_food_buff_label = _lbl("No buff", 13, Color(0.292, 0.855, 0.498))
+	_food_buff_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_food_buff_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	bottom_bar.add_child(_food_buff_label)
+
+	var burst_hbox = HBoxContainer.new()
+	burst_hbox.add_theme_constant_override("separation", 6)
+	bottom_bar.add_child(burst_hbox)
+	burst_hbox.add_child(_lbl("Burst", 18, TEXT_SECONDARY))
+	_burst_count_label = _lbl("0 / 0", 18, ACCENT)
+	burst_hbox.add_child(_burst_count_label)
+
+	_end_turn_btn = Button.new()
+	_end_turn_btn.text = "END TURN"
+	_end_turn_btn.custom_minimum_size = Vector2(120, 30)
+	_style_button(_end_turn_btn, Color.TRANSPARENT, ACCENT, ACCENT)
+	var et_normal = _sb(Color(0.788, 0.659, 0.298, 0.1), ACCENT, 2, 6, Vector4(20, 6, 20, 6))
+	_end_turn_btn.add_theme_stylebox_override("normal", et_normal)
+	var et_hover = _sb(Color(0.788, 0.659, 0.298, 0.2), ACCENT, 2, 6, Vector4(20, 6, 20, 6))
+	_end_turn_btn.add_theme_stylebox_override("hover", et_hover)
+	_end_turn_btn.add_theme_color_override("font_color", ACCENT)
+	_end_turn_btn.add_theme_font_size_override("font_size", 14)
+	bottom_bar.add_child(_end_turn_btn)
+
+	# ═══════════════════════════════════════════════════════════
+	#  RIGHT: Party Sidebar (260px min, resizable)
+	# ═══════════════════════════════════════════════════════════
+	var party_panel = PanelContainer.new()
+	party_panel.custom_minimum_size.x = 220
+	party_panel.add_theme_stylebox_override("panel", _sb(BG_PANEL, Color.TRANSPARENT, 0, 0, Vector4(6, 4, 6, 4)))
+	_inner_split.add_child(party_panel)
+
+	# Party sidebar uses a VSplitContainer so cards vs stats/effects are resizable
+	_party_split = VSplitContainer.new()
+	_party_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_party_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	party_panel.add_child(_party_split)
+
+	# ── Top: Party cards ──
+	var party_top = VBoxContainer.new()
+	party_top.add_theme_constant_override("separation", 2)
+	party_top.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_party_split.add_child(party_top)
+
+	var party_title = _lbl("PARTY", 13, TEXT_MUTED)
+	party_title.uppercase = true
+	party_top.add_child(party_title)
+
+	var party_scroll = ScrollContainer.new()
+	party_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	party_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	party_top.add_child(party_scroll)
+
+	_party_list = VBoxContainer.new()
+	_party_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_party_list.add_theme_constant_override("separation", 4)
+	party_scroll.add_child(_party_list)
+
+	# ── Bottom: Stats + Effects (resizable via inner VSplit) ──
+	_info_split = VSplitContainer.new()
+	_info_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_info_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_info_split.custom_minimum_size.y = 120
+	_party_split.add_child(_info_split)
+
+	# Stats section
+	var stats_box = VBoxContainer.new()
+	stats_box.add_theme_constant_override("separation", 2)
+	_info_split.add_child(stats_box)
+
+	var my_stats_title = _lbl("MY STATS", 13, TEXT_MUTED)
+	my_stats_title.uppercase = true
+	stats_box.add_child(my_stats_title)
+
+	var my_stats_scroll = ScrollContainer.new()
+	my_stats_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	my_stats_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	stats_box.add_child(my_stats_scroll)
+
+	_my_stats_container = VBoxContainer.new()
+	_my_stats_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_my_stats_container.add_theme_constant_override("separation", 2)
+	my_stats_scroll.add_child(_my_stats_container)
+
+	# Effects section
+	var fx_box = VBoxContainer.new()
+	fx_box.add_theme_constant_override("separation", 2)
+	_info_split.add_child(fx_box)
+
+	var my_fx_title = _lbl("MY EFFECTS", 13, TEXT_MUTED)
+	my_fx_title.uppercase = true
+	fx_box.add_child(my_fx_title)
+
+	var my_fx_scroll = ScrollContainer.new()
+	my_fx_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	my_fx_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	fx_box.add_child(my_fx_scroll)
+
+	_my_effects_container = VBoxContainer.new()
+	_my_effects_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_my_effects_container.add_theme_constant_override("separation", 2)
+	my_fx_scroll.add_child(_my_effects_container)
+
+	# ═══════════════════════════════════════════════════════════
+	#  Stun Overlay
+	# ═══════════════════════════════════════════════════════════
+	_stun_overlay = ColorRect.new()
+	_stun_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_stun_overlay.color = Color(0.024, 0.031, 0.055, 0.85)
+	_stun_overlay.visible = false
+	_stun_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_stun_overlay)
+
+	var stun_center = CenterContainer.new()
+	stun_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_stun_overlay.add_child(stun_center)
+
+	var stun_card = PanelContainer.new()
+	stun_card.custom_minimum_size = Vector2(400, 180)
+	stun_card.add_theme_stylebox_override("panel", _sb(BG_PANEL, BORDER_SUBTLE, 1, 8, Vector4(32, 20, 32, 20)))
+	stun_center.add_child(stun_card)
+
+	var stun_vbox = VBoxContainer.new()
+	stun_vbox.add_theme_constant_override("separation", 12)
+	stun_card.add_child(stun_vbox)
+
+	_stun_title = _lbl("Turn Skipped!", 20, TEXT_PRIMARY)
+	_stun_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stun_vbox.add_child(_stun_title)
+
+	_stun_text = _lbl("Stunned — cannot act this turn", 15, TEXT_SECONDARY)
+	_stun_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stun_text.autowrap_mode = TextServer.AUTOWRAP_WORD
+	stun_vbox.add_child(_stun_text)
+
+	_stun_btn = Button.new()
+	_stun_btn.text = "Continue →"
+	_stun_btn.custom_minimum_size = Vector2(140, 34)
+	_stun_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_style_button(_stun_btn, BG_CARD, BORDER_SUBTLE)
+	stun_vbox.add_child(_stun_btn)
+
+	# ═══════════════════════════════════════════════════════════
+	#  Audio
+	# ═══════════════════════════════════════════════════════════
+	_audio = AudioStreamPlayer.new()
+	add_child(_audio)
+
+
+# =============================================================================
+#  Turn Order Setup
+# =============================================================================
+
+func _setup_turn_order():
+	Original_Order = Global.Current_Party.get("Turn_Order", []).duplicate()
+	for e in Global.BATTLEENEMIES.values():
+		var label = str(e.get("EnemyName")) + " " + str(e.get("id"))
+		if not Original_Order.has(label):
+			Original_Order.append(label)
+
+
+# =============================================================================
+#  Battler Building
+# =============================================================================
+
+func _build_battlers():
+	if Original_Order.size() > 0:
+		Global.BattlerData = BattlerState.build_all(Original_Order)
+		for battler_name in Global.BattlerData:
+			var entry: Dictionary = Global.BattlerData[battler_name]
+			var max_bc = null
+			for ability in entry.get("entity_current_ability_data", {}).values():
+				var cost = ability.get("charge_cost", 0)
+				if cost > 0:
+					if max_bc == null or cost > max_bc:
+						max_bc = cost
+			entry["max_burst_charges"] = max_bc
+		var ct = Global.Current_Party.get("Current_Turn")
+		if Global.BattlerData.has(ct):
+			Global.Current_Battler_Data = Global.BattlerData[ct]
+		if NetworkManager.is_host and Global.effect_processor == null:
+			Global.start_battle_effects(Global.BattlerData)
+			# Start battle logger
+			if _battle_logger == null:
+				_battle_logger = BattleLogger.new()
+				if battle_id == null or battle_id == "":
+					battle_id = str(Time.get_unix_time_from_system())
+				_battle_logger.start_battle(str(battle_id))
+
+		# Sync effects so all clients can see them immediately
+		if NetworkManager.is_host and Global.effect_processor:
+			Global.sync_active_effects()
+
+		# Recalculate stats with effects and sync max/current health
+		if NetworkManager.is_host:
+			_sync_health_with_effects()
+
+
+# =============================================================================
+#  Health Sync With Effects
+# =============================================================================
+
+func _sync_health_with_effects() -> void:
+	# When effects change max HP (e.g. weapon passive +30% health),
+	# adjust both Max_Health and Current_Health so the player gains/loses
+	# the difference. This runs every data refresh on the host.
+	CharacterManager.recalculate_all()
+	var updates = []
+	for pname in Global.PartyCharacters:
+		var calc = CharacterManager.get_stats(pname)
+		if calc == null:
+			continue
+		var cid = Global.CHARACTERS_NAME.get(pname, "")
+		if cid == "":
+			continue
+		var data = Global.CHARACTERS.get(cid, {})
+		var stored_max = int(data.get("Max_Health", 0))
+		var calc_max = int(calc.health)
+		if calc_max == stored_max or stored_max == 0:
+			continue
+		# Difference between what max should be and what's stored
+		var diff = calc_max - stored_max
+		var cur_hp = int(data.get("Current_Health", stored_max))
+		var new_cur = cur_hp + diff
+		# Clamp: don't go below 1 (if alive) or above new max
+		if new_cur > calc_max:
+			new_cur = calc_max
+		if new_cur < 0:
+			new_cur = 0
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Max_Health", "value": calc_max})
+		updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": new_cur})
+	if updates.size() > 0:
+		Global.Update_Records(updates)
+
+
+# =============================================================================
+#  Data Sync Handler
+# =============================================================================
+
+func _on_data_load_complete():
+	if _battle_ending:
+		return
+	Current_Turn = Global.Current_Party.get("Current_Turn")
+	_setup_turn_order()
+	_build_battlers()
+	_refresh_all()
+	_update_dock_visibility()
+	check_battle_end()
+
+
+# =============================================================================
+#  Dock Visibility
+# =============================================================================
+
+func _update_dock_visibility():
+	Current_Turn = Global.Current_Party.get("Current_Turn")
+
+	if Global.PartyCharacters.has(str(Current_Turn)):
+		Turn_Type = "Character"
+	elif Global.PartyCompanions.has(str(Current_Turn)):
+		Turn_Type = "Companion"
+	else:
+		Turn_Type = "Enemy"
+
+	var is_my_turn = (str(Current_Turn) == Global.ACTIVE_USER_NAME)
+	var is_my_companion = false
+	if Turn_Type == "Companion":
+		var comp_id = Global.COMPANIONS_NAME.get(str(Current_Turn), "")
+		var comp_data = Global.COMPANIONS.get(comp_id, {})
+		is_my_companion = (comp_data.get("Owner", "") == Global.ACTIVE_USER_NAME)
+
+	var should_show = false
+	if NetworkManager.is_host:
+		should_show = is_my_turn or is_my_companion or (Turn_Type == "Enemy")
+	else:
+		should_show = is_my_turn or is_my_companion
+
+	if should_show and _is_stunned(str(Current_Turn)):
+		_action_dock.visible = false
+		_show_stun_overlay()
+		return
+
+	_stun_overlay.visible = false
+	_action_dock.visible = should_show
+	if should_show:
+		_refresh_action_dock()
+
+
+# =============================================================================
+#  Refresh All
+# =============================================================================
+
+func _refresh_all():
+	_refresh_turn_list()
+	_refresh_enemies()
+	_refresh_party()
+	_refresh_my_stats()
+	_refresh_my_effects()
+	_turn_badge.text = "%s's Turn" % str(Current_Turn) if Current_Turn else ""
+
+
+# =============================================================================
+#  Refresh Enemies
+# =============================================================================
+
+func _refresh_enemies():
+	for c in _enemy_grid.get_children():
+		c.queue_free()
+	for e in Global.BATTLEENEMIES.values():
+		var card = EnemyCard.new()
+		_enemy_grid.add_child(card)
+		card.set_data(str(e.get("id")))
+		card.visible = not bool(e.get("Fog", false))
+
+
+# =============================================================================
+#  Refresh Party
+# =============================================================================
+
+func _refresh_party():
+	for c in _party_list.get_children():
+		c.queue_free()
+	var current = str(Global.Current_Party.get("Current_Turn", ""))
+	for member in Original_Order:
+		var is_char = Global.PartyCharacters.has(member)
+		var is_comp = Global.PartyCompanions.has(member)
+		if not is_char and not is_comp:
+			continue
+		var card = PartyCard.new()
+		_party_list.add_child(card)
+		card.set_data(member, "Character" if is_char else "Companion")
+		card.set_active_turn(member == current)
+
+
+# =============================================================================
+#  My Stats (always visible in party sidebar)
+# =============================================================================
+
+func _refresh_my_stats():
+	for c in _my_stats_container.get_children():
+		c.queue_free()
+
+	var my_name = Global.ACTIVE_USER_NAME
+
+	# Force recalculate so effect bonuses (weapon passives, artifact sets, etc.) are included
+	CharacterManager.recalculate_all()
+
+	# Use CharacterManager.get_stats() which includes base + gear + artifacts + effect bonuses
+	var calc_stats = CharacterManager.get_stats(my_name)
+
+	var cid = Global.CHARACTERS_NAME.get(my_name, "")
+	var data = Global.CHARACTERS.get(cid, {}) if cid != "" else {}
+
+	if calc_stats == null and data.is_empty():
+		_my_stats_container.add_child(_lbl("No data", 13, TEXT_MUTED))
+		return
+
+	# Prefer calculated stats (includes effects), fall back to raw data
+	var hp_cur = int(data.get("Current_Health", 0))
+	# Use calculated health stat (includes effect bonuses like +30% HP from weapon)
+	var hp_max = int(calc_stats.health) if calc_stats and calc_stats.health > 0 else int(data.get("Max_Health", 0))
+	var atk = int(calc_stats.attack) if calc_stats else int(data.get("Attack", 0))
+	var def_val = int(calc_stats.defense) if calc_stats else int(data.get("Defense", 0))
+	var em = int(calc_stats.elemental_mastery) if calc_stats else int(data.get("Elemental_Mastery", 0))
+	var cd = int(calc_stats.critical_damage) if calc_stats else int(data.get("Critical_Damage", 0))
+	var er = int(calc_stats.energy_recharge) if calc_stats else int(data.get("Energy_Recharge", 0))
+	var bc = int(data.get("Burst_Charges", 0))
+
+	var stats_to_show = [
+		["HP", "%d / %d" % [hp_cur, hp_max]],
+		["ATK", str(atk)],
+		["DEF", str(def_val)],
+		["EM", str(em)],
+		["Crit DMG", str(cd) + "%"],
+		["ER", str(er) + "%"],
+		["Burst", str(bc)],
+	]
+
+	for stat in stats_to_show:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 4)
+		var name_lbl = _lbl(stat[0], 13, TEXT_MUTED)
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_lbl)
+		row.add_child(_lbl(stat[1], 13, TEXT_PRIMARY))
+		_my_stats_container.add_child(row)
+
+
+# =============================================================================
+#  My Effects (always visible in party sidebar)
+# =============================================================================
+
+func _refresh_my_effects():
+	for c in _my_effects_container.get_children():
+		c.queue_free()
+
+	var my_name = Global.ACTIVE_USER_NAME
+	var effects = Global.get_battler_effects(my_name)
+
+	if effects.is_empty():
+		_my_effects_container.add_child(_lbl("None", 13, TEXT_MUTED))
+		return
+
+	for fx in effects:
+		var dur = fx.get("turns_remaining", 0)
+		var dur_str = "perm" if dur == -1 else (str(dur) + " left" if dur > 0 else "expiring")
+		var stacks_str = ""
+		if fx.get("stacks", 0) > 0:
+			stacks_str = " [%d/%d]" % [fx.get("stacks"), fx.get("max_stacks", 0)]
+		var desc = fx.get("description", "")
+		if desc == "":
+			desc = "%s %s" % [fx.get("effect_type", ""), fx.get("effect_stat", "")]
+		var etype = str(fx.get("effect_type", ""))
+		var is_bad = etype in ["FLAT_DAMAGE", "DOT", "DOT_PER_ACTION", "SKIP_TURN", "STUN", "FREEZE", "ROOT", "BLIND", "SLOW", "DISARM", "FEAR", "ROLL_DISADVANTAGE", "RANDOM_TARGET"]
+		var marker = "[-] " if is_bad else "[+] "
+		var label_color = Color(0.937, 0.267, 0.267) if is_bad else Color(0.292, 0.855, 0.498)
+
+		var name_text = "%s%s %s%s" % [marker, dur_str, fx.get("source_name", "?"), stacks_str]
+
+		var lbl = _lbl(name_text, 13, label_color)
+		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+
+		lbl.tooltip_text = "%s (%s)\n%s" % [
+			fx.get("source_name", ""), fx.get("source_type", ""), _wrap_text(desc, 80)
+		]
+		_my_effects_container.add_child(lbl)
+
+
+# =============================================================================
+#  Refresh Turn List
+# =============================================================================
+
+func _refresh_turn_list():
+	_turn_list.clear()
+	var ordered = Original_Order.duplicate()
+	var current = str(Global.Current_Party.get("Current_Turn", ""))
+
+	# Rotate so current turn is first
+	var idx = ordered.find(current)
+	if idx >= 0:
+		var rot = []
+		for i in range(idx, ordered.size()):
+			rot.append(ordered[i])
+		for j in range(0, idx):
+			rot.append(ordered[j])
+		ordered = rot
+
+	# Show up to 23 entries (wrapping around the order)
+	var preview_len = min(23, ordered.size() * 2)
+	for i in range(preview_len):
+		var nm = str(ordered[i % ordered.size()])
+		var prefix = ""
+		if i == 0:
+			prefix = "▶ "
+		elif i == 1:
+			prefix = "⟶ "
+		var ii = _turn_list.add_item(prefix + nm)
+		_turn_list.set_item_selectable(ii, false)
+		if i >= ordered.size():
+			_turn_list.set_item_disabled(ii, true)
+		if i == 0:
+			_turn_list.set_item_custom_bg_color(ii, COL_CURRENT)
+		elif i == 1:
+			_turn_list.set_item_custom_bg_color(ii, COL_NEXT)
+	_turn_list.deselect_all()
+
+	# Update round label
+	var round_num = turn_no / max(Original_Order.size(), 1) + 1
+	_round_label.text = "R%d" % round_num
+
+
+# =============================================================================
+#  Refresh Action Dock
+# =============================================================================
+
+func _refresh_action_dock():
+	_setup_attacks()
+	_setup_targets()
+	_setup_items()
+	_setup_effects_display()
+	_setup_stats_display()
+	_update_burst_display()
+	_update_food_buff()
+	_reset_inputs()
+
+
+# =============================================================================
+#  Attack Selection
+# =============================================================================
+
+func _setup_attacks():
+	var popup: PopupMenu = _attack_select.get_popup()
+	if _attack_select.has_selectable_items():
+		_attack_select.clear()
+
+	if Current_Turn == null or Global.BattlerData.size() == 0:
+		return
+
+	_attack_select.add_item("None")
+	var none_index = _attack_select.get_item_count() - 1
+	if popup:
+		popup.set_item_tooltip(none_index, "No attack used this turn.")
+
+	if not Global.BattlerData.has(Current_Turn):
+		return
+
+	var battler = Global.BattlerData[Current_Turn]
+	for item in battler.get("entity_current_active_ability_data", {}).values():
+		if item.get("Ability_Type") == "Passive":
+			continue
+		var raw_aid = item.get("Ability_ID")
+		if raw_aid == null:
+			continue
+		var ability_id: int = int(raw_aid)
+		var ability: AbilityData = GameDB.get_ability(ability_id)
+		if ability == null:
+			continue
+
+		var cooldown = item.get("Ability_Cooldown", 0)
+		var name_text: String = str(ability.name)
+		var desc: String = str(ability.description)
+		var charge_cost: int = ability.charge_cost if ability.charge_cost > 0 else 0
+
+		desc = _wrap_text(desc, 100)
+
+		if cooldown == 0 and charge_cost == 0:
+			_attack_select.add_item(name_text)
+		elif charge_cost > 0:
+			var bc = battler.get("burst_charges", 0)
+			if bc == null:
+				bc = 0
+			if int(bc) >= charge_cost:
+				_attack_select.add_item(name_text)
+			else:
+				_attack_select.add_item(name_text + " - Not enough charges.")
+		else:
+			_attack_select.add_item(name_text + " - " + str(cooldown) + " Turns left.")
+
+		var ability_idx = _attack_select.get_item_count() - 1
+		if popup:
+			popup.set_item_tooltip(ability_idx, desc)
+		if _attack_select.get_item_text(ability_idx) != name_text:
+			_attack_select.set_item_disabled(ability_idx, true)
+
+
+# =============================================================================
+#  Target Selection
+# =============================================================================
+
+func _setup_targets():
+	_target_list.clear()
+	var active_list = Global.Current_Party.get("Turn_Order", []).duplicate()
+	for companion in Global.COMPANIONS.values():
+		if companion.get("Active") == true and not active_list.has(companion.get("Name")):
+			active_list.append(companion.get("Name"))
+	for member in active_list:
+		_target_list.add_item(member)
+	for enemy in Global.BATTLEENEMIES.values():
+		var enemy_label = str(enemy.get("EnemyName")) + " " + str(int(enemy.get("id", 0)))
+		var found = false
+		for i in range(_target_list.item_count):
+			if _target_list.get_item_text(i) == enemy_label:
+				found = true
+				break
+		if not found:
+			_target_list.add_item(enemy_label)
+
+
+# =============================================================================
+#  Item Selection
+# =============================================================================
+
+func _setup_items():
+	var popup: PopupMenu = _item_select.get_popup()
+	if _item_select.has_selectable_items():
+		_item_select.clear()
+
+	if Current_Turn == null or Global.BattlerData.size() == 0:
+		return
+
+	_item_select.add_item("None")
+	var none_index = _item_select.get_item_count() - 1
+	if popup:
+		popup.set_item_tooltip(none_index, "No item used this turn.")
+
+	for item in Global.CHARACTER_ITEMS.values():
+		if item.get("Owner") == str(Current_Turn):
+			if item.get("Type") == "Consumable" and item.get("Quantity", 0) > 0:
+				if not item.get("Description", "").to_lower().contains("battle") and not item.get("Description", "").to_lower().contains("material"):
+					var name_text = str(item.get("Name"))
+					_item_select.add_item(name_text)
+					var desc = "Quantity - x" + str(item.get("Quantity")) + "\n\n" + "Description - " + str(item.get("Description", ""))
+					desc = _wrap_text(desc, 100)
+					var idx = _item_select.get_item_count() - 1
+					if popup:
+						popup.set_item_tooltip(idx, desc)
+
+	_setup_item_targets()
+
+
+func _setup_item_targets():
+	var popup: PopupMenu = _item_target_select.get_popup()
+	if _item_target_select.has_selectable_items():
+		_item_target_select.clear()
+
+	if Current_Turn == null or Global.BattlerData.size() == 0:
+		return
+
+	_item_target_select.add_item("None")
+	var none_index = _item_target_select.get_item_count() - 1
+	if popup:
+		popup.set_item_tooltip(none_index, "No item target.")
+
+	for item_name in Global.BattlerData.keys():
+		_item_target_select.add_item(item_name)
+		var idx = _item_target_select.get_item_count() - 1
+		var desc = Global.BattlerData[item_name].get("type", "")
+		if popup:
+			popup.set_item_tooltip(idx, desc)
+
+
+# =============================================================================
+#  Effects Display
+# =============================================================================
+
+func _setup_effects_display():
+	for c in _effects_tab.get_children():
+		c.queue_free()
+
+	var b_name = str(Current_Turn) if Current_Turn != null else ""
+	var effects = Global.get_battler_effects(b_name)
+
+	var entries: Array = []
+	for fx in effects:
+		var dur = fx.get("turns_remaining", 0)
+		var dur_str = "perm" if dur == -1 else (str(dur) + " left" if dur > 0 else "expiring")
+
+		var desc = fx.get("description", "")
+		if desc == "":
+			desc = "%s %s" % [fx.get("effect_type", ""), fx.get("effect_stat", "")]
+
+		var stacks_str = ""
+		if fx.get("stacks", 0) > 0:
+			stacks_str = " [%d/%d]" % [fx.get("stacks"), fx.get("max_stacks", 0)]
+
+		entries.append({
+			"name": fx.get("source_name", "Unknown"),
+			"duration": dur,
+			"dur_str": dur_str,
+			"description": desc,
+			"source_type": fx.get("source_type", ""),
+			"stacks_str": stacks_str,
+			"effect_type": fx.get("effect_type", ""),
+		})
+
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var da: int = int(a.get("duration", 0))
+		var db: int = int(b.get("duration", 0))
+		if da != db:
+			return da < db
+		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
+	)
+
+	if entries.size() == 0:
+		var none_lbl = _lbl("No active effects", 13, TEXT_MUTED)
+		_effects_tab.add_child(none_lbl)
+		return
+
+	for e in entries:
+		var etype = str(e.get("effect_type", ""))
+		var is_bad = etype in ["FLAT_DAMAGE", "DOT", "DOT_PER_ACTION", "SKIP_TURN", "STUN", "FREEZE", "ROOT", "BLIND", "SLOW", "DISARM", "FEAR", "ROLL_DISADVANTAGE", "RANDOM_TARGET"]
+		var marker = "[-] " if is_bad else "[+] "
+		var label_color = Color(0.937, 0.267, 0.267) if is_bad else Color(0.292, 0.855, 0.498)
+		var lbl = _lbl("", 13, label_color)
+		lbl.text = "%s%s - %s%s" % [marker, e.get("dur_str"), e.get("name"), e.get("stacks_str")]
+		var desc_text = str(e.get("description", ""))
+		lbl.tooltip_text = "%s (%s) %s%s\n%s" % [
+			e.get("name"), e.get("source_type"), e.get("dur_str"),
+			e.get("stacks_str"), _wrap_text(desc_text, 80)
+		]
+		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+		_effects_tab.add_child(lbl)
+
+
+# =============================================================================
+#  Stats Display
+# =============================================================================
+
+func _setup_stats_display():
+	for c in _stats_tab.get_children():
+		c.queue_free()
+
+	var b_name = str(Current_Turn) if Current_Turn != null else ""
+	if not Global.BattlerData.has(b_name):
+		_stats_tab.add_child(_lbl("No stats available", 13, TEXT_MUTED))
+		return
+
+	var battler = Global.BattlerData[b_name]
+	var entity = battler.get("entity_data", {})
+
+	var stat_keys = ["ATK", "DEF", "Elemental_Mastery", "Speed", "Accuracy"]
+	for stat_key in stat_keys:
+		var val = entity.get(stat_key, "")
+		if val == null:
+			val = ""
+		var lbl = _lbl("%s: %s" % [stat_key, str(val)], 13, TEXT_PRIMARY)
+		_stats_tab.add_child(lbl)
+
+	# Show HP
+	var hp_cur = entity.get("Current_Health", 0)
+	var hp_max = entity.get("Max_Health", 0)
+	_stats_tab.add_child(_lbl("HP: %s / %s" % [str(hp_cur), str(hp_max)], 13, TEXT_PRIMARY))
+
+	# Show burst charges
+	var bc = battler.get("burst_charges", 0)
+	var mbc = battler.get("max_burst_charges", 0)
+	if bc == null:
+		bc = 0
+	if mbc == null:
+		mbc = 0
+	_stats_tab.add_child(_lbl("Burst: %d / %d" % [int(bc), int(mbc)], 13, TEXT_PRIMARY))
+
+
+# =============================================================================
+#  Tab Switching
+# =============================================================================
+
+func _switch_tab(tab_name: String):
+	_attack_tab.visible = (tab_name == "attack")
+	_effects_tab.visible = (tab_name == "effects")
+	_stats_tab.visible = (tab_name == "stats")
+	_restyle_tab(_tab_btn_attack, tab_name == "attack")
+	_restyle_tab(_tab_btn_effects, tab_name == "effects")
+	_restyle_tab(_tab_btn_stats, tab_name == "stats")
+
+func _restyle_tab(btn: Button, active: bool) -> void:
+	btn.add_theme_color_override("font_color", ACCENT if active else TEXT_MUTED)
+	var s = StyleBoxFlat.new()
+	s.bg_color = Color.TRANSPARENT
+	s.border_color = ACCENT if active else Color.TRANSPARENT
+	s.border_width_bottom = 2 if active else 0
+	s.content_margin_left = 16
+	s.content_margin_right = 16
+	s.content_margin_top = 6
+	s.content_margin_bottom = 6
+	btn.add_theme_stylebox_override("normal", s)
+
+
+# =============================================================================
+#  End Turn
+# =============================================================================
+
+func _on_end_turn_pressed():
+	var targets_input = []
+	# Results are in a GridContainer inside _results_container
+	for child in _results_container.get_children():
+		if child is GridContainer:
+			for card in child.get_children():
+				if not card.has_meta("target_name"):
+					continue
+				var roll_spin: SpinBox = card.get_meta("roll_spin")
+				var hits_spin: SpinBox = card.get_meta("hits_spin")
+				var dmg_spin: SpinBox = card.get_meta("dmg_spin")
+				var type_opt: OptionButton = card.get_meta("type_opt")
+				var shield_check: CheckButton = card.get_meta("shield_check")
+				targets_input.append({
+					"name": card.get_meta("target_name"),
+					"table": card.get_meta("target_table"),
+					"record_id": card.get_meta("target_id"),
+					"defense_roll": int(roll_spin.value),
+					"hits": int(hits_spin.value),
+					"raw_damage": int(dmg_spin.value),
+					"attack_type": type_opt.get_item_text(type_opt.selected),
+					"killed": false,
+					"shield_hit": shield_check.button_pressed,
+				})
+
+	var input = {
+		"battler_name": str(Current_Turn),
+		"attack_used": _attack_select.get_item_text(_attack_select.selected) if _attack_select.selected >= 0 else "None",
+		"attack_roll": int(_attack_roll_spin.value),
+		"tiles_moved": int(_tiles_moved_spin.value),
+		"burst_gained": int(_burst_gained_spin.value),
+		"passive_stacks": int(_passive_stacks_spin.value),
+		"critical_hit": _crit_toggle.button_pressed,
+		"item_used": _item_select.get_item_text(_item_select.selected) if _item_select.selected >= 0 else "None",
+		"item_target": _item_target_select.get_item_text(_item_target_select.selected) if _item_target_select.selected >= 0 else "None",
+		"targets": targets_input,
+		"battle_id": battle_id,
+		"turn_no": turn_no,
+	}
+
+	var updates = TurnProcessor.process_turn(input)
+	if updates.size() > 0:
+		Global.Update_Records(updates)
+
+	# Log the turn — send to host for logging
+	var total_dmg = 0
+	var kills = []
+	for t in targets_input:
+		total_dmg += int(t.get("raw_damage", 0))
+	# Detect kills from updates: check both "Killed" field and HP dropping to 0
+	var killed_ids = {}
+	for u in updates:
+		if u.get("field") == "Killed" and u.get("value") == true:
+			killed_ids[str(u.get("record_id", ""))] = true
+		if u.get("table") == "BattleEnemies" and u.get("field") == "Current_Health" and int(u.get("value", 1)) == 0:
+			killed_ids[str(u.get("record_id", ""))] = true
+	for kid in killed_ids:
+		for e in Global.BATTLEENEMIES.values():
+			if str(e.get("id")) == kid:
+				kills.append(str(e.get("EnemyName", "")) + " " + kid)
+				break
+	var log_results = {"total_damage": total_dmg, "killed": kills, "reactions": []}
+	# Log the turn — host logs directly, clients send via NetworkManager RPC
+	if NetworkManager.is_host and _battle_logger:
+		_battle_logger.log_turn(input, log_results)
+	elif not NetworkManager.is_host:
+		# Send turn log to host via NetworkManager (which has working cross-path RPCs)
+		var log_payload = {"type": "turn_log", "input": input, "results": log_results}
+		NetworkManager.host_combat_log(log_payload)
+
+	_advance_turn()
+
+
+# =============================================================================
+#  Advance Turn
+# =============================================================================
+
+func _advance_turn():
+	if _turn_list.item_count < 2:
+		return
+	var second_text = _turn_list.get_item_text(1)
+	# Strip the "⟶ " prefix if present
+	var next_name = second_text
+	if second_text.begins_with("⟶"):
+		next_name = second_text.substr(2)
+	next_name = next_name.strip_edges()
+
+	turn_no += 1
+	var updates = [{
+		"table": "Party",
+		"record_id": int(Global.Current_Party.get("id", 0)),
+		"field": "Current_Turn",
+		"value": next_name
+	}]
+	Global.Update_Records(updates)
+
+
+# =============================================================================
+#  Target Selection Signal
+# =============================================================================
+
+func _on_target_list_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Find which item was clicked
+		var idx = _target_list.get_item_at_position(event.position, true)
+		if idx < 0:
+			return
+		if Input.is_key_pressed(KEY_SHIFT):
+			return  # Let multi_selected handle shift+click range
+		# Toggle: if already selected, deselect; otherwise add to selection
+		if _target_list.is_selected(idx):
+			_target_list.deselect(idx)
+		else:
+			_target_list.select(idx, false)  # false = don't clear others
+		_rebuild_target_rows()
+		_target_list.accept_event()  # Prevent default single-select behavior
+
+
+func _on_target_multi_selected(_index: int, _selected: bool) -> void:
+	_rebuild_target_rows()
+
+
+func _rebuild_target_rows() -> void:
+	for child in _results_container.get_children():
+		child.queue_free()
+
+	# Use a 2-column grid for results
+	var grid = GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 6)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_results_container.add_child(grid)
+
+	for item_idx in _target_list.get_selected_items():
+		var target_name = _target_list.get_item_text(item_idx)
+
+		# Resolve table/id/shield
+		var t_table = ""
+		var t_id = ""
+		var has_shield = false
+		if Global.PartyCharacters.has(target_name):
+			t_table = "Characters"
+			t_id = Global.CHARACTERS_NAME.get(target_name, "")
+			has_shield = int(Global.CHARACTERS.get(t_id, {}).get("Shield_Health", 0)) > 0
+		elif Global.PartyCompanions.has(target_name):
+			t_table = "Companions"
+			t_id = Global.COMPANIONS_NAME.get(target_name, "")
+			has_shield = int(Global.COMPANIONS.get(t_id, {}).get("Shield_Health", 0)) > 0
+		else:
+			t_table = "BattleEnemies"
+			var parts = target_name.split(" ")
+			t_id = parts[-1]
+			has_shield = int(Global.BATTLEENEMIES.get(t_id, {}).get("Shield_Health", 0)) > 0
+
+		# Build compact card for this target
+		var card = PanelContainer.new()
+		card.add_theme_stylebox_override("panel", _sb(BG_CARD, BORDER_SUBTLE, 1, 4, Vector4(6, 4, 6, 4)))
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		grid.add_child(card)
+
+		var vbox = VBoxContainer.new()
+		vbox.add_theme_constant_override("separation", 2)
+		card.add_child(vbox)
+
+		# Target name header
+		vbox.add_child(_lbl(target_name, 14, ACCENT))
+
+		# Use a compact GridContainer for the fields: 2 cols (label, input)
+		var fields = GridContainer.new()
+		fields.columns = 4  # label, input, label, input (2 pairs per row)
+		fields.add_theme_constant_override("h_separation", 4)
+		fields.add_theme_constant_override("v_separation", 2)
+		vbox.add_child(fields)
+
+		# Their Roll
+		fields.add_child(_lbl("Roll", 13, TEXT_MUTED))
+		var roll_spin = SpinBox.new()
+		roll_spin.min_value = 0
+		roll_spin.max_value = 100
+		roll_spin.value = 0
+		roll_spin.custom_minimum_size = Vector2(55, 0)
+		roll_spin.add_theme_font_size_override("font_size", 13)
+		fields.add_child(roll_spin)
+
+		# Hits
+		fields.add_child(_lbl("Hits", 13, TEXT_MUTED))
+		var hits_spin = SpinBox.new()
+		hits_spin.min_value = 0
+		hits_spin.max_value = 20
+		hits_spin.value = 1
+		hits_spin.custom_minimum_size = Vector2(55, 0)
+		hits_spin.add_theme_font_size_override("font_size", 13)
+		fields.add_child(hits_spin)
+
+		# Damage
+		fields.add_child(_lbl("Dmg", 13, TEXT_MUTED))
+		var dmg_spin = SpinBox.new()
+		dmg_spin.min_value = 0
+		dmg_spin.max_value = 9999
+		dmg_spin.value = 0
+		dmg_spin.custom_minimum_size = Vector2(55, 0)
+		dmg_spin.add_theme_font_size_override("font_size", 13)
+		fields.add_child(dmg_spin)
+
+		# Type
+		fields.add_child(_lbl("Type", 13, TEXT_MUTED))
+		var type_opt = OptionButton.new()
+		type_opt.add_item("Damage")
+		type_opt.add_item("Healed")
+		type_opt.add_item("Shielded")
+		type_opt.custom_minimum_size = Vector2(55, 0)
+		type_opt.add_theme_font_size_override("font_size", 13)
+		fields.add_child(type_opt)
+
+		# Hit Shield checkbox (below the grid)
+		var shield_check = CheckButton.new()
+		shield_check.text = "Hit Shield"
+		shield_check.add_theme_font_size_override("font_size", 13)
+		shield_check.add_theme_color_override("font_color", TEXT_PRIMARY if has_shield else TEXT_MUTED)
+		shield_check.disabled = not has_shield
+		vbox.add_child(shield_check)
+
+		# Store metadata
+		card.set_meta("target_name", target_name)
+		card.set_meta("target_table", t_table)
+		card.set_meta("target_id", t_id)
+		card.set_meta("roll_spin", roll_spin)
+		card.set_meta("hits_spin", hits_spin)
+		card.set_meta("dmg_spin", dmg_spin)
+		card.set_meta("type_opt", type_opt)
+		card.set_meta("shield_check", shield_check)
+
+
+# =============================================================================
+#  Stun / Skip Turn
+# =============================================================================
+
+func _is_stunned(b_name: String) -> bool:
+	var effects = Global.get_battler_effects(b_name)
+	for fx in effects:
+		if fx.get("effect_type") in ["SKIP_TURN", "FREEZE"]:
+			return true
+	return false
+
+
+func _show_stun_overlay():
+	_stun_title.text = "%s's turn is skipped!" % str(Current_Turn)
+	_stun_text.text = "Stunned -- cannot act this turn"
+	_stun_overlay.visible = true
+
+
+func _on_stun_confirm():
+	if NetworkManager.is_host:
+		# Host can process cooldowns directly
+		var updates = []
+		TurnProcessor._process_cooldowns(str(Current_Turn), updates)
+		if updates.size() > 0:
+			Global.Update_Records(updates)
+		if Global.effect_processor:
+			Global.sync_active_effects()
+	else:
+		# Player client: ask host to process cooldowns for this stunned battler
+		NetworkManager.host_combat_log({"type": "stun_skip", "battler": str(Current_Turn)})
+	_stun_overlay.visible = false
+	_advance_turn()
+
+
+# =============================================================================
+#  Battle End
+# =============================================================================
+
+func check_battle_end():
+	if _battle_ending:
+		return
+	var all_enemies_dead = true
+	var all_players_down = true
+
+	for enemy in Global.BATTLEENEMIES.values():
+		if int(enemy.get("Current_Health", 1)) > 0:
+			all_enemies_dead = false
+			break
+
+	for player_name in Global.PartyCharacters:
+		var char_id = Global.CHARACTERS_NAME.get(player_name, "")
+		if int(Global.CHARACTERS.get(char_id, {}).get("Current_Health", 1)) > 0:
+			all_players_down = false
+			break
+
+	if all_enemies_dead or all_players_down:
+		_battle_ending = true
+		if NetworkManager.is_host:
+			# Wait briefly for any pending player turn log RPCs to arrive
+			# (the killing blow's log may be in-flight from a player client)
+			await get_tree().create_timer(1.0).timeout
+			# Generate summary
+			var summary = {}
+			if _battle_logger:
+				summary = _battle_logger.end_battle()
+			_host_battle_cleanup()
+			# Send summary to all clients via NetworkManager (node-path safe)
+			if not summary.is_empty():
+				NetworkManager.broadcast_battle_summary(summary)
+			_show_battle_summary(summary)
+		else:
+			# Wait for either the summary broadcast or data sync
+			# The summary RPC will arrive and show the overlay before we go to hub
+			await Global.data_load_complete
+			# If no summary arrived via RPC after a short wait, just go to hub
+			if not _battle_ending_summary_shown:
+				await get_tree().create_timer(2.0).timeout
+				if not _battle_ending_summary_shown:
+					_go_to_hub()
+
+
+func _host_battle_cleanup() -> void:
+	for enemy in Global.BATTLEENEMIES.values():
+		Global._remove_record("BattleEnemies", str(int(enemy.get("id", 0))))
+	DataStore.persist_table("BattleEnemies")
+
+	var updates = []
+	for ability in Global.ACTIVE_ABILITIES.values():
+		if ability.get("Ability_Cooldown", 0) > 0:
+			updates.append({"table": "Active_Abilities", "record_id": ability.get("id"), "field": "Ability_Cooldown", "value": 0})
+	for char in Global.CHARACTERS.values():
+		var cid = int(char.get("id", 0))
+		updates.append({"table": "Characters", "record_id": cid, "field": "Ready", "value": false})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Applied_Element", "value": "None"})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Current_Health", "value": char.get("Max_Health", 0)})
+		updates.append({"table": "Characters", "record_id": cid, "field": "Skipped", "value": false})
+	for comp in Global.COMPANIONS.values():
+		updates.append({"table": "Companions", "record_id": int(comp.get("id", 0)), "field": "Applied_Element", "value": "None"})
+
+	var buff_left = int(Global.Current_Party.get("Buff_Battles_Left", 0))
+	if buff_left - 1 <= 0:
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Buff_Battles_Left", "value": 0})
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Active_Food_Buff", "value": "None"})
+	else:
+		updates.append({"table": "Party", "record_id": Global.Current_Party.get("id"), "field": "Buff_Battles_Left", "value": buff_left - 1})
+
+	if updates.size() > 0:
+		Global.Update_Records(updates)
+
+	NetworkManager.broadcast_table_update("BattleEnemies")
+	Global.end_battle_effects()
+	# Don't call _go_to_hub() here — let the summary screen handle it
+
+
+func _on_battle_summary_received(summary: Dictionary) -> void:
+	# Client received battle summary from host — show it
+	_show_battle_summary(summary)
+
+
+func _on_combat_log_received(payload: Dictionary) -> void:
+	if payload.get("type") == "turn_log":
+		# Player turn log — feed to BattleLogger
+		if _battle_logger:
+			var input = payload.get("input", {})
+			var results = payload.get("results", {})
+			if not input.is_empty():
+				_battle_logger.log_turn(input, results)
+	elif payload.get("type") == "stun_skip":
+		# Player's stunned battler — host processes cooldowns on their behalf
+		var b_name = str(payload.get("battler", ""))
+		if b_name != "" and Global.effect_processor:
+			var updates = []
+			TurnProcessor._process_cooldowns(b_name, updates)
+			if updates.size() > 0:
+				Global.Update_Records(updates)
+			Global.sync_active_effects()
+			print("[BattleScene] Host processed stun skip for %s" % b_name)
+
+
+func _show_battle_summary(summary: Dictionary) -> void:
+	if summary.is_empty():
+		_go_to_hub()
+		return
+	_battle_ending_summary_shown = true
+	var overlay = BattleSummary.new()
+	add_child(overlay)
+	overlay.show_summary(summary)
+	overlay.continue_pressed.connect(_go_to_hub)
+
+
+func _go_to_hub() -> void:
+	Toast.notify("Battle ended -- returning to hub", Toast.SUCCESS)
+	Global._returned_from_battle = true
+	if Global.ACTIVE_USER_TYPE == "Player":
+		get_tree().change_scene_to_file("res://Scenes/player_hub.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/DMHub.tscn")
+
+
+# =============================================================================
+#  Background
+# =============================================================================
+
+func _set_background():
+	Global.Current_Region = Global.Current_Party.get("Current_Region", Global.Current_Region)
+	var path = "res://Background Images/BattleScene/" + Global.Current_Region + ".png"
+	if ResourceLoader.exists(path):
+		_background.texture = load(path)
+
+
+# =============================================================================
+#  Music
+# =============================================================================
+
+func _start_music():
+	_apply_saved_volume()
+	_load_region_music(Global.Current_Region)
+	_play_next_track()
+
+func _apply_saved_volume() -> void:
+	var cfg = ConfigFile.new()
+	var vol = 0.0
+	if cfg.load("user://audio_settings.cfg") == OK:
+		vol = cfg.get_value("audio", "music_volume", 0.0)
+	var bus_idx = AudioServer.get_bus_index("Master")
+	if vol <= 0.0:
+		AudioServer.set_bus_mute(bus_idx, true)
+	else:
+		AudioServer.set_bus_mute(bus_idx, false)
+		AudioServer.set_bus_volume_db(bus_idx, linear_to_db(vol / 100.0))
+
+
+func _load_region_music(region: String) -> void:
+	music_files.clear()
+	var folder_path = "res://Background Music/%s/Battle HUB/" % region
+	var dir = DirAccess.open(folder_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	while file_name != "":
+		if file_name.ends_with(".import"):
+			var new_file_name = file_name.left(file_name.length() - 7)
+			music_files.append(folder_path + new_file_name)
+		elif file_name.ends_with(".ogg") or file_name.ends_with(".mp3") or file_name.ends_with(".wav"):
+			music_files.append(folder_path + file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+
+func _play_next_track():
+	if music_files.is_empty():
+		return
+	music_index = randi() % music_files.size()
+	var stream_path = music_files[music_index]
+	var stream = load(stream_path)
+	if stream:
+		_audio.stream = stream
+		_audio.play()
+
+
+func _on_audio_finished() -> void:
+	_play_next_track()
+
+
+# =============================================================================
+#  Item Selection Handler
+# =============================================================================
+
+func _on_item_selected(index: int):
+	var item_name = _item_select.get_item_text(index)
+	if item_name == "None":
+		_item_desc.text = "No item selected"
+		return
+	for item in Global.CHARACTER_ITEMS.values():
+		if item.get("Name") == item_name and item.get("Owner") == str(Current_Turn):
+			_item_desc.text = str(item.get("Description", ""))
+			return
+
+
+# =============================================================================
+#  Burst / Food Buff Display
+# =============================================================================
+
+func _update_burst_display():
+	if Global.Current_Battler_Data != null:
+		var bc = Global.Current_Battler_Data.get("burst_charges", 0)
+		var mbc = Global.Current_Battler_Data.get("max_burst_charges", 0)
+		_burst_count_label.text = "%d / %d" % [int(bc) if bc != null else 0, int(mbc) if mbc != null else 0]
+	else:
+		_burst_count_label.text = "0 / 0"
+
+
+func _update_food_buff():
+	var buff = Global.Current_Party.get("Active_Food_Buff", "None")
+	if buff != "None" and buff != null:
+		_food_buff_label.text = str(buff)
+		for item in Global.ITEMS.values():
+			if item.get("Item") == buff:
+				_food_buff_label.tooltip_text = str(item.get("Description", ""))
+				return
+	else:
+		_food_buff_label.text = "No buff"
+		_food_buff_label.tooltip_text = ""
+
+
+# =============================================================================
+#  Reset Inputs
+# =============================================================================
+
+func _reset_inputs():
+	for child in _results_container.get_children():
+		child.queue_free()
+	_target_list.deselect_all()
+	_attack_select.selected = 0 if _attack_select.item_count > 0 else -1
+	_attack_roll_spin.value = 0
+	_tiles_moved_spin.value = 0
+	_burst_gained_spin.value = 0
+	_passive_stacks_spin.value = 0
+	_crit_toggle.button_pressed = false
+	_item_select.selected = 0 if _item_select.item_count > 0 else -1
+	_item_desc.text = "No item selected"
+
+
+# =============================================================================
+#  Utility
+# =============================================================================
+
+func _wrap_text(text: String, limit: int) -> String:
+	var result = ""
+	var start = 0
+	while start < text.length():
+		var end = min(start + limit, text.length())
+		if end < text.length():
+			var segment = text.substr(start, end - start)
+			var space_index = segment.rfind(" ")
+			if space_index != -1:
+				end = start + space_index + 1
+		result += text.substr(start, end - start).strip_edges()
+		if end < text.length():
+			result += "\n"
+		start = end
+	return result
+
+
+# =============================================================================
+#  Layout Persistence
+# =============================================================================
+
+func _save_layout() -> void:
+	var cfg = ConfigFile.new()
+	cfg.set_value("splits", "outer", _outer_split.split_offset)
+	cfg.set_value("splits", "inner", _inner_split.split_offset)
+	cfg.set_value("splits", "center", _center_split.split_offset)
+	cfg.set_value("splits", "party", _party_split.split_offset)
+	cfg.set_value("splits", "info", _info_split.split_offset)
+	cfg.set_value("splits", "dock", _dock_split.split_offset)
+	cfg.set_value("splits", "atk_h_l", _attack_hsplit_l.split_offset)
+	cfg.set_value("splits", "atk_h_r", _attack_hsplit_r.split_offset)
+	cfg.set_value("splits", "target_v", _target_vsplit.split_offset)
+	cfg.save(LAYOUT_SAVE_PATH)
+
+
+func _load_layout() -> void:
+	var cfg = ConfigFile.new()
+	if cfg.load(LAYOUT_SAVE_PATH) != OK:
+		return
+	if cfg.has_section_key("splits", "outer"):
+		_outer_split.split_offset = cfg.get_value("splits", "outer", 0)
+	if cfg.has_section_key("splits", "inner"):
+		_inner_split.split_offset = cfg.get_value("splits", "inner", 0)
+	if cfg.has_section_key("splits", "center"):
+		_center_split.split_offset = cfg.get_value("splits", "center", 0)
+	if cfg.has_section_key("splits", "party"):
+		_party_split.split_offset = cfg.get_value("splits", "party", 0)
+	if cfg.has_section_key("splits", "info"):
+		_info_split.split_offset = cfg.get_value("splits", "info", 0)
+	if cfg.has_section_key("splits", "dock"):
+		_dock_split.split_offset = cfg.get_value("splits", "dock", 0)
+	if cfg.has_section_key("splits", "atk_h_l"):
+		_attack_hsplit_l.split_offset = cfg.get_value("splits", "atk_h_l", 0)
+	if cfg.has_section_key("splits", "atk_h_r"):
+		_attack_hsplit_r.split_offset = cfg.get_value("splits", "atk_h_r", 0)
+	if cfg.has_section_key("splits", "target_v"):
+		_target_vsplit.split_offset = cfg.get_value("splits", "target_v", 0)

@@ -8,6 +8,8 @@ signal connection_succeeded
 signal connection_failed
 signal all_data_received  # fired on client after initial sync completes
 signal host_ready         # fired on host after data loaded from disk
+signal combat_log_received(payload: Dictionary)  # fired on host when a combat log arrives
+signal battle_summary_received(summary: Dictionary)  # fired on clients when host sends summary
 
 const DEFAULT_PORT = 7777
 const DISCOVERY_PORT = 7778
@@ -580,6 +582,20 @@ func host_combat_log(payload: Dictionary) -> void:
 	payload["created_at"] = Time.get_datetime_string_from_system()
 	log_records.append(payload)
 	DataStore.save_table("battle_log", log_records)
+	combat_log_received.emit(payload)
+
+
+func broadcast_battle_summary(summary: Dictionary) -> void:
+	if not is_host:
+		return
+	var json = JSON.stringify(summary)
+	_receive_battle_summary.rpc(json)
+
+@rpc("authority", "reliable", "call_remote")
+func _receive_battle_summary(summary_json: String) -> void:
+	var summary = JSON.parse_string(summary_json)
+	if summary and summary is Dictionary:
+		battle_summary_received.emit(summary)
 
 @rpc("any_peer", "reliable")
 func _request_log(payload_json: String) -> void:

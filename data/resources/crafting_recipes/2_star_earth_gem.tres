@@ -9,5 +9,5 @@ product = "2-Star Earth Gem"
 region = "Liyue"
 description = "Exchanges 2 matching 1-star elemental gems for a 2-star version of the same type."
 role = "Artisan"
-material = "1-Star Earth Gem"
+material = "1-Star Gem"
 quantity = 2

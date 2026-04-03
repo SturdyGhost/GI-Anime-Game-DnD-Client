@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r"]
+
+[resource]
+script = ExtResource("1_r")
+id = 317
+product = "2-Star Ice Gem"
+region = "Liyue"
+description = "Breaks down any 3-star elemental gem into 3 individual 2-star Ice gems."
+role = "Artisan"
+material = "3-Star Gem"
+quantity = 1
+output_quantity = 3

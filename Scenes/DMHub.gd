@@ -612,7 +612,7 @@ func _make_enemy_card(name: String, hp: int) -> Control:
 
 func _on_situation_pressed() -> void:
 	Global.Update_Records([{"table":"Characters","record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Ready","value": true}])
-	var s = preload("res://Scenes/Enemy_Battle_Scene.tscn")
+	var s = preload("res://Scenes/BattleScene.tscn")
 	var dlg = s.instantiate()
 	add_child(dlg)
 	for child in EncounterVContainer.get_children():
@@ -645,7 +645,7 @@ func _on_button_pressed() -> void:
 
 func _on_restore_battle_button_pressed() -> void:
 	for child in get_children():
-		if child.name == "Player_Battle_Scene":
+		if child.name == "BattleScene":
 			child.visible = true
 	pass # Replace with function body.
 

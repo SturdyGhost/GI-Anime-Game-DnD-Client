@@ -1,440 +1,1008 @@
 extends Control
-# Godot 4.4.1 — Crafting Menu with end-of-function validation prints
 
-# --------------------------
-# EXPECTED GLOBAL SHAPES
-# --------------------------
-# Global.CRAFTING_RECIPES: Dictionary { record_id: { "Role","Product","Region","Description","Icon","Material","Quantity" }, ... }
-# Global.CHARACTERS_NAME: { readable_name: record_id }
-# Global.ACTIVE_USER_NAME: readable_name
-# Global.CHARACTERS[record_id]["Role"]
-# Global.INVENTORY: Array[Dictionary] OR Dictionary id->dict  (fields: "Id","Name","Type","Quantity","Icon?")
-# Global.decrement_inventory(id, qty) -> bool
-# Global.give_item_to_player(product_name, qty, target) -> void
-# Global.get_party_names() -> Array[String]
-# Global.Log(category, action, related_type, related_id, old_values, new_values, metadata, result, severity)
+# ============================================================
+# CraftingMenu — full-screen crafting popup (all UI built in code)
+# Godot 4.4 — uses `=` not `:=`
+# ============================================================
 
-# --------------------------
-# UI node paths (for re-resolve)
-# --------------------------
-const PATH_RECIPE_LIST: String = "HSplit/LeftPanel/LeftVBox/Scroll/RecipeList"
-const PATH_SEARCH: String = "HSplit/LeftPanel/LeftVBox/LeftHeader/Search"
-const PATH_TARGET_SELECT: String = "HSplit/RightPanel/RightVBox/BottomBar/TargetSelect"
-const PATH_QTY_SPIN: String = "HSplit/RightPanel/RightVBox/BottomBar/QtySpin"
-const PATH_CONFIRM: String = "HSplit/RightPanel/RightVBox/BottomBar/Confirm"
-const PATH_ROWS: String = "HSplit/RightPanel/RightVBox/IngredientsVBox/Rows"
-const PATH_ICON: String = "HSplit/RightPanel/RightVBox/TopPreview/TopHBox/Icon"
-const PATH_PRODUCT_LBL: String = "HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox/ProductLabel"
-const PATH_REGION_LBL: String = "HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox/RegionLabel"
-const PATH_DESC: String = "HSplit/RightPanel/RightVBox/TopPreview/TopHBox/MetaVBox/Desc"
-const PATH_BOTTOM_BAR: String = "HSplit/RightPanel/RightVBox/BottomBar"
+# --- COLORS (exact) ---
+const BG = Color(0.102, 0.122, 0.169)
+const PANEL = Color(0.133, 0.157, 0.22)
+const CARD = Color(0.165, 0.192, 0.27)
+const INSET = Color(0.086, 0.106, 0.149)
+const HOVER = Color(0.188, 0.227, 0.322)
+const BORDER = Color(0.227, 0.259, 0.376)
+const TEXT = Color(0.941, 0.949, 0.973)
+const SEC = Color(0.69, 0.722, 0.8)
+const MUTED = Color(0.471, 0.51, 0.627)
+const ACCENT = Color(0.788, 0.659, 0.298)
+const GREEN = Color(0.292, 0.855, 0.498)
+const RED = Color(0.937, 0.267, 0.267)
 
-# --------------------------
-# Nodes (nullable; we re-resolve)
-# --------------------------
-@onready var recipe_list: VBoxContainer = get_node_or_null(PATH_RECIPE_LIST)
-@onready var search: LineEdit = get_node_or_null(PATH_SEARCH)
-@onready var target_select: OptionButton = get_node_or_null(PATH_TARGET_SELECT)
-@onready var qty_spin: SpinBox = get_node_or_null(PATH_QTY_SPIN)
-@onready var confirm_btn: Button = get_node_or_null(PATH_CONFIRM)
-@onready var rows: VBoxContainer = get_node_or_null(PATH_ROWS)
-@onready var icon_rect: TextureRect = get_node_or_null(PATH_ICON)
-@onready var product_label: Label = get_node_or_null(PATH_PRODUCT_LBL)
-@onready var region_label: Label = get_node_or_null(PATH_REGION_LBL)
-@onready var desc: RichTextLabel = get_node_or_null(PATH_DESC)
+# --- STATE ---
+var _grouped_recipes = {}        # product_name -> { meta:{}, requirements:[] }
+var _visible_products = []       # Array[String]
+var _selected_product = ""
+var _slot_to_item_id = {}        # slot_idx -> inventory item Id
+var _slot_requirements = []      # current product requirements array
+var _inventory_snapshot_before = {}
+
+# --- UI REFS (set in _ready) ---
+var search_input: LineEdit
+var _craft_filter: String = "all"
+var _filter_chips: Array = []
+var _body_split: HSplitContainer
+var _right_split: VSplitContainer
+var _tab_recipes: Button
+var _tab_artifact: Button
+var _artifact_forge_panel: VBoxContainer
+
+# Artifact forge state
+var _af_mode: String = "random"  # "random" or "selected"
+var _af_selected_artifacts: Array = []  # IDs of artifacts chosen for sacrifice
+var _af_artifact_list: VBoxContainer
+var _af_set_dropdown: OptionButton
+var _af_rolls: Array = []  # SpinBoxes for dice rolls
+var _af_sub2_row: VBoxContainer
+var _af_sub2_label: Label
+var _af_target_dropdown: OptionButton
+var _af_forge_btn: Button
+var _af_body_split: HSplitContainer  # sacrifice picker | rolls+target
+var _af_rolls_split: VSplitContainer  # rolls panel | target+forge
+var recipe_list_container: VBoxContainer
+var product_icon: TextureRect
+var product_name_label: Label
+var product_meta_label: Label
+var product_desc_label: RichTextLabel
+var ingredients_container: VBoxContainer
+var ingredients_title_label: Label
+var qty_spin: SpinBox
+var target_select: OptionButton
+var craft_button: Button
+var _recipe_cards = []   # Array of PanelContainer refs in left list
 
 
-const MAX_SLOTS: int = 6
-
-# --------------------------
-# STATE
-# --------------------------
-var _grouped_recipes: Dictionary = {}     # product -> { meta: {...}, requirements: [ {material,quantity}, ... ] }
-var _visible_products: Array[String] = []
-var _selected_product: String = ""
-var _slot_to_item_id: Dictionary = {}     # slot_idx -> inventory item Id
-var _slot_requirements: Array = []        # current product requirements
-var _inventory_snapshot_before: Dictionary = {}
-var inv
-
-
-# --------------------------
-# Helpers (logging + safe getters)
-# --------------------------
-func _log(msg: String) -> void:
-	print("[CraftingMenu] %s" % msg)
-
-func _get_row(i: int) -> HBoxContainer:
-	var parent := rows if rows != null else get_node_or_null(PATH_ROWS)
-	if parent == null:
-		return null
-	return parent.get_node_or_null("Row%d" % (i + 1)) as HBoxContainer
-
-func _get_opt(i: int) -> OptionButton:
-	var row := _get_row(i)
-	if row == null:
-		return null
-	return row.get_node_or_null("Opt%d" % (i + 1)) as OptionButton
-
-func _get_req_label(i: int) -> Label:
-	var row := _get_row(i)
-	if row == null:
-		return null
-	return row.get_node_or_null("Req%d" % (i + 1)) as Label
-
-func _get_have_need(i: int) -> Label:
-	var row := _get_row(i)
-	if row == null:
-		return null
-	return row.get_node_or_null("HaveNeed%d" % (i + 1)) as Label
-
-# --------------------------
-# Ready / UI init
-# --------------------------
+# ============================================================
+# READY — build everything
+# ============================================================
 func _ready() -> void:
-	call_deferred("_init_ui")
-	_log("[_ready] deferred UI init scheduled")
+	# Full screen background
+	var bg_panel = PanelContainer.new()
+	bg_panel.name = "BgPanel"
+	var bg_sb = StyleBoxFlat.new()
+	bg_sb.bg_color = BG
+	bg_panel.add_theme_stylebox_override("panel", bg_sb)
+	bg_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(bg_panel)
 
-func _init_ui() -> void:
-	_resolve_ui_refs()
+	# Root margin
+	var root_margin = MarginContainer.new()
+	root_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root_margin.add_theme_constant_override("margin_left", 32)
+	root_margin.add_theme_constant_override("margin_right", 32)
+	root_margin.add_theme_constant_override("margin_top", 24)
+	root_margin.add_theme_constant_override("margin_bottom", 24)
+	bg_panel.add_child(root_margin)
 
-	# Signals (null-safe)
-	if search != null:
-		search.text_changed.connect(_on_search_changed)
-	if qty_spin != null:
-		qty_spin.value_changed.connect(_on_qty_changed)
-	if confirm_btn != null:
-		confirm_btn.pressed.connect(_on_confirm_pressed)
+	var root_vbox = VBoxContainer.new()
+	root_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root_vbox.add_theme_constant_override("separation", 16)
+	root_margin.add_child(root_vbox)
 
+	# ---- HEADER ----
+	var header = _build_header()
+	root_vbox.add_child(header)
+
+	# ---- TAB BAR (Recipes / Artifact Forge) ----
+	var tab_row = HBoxContainer.new()
+	tab_row.add_theme_constant_override("separation", 0)
+	root_vbox.add_child(tab_row)
+
+	_tab_recipes = Button.new()
+	_tab_recipes.text = "RECIPES"
+	_tab_recipes.toggle_mode = true
+	_tab_recipes.button_pressed = true
+	_tab_recipes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tab_recipes.add_theme_font_size_override("font_size", 14)
+	_style_tab_btn(_tab_recipes, true)
+	_tab_recipes.pressed.connect(func(): _switch_crafting_tab("recipes"))
+	tab_row.add_child(_tab_recipes)
+
+	_tab_artifact = Button.new()
+	_tab_artifact.text = "ARTIFACT FORGE"
+	_tab_artifact.toggle_mode = true
+	_tab_artifact.button_pressed = false
+	_tab_artifact.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tab_artifact.add_theme_font_size_override("font_size", 14)
+	_style_tab_btn(_tab_artifact, false)
+	_tab_artifact.pressed.connect(func(): _switch_crafting_tab("artifact"))
+	tab_row.add_child(_tab_artifact)
+
+	# ---- RECIPE BODY (2 columns, resizable) ----
+	_body_split = HSplitContainer.new()
+	var body_split = _body_split
+	body_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	root_vbox.add_child(body_split)
+
+	# LEFT COLUMN (280px fixed)
+	var left_panel = _build_left_panel()
+	body_split.add_child(left_panel)
+
+	# RIGHT COLUMN (expand)
+	var right_panel = _build_right_panel()
+	body_split.add_child(right_panel)
+
+	# ---- ARTIFACT FORGE PANEL (hidden by default, Artisan only) ----
+	_artifact_forge_panel = _build_artifact_forge()
+	_artifact_forge_panel.visible = false
+	root_vbox.add_child(_artifact_forge_panel)
+	# Only Artisans see the forge tab
+	if _get_active_role() != "Artisan":
+		_tab_artifact.visible = false
+
+	# ---- WIRE SIGNALS ----
+	search_input.text_changed.connect(_on_search_changed)
+	qty_spin.value_changed.connect(_on_qty_changed)
+	craft_button.pressed.connect(_on_confirm_pressed)
+
+	# ---- POPULATE ----
 	_build_product_groups()
-	_build_recipe_buttons()
 	_populate_party_targets()
-	_tune_row_layout()
+	_build_recipe_cards()
 	_refresh_confirm_enabled()
-	_log("[_init_ui] UI wired; products=%d, visible=%d" % [_grouped_recipes.size(), _visible_products.size()])
-
-func _resolve_ui_refs() -> void:
-	# Re-resolve in case scene changed
-	if recipe_list == null: recipe_list = get_node_or_null(PATH_RECIPE_LIST)
-	if search == null: search = get_node_or_null(PATH_SEARCH)
-	if target_select == null: target_select = get_node_or_null(PATH_TARGET_SELECT)
-	if qty_spin == null: qty_spin = get_node_or_null(PATH_QTY_SPIN)
-	if confirm_btn == null: confirm_btn = get_node_or_null(PATH_CONFIRM)
-	if rows == null: rows = get_node_or_null(PATH_ROWS)
-	if icon_rect == null: icon_rect = get_node_or_null(PATH_ICON)
-	if product_label == null: product_label = get_node_or_null(PATH_PRODUCT_LBL)
-	if region_label == null: region_label = get_node_or_null(PATH_REGION_LBL)
-	if desc == null: desc = get_node_or_null(PATH_DESC)
-	_log("[_resolve_ui_refs] resolved nodes: list=%s search=%s target=%s qty=%s confirm=%s rows=%s"
-		% [recipe_list != null, search != null, target_select != null, qty_spin != null, confirm_btn != null, rows != null])
-
-# --------------------------
-# Party
-# --------------------------
-func _populate_party_targets() -> void:
-	if target_select == null:
-		print("[CraftingMenu] [_populate_party_targets] target_select missing")
-		return
-
-	target_select.clear()
-	var idx = 0
-
-	# Always include the active user first
-	var active_name: String = Global.ACTIVE_USER_NAME
-	target_select.add_item(active_name)
-	target_select.set_item_metadata(0, Global.CHARACTERS_NAME.get(active_name, null))
-
-	# Then try to get Party Member 1 & 2 from Global.CHARACTERS
-	for slot_label in ["Party_Member_1", "Party_Member_2"]:
-		if Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]].has(slot_label):
-			idx += 1
-			var pm_name = Global.CHARACTERS[Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]][slot_label]
-			target_select.add_item(pm_name)
-			target_select.set_item_metadata(idx, pm_name)
-		else:
-			print("[CraftingMenu] %s not in Global.CHARACTERS" % slot_label)
-
-	# Select the first option (active user) by default
-	if target_select.item_count > 0:
-		target_select.select(0)
-
-	print("[CraftingMenu] [_populate_party_targets] targets=%d (selected=%s)" %
-		[target_select.item_count, target_select.get_item_text(target_select.get_selected_id())])
-
-func _tune_row_layout() -> void:
-	for i in range(MAX_SLOTS):
-		var row := _get_row(i)
-		if row == null: 
-			continue
-
-		var req := _get_req_label(i)       # left "Material" label
-		var opt := _get_opt(i)             # middle OptionButton
-		var hn  := _get_have_need(i)       # right "have/need" label
-
-		# Left label: fixed-ish width
-		if req:
-			req.size_flags_horizontal = Control.SIZE_FILL
-			req.size_flags_stretch_ratio = 1.0
-			req.custom_minimum_size.x = max(req.custom_minimum_size.x, 450.0)
-
-		# Middle dropdown: ~70% of original width
-		if opt:
-			opt.size_flags_horizontal = Control.SIZE_FILL
-			opt.size_flags_stretch_ratio = 2.1  # ↓ lowered from 3.0 → ~70% width
-			opt.fit_to_longest_item = false
-			if "clip_text" in opt:
-				opt.clip_text = true
-			if "text_overrun_behavior" in opt:
-				opt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-			opt.custom_minimum_size.x = 650.0  # cap width to keep it small
-
-		# Right label: aligned right
-		if hn:
-			hn.size_flags_horizontal = Control.SIZE_FILL
-			hn.size_flags_stretch_ratio = 0.7
-			if "horizontal_alignment" in hn:
-				hn.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			hn.custom_minimum_size.x = max(hn.custom_minimum_size.x, 80.0)
+	_body_split.dragged.connect(func(_ofs): _save_layout())
+	_right_split.dragged.connect(func(_ofs): _save_layout())
+	_load_layout.call_deferred()
+	_log("_ready complete: %d products" % _grouped_recipes.size())
 
 
+# ============================================================
+# HEADER
+# ============================================================
+func _build_header() -> HBoxContainer:
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 12)
 
-# --------------------------
-# Role / Recipes
-# --------------------------
+	# Title
+	var title = Label.new()
+	title.text = "CRAFTING"
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", TEXT)
+	hbox.add_child(title)
+
+	# Role badge
+	var badge = Label.new()
+	var role = _get_active_role()
+	badge.text = role if role != "" else "No Role"
+	badge.add_theme_font_size_override("font_size", 14)
+	badge.add_theme_color_override("font_color", ACCENT)
+	var badge_sb = StyleBoxFlat.new()
+	badge_sb.bg_color = CARD
+	badge_sb.border_color = ACCENT
+	badge_sb.border_width_left = 1
+	badge_sb.border_width_right = 1
+	badge_sb.border_width_top = 1
+	badge_sb.border_width_bottom = 1
+	badge_sb.corner_radius_top_left = 4
+	badge_sb.corner_radius_top_right = 4
+	badge_sb.corner_radius_bottom_left = 4
+	badge_sb.corner_radius_bottom_right = 4
+	badge_sb.content_margin_left = 10
+	badge_sb.content_margin_right = 10
+	badge_sb.content_margin_top = 4
+	badge_sb.content_margin_bottom = 4
+	var badge_panel = PanelContainer.new()
+	badge_panel.add_theme_stylebox_override("panel", badge_sb)
+	badge_panel.add_child(badge)
+	hbox.add_child(badge_panel)
+
+	# Spacer
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(spacer)
+
+	# Exit button
+	var exit_btn = Button.new()
+	exit_btn.text = "X"
+	exit_btn.add_theme_font_size_override("font_size", 18)
+	exit_btn.custom_minimum_size = Vector2(40, 40)
+	var exit_sb = StyleBoxFlat.new()
+	exit_sb.bg_color = CARD
+	exit_sb.border_color = BORDER
+	exit_sb.border_width_left = 1
+	exit_sb.border_width_right = 1
+	exit_sb.border_width_top = 1
+	exit_sb.border_width_bottom = 1
+	exit_sb.corner_radius_top_left = 6
+	exit_sb.corner_radius_top_right = 6
+	exit_sb.corner_radius_bottom_left = 6
+	exit_sb.corner_radius_bottom_right = 6
+	exit_btn.add_theme_stylebox_override("normal", exit_sb)
+	var exit_hover_sb = exit_sb.duplicate()
+	exit_hover_sb.bg_color = RED
+	exit_btn.add_theme_stylebox_override("hover", exit_hover_sb)
+	exit_btn.add_theme_color_override("font_color", TEXT)
+	exit_btn.add_theme_color_override("font_hover_color", TEXT)
+	exit_btn.pressed.connect(_on_exit_pressed)
+	hbox.add_child(exit_btn)
+
+	return hbox
+
+
+# ============================================================
+# LEFT PANEL — search + scrollable recipe list
+# ============================================================
+func _build_left_panel() -> PanelContainer:
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size.x = 280
+	panel.size_flags_horizontal = 0  # no expand
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var sb = _make_card_stylebox(PANEL)
+	panel.add_theme_stylebox_override("panel", sb)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	var margin = _wrap_margin(vbox, 12, 12, 12, 12)
+	panel.add_child(margin)
+
+	# Search
+	search_input = LineEdit.new()
+	search_input.placeholder_text = "Search recipes..."
+	search_input.add_theme_font_size_override("font_size", 14)
+	search_input.add_theme_color_override("font_color", TEXT)
+	search_input.add_theme_color_override("font_placeholder_color", MUTED)
+	var search_sb = StyleBoxFlat.new()
+	search_sb.bg_color = INSET
+	search_sb.border_color = BORDER
+	search_sb.border_width_left = 1
+	search_sb.border_width_right = 1
+	search_sb.border_width_top = 1
+	search_sb.border_width_bottom = 1
+	search_sb.corner_radius_top_left = 6
+	search_sb.corner_radius_top_right = 6
+	search_sb.corner_radius_bottom_left = 6
+	search_sb.corner_radius_bottom_right = 6
+	search_sb.content_margin_left = 10
+	search_sb.content_margin_right = 10
+	search_sb.content_margin_top = 8
+	search_sb.content_margin_bottom = 8
+	search_input.add_theme_stylebox_override("normal", search_sb)
+	search_input.add_theme_stylebox_override("focus", search_sb)
+	search_input.clear_button_enabled = true
+	vbox.add_child(search_input)
+
+	# Filter chips: All / Craftable / Missing
+	var filter_row = HFlowContainer.new()
+	filter_row.add_theme_constant_override("h_separation", 4)
+	vbox.add_child(filter_row)
+
+	var chip_all = _make_chip("All", true)
+	chip_all.pressed.connect(_on_filter_pressed.bind("all"))
+	filter_row.add_child(chip_all)
+
+	var chip_craftable = _make_chip("Craftable", false)
+	chip_craftable.pressed.connect(_on_filter_pressed.bind("craftable"))
+	filter_row.add_child(chip_craftable)
+
+	var chip_missing = _make_chip("Missing", false)
+	chip_missing.pressed.connect(_on_filter_pressed.bind("missing"))
+	filter_row.add_child(chip_missing)
+
+	_filter_chips = [chip_all, chip_craftable, chip_missing]
+
+	# Scroll container for recipe list
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	vbox.add_child(scroll)
+
+	recipe_list_container = VBoxContainer.new()
+	recipe_list_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	recipe_list_container.add_theme_constant_override("separation", 6)
+	scroll.add_child(recipe_list_container)
+
+	return panel
+
+
+# ============================================================
+# RIGHT PANEL — preview + ingredients + craft controls
+# ============================================================
+func _build_right_panel() -> VBoxContainer:
+	var vbox = VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_theme_constant_override("separation", 12)
+
+	# --- Resizable split: preview vs ingredients ---
+	_right_split = VSplitContainer.new()
+	var right_split = _right_split
+	right_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	vbox.add_child(right_split)
+
+	# --- Product Preview Card ---
+	var preview_card = _build_preview_card()
+	right_split.add_child(preview_card)
+
+	# --- Ingredients + Controls in bottom split ---
+	var bottom_section = VBoxContainer.new()
+	bottom_section.add_theme_constant_override("separation", 10)
+	bottom_section.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_split.add_child(bottom_section)
+
+	var ingredients_card = _build_ingredients_card()
+	ingredients_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom_section.add_child(ingredients_card)
+
+	var controls_card = _build_controls_card()
+	bottom_section.add_child(controls_card)
+
+	return vbox
+
+
+func _build_preview_card() -> PanelContainer:
+	var card = PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _make_card_stylebox(CARD))
+
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	card.add_child(margin)
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 16)
+	margin.add_child(hbox)
+
+	# Icon
+	product_icon = TextureRect.new()
+	product_icon.custom_minimum_size = Vector2(64, 64)
+	product_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	product_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	product_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(product_icon)
+
+	# Meta VBox
+	var meta_vbox = VBoxContainer.new()
+	meta_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meta_vbox.add_theme_constant_override("separation", 6)
+	hbox.add_child(meta_vbox)
+
+	product_name_label = Label.new()
+	product_name_label.text = "Select a recipe"
+	product_name_label.add_theme_font_size_override("font_size", 22)
+	product_name_label.add_theme_color_override("font_color", TEXT)
+	meta_vbox.add_child(product_name_label)
+
+	product_meta_label = Label.new()
+	product_meta_label.text = ""
+	product_meta_label.add_theme_font_size_override("font_size", 14)
+	product_meta_label.add_theme_color_override("font_color", SEC)
+	meta_vbox.add_child(product_meta_label)
+
+	product_desc_label = RichTextLabel.new()
+	product_desc_label.text = ""
+	product_desc_label.bbcode_enabled = true
+	product_desc_label.fit_content = true
+	product_desc_label.scroll_active = false
+	product_desc_label.custom_minimum_size = Vector2(0, 40)
+	product_desc_label.add_theme_font_size_override("normal_font_size", 14)
+	product_desc_label.add_theme_color_override("default_color", MUTED)
+	meta_vbox.add_child(product_desc_label)
+
+	return card
+
+
+func _build_ingredients_card() -> PanelContainer:
+	var card = PanelContainer.new()
+	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card.add_theme_stylebox_override("panel", _make_card_stylebox(CARD))
+
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	card.add_child(margin)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(vbox)
+
+	ingredients_title_label = Label.new()
+	ingredients_title_label.text = "INGREDIENTS"
+	ingredients_title_label.add_theme_font_size_override("font_size", 16)
+	ingredients_title_label.add_theme_color_override("font_color", SEC)
+	vbox.add_child(ingredients_title_label)
+
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	ingredients_container = VBoxContainer.new()
+	ingredients_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ingredients_container.add_theme_constant_override("separation", 6)
+	scroll.add_child(ingredients_container)
+
+	return card
+
+
+func _build_controls_card() -> PanelContainer:
+	var card = PanelContainer.new()
+	card.add_theme_stylebox_override("panel", _make_card_stylebox(CARD))
+
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	card.add_child(margin)
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 12)
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(hbox)
+
+	# Quantity
+	var qty_label = Label.new()
+	qty_label.text = "Qty:"
+	qty_label.add_theme_font_size_override("font_size", 15)
+	qty_label.add_theme_color_override("font_color", SEC)
+	hbox.add_child(qty_label)
+
+	qty_spin = SpinBox.new()
+	qty_spin.min_value = 1
+	qty_spin.max_value = 999
+	qty_spin.value = 1
+	qty_spin.custom_minimum_size.x = 80
+	qty_spin.add_theme_font_size_override("font_size", 14)
+	hbox.add_child(qty_spin)
+
+	# Target player
+	var target_label = Label.new()
+	target_label.text = "Craft for:"
+	target_label.add_theme_font_size_override("font_size", 15)
+	target_label.add_theme_color_override("font_color", SEC)
+	hbox.add_child(target_label)
+
+	target_select = OptionButton.new()
+	target_select.custom_minimum_size.x = 160
+	target_select.add_theme_font_size_override("font_size", 14)
+	hbox.add_child(target_select)
+
+	# Spacer
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(spacer)
+
+	# Craft button
+	craft_button = Button.new()
+	craft_button.text = "Craft"
+	craft_button.disabled = true
+	craft_button.custom_minimum_size = Vector2(140, 44)
+	craft_button.add_theme_font_size_override("font_size", 18)
+	# Outline style matching weapon scene buttons
+	var craft_sb = StyleBoxFlat.new()
+	craft_sb.bg_color = Color(GREEN.r, GREEN.g, GREEN.b, 0.1)
+	craft_sb.border_color = GREEN
+	craft_sb.set_border_width_all(2)
+	craft_sb.set_corner_radius_all(6)
+	craft_sb.content_margin_left = 20
+	craft_sb.content_margin_right = 20
+	craft_sb.content_margin_top = 8
+	craft_sb.content_margin_bottom = 8
+	craft_button.add_theme_stylebox_override("normal", craft_sb)
+	var craft_hover_sb = craft_sb.duplicate()
+	craft_hover_sb.bg_color = Color(GREEN.r, GREEN.g, GREEN.b, 0.2)
+	craft_button.add_theme_stylebox_override("hover", craft_hover_sb)
+	var craft_disabled_sb = craft_sb.duplicate()
+	craft_disabled_sb.bg_color = INSET
+	craft_disabled_sb.border_color = BORDER
+	craft_button.add_theme_stylebox_override("disabled", craft_disabled_sb)
+	craft_button.add_theme_color_override("font_color", GREEN)
+	craft_button.add_theme_color_override("font_hover_color", GREEN)
+	craft_button.add_theme_color_override("font_disabled_color", MUTED)
+	hbox.add_child(craft_button)
+
+	return card
+
+
+# ============================================================
+# STYLE HELPERS
+# ============================================================
+func _make_card_stylebox(color: Color, border_clr: Color = BORDER, radius: int = 8) -> StyleBoxFlat:
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.border_color = border_clr
+	sb.border_width_left = 1
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.corner_radius_top_left = radius
+	sb.corner_radius_top_right = radius
+	sb.corner_radius_bottom_left = radius
+	sb.corner_radius_bottom_right = radius
+	return sb
+
+
+func _wrap_margin(child: Control, l: int, r: int, t: int, b: int) -> MarginContainer:
+	var m = MarginContainer.new()
+	m.add_theme_constant_override("margin_left", l)
+	m.add_theme_constant_override("margin_right", r)
+	m.add_theme_constant_override("margin_top", t)
+	m.add_theme_constant_override("margin_bottom", b)
+	m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	m.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	m.add_child(child)
+	return m
+
+
+func _make_chip(text: String, active: bool) -> Button:
+	var btn = Button.new()
+	btn.text = text
+	btn.custom_minimum_size = Vector2(0, 28)
+	btn.add_theme_font_size_override("font_size", 13)
+	_style_chip(btn, active)
+	return btn
+
+
+func _style_chip(btn: Button, active: bool) -> void:
+	var sb = StyleBoxFlat.new()
+	sb.set_corner_radius_all(14)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 4
+	sb.content_margin_bottom = 4
+	if active:
+		sb.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.08)
+		sb.border_color = ACCENT
+	else:
+		sb.bg_color = CARD
+		sb.border_color = BORDER
+	sb.set_border_width_all(1)
+	btn.add_theme_stylebox_override("normal", sb)
+	var hover = sb.duplicate()
+	hover.bg_color = HOVER
+	btn.add_theme_stylebox_override("hover", hover)
+	var pressed = sb.duplicate()
+	pressed.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.15) if active else HOVER
+	btn.add_theme_stylebox_override("pressed", pressed)
+	btn.add_theme_stylebox_override("focus", sb)
+	btn.add_theme_color_override("font_color", ACCENT if active else MUTED)
+	btn.add_theme_color_override("font_hover_color", ACCENT if active else TEXT)
+	btn.add_theme_color_override("font_pressed_color", ACCENT)
+
+
+# ============================================================
+# ROLE / RECIPES
+# ============================================================
 func _get_active_role() -> String:
-	var role: String = ""
+	var role = ""
 	if "ACTIVE_USER_NAME" in Global and "CHARACTERS_NAME" in Global and "CHARACTERS" in Global:
-		var readable: String = Global.ACTIVE_USER_NAME
+		var readable = Global.ACTIVE_USER_NAME
 		var rec_id = Global.CHARACTERS_NAME.get(readable, null)
 		if rec_id != null and rec_id in Global.CHARACTERS:
 			role = str(Global.CHARACTERS[rec_id].get("Role", ""))
-	_log("[_get_active_role] role='%s'" % role)
 	return role
+
 
 func _build_product_groups() -> void:
 	_grouped_recipes.clear()
-	var active_role: String = _get_active_role()
-	var added: int = 0
-	if "CRAFTING_RECIPES" in Global and Global.CRAFTING_RECIPES is Dictionary:
-		for rec_id in Global.CRAFTING_RECIPES.keys():
-			var r: Dictionary = Global.CRAFTING_RECIPES[rec_id]
-			if str(r.get("Role", "")) != active_role:
-				continue
-			var product: String = str(r.get("Product", ""))
-			if product == "":
-				continue
-			if not _grouped_recipes.has(product):
-				_grouped_recipes[product] = {
-					"meta": {
-						"Product": product,
-						"Region": str(r.get("Region", "")),
-						"Description": str(r.get("Description", "")),
-						"Icon": r.get("Icon", null)
-					},
-					"requirements": []
-				}
-			_grouped_recipes[product]["requirements"].append({
-				"material": str(r.get("Material", "")),
-				"quantity": int(r.get("Quantity", 1))
-			})
-			added += 1
-	_log("[_build_product_groups] grouped_products=%d rows_added=%d" % [_grouped_recipes.size(), added])
-
-# --------------------------
-# Left list (product buttons)
-# --------------------------
-func _build_recipe_buttons() -> void:
-	_resolve_ui_refs()
-	if recipe_list == null:
-		_log("[_build_recipe_buttons] skipped (no RecipeList)")
+	var active_role = _get_active_role()
+	if not ("CRAFTING_RECIPES" in Global) or not (Global.CRAFTING_RECIPES is Dictionary):
 		return
 
-	for c in recipe_list.get_children():
+	# Collect all recipes, grouping variants by product name
+	# Each product can have multiple "variants" (different ways to craft the same thing)
+	# e.g., "2-Star Electric Gem" can be made by upgrading 1-star OR downgrading 3-star
+	var variant_map = {}  # product -> [variant1, variant2, ...]
+
+	for rec_id in Global.CRAFTING_RECIPES.keys():
+		var r = Global.CRAFTING_RECIPES[rec_id]
+		if str(r.get("Role", "")) != active_role:
+			continue
+		var product = str(r.get("Product", ""))
+		if product == "":
+			continue
+
+		var variant = {
+			"material": str(r.get("Material", "")),
+			"quantity": int(r.get("Quantity", 1)),
+			"output_quantity": int(r.get("Output_Quantity", 1)),
+			"description": str(r.get("Description", "")),
+			"recipe_id": rec_id,
+		}
+
+		if not variant_map.has(product):
+			variant_map[product] = {
+				"meta": {
+					"Product": product,
+					"Region": str(r.get("Region", "")),
+					"Description": str(r.get("Description", "")),
+					"Icon": r.get("Icon", null)
+				},
+				"variants": [],
+				"requirements": [],  # kept for backward compat — uses active variant
+			}
+		variant_map[product]["variants"].append(variant)
+
+	# Build _grouped_recipes — default to first variant's requirements
+	for product in variant_map:
+		var entry = variant_map[product]
+		if entry["variants"].size() > 0:
+			var first = entry["variants"][0]
+			entry["requirements"] = [{
+				"material": first["material"],
+				"quantity": first["quantity"],
+			}]
+			entry["meta"]["output_quantity"] = first.get("output_quantity", 1)
+		_grouped_recipes[product] = entry
+
+
+# ============================================================
+# PARTY TARGETS
+# ============================================================
+func _populate_party_targets() -> void:
+	target_select.clear()
+	# Add self first
+	var active_name = Global.ACTIVE_USER_NAME
+	target_select.add_item(active_name + " (me)")
+	target_select.set_item_metadata(0, active_name)
+	# Add all other party members
+	var idx = 0
+	for player_name in Global.PartyCharacters:
+		if player_name == active_name:
+			continue
+		idx += 1
+		target_select.add_item(player_name)
+		target_select.set_item_metadata(idx, player_name)
+	if target_select.item_count > 0:
+		target_select.select(0)
+
+
+# ============================================================
+# LEFT LIST — recipe cards
+# ============================================================
+func _build_recipe_cards() -> void:
+	for c in recipe_list_container.get_children():
 		if c != null:
 			c.queue_free()
+	_recipe_cards.clear()
 
-	_visible_products = _filter_products(search.text if search != null else "")
-	_visible_products.sort_custom(func(a, b): return a < b)
+	_visible_products = _filter_products(search_input.text if search_input != null else "")
+	_visible_products.sort()
 
 	for product in _visible_products:
-		var btn := Button.new()
-		btn.text = product
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.pressed.connect(_on_product_pressed.bind(product))
-		btn.custom_minimum_size = Vector2(475,75)
-		btn.autowrap_mode = 2
-		recipe_list.add_child(btn)
+		var card = _create_recipe_card(product)
+		recipe_list_container.add_child(card)
+		_recipe_cards.append(card)
 
-	_log("[_build_recipe_buttons] built_buttons=%d (visible_products=%d)" % [recipe_list.get_child_count(), _visible_products.size()])
 
-# Replace your existing _filter_products with this (Godot 4.4.1)
+func _create_recipe_card(product: String) -> PanelContainer:
+	var can_craft = _can_craft_product(product)
+
+	var card = PanelContainer.new()
+	card.custom_minimum_size = Vector2(0, 56)
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	# Style with left accent border
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = CARD
+	sb.border_color = BORDER
+	sb.border_width_left = 3
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.corner_radius_top_left = 6
+	sb.corner_radius_top_right = 6
+	sb.corner_radius_bottom_left = 6
+	sb.corner_radius_bottom_right = 6
+	sb.content_margin_left = 12
+	sb.content_margin_right = 10
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	# Left border color = green if craftable, red if not
+	sb.border_color = BORDER
+	if can_craft:
+		sb.border_width_left = 3
+		sb.set_border_width(SIDE_LEFT, 3)
+		# We use a separate approach: draw the left border with the accent color
+		var left_color = GREEN
+		sb.border_color = BORDER
+		# StyleBoxFlat only supports one border color, so we handle it differently
+		# We'll just tint the whole border based on status
+		sb.border_color = GREEN if can_craft else RED
+	else:
+		sb.border_color = RED
+
+	card.add_theme_stylebox_override("panel", sb)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	card.add_child(vbox)
+
+	# Product name
+	var name_label = Label.new()
+	name_label.text = product
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color", TEXT if can_craft else MUTED)
+	name_label.clip_text = true
+	vbox.add_child(name_label)
+
+	# Region + availability
+	var meta = _grouped_recipes[product]["meta"]
+	var region_text = str(meta.get("Region", ""))
+	var bottom_hbox = HBoxContainer.new()
+	bottom_hbox.add_theme_constant_override("separation", 8)
+	vbox.add_child(bottom_hbox)
+
+	if region_text != "":
+		var region_lbl = Label.new()
+		region_lbl.text = region_text
+		region_lbl.add_theme_font_size_override("font_size", 14)
+		region_lbl.add_theme_color_override("font_color", MUTED)
+		bottom_hbox.add_child(region_lbl)
+
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_hbox.add_child(spacer)
+
+	var status_lbl = Label.new()
+	if can_craft:
+		status_lbl.text = "Can craft"
+		status_lbl.add_theme_color_override("font_color", GREEN)
+	else:
+		status_lbl.text = "Missing materials"
+		status_lbl.add_theme_color_override("font_color", RED)
+	status_lbl.add_theme_font_size_override("font_size", 14)
+	bottom_hbox.add_child(status_lbl)
+
+	# Click handler
+	card.gui_input.connect(_on_recipe_card_input.bind(product, card))
+
+	return card
+
+
+func _on_recipe_card_input(event: InputEvent, product: String, card: PanelContainer) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_select_product(product)
+
+
+func _select_product(product: String) -> void:
+	_selected_product = product
+
+	# Update card selection visuals
+	var idx = 0
+	for p in _visible_products:
+		if idx < _recipe_cards.size():
+			var card = _recipe_cards[idx]
+			var is_selected = (p == product)
+			var can_craft = _can_craft_product(p)
+			var sb = StyleBoxFlat.new()
+			sb.bg_color = HOVER if is_selected else CARD
+			sb.border_color = ACCENT if is_selected else (GREEN if can_craft else RED)
+			sb.border_width_left = 3
+			sb.border_width_right = 1 if not is_selected else 2
+			sb.border_width_top = 1 if not is_selected else 2
+			sb.border_width_bottom = 1 if not is_selected else 2
+			sb.corner_radius_top_left = 6
+			sb.corner_radius_top_right = 6
+			sb.corner_radius_bottom_left = 6
+			sb.corner_radius_bottom_right = 6
+			sb.content_margin_left = 12
+			sb.content_margin_right = 10
+			sb.content_margin_top = 8
+			sb.content_margin_bottom = 8
+			card.add_theme_stylebox_override("panel", sb)
+		idx += 1
+
+	_assign_icon(product)
+	_update_preview(product)
+	_build_ingredient_rows(product)
+	_refresh_confirm_enabled()
+	_log("Selected: %s" % product)
+
+
+func _can_craft_product(product: String) -> bool:
+	if not _grouped_recipes.has(product):
+		return false
+	var variants = _grouped_recipes[product].get("variants", [])
+	if variants.is_empty():
+		# Fallback to requirements check
+		return _check_requirements(_grouped_recipes[product].get("requirements", []))
+	# Craftable if ANY variant can be satisfied
+	for variant in variants:
+		var reqs = [{"material": variant.get("material", ""), "quantity": variant.get("quantity", 1)}]
+		if _check_requirements(reqs):
+			return true
+	return false
+
+
+func _check_requirements(reqs: Array) -> bool:
+	for req in reqs:
+		var material = str(req.get("material", ""))
+		var needed = int(req.get("quantity", 1))
+		var matches = _find_inventory_matches(material)
+		var total_have = 0
+		for m in matches:
+			total_have += _to_int(m.get("Quantity", 0))
+		if total_have < needed:
+			return false
+	return true
+
 
 func _filter_products(query: String) -> Array[String]:
 	var out: Array[String] = []
-	var seen: Dictionary = {}
+	var seen = {}
+	var q = query.strip_edges()
 
-	var q: String = query.strip_edges()
 	if q == "":
+		# No search — include all products
 		for k in _grouped_recipes.keys():
 			var s = str(k)
 			if not seen.has(s):
 				seen[s] = true
 				out.append(s)
-		out.sort()
-		return out
+	else:
+		# Search filter — match by name, region, description
+		var ql = q.to_lower()
+		for p in _grouped_recipes.keys():
+			var product_str = str(p)
+			var entry = _grouped_recipes[p]
+			var meta = entry.get("meta", {})
+			var meta_product = str(meta.get("Product", ""))
+			var meta_region = str(meta.get("Region", ""))
+			var meta_desc = str(meta.get("Description", ""))
 
-	var ql: String = q.to_lower()
+			var matched = false
+			if meta_product.to_lower().find(ql) != -1:
+				matched = true
+			elif meta_region.to_lower().find(ql) != -1:
+				matched = true
+			elif meta_desc.to_lower().find(ql) != -1:
+				matched = true
 
-	for p in _grouped_recipes.keys():
-		var product_key_str: String = str(p)  # what we'll return
-		var entry: Dictionary = _grouped_recipes[p]
-		var meta: Dictionary = {}
-		if entry.has("meta"):
-			meta = entry["meta"]
-
-		var meta_product: String = _meta_pick_str(meta, ["Product", "product"])
-		var meta_region: String = _meta_pick_str(meta, ["Region", "region"])
-		var meta_desc:   String = _meta_pick_str(meta, ["Description", "description"])
-
-		# Match if any meta field contains the query (case-insensitive)
-		var mtch: bool = false
-		if meta_product.to_lower().find(ql) != -1:
-			mtch = true
-		elif meta_region.to_lower().find(ql) != -1:
-			mtch = true
-		elif meta_desc.to_lower().find(ql) != -1:
-			mtch = true
-
-		if mtch:
-			if not seen.has(product_key_str):
-				seen[product_key_str] = true
-				out.append(product_key_str)
+			if matched and not seen.has(product_str):
+				seen[product_str] = true
+				out.append(product_str)
 
 	out.sort()
+
+	# Apply craftable/missing filter (runs for both search and no-search)
+	if _craft_filter == "craftable":
+		var filtered: Array[String] = []
+		for p in out:
+			if _can_craft_product(p):
+				filtered.append(p)
+		return filtered
+	elif _craft_filter == "missing":
+		var filtered: Array[String] = []
+		for p in out:
+			if not _can_craft_product(p):
+				filtered.append(p)
+		return filtered
+
 	return out
 
 
-# Helper: return first present field from "meta" as string, else ""
-func _meta_pick_str(meta: Dictionary, keys: Array) -> String:
-	for k in keys:
-		if meta.has(k):
-			return str(meta[k])
-	return ""
+func _on_filter_pressed(filter_name: String) -> void:
+	print("[CraftingMenu] Filter changed to: %s" % filter_name)
+	_craft_filter = filter_name
+	_refresh_recipe_list()
+
+
+func _refresh_recipe_list() -> void:
+	# Update chip styles
+	var chip_labels = ["all", "craftable", "missing"]
+	for i in _filter_chips.size():
+		var active = chip_labels[i] == _craft_filter
+		_style_chip(_filter_chips[i], active)
+	_build_recipe_cards()
 
 
 func _on_search_changed(_t: String) -> void:
-	_build_recipe_buttons()
-	_log("[_on_search_changed] rebuilt list")
+	_build_recipe_cards()
 
-func _on_product_pressed(product: String) -> void:
-	_selected_product = product
-	_assign_icon(_selected_product)
-	update_preview(product)
-	_build_ingredient_rows(product)
-	_refresh_confirm_enabled()
-	_log("[_on_product_pressed] product='%s' selected" % product)
 
-# --------------------------
-# Top preview
-# --------------------------
-# --- ARTISAN: look up in Global.Items by value["Item"] == selected product ---
+# ============================================================
+# PRODUCT PREVIEW (top right)
+# ============================================================
+func _update_preview(product: String) -> void:
+	var role = _get_active_role()
+	if role == "Blacksmith":
+		_populate_blacksmith_preview(product)
+	else:
+		_populate_artisan_preview(product)
+
+
 func _populate_artisan_preview(selected_item) -> void:
-	var name: String = str(selected_item)
-	var row: Dictionary = _lookup_items_by_item_field(name)
-
+	var name_str = str(selected_item)
+	var row = _lookup_items_by_item_field(name_str)
 	if row.is_empty():
-		_set_text(product_label, name)
-		_set_text(region_label, "")
-		_set_text(desc, "Details not found")
+		product_name_label.text = name_str
+		product_meta_label.text = ""
+		product_desc_label.text = ""
 		return
+	product_name_label.text = str(row.get("Item", name_str))
+	var type_str = str(row.get("Type", ""))
+	var rarity = str(row.get("Rarity", ""))
+	var region = str(row.get("Region", ""))
+	var parts = []
+	if type_str != "":
+		parts.append(type_str)
+	if rarity != "":
+		parts.append(rarity)
+	if region != "":
+		parts.append(region)
+	product_meta_label.text = " · ".join(parts)
+	product_desc_label.text = str(row.get("Description", row.get("Notes", "")))
 
-	# Map your three labels
-	_set_text(product_label, str(row.get("Item", name)))
-	_set_text(region_label,  str(row.get("Region", row.get("Type", ""))))
-	_set_text(desc,          str(row.get("Description", row.get("Notes", ""))))
 
-# Strictly search Global.Items where row["Item"] matches the given name (case-insensitive).
-func _lookup_items_by_item_field(name: String) -> Dictionary:
+func _lookup_items_by_item_field(item_name: String) -> Dictionary:
 	var items = Global.ITEMS
 	if typeof(items) != TYPE_DICTIONARY or items.is_empty():
 		return {}
-
-	var key: String = name.strip_edges()
-	var key_lc: String = key.to_lower()
-
-	# 1) If your Items uses the display name as a direct key, allow that too.
+	var key = item_name.strip_edges()
+	var key_lc = key.to_lower()
 	if items.has(key):
-		var direct_row = items[key]
-		if typeof(direct_row) == TYPE_DICTIONARY:
-			return direct_row
-
-	# 2) Primary: match by the "Item" field (case-insensitive)
+		var direct = items[key]
+		if typeof(direct) == TYPE_DICTIONARY:
+			return direct
 	for rid in items.keys():
 		var row = items[rid]
 		if typeof(row) != TYPE_DICTIONARY:
 			continue
-		var item_field: String = str(row.get("Item", "")).strip_edges().to_lower()
+		var item_field = str(row.get("Item", "")).strip_edges().to_lower()
 		if item_field != "" and item_field == key_lc:
 			return row
-
-	# 3) Optional minor fallbacks (uncomment if helpful):
-	# for rid in items.keys():
-	#     var row2 = items[rid]
-	#     var alt: String = str(row2.get("Name", row2.get("Product", ""))).strip_edges().to_lower()
-	#     if alt != "" and alt == key_lc:
-	#         return row2
-
 	return {}
 
-# ---------------- Blacksmith path ----------------
+
 func _populate_blacksmith_preview(selected_item) -> void:
-	var weapon: Dictionary = _lookup_weapon(selected_item)
-
+	var weapon = _lookup_weapon(selected_item)
 	if weapon.is_empty():
-		_clear_preview("Weapon not found: %s" % str(selected_item))
+		product_name_label.text = str(selected_item)
+		product_meta_label.text = ""
+		product_desc_label.text = "Weapon not found"
 		return
+	product_name_label.text = str(weapon.get("Name", ""))
+	var w_type = str(weapon.get("WeaponType", weapon.get("Type", "")))
+	var rarity = str(weapon.get("Rarity", weapon.get("Stars", "")))
+	var region = str(weapon.get("Region", ""))
+	var parts = []
+	if w_type != "":
+		parts.append(w_type)
+	if rarity != "":
+		parts.append(rarity)
+	if region != "":
+		parts.append(region)
+	product_meta_label.text = " · ".join(parts)
+	product_desc_label.text = _format_weapon_desc(weapon)
 
-	# ProductLabel → Name
-	_set_text(product_label, str(weapon.get("Name", "")))
 
-	# RegionLabel → "WeaponType · Rarity★" (if available)
-	var w_type: String = str(weapon.get("WeaponType", weapon.get("Type", "")))
-	var rarity: String = str(weapon.get("Rarity", weapon.get("Stars", "")))
-	var type_line: String = w_type if rarity == "" else "%s · %s" % [w_type, rarity]
-	_set_text(region_label, type_line)
-
-	# Desc → compact stat/effect block
-	_set_text(desc, _format_weapon_desc(weapon))
-
-# Resolve a STRING selection to a weapon dictionary in Global.Weapons.
-# Handles: direct key match, case-insensitive Name match, and a couple alt name fields.
 func _lookup_weapon(selection) -> Dictionary:
-
-
-	# 1) If selection is a direct key in Global.Weapons (ID or name-as-key)
 	if typeof(selection) == TYPE_STRING:
-		var key: String = selection.strip_edges()
+		var key = selection.strip_edges()
 		if Global.WEAPONS.has(key):
 			return Global.WEAPONS[key]
-
-		# 2) Search by Name (case-insensitive)
-		var key_lc: String = key.to_lower()
+		var key_lc = key.to_lower()
 		for id in Global.WEAPONS.keys():
-			var w: Dictionary = Global.WEAPONS[id]
-			var nm: String = str(w.get("Name", "")).to_lower()
+			var w = Global.WEAPONS[id]
+			var nm = str(w.get("Name", "")).to_lower()
 			if nm == key_lc:
 				return w
-
-		# 3) Try common alternate fields used as display names
 		for id in Global.WEAPONS.keys():
-			var w2: Dictionary = Global.WEAPONS[id]
-			var alt: String = str(w2.get("WeaponName", w2.get("Product", ""))).to_lower()
+			var w2 = Global.WEAPONS[id]
+			var alt = str(w2.get("WeaponName", w2.get("Product", ""))).to_lower()
 			if alt != "" and alt == key_lc:
 				return w2
-
 		return {}
-
-	# If someone passes a dict later, be forgiving:
 	if typeof(selection) == TYPE_DICTIONARY:
 		if selection.has("WeaponId"):
 			var wid = selection["WeaponId"]
@@ -442,193 +1010,278 @@ func _lookup_weapon(selection) -> Dictionary:
 				return Global.WEAPONS[wid]
 		if selection.has("Name"):
 			return _lookup_weapon(selection["Name"])
-
-	# Numeric IDs as a last-ditch
-	var id_str: String = str(selection)
+	var id_str = str(selection)
 	if Global.WEAPONS.has(id_str):
 		return Global.WEAPONS[id_str]
-
 	return {}
 
+
 func _format_weapon_desc(w: Dictionary) -> String:
-	var lines: Array[String] = []
-
+	var lines = []
 	if w.has("Stat_3_Type") and w.get("Stat_3_Type") != null:
-		lines.append(w.get("Stat_1_Type")+": "+str(w.get("Stat_1_Value")))
-		lines.append(w.get("Stat_2_Type")+": "+str(w.get("Stat_2_Value")))
-		lines.append(w.get("Stat_3_Type")+": "+str(w.get("Stat_3_Value")))
+		lines.append(str(w.get("Stat_1_Type", "")) + ": " + str(w.get("Stat_1_Value", "")))
+		lines.append(str(w.get("Stat_2_Type", "")) + ": " + str(w.get("Stat_2_Value", "")))
+		lines.append(str(w.get("Stat_3_Type", "")) + ": " + str(w.get("Stat_3_Value", "")))
 	elif w.has("Stat_2_Type") and w.get("Stat_2_Type") != null:
-		lines.append(w.get("Stat_1_Type")+": "+str(w.get("Stat_1_Value")))
-		lines.append(w.get("Stat_2_Type")+": "+str(w.get("Stat_2_Value")))
+		lines.append(str(w.get("Stat_1_Type", "")) + ": " + str(w.get("Stat_1_Value", "")))
+		lines.append(str(w.get("Stat_2_Type", "")) + ": " + str(w.get("Stat_2_Value", "")))
 	else:
-		lines.append(w.get("Stat_1_Type")+": "+str(w.get("Stat_1_Value")))
-
-	var effect_text: String = str(w.get("Effect", w.get("Passive", "")))
+		lines.append(str(w.get("Stat_1_Type", "")) + ": " + str(w.get("Stat_1_Value", "")))
+	var effect_text = str(w.get("Effect", w.get("Passive", "")))
 	if effect_text != "" and effect_text != "<null>":
 		lines.append("")
 		lines.append(effect_text)
-
 	return "\n".join(lines)
 
-# ------- Helpers -------
-func _set_text(node: Node, value: String) -> void:
-	if node == null:
-		return
-	if node is RichTextLabel:
-		(node as RichTextLabel).text = value
-	elif node is Label:
-		(node as Label).text = value
 
-func _clear_preview(reason: String = "") -> void:
-	_set_text(product_label, "")
-	_set_text(region_label, "")
-	_set_text(desc, reason)
+# ============================================================
+# ICON
+# ============================================================
+func _assign_icon(item) -> void:
+	var hyphen_name = str(item).to_lower().replace(" ", "-")
+	if _get_active_role() == "Artisan":
+		product_icon.texture = load("res://UI/Food Icons/" + hyphen_name + ".png")
+	else:
+		product_icon.texture = load("res://UI/Weapon Icons/" + hyphen_name + ".png")
 
-# --------------------------
-# Ingredients (right side)
-# --------------------------
+
+# ============================================================
+# INGREDIENTS (right side, middle card)
+# ============================================================
+var _active_variant_idx = 0
+
 func _build_ingredient_rows(product: String) -> void:
 	_slot_to_item_id.clear()
 	_inventory_snapshot_before = _snapshot_inventory()
+	_active_variant_idx = 0
 
-	# Hide/reset all rows
-	for i in range(MAX_SLOTS):
-		var row := _get_row(i)
-		if row != null:
-			row.visible = false
-			_set_row_warning(row, false)
-		var hn := _get_have_need(i)
-		if hn != null:
-			hn.text = "0 / 0"
-		var opt := _get_opt(i)
-		if opt != null:
-			opt.clear()
-			for c in opt.get_signal_connection_list("item_selected"):
-				if "callable" in c and c["callable"] is Callable:
-					opt.disconnect("item_selected", c["callable"])
+	# Clear old rows
+	for c in ingredients_container.get_children():
+		if c != null:
+			c.queue_free()
 
-	# Load requirements
-	_slot_requirements = []
-	var reqs: Array = _grouped_recipes[product]["requirements"]
-	var count: int = min(reqs.size(), MAX_SLOTS)
-	for i in range(count):
-		var req: Dictionary = reqs[i]
-		_slot_requirements.append(req)
+	var entry = _grouped_recipes.get(product, {})
+	var variants = entry.get("variants", [])
 
-		var row2 := _get_row(i)
-		if row2 != null:
-			var req_label := _get_req_label(i)
-			if req_label != null:
-				req_label.text = str(req.get("material", "Material"))
-			row2.visible = true
+	# If multiple variants, show a selector dropdown
+	if variants.size() > 1:
+		var variant_row = HBoxContainer.new()
+		variant_row.add_theme_constant_override("separation", 8)
+		ingredients_container.add_child(variant_row)
 
-		var opt2 := _get_opt(i)
-		if opt2 != null:
-			_populate_option_for_requirement(opt2, i, req)
-			if opt2.is_inside_tree():
-				opt2.item_selected.connect(_on_option_selected.bind(i))
+		var variant_label = Label.new()
+		variant_label.text = "Recipe:"
+		variant_label.add_theme_font_size_override("font_size", 14)
+		variant_label.add_theme_color_override("font_color", ACCENT)
+		variant_row.add_child(variant_label)
 
-	_update_have_need_labels()
-	_validate_all_rows()
-	_log("[_build_ingredient_rows] product='%s' slots_built=%d" % [product, _slot_requirements.size()])
-	_log("[_build_ingredient_rows] product='%s' slots=%d auto_selected=%d snapshot=%d"
-	% [_selected_product, _slot_requirements.size(), _slot_to_item_id.size(), _inventory_snapshot_before.size()])
+		var variant_dropdown = OptionButton.new()
+		variant_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		variant_dropdown.add_theme_font_size_override("font_size", 14)
+		for vi in variants.size():
+			var v = variants[vi]
+			var out_qty = int(v.get("output_quantity", 1))
+			var label_text = "%dx %s → %dx %s" % [
+				int(v.get("quantity", 1)), str(v.get("material", "?")),
+				out_qty, product
+			]
+			variant_dropdown.add_item(label_text, vi)
+		variant_dropdown.selected = 0
+		variant_dropdown.item_selected.connect(func(idx):
+			_active_variant_idx = idx
+			_switch_variant(product, idx)
+		)
+
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = INSET
+		sb.border_color = BORDER
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(4)
+		sb.content_margin_left = 8
+		sb.content_margin_right = 8
+		variant_dropdown.add_theme_stylebox_override("normal", sb)
+		variant_dropdown.add_theme_color_override("font_color", TEXT)
+		variant_row.add_child(variant_dropdown)
+
+	# Use the active variant's requirements
+	_apply_variant(product, _active_variant_idx)
 
 
-# Fills one requirement dropdown; calls _format_option_label for visible text
-func _populate_option_for_requirement(opt: OptionButton, slot_idx: int, req: Dictionary) -> void:
-	if opt == null:
-		_log("[_populate_option_for_requirement] skipped (opt null)")
+func _switch_variant(product: String, variant_idx: int) -> void:
+	_active_variant_idx = variant_idx
+	# Remove all children except the variant selector (first child)
+	var children = ingredients_container.get_children()
+	for i in range(children.size() - 1, 0, -1):
+		children[i].queue_free()
+	_apply_variant(product, variant_idx)
+
+
+func _apply_variant(product: String, variant_idx: int) -> void:
+	var entry = _grouped_recipes.get(product, {})
+	var variants = entry.get("variants", [])
+	if variant_idx >= variants.size():
 		return
+
+	var variant = variants[variant_idx]
+	var reqs = [{"material": variant["material"], "quantity": variant["quantity"]}]
+
+	# Update the entry's active requirements and output_quantity
+	entry["requirements"] = reqs
+	entry["meta"]["output_quantity"] = variant.get("output_quantity", 1)
+
+	_slot_requirements = []
+	for i in range(reqs.size()):
+		var req = reqs[i]
+		_slot_requirements.append(req)
+		var slot_panel = _create_ingredient_slot(i, req)
+		ingredients_container.add_child(slot_panel)
+
+	_validate_all_slots()
+	_refresh_confirm_enabled()
+
+
+func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
+	var material = str(req.get("material", "Material"))
+	var need_per = int(req.get("quantity", 1))
+	var need_total = need_per * int(qty_spin.value)
+
+	var matches = _find_inventory_matches(material)
+	var best_have = 0
+	for m in matches:
+		var h = _to_int(m.get("Quantity", 0))
+		if h > best_have:
+			best_have = h
+	var satisfied = (best_have >= need_total)
+
+	# Slot panel
+	var slot = PanelContainer.new()
+	slot.name = "Slot_%d" % slot_idx
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = INSET
+	sb.border_color = GREEN if satisfied else RED
+	sb.border_width_left = 2
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.corner_radius_top_left = 6
+	sb.corner_radius_top_right = 6
+	sb.corner_radius_bottom_left = 6
+	sb.corner_radius_bottom_right = 6
+	sb.content_margin_left = 10
+	sb.content_margin_right = 10
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	slot.add_theme_stylebox_override("panel", sb)
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 10)
+	slot.add_child(hbox)
+
+	# 32x32 icon placeholder
+	var icon_rect = TextureRect.new()
+	icon_rect.custom_minimum_size = Vector2(32, 32)
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Try to load a material icon
+	var mat_hyphen = material.to_lower().replace(" ", "-")
+	var mat_tex = load("res://UI/Food Icons/" + mat_hyphen + ".png")
+	if mat_tex == null:
+		mat_tex = load("res://UI/Weapon Icons/" + mat_hyphen + ".png")
+	if mat_tex != null:
+		icon_rect.texture = mat_tex
+	hbox.add_child(icon_rect)
+
+	# Material name
+	var name_label = Label.new()
+	name_label.text = material
+	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_color_override("font_color", TEXT)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.clip_text = true
+	hbox.add_child(name_label)
+
+	# Dropdown
+	var opt = OptionButton.new()
+	opt.name = "Opt_%d" % slot_idx
+	opt.custom_minimum_size.x = 220
+	opt.add_theme_font_size_override("font_size", 14)
+	opt.clip_text = true
+	hbox.add_child(opt)
+
+	_populate_option_for_requirement(opt, slot_idx, req)
+	opt.item_selected.connect(_on_option_selected.bind(slot_idx))
+
+	# Have/Need label
+	var hn_label = Label.new()
+	hn_label.name = "HaveNeed_%d" % slot_idx
+	hn_label.add_theme_font_size_override("font_size", 14)
+	hn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hn_label.custom_minimum_size.x = 70
+
+	# Calculate have based on current selection
+	var have = 0
+	if opt.selected > 0:
+		var sel_meta = opt.get_selected_metadata()
+		var sel_item = _get_inventory_item_by_id(sel_meta)
+		if sel_item.size() > 0:
+			have = _to_int(sel_item.get("Quantity", 0))
+
+	hn_label.text = "%d / %d" % [have, need_total]
+	hn_label.add_theme_color_override("font_color", GREEN if have >= need_total else RED)
+	hbox.add_child(hn_label)
+
+	return slot
+
+
+func _populate_option_for_requirement(opt: OptionButton, slot_idx: int, req: Dictionary) -> void:
 	opt.clear()
+	var material = str(req.get("material", ""))
+	var matches = _find_inventory_matches(material)
+	var need_per = int(req.get("quantity", 1))
+	var need_total = need_per * int(qty_spin.value)
 
-	var material: String = str(req.get("material", ""))
-	var matches: Array = _find_inventory_matches(material)
-
-	opt.add_item("— Select —")
+	opt.add_item("-- Select --")
 	opt.set_item_metadata(0, null)
 
-	var need_per: int = int(req.get("quantity", 1))
-	var need_total: int = need_per * int(qty_spin.value if qty_spin != null else 1)
-
-	var exact_idx := -1
+	var exact_idx = -1
 	for item in matches:
-		var label := _format_option_label(item, need_total)
-		var icon = item.get("Icon", null)
-
-		var idx: int
-		if icon is Texture2D:
-			idx = opt.item_count
-			opt.add_icon_item(icon, label)
-		else:
-			idx = opt.item_count
-			opt.add_item(label)
-
+		var label = _format_option_label(item, need_total)
+		var idx = opt.item_count
+		opt.add_item(label)
 		opt.set_item_metadata(idx, item.get("Id", null))
 
-		var tip := "Name: %s\nType: %s\nHave: %d\nNeed: %d" % [
-			str(item.get("Name","")),
-			str(item.get("Type","")),
-			_to_int(item.get("Quantity",0)),
+		var tip = "Name: %s\nType: %s\nHave: %d\nNeed: %d" % [
+			str(item.get("Name", "")),
+			str(item.get("Type", "")),
+			_to_int(item.get("Quantity", 0)),
 			need_total
 		]
 		opt.set_item_tooltip(idx, tip)
 
-		if str(item.get("Name","")).to_lower() == material.to_lower():
+		if str(item.get("Name", "")).to_lower() == material.to_lower():
 			exact_idx = idx
 
 	if exact_idx != -1:
 		opt.select(exact_idx)
 		_slot_to_item_id[slot_idx] = opt.get_item_metadata(exact_idx)
-		_log("[_populate_option_for_requirement] slot=%d auto-selected exact name id=%s" % [slot_idx, str(_slot_to_item_id[slot_idx])])
 	elif matches.size() == 1:
 		opt.select(1)
 		_slot_to_item_id[slot_idx] = matches[0].get("Id", null)
-		_log("[_populate_option_for_requirement] slot=%d auto-selected single match id=%s" % [slot_idx, str(_slot_to_item_id[slot_idx])])
 	else:
 		opt.select(0)
-		_log("[_populate_option_for_requirement] slot=%d no auto-select (matches=%d)" % [slot_idx, matches.size()])
-
-	# NEW: make the right label match the currently selected option (or 0/need if none selected)
-	_update_have_need_for_slot(slot_idx, need_total)
-	# Right label uses the same numbers as the dropdown
-	var selected_have := 0
-	if opt.selected > 0:
-		var sel_meta = opt.get_selected_metadata()
-		var sel_item := _get_inventory_item_by_id(sel_meta)
-		if sel_item.size() > 0:
-			selected_have = _to_int(sel_item.get("Quantity", 0))
-	var hn := _get_have_need(slot_idx)
-	if hn != null:
-		hn.text = "%d / %d" % [selected_have, need_total]
 
 
-func _update_have_need_for_slot(slot_idx: int, need_total: int) -> void:
-	var have := 0
-	var opt := _get_opt(slot_idx)
-	if opt != null and opt.selected > 0:
-		var meta = opt.get_selected_metadata()
-		var item := _get_inventory_item_by_id(meta)
-		if item.size() > 0:
-			have = _to_int(item.get("Quantity", 0))
-	var hn := _get_have_need(slot_idx)
-	if hn != null:
-		hn.text = "%d / %d" % [have, need_total]
-
-
-# Shows exactly which item is being offered in the dropdown.
-# Example: "Water 1-Star Gem — (x12 have; need 6)" or with type: "Sea Ganoderma [Plant] — (x4 have; need 2)"
 func _format_option_label(item: Dictionary, need_total: int) -> String:
-	var name_str := str(item.get("Name", "Unknown"))
-	var type_str := str(item.get("Type", "")).strip_edges()
-	var have := _to_int(item.get("Quantity", 0))
-
-	# If Type is useful to distinguish items with same name, include it in brackets.
-	var head := name_str if type_str == "" else "%s [%s]" % [name_str, type_str]
+	var name_str = str(item.get("Name", "Unknown"))
+	var type_str = str(item.get("Type", "")).strip_edges()
+	var have = _to_int(item.get("Quantity", 0))
+	var head = name_str if type_str == "" else "%s [%s]" % [name_str, type_str]
 	return "%s — (x%d have; need %d)" % [head, have, need_total]
 
+
 func _on_option_selected(_index: int, slot_idx: int) -> void:
-	var opt := _get_opt(slot_idx)
+	var opt = _get_slot_option(slot_idx)
 	if opt == null:
 		return
 	var meta = opt.get_selected_metadata()
@@ -637,104 +1290,77 @@ func _on_option_selected(_index: int, slot_idx: int) -> void:
 	else:
 		_slot_to_item_id[slot_idx] = meta
 
-	# Same vars as dropdown: have & need_total
-	var have := 0
+	# Update have/need label
+	var have = 0
 	if opt.selected > 0:
-		var item := _get_inventory_item_by_id(meta)
+		var item = _get_inventory_item_by_id(meta)
 		if item.size() > 0:
 			have = _to_int(item.get("Quantity", 0))
 
-	var need_per := int(_slot_requirements[slot_idx].get("quantity", 1))
-	var need_total := need_per * int(qty_spin.value if qty_spin != null else 1)
-	var hn := _get_have_need(slot_idx)
+	var need_per = int(_slot_requirements[slot_idx].get("quantity", 1))
+	var need_total = need_per * int(qty_spin.value)
+	var hn = _get_slot_have_need(slot_idx)
 	if hn != null:
 		hn.text = "%d / %d" % [have, need_total]
+		hn.add_theme_color_override("font_color", GREEN if have >= need_total else RED)
 
-	# keep your existing behavior
-	_validate_all_rows()
+	_update_slot_border(slot_idx)
 	_refresh_confirm_enabled()
-	_log("[_on_option_selected] slot=%d item_id=%s" % [slot_idx, str(meta)])
+
 
 func _on_qty_changed(_v: float) -> void:
-	for i in range(_slot_requirements.size()):
-		var opt := _get_opt(i)
-		if opt == null: 
-			continue
-
-		var have := 0
-		if opt.selected > 0:
-			var meta = opt.get_selected_metadata()
-			var item := _get_inventory_item_by_id(meta)
-			if item.size() > 0:
-				have = _to_int(item.get("Quantity", 0))
-
-		var need_per := int(_slot_requirements[i].get("quantity", 1))
-		var need_total := need_per * int(qty_spin.value if qty_spin != null else 1)
-
-		var hn := _get_have_need(i)
-		if hn != null:
-			hn.text = "%d / %d" % [have, need_total]
-
-		# (optional) also refresh dropdown item texts so "...need N" changes visibly
-		var opt_btn := opt
-		for idx in range(1, opt_btn.item_count):
-			var id_meta = opt_btn.get_item_metadata(idx)
-			var it = _get_inventory_item_by_id(id_meta)
-			if it.size() > 0:
-				opt_btn.set_item_text(idx, _format_option_label(it, need_total))
-
-	_validate_all_rows()
-	_refresh_confirm_enabled()
-
-
-func _update_have_need_labels() -> void:
-	for i in range(_slot_requirements.size()):
-		var opt := _get_opt(i)
-		if opt == null:
-			continue
-		var need_per2: int = int(_slot_requirements[i].get("quantity", 1))
-		var need_total2: int = need_per2 * int(qty_spin.value if qty_spin != null else 1)
-		for idx in range(1, opt.item_count):
-			var id_meta = opt.get_item_metadata(idx)
-			var item = _get_inventory_item_by_id(id_meta)
-			if item.size() > 0:
-				opt.set_item_text(idx, _format_option_label(item, need_total2))
-
-	# Refresh dropdown item texts to reflect current "need"
-	for i in range(_slot_requirements.size()):
-		var opt := _get_opt(i)
-		if opt == null:
-			continue
-		var need_per2: int = int(_slot_requirements[i].get("quantity", 1))
-		var need_total2: int = need_per2 * int(qty_spin.value if qty_spin != null else 1)
-		for idx in range(1, opt.item_count):
-			var id_meta = opt.get_item_metadata(idx)
-			var item = _get_inventory_item_by_id(id_meta)
-			if item.size() > 0:
-				opt.set_item_text(idx, _format_option_label(item, need_total2))
-	_log("[_update_have_need_labels] updated %d rows" % _slot_requirements.size())
-
-func _validate_all_rows() -> void:
-	var warnings: int = 0
-	for i in range(_slot_requirements.size()):
-		var row := _get_row(i)
-		if row == null:
-			continue
-		var enough: bool = _has_enough_for_slot(i)
-		_set_row_warning(row, not enough)
-		if not enough:
-			warnings += 1
-	_log("[_validate_all_rows] checked=%d warnings=%d" % [_slot_requirements.size(), warnings])
-
-func _set_row_warning(row: HBoxContainer, warn: bool) -> void:
-	if row == null:
-		_log("[_set_row_warning] skipped (row null)")
+	if _selected_product == "":
 		return
-	row.modulate = Color(0.8, 0.3, 0.3, 1.0) if warn else Color(1, 1, 1, 1)
-	_log("[_set_row_warning] warn=%s" % str(warn))
+	# Rebuild ingredient rows to reflect new quantities
+	_build_ingredient_rows(_selected_product)
+
+
+func _validate_all_slots() -> void:
+	for i in range(_slot_requirements.size()):
+		_update_slot_border(i)
+
+
+func _update_slot_border(slot_idx: int) -> void:
+	if slot_idx >= ingredients_container.get_child_count():
+		return
+	var slot_panel = ingredients_container.get_child(slot_idx)
+	if slot_panel == null or not (slot_panel is PanelContainer):
+		return
+	var enough = _has_enough_for_slot(slot_idx)
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = INSET
+	sb.border_color = GREEN if enough else RED
+	sb.border_width_left = 2
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.corner_radius_top_left = 6
+	sb.corner_radius_top_right = 6
+	sb.corner_radius_bottom_left = 6
+	sb.corner_radius_bottom_right = 6
+	sb.content_margin_left = 10
+	sb.content_margin_right = 10
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	slot_panel.add_theme_stylebox_override("panel", sb)
+
+
+func _get_slot_option(slot_idx: int) -> OptionButton:
+	if slot_idx >= ingredients_container.get_child_count():
+		return null
+	var slot_panel = ingredients_container.get_child(slot_idx)
+	return slot_panel.find_child("Opt_%d" % slot_idx, true, false) as OptionButton
+
+
+func _get_slot_have_need(slot_idx: int) -> Label:
+	if slot_idx >= ingredients_container.get_child_count():
+		return null
+	var slot_panel = ingredients_container.get_child(slot_idx)
+	return slot_panel.find_child("HaveNeed_%d" % slot_idx, true, false) as Label
+
 
 func _refresh_confirm_enabled() -> void:
-	var ok: bool = true
+	var ok = true
 	if _selected_product == "":
 		ok = false
 	if target_select == null or target_select.selected < 0:
@@ -743,61 +1369,52 @@ func _refresh_confirm_enabled() -> void:
 		if not _slot_to_item_id.has(i) or not _has_enough_for_slot(i):
 			ok = false
 			break
-	if confirm_btn != null:
-		confirm_btn.disabled = not ok
-	_log("[_refresh_confirm_enabled] enabled=%s" % str(ok))
+	craft_button.disabled = not ok
 
-# --------------------------
-# Inventory / Matching
-# --------------------------
+
+# ============================================================
+# INVENTORY / MATCHING
+# ============================================================
 func _has_enough_for_slot(slot_idx: int) -> bool:
-	var need_per: int = int(_slot_requirements[slot_idx].get("quantity", 1))
-	var qty_total: int = need_per * int(qty_spin.value if qty_spin != null else 1)
-	var have: int = _get_selected_item_quantity(slot_idx)
-	var enough: bool = have >= qty_total
-	_log("[_has_enough_for_slot] slot=%d have=%d need=%d -> %s" % [slot_idx, have, qty_total, str(enough)])
-	return enough
+	var need_per = int(_slot_requirements[slot_idx].get("quantity", 1))
+	var qty_total = need_per * int(qty_spin.value)
+	var have = _get_selected_item_quantity(slot_idx)
+	return have >= qty_total
+
 
 func _get_selected_item_quantity(slot_idx: int) -> int:
 	if not _slot_to_item_id.has(slot_idx):
-		_log("[_get_selected_item_quantity] slot=%d no selection" % slot_idx)
 		return 0
 	var item = _get_inventory_item_by_id(_slot_to_item_id[slot_idx])
 	if item.size() == 0:
-		_log("[_get_selected_item_quantity] slot=%d item missing" % slot_idx)
 		return 0
-	var qty: int = int(item.get("Quantity", 0))
-	_log("[_get_selected_item_quantity] slot=%d qty=%d" % [slot_idx, qty])
-	return qty
+	return int(item.get("Quantity", 0))
+
 
 func _get_inventory_item_by_id(item_id) -> Dictionary:
-	var inv = _get_inventory_array()
-	for it in inv:
+	var inv_arr = _get_inventory_array()
+	for it in inv_arr:
 		if it.get("Id", null) == item_id:
-			_log("[_get_inventory_item_by_id] found id=%s" % str(item_id))
 			return it
-	_log("[_get_inventory_item_by_id] not found id=%s" % str(item_id))
 	return {}
 
+
 func _find_inventory_matches(material_or_type: String) -> Array:
-	var inv = _get_inventory_array()
-	var out: Array = []
+	var inv_arr = _get_inventory_array()
+	var out = []
 	var needle = material_or_type.strip_edges().to_lower()
-	for it in inv:
+	for it in inv_arr:
 		var nm = str(it.get("Name", "")).to_lower()
 		var tp = str(it.get("Type", "")).to_lower()
 		var have = int(it.get("Quantity", 0))
-		# Accept exact Name, exact Type, or Type containing needle (e.g., "1-Star Gem" matches "Water 1-Star Gem")
 		if have > 0 and (nm == needle or tp == needle or (needle != "" and tp.find(needle) != -1)):
 			out.append(it)
-	_log("[_find_inventory_matches] '%s' -> %d matches" % [material_or_type, out.size()])
 	return out
 
 
-# Normalize many possible field names so we always end with {Id, Name, Type, Quantity, Icon}
 func _normalize_inventory_item(raw: Dictionary, key = null) -> Dictionary:
 	var id = raw.get("Id", key)
-	var name = str(
+	var item_name = str(
 		raw.get("Name",
 		raw.get("ItemName",
 		raw.get("Material",
@@ -815,127 +1432,126 @@ func _normalize_inventory_item(raw: Dictionary, key = null) -> Dictionary:
 		raw.get("Count",
 		raw.get("Owned",
 		raw.get("Amount", 0))))))
-
 	var icon = raw.get("Icon", raw.get("Image", raw.get("IconTexture", null)))
-	return {"Id": id, "Name": name, "Type": typ, "Quantity": qty, "Icon": icon}
+	return {"Id": id, "Name": item_name, "Type": typ, "Quantity": qty, "Icon": icon}
+
+
+func _get_inventory_array() -> Array:
+	if "CHARACTER_ITEMS" in Global:
+		var inv = Global.CHARACTER_ITEMS
+		if inv is Array:
+			var arr = []
+			for it in inv:
+				if it is Dictionary:
+					arr.append(_normalize_inventory_item(it, it.get("Id", null)))
+			return arr
+		if inv is Dictionary:
+			var arr2 = []
+			for k in inv.keys():
+				var it = inv[k]
+				if it is Dictionary and it.get("Owner") == Global.ACTIVE_USER_NAME:
+					arr2.append(_normalize_inventory_item(it, k))
+			return arr2
+	return []
+
+
+func _snapshot_inventory() -> Dictionary:
+	var snap = {}
+	var arr = _get_inventory_array()
+	for it in arr:
+		var iid = it.get("Id", null)
+		if iid != null:
+			snap[iid] = int(it.get("Quantity", 0))
+	return snap
 
 
 func _to_int(v) -> int:
 	if typeof(v) == TYPE_INT:
 		return v
 	if typeof(v) == TYPE_FLOAT:
-		return int(v)  # truncates toward zero
+		return int(v)
 	if typeof(v) == TYPE_STRING:
-		return String(v).to_int()  # returns 0 if not a number
+		return String(v).to_int()
 	return 0
 
-func _get_inventory_array() -> Array:
-	if "CHARACTER_ITEMS" in Global:
-		inv = Global.CHARACTER_ITEMS
-		# Case A: already an array
-		if inv is Array:
-			var arr: Array = []
-			for it in inv:
-				if it is Dictionary:
-					arr.append(_normalize_inventory_item(it, it.get("Id", null)))
-			_log("[_get_inventory_array] array->norm size=%d" % arr.size())
-			return arr
-		# Case B: dictionary of id -> item
-		if inv is Dictionary:
-			var arr2: Array = []
-			for k in inv.keys():
-				var it = inv[k]
-				if it is Dictionary and it.get("Owner") == Global.ACTIVE_USER_NAME:
-					arr2.append(_normalize_inventory_item(it, k))
-			_log("[_get_inventory_array] dict->norm size=%d" % arr2.size())
-			return arr2
-	_log("[_get_inventory_array] empty (no Global.INVENTORY or wrong shape)")
-	return []
 
-func _snapshot_inventory() -> Dictionary:
-	var snap: Dictionary = {}
-	var arr = _get_inventory_array()
-	for it in arr:
-		var iid = it.get("Id", null)
-		if iid != null:
-			snap[iid] = int(it.get("Quantity", 0))
-	_log("[_snapshot_inventory] entries=%d (inv_seen=%d)" % [snap.size(), arr.size()])
-	return snap
-
-
-func update_preview(selected_item) -> void:
-	var role = _get_active_role()
-	if role == "Blacksmith":
-		_populate_blacksmith_preview(selected_item)
-	else:
-		_populate_artisan_preview(selected_item)
-# helpers (put these near the top of your script once)
 func _as_int_id(v) -> int:
-	if typeof(v) == TYPE_INT: return v
-	if typeof(v) == TYPE_FLOAT: return int(v)
-	if typeof(v) == TYPE_STRING: return String(v).to_int()  # "79.0" -> 79
+	if typeof(v) == TYPE_INT:
+		return v
+	if typeof(v) == TYPE_FLOAT:
+		return int(v)
+	if typeof(v) == TYPE_STRING:
+		return String(v).to_int()
 	return 0
+
 
 func _as_int(v) -> int:
-	if typeof(v) == TYPE_INT: return v
-	if typeof(v) == TYPE_FLOAT: return int(v)
-	if typeof(v) == TYPE_STRING: return String(v).to_int()
+	if typeof(v) == TYPE_INT:
+		return v
+	if typeof(v) == TYPE_FLOAT:
+		return int(v)
+	if typeof(v) == TYPE_STRING:
+		return String(v).to_int()
 	return 0
-# --------------------------
-# Confirm
-# --------------------------
-func _on_confirm_pressed() -> void:
-	if confirm_btn != null and confirm_btn.disabled: return
-	if _selected_product == "": return
 
-	var qty_to_make: int = _as_int(qty_spin.value if qty_spin != null else 1)
-	var target: String = target_select.get_item_text(target_select.selected) \
+
+# ============================================================
+# CONFIRM CRAFT
+# ============================================================
+func _on_confirm_pressed() -> void:
+	if craft_button.disabled:
+		return
+	if _selected_product == "":
+		return
+
+	var craft_count = _as_int(qty_spin.value)
+	# output_quantity: how many items produced per craft (e.g., downgrade 1 gem → 3 gems)
+	var output_qty = int(_grouped_recipes.get(_selected_product, {}).get("meta", {}).get("output_quantity", 1))
+	var qty_to_make = craft_count * maxi(output_qty, 1)
+	var target = target_select.get_item_text(target_select.selected) \
 		if target_select != null and target_select.selected >= 0 else "Unknown"
 
-	# Build consumption plan (normalize IDs)
-	var consumption: Array = []
+	# Build consumption plan
+	var consumption = []
 	for i in range(_slot_requirements.size()):
-		var need_per := _as_int(_slot_requirements[i].get("quantity", 1))
-		var total_need := need_per * qty_to_make
+		var need_per = _as_int(_slot_requirements[i].get("quantity", 1))
+		var total_need = need_per * qty_to_make
 		var raw_id = _slot_to_item_id.get(i, null)
-		var rid := _as_int_id(raw_id)            #  <-- ensure integer PK
-		consumption.append({ "id": rid, "take": total_need })
+		var rid = _as_int_id(raw_id)
+		consumption.append({"id": rid, "take": total_need})
 
-	# Decrement inventory -> build updates with INT id and INT value
-	var updates: Array = []
+	# Decrement inventory
+	var updates = []
 	for c in consumption:
-		var rid = c["id"]                       # int
-		# CHARACTER_ITEMS keys may be strings: access by string key safely
-		var key = str(rid)
-		print (consumption)
+		var rid = c["id"]
 		var current_amount = _as_int(Global.CHARACTER_ITEMS[str(int(rid))].get("Quantity", 0))
 		var new_qty = current_amount - _as_int(c["take"])
 		updates.append({
 			"table": "Character_Items",
-			"record_id": rid,                    # <-- int, not "79.0"
+			"record_id": rid,
 			"field": "Quantity",
-			"value": _as_int(new_qty)            # <-- int, not 5.0
+			"value": _as_int(new_qty)
 		})
 
-	# Grant product (normalize product_record and quantities to int)
-	var has_item := false
-	var product_amount := 0
-	var product_record := 0
+	# Grant product
+	var has_item = false
+	var product_amount = 0
+	var product_record = 0
 	if _get_active_role() == "Artisan":
 		for item_key in Global.CHARACTER_ITEMS:
 			var it = Global.CHARACTER_ITEMS[item_key]
 			if it.get("Name") == _selected_product and it.get("Owner") == target:
 				has_item = true
 				product_amount = _as_int(it.get("Quantity", 0))
-				product_record = _as_int_id(item_key)    # <-- normalize key to int
+				product_record = _as_int_id(item_key)
 				break
 
 		if has_item:
 			updates.append({
 				"table": "Character_Items",
-				"record_id": product_record,            # int
+				"record_id": product_record,
 				"field": "Quantity",
-				"value": _as_int(qty_to_make + product_amount)  # int
+				"value": _as_int(qty_to_make + product_amount)
 			})
 		else:
 			var Type = ""
@@ -948,7 +1564,7 @@ func _on_confirm_pressed() -> void:
 					Description = str(item.get("Description", ""))
 			Global.Insert(
 				"Character_Items",
-				["Owner","Name","Type","Rarity","Quantity","Description"],
+				["Owner", "Name", "Type", "Rarity", "Quantity", "Description"],
 				[target, _selected_product, Type, Rarity, _as_int(qty_to_make), Description]
 			)
 	else:
@@ -957,15 +1573,15 @@ func _on_confirm_pressed() -> void:
 			if it.get("Weapon") == _selected_product and it.get("Owner") == target:
 				has_item = true
 				product_amount = _as_int(it.get("Quantity", 0))
-				product_record = _as_int_id(item_key)    # <-- normalize key to int
+				product_record = _as_int_id(item_key)
 				break
 
 		if has_item:
 			updates.append({
 				"table": "Character_Weapons",
-				"record_id": product_record,            # int
+				"record_id": product_record,
 				"field": "Quantity",
-				"value": _as_int(qty_to_make + product_amount)  # int
+				"value": _as_int(qty_to_make + product_amount)
 			})
 		else:
 			var Type = ""
@@ -988,105 +1604,820 @@ func _on_confirm_pressed() -> void:
 						Effect = ""
 					Region = str(item.get("Region", ""))
 					Stat1Type = str(item.get("Stat_1_Type", ""))
-					Stat1Value =  (item.get("Stat_1_Value", ""))
+					Stat1Value = item.get("Stat_1_Value", "")
 					if item.get("Stat_2_Type") != null:
 						Stat2Type = str(item.get("Stat_2_Type", ""))
-						Stat2Value =  (item.get("Stat_2_Value", ""))
+						Stat2Value = item.get("Stat_2_Value", "")
 					else:
 						Stat2Type = null
 						Stat2Value = null
 					if item.get("Stat_3_Type") != null:
 						Stat3Type = str(item.get("Stat_3_Type", ""))
-						Stat3Value =  (item.get("Stat_3_Value", ""))
+						Stat3Value = item.get("Stat_3_Value", "")
 					else:
 						Stat3Type = null
 						Stat3Value = null
-					
 			Global.Insert(
 				"Character_Weapons",
-				["Owner","Weapon","Type","Rarity","Region","Quantity","Effect","Stat_1_Type","Stat_2_Type","Stat_3_Type","Stat_1_Value","Stat_2_Value","Stat_3_Value","Refinement","Equipped"],
-				[target, _selected_product, Type, Rarity,Region, _as_int(qty_to_make), Effect,Stat1Type,Stat2Type,Stat3Type,Stat1Value,Stat2Value,Stat3Value,0,false]
+				["Owner", "Weapon", "Type", "Rarity", "Region", "Quantity", "Effect", "Stat_1_Type", "Stat_2_Type", "Stat_3_Type", "Stat_1_Value", "Stat_2_Value", "Stat_3_Value", "Refinement", "Equipped"],
+				[target, _selected_product, Type, Rarity, Region, _as_int(qty_to_make), Effect, Stat1Type, Stat2Type, Stat3Type, Stat1Value, Stat2Value, Stat3Value, 0, false]
 			)
-			print ([target, _selected_product, Type, Rarity,Region, _as_int(qty_to_make), Effect,Stat1Type,Stat2Type,Stat3Type,Stat1Value,Stat2Value,Stat3Value,0,false])
-		
 
-	# Ship updates if any
+	# Ship updates
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
-
-
-	# Log per your rule (confirm buttons must log)
+	# Log
 	if "Log" in Global:
-		var old_values: Dictionary = {"inventory_before": _inventory_snapshot_before.duplicate()}
-		var new_values: Dictionary = {
+		var old_values = {"inventory_before": _inventory_snapshot_before.duplicate()}
+		var new_values = {
 			"crafted_product": _selected_product,
 			"quantity": qty_to_make,
 			"target": target,
 			"consumed": consumption
 		}
-		var metadata: Dictionary = {"screen": "CraftingMenu"}
+		var metadata = {"screen": "CraftingMenu"}
 		Global.Log("crafting", "Craft %s" % _selected_product, "Recipe", _selected_product, old_values, new_values, metadata, "success", "audit")
 
-	_show_toast("Crafted %d × %s for %s" % [qty_to_make, _selected_product, target])
-	_update_have_need_labels()
-	_validate_all_rows()
-	_refresh_confirm_enabled()
-	var p := get_parent()
+	_show_toast("Crafted %d x %s for %s" % [qty_to_make, _selected_product, target])
+
+	# Close
+	var p = get_parent()
 	if p is Window:
 		p.queue_free()
 	else:
 		queue_free()
 
-func _fallback_decrement_inventory(item_id: String, amount: int) -> bool:
-	var inv = _get_inventory_array()
-	for it in inv:
-		if it.get("Id", "") == item_id:
-			var have: int = int(it.get("Quantity", 0))
-			if have < amount:
-				_log("[_fallback_decrement_inventory] not enough id=%s have=%d need=%d" % [item_id, have, amount])
-				return false
-			it["Quantity"] = have - amount
-			_log("[_fallback_decrement_inventory] decremented id=%s by %d -> %d" % [item_id, amount, int(it["Quantity"])])
-			return true
-	_log("[_fallback_decrement_inventory] id not found=%s" % item_id)
-	return false
 
-
-# --------------------------
-# Sets Icon
-# --------------------------
-func _assign_icon(item):
-	var HyphenName = item.to_lower().replace(" ","-")
-	if _get_active_role() == "Artisan":
-		$HSplit/RightPanel/RightVBox/TopPreview/TopHBox/Icon.texture = load(str("res://UI/Food Icons/"+HyphenName+".png"))
-	else:
-		$HSplit/RightPanel/RightVBox/TopPreview/TopHBox/Icon.texture = load(str("res://UI/Weapon Icons/"+HyphenName+".png"))
-
-
-
-# --------------------------
-# Feedback
-# --------------------------
+# ============================================================
+# FEEDBACK
+# ============================================================
 func _show_toast(msg: String) -> void:
-	var l := Label.new()
+	var l = Label.new()
 	l.text = msg
-	l.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0))
+	l.add_theme_color_override("font_color", GREEN)
+	l.add_theme_font_size_override("font_size", 18)
 	l.modulate = Color(1, 1, 1, 0)
 	add_child(l)
 	l.global_position = Vector2(40, 40)
-	var tw := create_tween()
+	var tw = create_tween()
 	tw.tween_property(l, "modulate:a", 1.0, 0.15)
 	tw.tween_interval(1.3)
 	tw.tween_property(l, "modulate:a", 0.0, 0.3)
 	tw.finished.connect(l.queue_free)
-	_log("[_show_toast] '%s'" % msg)
 
 
-func _on_button_pressed() -> void:
-	var p := get_parent()
+# ============================================================
+# EXIT
+# ============================================================
+func _on_exit_pressed() -> void:
+	var p = get_parent()
 	if p is Window:
 		p.queue_free()
 	else:
 		queue_free()
-	pass # Replace with function body.
+
+
+# ============================================================
+# LOGGING
+# ============================================================
+func _log(msg: String) -> void:
+	print("[CraftingMenu] %s" % msg)
+
+
+
+func _save_layout() -> void:
+	var cfg = ConfigFile.new()
+	cfg.load("user://ui_settings.cfg")
+	cfg.set_value("crafting_layout", "body_split", _body_split.split_offset)
+	cfg.set_value("crafting_layout", "right_split", _right_split.split_offset)
+	if _af_body_split:
+		cfg.set_value("crafting_layout", "af_body_split", _af_body_split.split_offset)
+	if _af_rolls_split:
+		cfg.set_value("crafting_layout", "af_rolls_split", _af_rolls_split.split_offset)
+	cfg.save("user://ui_settings.cfg")
+
+func _load_layout() -> void:
+	var cfg = ConfigFile.new()
+	if cfg.load("user://ui_settings.cfg") == OK:
+		if cfg.has_section_key("crafting_layout", "body_split"):
+			_body_split.split_offset = cfg.get_value("crafting_layout", "body_split", 0)
+		if cfg.has_section_key("crafting_layout", "right_split"):
+			_right_split.split_offset = cfg.get_value("crafting_layout", "right_split", 0)
+		if _af_body_split and cfg.has_section_key("crafting_layout", "af_body_split"):
+			_af_body_split.split_offset = cfg.get_value("crafting_layout", "af_body_split", 0)
+		if _af_rolls_split and cfg.has_section_key("crafting_layout", "af_rolls_split"):
+			_af_rolls_split.split_offset = cfg.get_value("crafting_layout", "af_rolls_split", 0)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  TAB SWITCHING
+# ═══════════════════════════════════════════════════════════════════════
+
+func _style_tab_btn(btn: Button, active: bool) -> void:
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color.TRANSPARENT
+	sb.border_color = ACCENT if active else Color.TRANSPARENT
+	sb.border_width_bottom = 2 if active else 0
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 6
+	sb.content_margin_bottom = 6
+	btn.add_theme_stylebox_override("normal", sb)
+	btn.add_theme_color_override("font_color", ACCENT if active else MUTED)
+
+func _switch_crafting_tab(tab: String) -> void:
+	var is_recipes = (tab == "recipes")
+	_body_split.visible = is_recipes
+	_artifact_forge_panel.visible = not is_recipes
+	_tab_recipes.button_pressed = is_recipes
+	_tab_artifact.button_pressed = not is_recipes
+	_style_tab_btn(_tab_recipes, is_recipes)
+	_style_tab_btn(_tab_artifact, not is_recipes)
+	if not is_recipes:
+		_af_refresh_artifact_list()
+
+	# Only Artisans can see the artifact tab
+	if _tab_artifact:
+		_tab_artifact.visible = (_get_active_role() == "Artisan")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  ARTIFACT FORGE
+# ═══════════════════════════════════════════════════════════════════════
+
+
+func _build_artifact_forge() -> VBoxContainer:
+	var FS = 18  # base font size for this panel (larger than normal)
+	var FS_SM = 15
+	var FS_LBL = 13
+	var root = VBoxContainer.new()
+	_artifact_forge_panel = root  # assign early so helpers can access metas
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 14)
+
+	# ── Mode selection ──
+	var mode_row = HBoxContainer.new()
+	mode_row.add_theme_constant_override("separation", 12)
+	root.add_child(mode_row)
+
+	var mode_label = Label.new()
+	mode_label.text = "Forge Mode:"
+	mode_label.add_theme_font_size_override("font_size", FS)
+	mode_label.add_theme_color_override("font_color", ACCENT)
+	mode_row.add_child(mode_label)
+
+	var mode_random = Button.new()
+	mode_random.text = "Random Set (sacrifice 2)"
+	mode_random.toggle_mode = true
+	mode_random.button_pressed = true
+	mode_random.add_theme_font_size_override("font_size", FS_SM)
+	_style_chip(mode_random, true)
+	mode_random.pressed.connect(func(): _af_set_mode("random"))
+	mode_row.add_child(mode_random)
+
+	var mode_selected = Button.new()
+	mode_selected.text = "Choose Set (sacrifice 3)"
+	mode_selected.toggle_mode = true
+	mode_selected.button_pressed = false
+	mode_selected.add_theme_font_size_override("font_size", FS_SM)
+	_style_chip(mode_selected, false)
+	mode_selected.pressed.connect(func(): _af_set_mode("selected"))
+	mode_row.add_child(mode_selected)
+
+	root.set_meta("mode_btns", [mode_random, mode_selected])
+
+	# ── Set selection + bonus preview (only visible in "selected" mode) ──
+	var set_section = VBoxContainer.new()
+	set_section.name = "SetRow"
+	set_section.visible = false
+	set_section.add_theme_constant_override("separation", 6)
+	root.add_child(set_section)
+
+	var set_hbox = HBoxContainer.new()
+	set_hbox.add_theme_constant_override("separation", 10)
+	set_section.add_child(set_hbox)
+
+	var set_label = Label.new()
+	set_label.text = "Artifact Set:"
+	set_label.add_theme_font_size_override("font_size", FS)
+	set_label.add_theme_color_override("font_color", SEC)
+	set_hbox.add_child(set_label)
+
+	_af_set_dropdown = OptionButton.new()
+	_af_set_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_af_set_dropdown.add_theme_font_size_override("font_size", FS_SM)
+	var set_names = []
+	for a in Global.ARTIFACTS.values():
+		var sn = str(a.get("Artifact_Set", ""))
+		if sn != "" and not set_names.has(sn):
+			set_names.append(sn)
+	set_names.sort()
+	for sn in set_names:
+		_af_set_dropdown.add_item(sn)
+	_af_set_dropdown.item_selected.connect(func(_idx): _af_update_set_bonus_display())
+	set_hbox.add_child(_af_set_dropdown)
+
+	# Set bonus display
+	var bonus_card = PanelContainer.new()
+	bonus_card.name = "BonusCard"
+	bonus_card.custom_minimum_size.y = 80
+	var bsb = _make_card_stylebox(CARD)
+	bsb.content_margin_top = 10
+	bsb.content_margin_bottom = 10
+	bsb.content_margin_left = 12
+	bsb.content_margin_right = 12
+	bonus_card.add_theme_stylebox_override("panel", bsb)
+	bonus_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	set_section.add_child(bonus_card)
+
+	var bonus_vbox = VBoxContainer.new()
+	bonus_vbox.name = "BonusContent"
+	bonus_vbox.add_theme_constant_override("separation", 6)
+	bonus_card.add_child(bonus_vbox)
+
+	# ── Main body: sacrifice picker (left) | rolls + target (right) ──
+	_af_body_split = HSplitContainer.new()
+	_af_body_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_af_body_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_af_body_split.dragged.connect(func(_ofs): _save_layout())
+	root.add_child(_af_body_split)
+
+	# LEFT: Artifact sacrifice picker
+	var picker_card = PanelContainer.new()
+	picker_card.custom_minimum_size.x = 280
+	picker_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	picker_card.add_theme_stylebox_override("panel", _make_card_stylebox(PANEL))
+	_af_body_split.add_child(picker_card)
+
+	var picker_vbox = VBoxContainer.new()
+	picker_vbox.add_theme_constant_override("separation", 8)
+	picker_card.add_child(picker_vbox)
+
+	var pick_title = Label.new()
+	pick_title.text = "Artifacts to Sacrifice"
+	pick_title.add_theme_font_size_override("font_size", FS)
+	pick_title.add_theme_color_override("font_color", ACCENT)
+	picker_vbox.add_child(pick_title)
+
+	var cost_lbl = Label.new()
+	cost_lbl.name = "CostLabel"
+	cost_lbl.text = "Select 2 artifacts (Random mode)"
+	cost_lbl.add_theme_font_size_override("font_size", FS_SM)
+	cost_lbl.add_theme_color_override("font_color", MUTED)
+	picker_vbox.add_child(cost_lbl)
+	root.set_meta("cost_label", cost_lbl)
+
+	var pick_scroll = ScrollContainer.new()
+	pick_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	pick_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	picker_vbox.add_child(pick_scroll)
+
+	_af_artifact_list = VBoxContainer.new()
+	_af_artifact_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_af_artifact_list.add_theme_constant_override("separation", 4)
+	pick_scroll.add_child(_af_artifact_list)
+
+	# RIGHT: rolls (top) | target+forge (bottom) via VSplitContainer
+	_af_rolls_split = VSplitContainer.new()
+	_af_rolls_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_af_rolls_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_af_rolls_split.dragger_visibility = SplitContainer.DRAGGER_VISIBLE
+	_af_rolls_split.dragged.connect(func(_ofs): _save_layout())
+	_af_body_split.add_child(_af_rolls_split)
+
+	# TOP of right: Dice rolls panel
+	var rolls_card = PanelContainer.new()
+	rolls_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolls_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rolls_card.add_theme_stylebox_override("panel", _make_card_stylebox(PANEL))
+	_af_rolls_split.add_child(rolls_card)
+
+	var rolls_scroll = ScrollContainer.new()
+	rolls_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	rolls_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolls_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	rolls_card.add_child(rolls_scroll)
+
+	var rolls_vbox = VBoxContainer.new()
+	rolls_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rolls_vbox.add_theme_constant_override("separation", 12)
+	rolls_scroll.add_child(rolls_vbox)
+
+	_af_rolls.clear()
+
+	# Step 1: Piece Type
+	var step1 = Label.new()
+	step1.text = "Step 1: Roll Piece Type"
+	step1.add_theme_font_size_override("font_size", FS)
+	step1.add_theme_color_override("font_color", ACCENT)
+	rolls_vbox.add_child(step1)
+
+	var r1 = HBoxContainer.new()
+	r1.add_theme_constant_override("separation", 20)
+	rolls_vbox.add_child(r1)
+	_af_rolls.append(_af_spin_field(r1, "D12", 1, 12, FS_SM))
+	_af_rolls.append(_af_spin_field(r1, "D20", 1, 20, FS_SM))
+
+	# Step 2: Substat 1
+	var step2 = Label.new()
+	step2.name = "Step2Label"
+	step2.text = "Step 2: Roll Substat 1"
+	step2.add_theme_font_size_override("font_size", FS)
+	step2.add_theme_color_override("font_color", ACCENT)
+	rolls_vbox.add_child(step2)
+	root.set_meta("step2_label", step2)
+
+	var r2 = HBoxContainer.new()
+	r2.add_theme_constant_override("separation", 20)
+	rolls_vbox.add_child(r2)
+	var s1_stat = _af_spin_field(r2, "D8", 1, 8, FS_SM)
+	_af_rolls.append(s1_stat)
+	root.set_meta("s1_stat_label", s1_stat.get_parent().get_child(0))
+	_af_rolls.append(_af_spin_field(r2, "D12", 1, 12, FS_SM))
+	_af_rolls.append(_af_spin_field(r2, "D20", 1, 20, FS_SM))
+
+	# Step 3: Substat 2 (always shown, disabled if D20 < 13)
+	var step3 = Label.new()
+	step3.text = "Step 3: Roll Substat 2 (if D20 >= 13)"
+	step3.name = "Step3Label"
+	step3.add_theme_font_size_override("font_size", FS)
+	step3.add_theme_color_override("font_color", MUTED)
+	rolls_vbox.add_child(step3)
+	root.set_meta("step3_label", step3)
+
+	var r3 = HBoxContainer.new()
+	r3.add_theme_constant_override("separation", 20)
+	r3.name = "Sub2Row"
+	rolls_vbox.add_child(r3)
+	root.set_meta("sub2_row", r3)
+
+	var sub2_s1 = _af_spin_field(r3, "D8", 1, 8, FS_SM)
+	sub2_s1.editable = false
+	_af_rolls.append(sub2_s1)
+	root.set_meta("s2_stat_label", sub2_s1.get_parent().get_child(0))
+	var sub2_s2 = _af_spin_field(r3, "D12", 1, 12, FS_SM)
+	sub2_s2.editable = false
+	_af_rolls.append(sub2_s2)
+	var sub2_s3 = _af_spin_field(r3, "D20", 1, 20, FS_SM)
+	sub2_s3.editable = false
+	_af_rolls.append(sub2_s3)
+
+	# Wire D12 piece type to update stat dice labels (D8 vs D10)
+	_af_rolls[0].value_changed.connect(func(_v): _af_update_stat_dice_labels())
+	# Wire D20 substats to enable/disable step 3
+	_af_rolls[1].value_changed.connect(func(_v): _af_update_sub2_vis())
+
+	# BOTTOM of right: Target + Forge button
+	var target_card = PanelContainer.new()
+	target_card.custom_minimum_size.y = 110
+	target_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	target_card.add_theme_stylebox_override("panel", _make_card_stylebox(PANEL))
+	_af_rolls_split.add_child(target_card)
+
+	var target_vbox = VBoxContainer.new()
+	target_vbox.add_theme_constant_override("separation", 10)
+	target_card.add_child(target_vbox)
+
+	var target_row = HBoxContainer.new()
+	target_row.add_theme_constant_override("separation", 10)
+	target_vbox.add_child(target_row)
+
+	var target_lbl = Label.new()
+	target_lbl.text = "Give to:"
+	target_lbl.add_theme_font_size_override("font_size", FS)
+	target_lbl.add_theme_color_override("font_color", SEC)
+	target_row.add_child(target_lbl)
+
+	_af_target_dropdown = OptionButton.new()
+	_af_target_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_af_target_dropdown.add_theme_font_size_override("font_size", FS_SM)
+	_af_target_dropdown.add_item(Global.ACTIVE_USER_NAME + " (me)")
+	for pname in Global.PartyCharacters:
+		if pname != Global.ACTIVE_USER_NAME:
+			_af_target_dropdown.add_item(pname)
+	target_row.add_child(_af_target_dropdown)
+
+	_af_forge_btn = Button.new()
+	_af_forge_btn.text = "FORGE ARTIFACT"
+	_af_forge_btn.custom_minimum_size = Vector2(0, 48)
+	_af_forge_btn.add_theme_font_size_override("font_size", FS)
+	_af_forge_btn.disabled = true
+	var forge_sb = StyleBoxFlat.new()
+	forge_sb.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.1)
+	forge_sb.border_color = ACCENT
+	forge_sb.set_border_width_all(2)
+	forge_sb.set_corner_radius_all(6)
+	forge_sb.content_margin_left = 24
+	forge_sb.content_margin_right = 24
+	forge_sb.content_margin_top = 10
+	forge_sb.content_margin_bottom = 10
+	_af_forge_btn.add_theme_stylebox_override("normal", forge_sb)
+	var forge_hover = forge_sb.duplicate()
+	forge_hover.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.2)
+	_af_forge_btn.add_theme_stylebox_override("hover", forge_hover)
+	var forge_dis = forge_sb.duplicate()
+	forge_dis.bg_color = INSET
+	forge_dis.border_color = BORDER
+	_af_forge_btn.add_theme_stylebox_override("disabled", forge_dis)
+	_af_forge_btn.add_theme_color_override("font_color", ACCENT)
+	_af_forge_btn.add_theme_color_override("font_disabled_color", MUTED)
+	_af_forge_btn.pressed.connect(_af_on_forge_pressed)
+	target_vbox.add_child(_af_forge_btn)
+
+	# Initialize stat dice labels based on default piece type
+	_af_update_stat_dice_labels()
+
+	return root
+
+
+func _af_spin_field(parent: Node, hint: String, min_val: int, max_val: int, fs: int = 15) -> SpinBox:
+	var vb = VBoxContainer.new()
+	vb.add_theme_constant_override("separation", 2)
+	parent.add_child(vb)
+	var l = Label.new()
+	l.text = hint
+	l.add_theme_font_size_override("font_size", 13)
+	l.add_theme_color_override("font_color", MUTED)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD
+	l.custom_minimum_size.x = 140
+	vb.add_child(l)
+	var sb = SpinBox.new()
+	sb.min_value = min_val
+	sb.max_value = max_val
+	sb.value = min_val
+	sb.custom_minimum_size.x = 90
+	sb.add_theme_font_size_override("font_size", fs)
+	vb.add_child(sb)
+	return sb
+
+
+func _af_set_mode(mode: String) -> void:
+	_af_mode = mode
+	_af_selected_artifacts.clear()
+	var btns = _artifact_forge_panel.get_meta("mode_btns", [])
+	if btns.size() == 2:
+		_style_chip(btns[0], mode == "random")
+		btns[0].button_pressed = (mode == "random")
+		_style_chip(btns[1], mode == "selected")
+		btns[1].button_pressed = (mode == "selected")
+	var set_row = _artifact_forge_panel.get_node_or_null("SetRow")
+	if set_row:
+		set_row.visible = (mode == "selected")
+		if mode == "selected":
+			_af_update_set_bonus_display()
+	var cost_lbl = _artifact_forge_panel.get_meta("cost_label", null)
+	if cost_lbl:
+		var needed = 2 if mode == "random" else 3
+		cost_lbl.text = "Select %d artifacts (%s mode)" % [needed, "Random" if mode == "random" else "Selected Set"]
+	_af_refresh_artifact_list()
+
+
+func _af_update_stat_dice_labels() -> void:
+	# Determine if the current D12 piece roll gives a special piece (D10) or basic (D8)
+	var d12 = int(_af_rolls[0].value)
+	var piece = _af_resolve_piece(d12)
+	var is_special = piece in ["Sands of Time", "Goblet of Space", "Circlet of Principles"]
+	var die_text = "D10" if is_special else "D8"
+	var die_max = 10 if is_special else 8
+
+	# Update step 2 label
+	var step2_lbl = _artifact_forge_panel.get_meta("step2_label", null)
+	if step2_lbl:
+		step2_lbl.text = "Step 2: Roll Substat 1 (%s)" % die_text
+
+	# Update substat 1 stat spin label + max
+	var s1_lbl = _artifact_forge_panel.get_meta("s1_stat_label", null)
+	if s1_lbl:
+		s1_lbl.text = die_text
+	_af_rolls[2].max_value = die_max
+	if _af_rolls[2].value > die_max:
+		_af_rolls[2].value = die_max
+
+	# Update substat 2 stat spin label + max
+	var s2_lbl = _artifact_forge_panel.get_meta("s2_stat_label", null)
+	if s2_lbl:
+		s2_lbl.text = die_text
+	_af_rolls[5].max_value = die_max
+	if _af_rolls[5].value > die_max:
+		_af_rolls[5].value = die_max
+
+
+func _af_update_sub2_vis() -> void:
+	var has_two = int(_af_rolls[1].value) >= 13
+	var step3_lbl = _artifact_forge_panel.get_meta("step3_label", null)
+	if step3_lbl:
+		step3_lbl.add_theme_color_override("font_color", ACCENT if has_two else MUTED)
+	# Enable/disable the sub2 spinboxes (indices 5, 6, 7)
+	for i in [5, 6, 7]:
+		if i < _af_rolls.size():
+			_af_rolls[i].editable = has_two
+
+
+func _af_update_set_bonus_display() -> void:
+	var set_row = _artifact_forge_panel.get_node_or_null("SetRow")
+	if set_row == null:
+		return
+	var bonus_card = set_row.get_node_or_null("BonusCard")
+	if bonus_card == null:
+		return
+	var bonus_content = bonus_card.get_node_or_null("BonusContent")
+	if bonus_content == null:
+		return
+	for c in bonus_content.get_children():
+		c.queue_free()
+
+	var sel_set = _af_set_dropdown.get_item_text(_af_set_dropdown.selected)
+	var two_pc = ""
+	var four_pc = ""
+	for a in Global.ARTIFACTS.values():
+		if str(a.get("Artifact_Set", "")) == sel_set:
+			if str(a.get("Bonus_Type", "")) == "2" or int(a.get("Bonus_Type", 0)) == 2:
+				two_pc = str(a.get("Bonus_Effect", a.get("Effect", "")))
+			elif str(a.get("Bonus_Type", "")) == "4" or int(a.get("Bonus_Type", 0)) == 4:
+				four_pc = str(a.get("Bonus_Effect", a.get("Effect", "")))
+
+	if two_pc != "":
+		var l2 = Label.new()
+		l2.text = "2pc: " + two_pc
+		l2.add_theme_font_size_override("font_size", 15)
+		l2.add_theme_color_override("font_color", GREEN)
+		l2.autowrap_mode = TextServer.AUTOWRAP_WORD
+		l2.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bonus_content.add_child(l2)
+	if four_pc != "":
+		var l4 = Label.new()
+		l4.text = "4pc: " + four_pc
+		l4.add_theme_font_size_override("font_size", 15)
+		l4.add_theme_color_override("font_color", SEC)
+		l4.autowrap_mode = TextServer.AUTOWRAP_WORD
+		l4.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		bonus_content.add_child(l4)
+
+
+func _af_refresh_artifact_list() -> void:
+	for c in _af_artifact_list.get_children():
+		c.queue_free()
+	_af_selected_artifacts.clear()
+
+	for rid in Global.CHARACTER_ARTIFACTS.keys():
+		var art = Global.CHARACTER_ARTIFACTS[rid]
+		if str(art.get("Owner", "")) != Global.ACTIVE_USER_NAME:
+			continue
+		if art.get("Equipped", false) == true:
+			continue
+
+		var art_id = str(rid)
+		var set_name = str(art.get("Artifact_Set", art.get("Set_Name", "")))
+		var art_type = str(art.get("Type", ""))
+		var s1t = str(art.get("Stat_1_Type", ""))
+		var s1v = float(art.get("Stat_1_Value", 0) if art.get("Stat_1_Value") != null else 0)
+		var s2t = str(art.get("Stat_2_Type", ""))
+		var s2v = float(art.get("Stat_2_Value", 0) if art.get("Stat_2_Value") != null else 0)
+
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		_af_artifact_list.add_child(row)
+
+		var check = CheckBox.new()
+		check.add_theme_font_size_override("font_size", 16)
+		check.toggled.connect(func(pressed):
+			if pressed:
+				_af_selected_artifacts.append(art_id)
+			else:
+				_af_selected_artifacts.erase(art_id)
+			_af_update_forge_enabled()
+		)
+		row.add_child(check)
+
+		# Primary display: stats (most important info)
+		var stat_text = s1t.replace("_", " ") + ": " + ("+" if s1v >= 0 else "") + str(snapped(s1v, 0.01))
+		if s2t != "":
+			stat_text += "  |  " + s2t.replace("_", " ") + ": " + ("+" if s2v >= 0 else "") + str(snapped(s2v, 0.01))
+
+		var stat_lbl = Label.new()
+		stat_lbl.text = stat_text
+		stat_lbl.add_theme_font_size_override("font_size", 16)
+		# Color: green if both positive, red if both negative, default otherwise
+		if s1v > 0 and (s2v > 0 or s2t == ""):
+			stat_lbl.add_theme_color_override("font_color", GREEN)
+		elif s1v < 0 and (s2v < 0 or s2t == ""):
+			stat_lbl.add_theme_color_override("font_color", RED)
+		else:
+			stat_lbl.add_theme_color_override("font_color", TEXT)
+		stat_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stat_lbl.clip_text = true
+		stat_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		stat_lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+		# Tooltip: full artifact details
+		stat_lbl.tooltip_text = "%s\n%s\n%s: %s\n%s" % [
+			set_name, art_type,
+			s1t.replace("_", " "), str(snapped(s1v, 0.01)),
+			(s2t.replace("_", " ") + ": " + str(snapped(s2v, 0.01))) if s2t != "" else "No second stat"
+		]
+		row.add_child(stat_lbl)
+
+	_af_update_forge_enabled()
+
+
+func _af_update_forge_enabled() -> void:
+	var needed = 2 if _af_mode == "random" else 3
+	_af_forge_btn.disabled = _af_selected_artifacts.size() < needed
+
+
+func _af_on_forge_pressed() -> void:
+	var needed = 2 if _af_mode == "random" else 3
+	if _af_selected_artifacts.size() < needed:
+		return
+
+	var has_good = false
+	for art_id in _af_selected_artifacts:
+		var art = Global.CHARACTER_ARTIFACTS.get(art_id, {})
+		var s1v = float(art.get("Stat_1_Value", 0) if art.get("Stat_1_Value") != null else 0)
+		var s2v = float(art.get("Stat_2_Value", 0) if art.get("Stat_2_Value") != null else 0)
+		if s1v > 0.5 and s2v > 0.5:
+			has_good = true
+			break
+
+	var warning = "This will PERMANENTLY DESTROY %d artifacts.\nThis cannot be undone." % needed
+	if has_good:
+		warning = "[b][color=#ef4444]WARNING: You selected a HIGH-VALUE artifact\nwith two strong positive stats![/color][/b]\n\n" + warning + "\n\n[b]Are you absolutely sure?[/b]"
+
+	_af_show_confirm(warning, _af_execute_forge)
+
+
+func _af_show_confirm(message: String, on_confirm: Callable) -> void:
+	var overlay = ColorRect.new()
+	overlay.color = Color(0, 0, 0, 0.7)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 50
+	add_child(overlay)
+
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(520, 240)
+	var sb = _make_card_stylebox(PANEL)
+	sb.content_margin_left = 28
+	sb.content_margin_right = 28
+	sb.content_margin_top = 24
+	sb.content_margin_bottom = 24
+	panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+	panel.add_child(vbox)
+
+	var title = Label.new()
+	title.text = "Confirm Artifact Forge"
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", RED)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+
+	var msg = RichTextLabel.new()
+	msg.bbcode_enabled = true
+	msg.fit_content = true
+	msg.scroll_active = false
+	msg.add_theme_font_size_override("normal_font_size", 16)
+	msg.add_theme_color_override("default_color", TEXT)
+	msg.text = message
+	vbox.add_child(msg)
+
+	var btn_row = HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_row.add_theme_constant_override("separation", 16)
+	vbox.add_child(btn_row)
+
+	var cancel = Button.new()
+	cancel.text = "Cancel"
+	cancel.custom_minimum_size.x = 130
+	cancel.add_theme_font_size_override("font_size", 16)
+	_style_chip(cancel, false)
+	cancel.pressed.connect(func(): overlay.queue_free())
+	btn_row.add_child(cancel)
+
+	var confirm = Button.new()
+	confirm.text = "FORGE"
+	confirm.custom_minimum_size.x = 130
+	confirm.add_theme_font_size_override("font_size", 16)
+	var csb = StyleBoxFlat.new()
+	csb.bg_color = Color(RED.r, RED.g, RED.b, 0.15)
+	csb.border_color = RED
+	csb.set_border_width_all(2)
+	csb.set_corner_radius_all(6)
+	csb.content_margin_left = 20
+	csb.content_margin_right = 20
+	csb.content_margin_top = 8
+	csb.content_margin_bottom = 8
+	confirm.add_theme_stylebox_override("normal", csb)
+	confirm.add_theme_color_override("font_color", RED)
+	confirm.pressed.connect(func():
+		overlay.queue_free()
+		on_confirm.call()
+	)
+	btn_row.add_child(confirm)
+
+
+func _af_execute_forge() -> void:
+	var d12_type = int(_af_rolls[0].value)
+	var d20_substats = int(_af_rolls[1].value)
+	var s1_stat_die = int(_af_rolls[2].value)
+	var s1_sign_die = int(_af_rolls[3].value)
+	var s1_val_die = int(_af_rolls[4].value)
+	var s2_stat_die = int(_af_rolls[5].value)
+	var s2_sign_die = int(_af_rolls[6].value)
+	var s2_val_die = int(_af_rolls[7].value)
+
+	var target = _af_target_dropdown.get_item_text(_af_target_dropdown.selected)
+	if target.ends_with(" (me)"):
+		target = Global.ACTIVE_USER_NAME
+
+	# Determine set
+	var set_name = ""
+	if _af_mode == "selected":
+		set_name = _af_set_dropdown.get_item_text(_af_set_dropdown.selected)
+	else:
+		# Random: pick from all sets randomly
+		var all_sets = []
+		for a in Global.ARTIFACTS.values():
+			var sn = str(a.get("Artifact_Set", ""))
+			if sn != "" and not all_sets.has(sn):
+				all_sets.append(sn)
+		all_sets.sort()
+		if all_sets.size() > 0:
+			set_name = all_sets[randi() % all_sets.size()]
+
+	var piece_type = _af_resolve_piece(d12_type)
+	var has_two = d20_substats >= 13
+
+	var stat_1_type = _af_resolve_stat(s1_stat_die, piece_type)
+	var stat_1_sign = 1.0 if s1_sign_die >= 7 else -1.0
+	var stat_1_value = stat_1_sign * s1_val_die * 0.1
+
+	var stat_2_type = ""
+	var stat_2_value = 0.0
+	if has_two:
+		stat_2_type = _af_resolve_stat(s2_stat_die, piece_type)
+		var stat_2_sign = 1.0 if s2_sign_die >= 7 else -1.0
+		stat_2_value = stat_2_sign * s2_val_die * 0.1
+
+	# Delete sacrificed artifacts
+	for art_id in _af_selected_artifacts:
+		Global.Remove_Record("Character_Artifacts", int(art_id))
+
+	# Insert new
+	Global.Insert("Character_Artifacts",
+		["Artifact_Set", "Owner", "Type", "Equipped", "Rarity", "Stat_1_Type", "Stat_1_Value", "Stat_2_Type", "Stat_2_Value"],
+		[set_name, target, piece_type, false, 5, stat_1_type, snapped(stat_1_value, 0.01), stat_2_type, snapped(stat_2_value, 0.01)]
+	)
+
+	Global.Log("crafting", "artifact_forge", "Artifact", "",
+		{"sacrificed": _af_selected_artifacts.duplicate(), "mode": _af_mode},
+		{"set": set_name, "type": piece_type, "stat1": stat_1_type, "val1": stat_1_value, "stat2": stat_2_type, "val2": stat_2_value, "target": target},
+		{"source": "CraftingMenu/ArtifactForge"}, "success", "audit"
+	)
+
+	var msg = "Forged %s %s for %s: %s %.2f" % [set_name, piece_type, target, stat_1_type, stat_1_value]
+	if has_two:
+		msg += ", %s %.2f" % [stat_2_type, stat_2_value]
+	_show_toast(msg)
+
+	_af_selected_artifacts.clear()
+	_af_refresh_artifact_list()
+
+
+func _af_resolve_piece(d12: int) -> String:
+	if d12 <= 3: return "Flower of Life"
+	if d12 <= 6: return "Feather of Death"
+	if d12 <= 8: return "Sands of Time"
+	if d12 <= 10: return "Goblet of Space"
+	return "Circlet of Principles"
+
+
+func _af_resolve_stat(die_roll: int, piece_type: String) -> String:
+	var is_special = piece_type in ["Sands of Time", "Goblet of Space", "Circlet of Principles"]
+	if is_special:
+		# D10: 1-2 HP, 3-4 ATK, 5-7 DEF, 8-9 EM, 10 special
+		match die_roll:
+			1, 2: return "Health"
+			3, 4: return "Attack"
+			5, 6, 7: return "Defense"
+			8, 9: return "Elemental_Mastery"
+			10:
+				match piece_type:
+					"Sands of Time": return "Energy_Recharge"
+					"Goblet of Space": return "Universal_Added_Damage_Bonus"
+					"Circlet of Principles": return "Critical_Damage"
+	else:
+		# D8: 1-2 HP, 3-4 ATK, 5-6 DEF, 7-8 EM
+		match die_roll:
+			1, 2: return "Health"
+			3, 4: return "Attack"
+			5, 6: return "Defense"
+			7, 8: return "Elemental_Mastery"
+	return "Health"

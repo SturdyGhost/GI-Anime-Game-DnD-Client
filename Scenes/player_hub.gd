@@ -27,6 +27,11 @@ func _ready() -> void:
 	var handler = Callable(self, "_on_data_load_complete")
 	if not Global.is_connected("data_load_complete", handler):
 		Global.connect("data_load_complete", handler)
+	# Apply saved settings
+	_apply_saved_volume()
+	# Apply saved font scale
+	var settings_script = preload("res://Scenes/settings_popup.gd")
+	settings_script.load_and_apply_font_scale()
 	# If data is already available (host, or client already synced), run setup now
 	_try_initial_setup()
 
@@ -109,14 +114,24 @@ func load_region_music(region: String) -> void:
 		print("⚠️ Could not open music folder:", folder_path)
 
 func play_next_track():
-	if Global.ACTIVE_USER_NAME == "Brian F.":
-		if music_files.is_empty():
-			print("⚠️ No music files found!")
-			return
-		music_index = randi() % music_files.size()
-		var stream_path = music_files[music_index]
-		player.stream = load(stream_path)
-		player.play()
+	if music_files.is_empty():
+		return
+	music_index = randi() % music_files.size()
+	var stream_path = music_files[music_index]
+	player.stream = load(stream_path)
+	player.play()
+
+func _apply_saved_volume() -> void:
+	var cfg = ConfigFile.new()
+	var vol = 0.0  # default muted
+	if cfg.load("user://audio_settings.cfg") == OK:
+		vol = cfg.get_value("audio", "music_volume", 0.0)
+	var bus_idx = AudioServer.get_bus_index("Master")
+	if vol <= 0.0:
+		AudioServer.set_bus_mute(bus_idx, true)
+	else:
+		AudioServer.set_bus_mute(bus_idx, false)
+		AudioServer.set_bus_volume_db(bus_idx, linear_to_db(vol / 100.0))
 
 func _try_initial_setup() -> void:
 	if _initial_setup_done:
@@ -135,7 +150,9 @@ func _try_initial_setup() -> void:
 	if Global.Luck_Set == false:
 		trigger_luck_popup()
 		Global.Luck_Set = true
-	else:
+	# Only refresh market stock when returning from battle, not on every hub load
+	if Global.get("_returned_from_battle") == true:
+		Global._returned_from_battle = false
 		call_deferred("_deferred_market_refresh")
 
 func _deferred_market_refresh() -> void:
@@ -207,6 +224,7 @@ func set_ui():
 			$UI/TopHotbar/Party2Portrait.set_character("Brian F.")
 
 	set_stats()
+	_update_unspent_banner()
 	$UI/GearContainer/WeaponButton.set_weapon()
 	$"UI/GearContainer/Flower of Life".set_artifact()
 	$"UI/GearContainer/Feather of Death".set_artifact()
@@ -276,6 +294,67 @@ func set_stats():
 		updates.append({"table": "Characters", "record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Max_Health","value": int(Global.Current_Health) })
 		updates.append({"table": "Characters", "record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Current_Health","value": int(Global.Current_Health) })
 		Global.Update_Records(updates)
+
+var _unspent_banner: PanelContainer = null
+
+func _update_unspent_banner() -> void:
+	# Check for unspent points
+	var unspent_skill = int(Player_data.get("Unspent_Skill_Points", 0))
+	var unspent_base = int(Player_data.get("Unspent_Base_Points", 0))
+	var total_unspent = unspent_skill + unspent_base
+
+	if total_unspent <= 0:
+		if _unspent_banner != null:
+			_unspent_banner.queue_free()
+			_unspent_banner = null
+		return
+
+	# Build or update the banner
+	if _unspent_banner != null:
+		_unspent_banner.queue_free()
+
+	_unspent_banner = PanelContainer.new()
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.788, 0.659, 0.298, 0.15)
+	sb.border_color = Color(0.788, 0.659, 0.298, 0.6)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	_unspent_banner.add_theme_stylebox_override("panel", sb)
+	_unspent_banner.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	_unspent_banner.offset_top = -50
+	_unspent_banner.offset_left = 200
+	_unspent_banner.offset_right = -200
+	_unspent_banner.z_index = 5
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 12)
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	_unspent_banner.add_child(hbox)
+
+	var icon = Label.new()
+	icon.text = "!"
+	icon.add_theme_font_size_override("font_size", 20)
+	icon.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
+	hbox.add_child(icon)
+
+	var parts = []
+	if unspent_skill > 0:
+		parts.append("%d Skill Point%s" % [unspent_skill, "" if unspent_skill == 1 else "s"])
+	if unspent_base > 0:
+		parts.append("%d Base Point%s" % [unspent_base, "" if unspent_base == 1 else "s"])
+
+	var msg = Label.new()
+	msg.text = "You have %s unspent — open a stat to allocate them!" % " and ".join(parts)
+	msg.add_theme_font_size_override("font_size", 16)
+	msg.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
+	hbox.add_child(msg)
+
+	add_child(_unspent_banner)
+
 
 func get_artifacts():
 	for artifact in Global.CHARACTER_ARTIFACTS.values():
@@ -666,65 +745,27 @@ func _on_inventory_button_pressed() -> void:
 	pass # Replace with function body.
 
 
-func _on_talents_button_pressed() -> void:
-	var s: PackedScene = preload("res://UI/Tabs.tscn")
+func _open_character_profile() -> void:
+	var s: PackedScene = preload("res://Scenes/character_profile.tscn")
 	var dlg = s.instantiate()
-
 	var win := Window.new()
-	win.exclusive = true               # makes it modal, blocks hover/clicks
-	win.transparent = true             # so only your dlg visuals show
+	win.exclusive = true
+	win.transparent = true
 	win.unresizable = true
 	win.size = get_viewport_rect().size
 	win.position = Vector2.ZERO
-	dlg.TableType = "Talents"
 	win.add_child(dlg)
 	add_child(win)
-
-	# Optional: center or full-rect dlg inside window
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	
-	pass # Replace with function body.
 
+func _on_talents_button_pressed() -> void:
+	_open_character_profile()
 
 func _on_constellations_button_pressed() -> void:
-	var s: PackedScene = preload("res://UI/Tabs.tscn")
-	var dlg = s.instantiate()
-
-	var win := Window.new()
-	win.exclusive = true               # makes it modal, blocks hover/clicks
-	win.transparent = true             # so only your dlg visuals show
-	win.unresizable = true
-	win.size = get_viewport_rect().size
-	win.position = Vector2.ZERO
-	dlg.TableType = "Constellations"
-	win.add_child(dlg)
-	add_child(win)
-
-	# Optional: center or full-rect dlg inside window
-	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	
-	pass # Replace with function body.
-
+	_open_character_profile()
 
 func _on_abilities_button_pressed() -> void:
-	var s: PackedScene = preload("res://UI/Tabs.tscn")
-	var dlg = s.instantiate()
-
-	var win := Window.new()
-	win.exclusive = true               # makes it modal, blocks hover/clicks
-	win.transparent = true             # so only your dlg visuals show
-	win.unresizable = true
-	win.size = get_viewport_rect().size
-	win.position = Vector2.ZERO
-	dlg.TableType = "Abilities"
-	win.add_child(dlg)
-	add_child(win)
-
-	# Optional: center or full-rect dlg inside window
-	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
-
-	
-	pass # Replace with function body.
+	_open_character_profile()
 
 
 func _on_bug_button_pressed() -> void:
@@ -842,6 +883,20 @@ func _on_settings_button_pressed() -> void:
 	var popup = settings_popup_scene.instantiate()
 	add_child(popup)
 	popup.popup_centered()
+
+
+func _on_rules_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/RulesScene.tscn")
+	var dlg = s.instantiate()
+	var win = Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 
 func _on_minigames_button_pressed() -> void:
