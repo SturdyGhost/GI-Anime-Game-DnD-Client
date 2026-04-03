@@ -624,13 +624,8 @@ func send_notes_file(filename: String, file_bytes: PackedByteArray) -> void:
 	var player_name = connected_players.get(sender, {}).get("name", "unknown")
 	print("NetworkManager: Received notes file '%s' from %s (%d bytes)" % [filename, player_name, file_bytes.size()])
 
-	# Ensure backup directory exists
-	var dir = DirAccess.open("user://")
-	if not dir.dir_exists("notes_backups"):
-		dir.make_dir("notes_backups")
-
 	# Save the file
-	var save_path = "user://notes_backups/%s" % filename
+	var save_path = "user://%s" % filename
 	var file = FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
 		push_error("NetworkManager: Failed to save notes file: %s" % error_string(FileAccess.get_open_error()))
