@@ -298,37 +298,49 @@ func set_stats():
 var _unspent_banner: PanelContainer = null
 
 func _update_unspent_banner() -> void:
-	# Check for unspent points
-	var unspent_skill = int(Player_data.get("Unspent_Skill_Points", 0))
-	var unspent_base = int(Player_data.get("Unspent_Base_Points", 0))
+	# Check for unspent points — try Player_data dict first, then SaveManager directly
+	var unspent_skill = 0
+	var unspent_base = 0
+	if Player_data != null and not Player_data.is_empty():
+		unspent_skill = int(Player_data.get("Unspent_Skill_Points", 0))
+		unspent_base = int(Player_data.get("Unspent_Base_Points", 0))
+	# Fallback: read directly from SaveManager
+	if unspent_skill == 0 and unspent_base == 0:
+		var p = SaveManager.get_player(Global.ACTIVE_USER_NAME)
+		if p != null and p.stats != null:
+			unspent_skill = p.stats.unspent_skill_points
+			unspent_base = p.stats.unspent_base_points
 	var total_unspent = unspent_skill + unspent_base
+	print("PlayerHub: unspent check — skill=%d base=%d total=%d" % [unspent_skill, unspent_base, total_unspent])
 
 	if total_unspent <= 0:
-		if _unspent_banner != null:
+		if _unspent_banner != null and is_instance_valid(_unspent_banner):
 			_unspent_banner.queue_free()
 			_unspent_banner = null
 		return
 
 	# Build or update the banner
-	if _unspent_banner != null:
+	if _unspent_banner != null and is_instance_valid(_unspent_banner):
 		_unspent_banner.queue_free()
 
 	_unspent_banner = PanelContainer.new()
 	var sb = StyleBoxFlat.new()
-	sb.bg_color = Color(0.788, 0.659, 0.298, 0.15)
-	sb.border_color = Color(0.788, 0.659, 0.298, 0.6)
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 16
-	sb.content_margin_right = 16
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
+	sb.bg_color = Color(0.12, 0.10, 0.05, 0.95)
+	sb.border_color = Color(0.788, 0.659, 0.298, 0.9)
+	sb.set_border_width_all(2)
+	sb.corner_radius_bottom_left = 8
+	sb.corner_radius_bottom_right = 8
+	sb.content_margin_left = 20
+	sb.content_margin_right = 20
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 10
 	_unspent_banner.add_theme_stylebox_override("panel", sb)
-	_unspent_banner.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	_unspent_banner.offset_top = -50
-	_unspent_banner.offset_left = 200
-	_unspent_banner.offset_right = -200
-	_unspent_banner.z_index = 5
+	# Position just below the TopHotbar, matching its width
+	var hotbar = $UI/TopHotbar
+	_unspent_banner.position = Vector2(hotbar.offset_left, hotbar.offset_bottom + 2)
+	_unspent_banner.size = Vector2(hotbar.offset_right - hotbar.offset_left, 50)
+	_unspent_banner.z_index = 100
+	_unspent_banner.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 12)
@@ -337,7 +349,7 @@ func _update_unspent_banner() -> void:
 
 	var icon = Label.new()
 	icon.text = "!"
-	icon.add_theme_font_size_override("font_size", 20)
+	icon.add_theme_font_size_override("font_size", 22)
 	icon.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 	hbox.add_child(icon)
 
@@ -353,7 +365,29 @@ func _update_unspent_banner() -> void:
 	msg.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
 	hbox.add_child(msg)
 
-	add_child(_unspent_banner)
+	# Close button
+	var close_btn = Button.new()
+	close_btn.text = "X"
+	close_btn.custom_minimum_size = Vector2(30, 30)
+	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
+	var close_sb = StyleBoxFlat.new()
+	close_sb.bg_color = Color(0.6, 0.2, 0.2, 0.5)
+	close_sb.set_corner_radius_all(4)
+	close_btn.add_theme_stylebox_override("normal", close_sb)
+	var close_hover = StyleBoxFlat.new()
+	close_hover.bg_color = Color(0.8, 0.3, 0.3, 0.7)
+	close_hover.set_corner_radius_all(4)
+	close_btn.add_theme_stylebox_override("hover", close_hover)
+	close_btn.pressed.connect(_on_unspent_banner_closed)
+	hbox.add_child(close_btn)
+
+	$UI.add_child(_unspent_banner)
+
+func _on_unspent_banner_closed() -> void:
+	if _unspent_banner != null:
+		_unspent_banner.queue_free()
+		_unspent_banner = null
 
 
 func get_artifacts():
@@ -519,6 +553,9 @@ func _on_weapon_button_pressed() -> void:
 
 
 func _on_exit_button_pressed() -> void:
+	if Global.ACTIVE_USER_NAME == "Brian F.":
+		Global._show_notes_backup_popup()
+		return
 	var confirmation = ConfirmationDialog.new()
 	confirmation.dialog_text = "Are you sure you want to quit?"
 	confirmation.connect("confirmed", Callable(self, "_on_quit_confirmed"))
