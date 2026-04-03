@@ -847,10 +847,11 @@ var _notes_popup_active: bool = false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if ACTIVE_USER_NAME == "Brian F." and not _notes_popup_active:
-			_show_notes_backup_popup()
-		else:
-			get_tree().quit()
+		if ACTIVE_USER_NAME == "Brian F.":
+			if not _notes_popup_active:
+				_show_notes_backup_popup()
+			return
+		get_tree().quit()
 
 func _show_notes_backup_popup() -> void:
 	_notes_popup_active = true
@@ -933,7 +934,7 @@ func _show_notes_backup_popup() -> void:
 	var file_dialog = FileDialog.new()
 	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
-	file_dialog.filters = PackedStringArray(["*.doc, *.docx ; Word Documents"])
+	file_dialog.filters = PackedStringArray(["*.doc,*.docx ; Word Documents"])
 	file_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
 	file_dialog.size = Vector2(800, 500)
 	file_dialog.title = "Select Notes File"
