@@ -13,6 +13,19 @@ var Luck_Set: bool = false
 var Region_Changed: int = 1
 var _returned_from_battle: bool = false
 
+## Returns effective luck for a player, factoring in Bennett's party penalty.
+## If Bennett is an active chosen companion, all luck is reduced by 25%.
+func get_effective_luck(player_name: String) -> int:
+	var p = SaveManager.get_player(player_name)
+	if p == null:
+		return 50
+	var luck = p.daily_luck
+	# Bennett penalty: if Bennett is active+chosen, reduce luck by 25%
+	var bennett = SaveManager.get_companion("Bennett")
+	if bennett != null and bennett.active and bennett.player_chosen:
+		luck = int(round(float(luck) * 0.75))
+	return luck
+
 # ── Synced table data (populated by host on both host+client via _process_table)
 var _synced: Dictionary = {}          # { "TableName": { "rid": {record}, ... } }
 var _synced_name: Dictionary = {}     # { "TableName": { "Name": "rid", ... } }  (only for tables with Name field)
@@ -274,14 +287,18 @@ var BATTLEENEMIES: Dictionary:
 
 var ACTIVE_ABILITIES: Dictionary:
 	get:
+		# Start with .tres-based abilities (source of truth for mappings)
+		var result = GameDB.build_active_abilities_table()
+		# Merge synced runtime state (cooldowns) on top
 		if _synced.has("Active_Abilities"):
-			return _synced["Active_Abilities"]
-		var d = {}
-		for raw in _read_json_cached("Active_Abilities.json"):
-			if typeof(raw) == TYPE_DICTIONARY and raw.has("id"):
-				var rid = int(raw["id"]) if raw["id"] != null else 0
-				d[str(rid)] = raw
-		return d
+			for key in _synced["Active_Abilities"]:
+				var synced_entry = _synced["Active_Abilities"][key]
+				# Update cooldown state on matching entries
+				if result.has(key):
+					result[key]["Ability_Cooldown"] = synced_entry.get("Ability_Cooldown", 0)
+				else:
+					result[key] = synced_entry
+		return result
 var ACTIVE_STATUS_EFFECTS: Dictionary:
 	get:
 		return _synced.get("Active_Status_Effects", {})
@@ -362,9 +379,13 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 			if aid_int <= 0:
 				continue
 			var atype = str(ability.get("Ability_Type", ability.get("ability_type", "")))
-			if atype.to_lower() != "passive":
-				continue
 			var ability_res: AbilityData = GameDB.get_ability(aid_int)
+			# Detect passives by: explicit type, zero weight, or ability_type field on resource
+			var is_passive = atype.to_lower() == "passive"
+			if not is_passive and ability_res:
+				is_passive = ability_res.ability_type.to_lower() == "passive" or ability_res.weight <= 0.0
+			if not is_passive:
+				continue
 			var ability_name = ability_res.name if ability_res else "Ability %d" % aid_int
 			if ability_res and ability_res.effects.size() > 0:
 				for eff in ability_res.effects:
@@ -819,3 +840,201 @@ func _party_to_dict(p: PartySaveData) -> Dictionary:
 	for i in range(p.members.size()):
 		d["Party_Member_%d" % (i + 1)] = p.members[i]
 	return d
+
+# ─── NOTES BACKUP (Brian F. exit intercept) ─────────────────────────────────
+
+var _notes_popup_active: bool = false
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if ACTIVE_USER_NAME == "Brian F." and not _notes_popup_active:
+			_show_notes_backup_popup()
+		else:
+			get_tree().quit()
+
+func _show_notes_backup_popup() -> void:
+	_notes_popup_active = true
+
+	# Full-screen semi-transparent overlay
+	var overlay = ColorRect.new()
+	overlay.name = "NotesBackupOverlay"
+	overlay.color = Color(0, 0, 0, 0.6)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 100
+
+	# Centered panel
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(600, 250)
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.12, 0.12, 0.15, 1.0)
+	sb.border_color = Color(0.4, 0.4, 0.5, 1.0)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(20)
+	panel.add_theme_stylebox_override("panel", sb)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+
+	# Header label
+	var header = Label.new()
+	header.text = "Have you remembered to save the notes file?"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(header)
+
+	# File path row
+	var hbox_path = HBoxContainer.new()
+	hbox_path.add_theme_constant_override("separation", 8)
+
+	var path_edit = LineEdit.new()
+	path_edit.name = "NotesPathEdit"
+	path_edit.placeholder_text = "Select your notes file..."
+	path_edit.editable = false
+	path_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox_path.add_child(path_edit)
+
+	var browse_btn = Button.new()
+	browse_btn.text = "Browse"
+	hbox_path.add_child(browse_btn)
+	vbox.add_child(hbox_path)
+
+	# Status label (for sending/error feedback)
+	var status_label = Label.new()
+	status_label.name = "NotesStatusLabel"
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	status_label.text = ""
+	vbox.add_child(status_label)
+
+	# Button row
+	var hbox_btns = HBoxContainer.new()
+	hbox_btns.alignment = BoxContainer.ALIGNMENT_END
+	hbox_btns.add_theme_constant_override("separation", 12)
+
+	var cancel_btn = Button.new()
+	cancel_btn.text = "Cancel"
+	hbox_btns.add_child(cancel_btn)
+
+	var confirm_btn = Button.new()
+	confirm_btn.name = "NotesConfirmBtn"
+	confirm_btn.text = "Confirm and exit"
+	confirm_btn.disabled = true
+	hbox_btns.add_child(confirm_btn)
+
+	vbox.add_child(hbox_btns)
+	panel.add_child(vbox)
+	overlay.add_child(panel)
+
+	# FileDialog for browsing
+	var file_dialog = FileDialog.new()
+	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	file_dialog.filters = PackedStringArray(["*.doc, *.docx ; Word Documents"])
+	file_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
+	file_dialog.size = Vector2(800, 500)
+	file_dialog.title = "Select Notes File"
+	overlay.add_child(file_dialog)
+
+	# Load persisted path
+	var config = ConfigFile.new()
+	if config.load("user://brian_notes_path.cfg") == OK:
+		var saved_path = config.get_value("notes", "path", "")
+		if saved_path != "":
+			path_edit.text = saved_path
+			if FileAccess.file_exists(saved_path):
+				confirm_btn.disabled = false
+
+	# Wire up signals
+	browse_btn.pressed.connect(func(): file_dialog.popup_centered())
+	file_dialog.file_selected.connect(func(path: String):
+		path_edit.text = path
+		confirm_btn.disabled = not FileAccess.file_exists(path)
+		status_label.text = ""
+	)
+	cancel_btn.pressed.connect(func():
+		overlay.queue_free()
+		_notes_popup_active = false
+	)
+	confirm_btn.pressed.connect(_on_notes_confirm.bind(path_edit, confirm_btn, cancel_btn, browse_btn, status_label, overlay))
+
+	# Add to the scene tree root so it works from any scene
+	get_tree().root.add_child(overlay)
+
+func _on_notes_confirm(path_edit: LineEdit, confirm_btn: Button, cancel_btn: Button, browse_btn: Button, status_label: Label, overlay: ColorRect) -> void:
+	var file_path = path_edit.text
+	if not FileAccess.file_exists(file_path):
+		status_label.text = "File not found. Please browse again."
+		status_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+		confirm_btn.disabled = true
+		return
+
+	# Disable UI while sending
+	confirm_btn.disabled = true
+	cancel_btn.disabled = true
+	browse_btn.disabled = true
+	status_label.text = "Sending file to host..."
+	status_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+
+	# Read the file
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if file == null:
+		status_label.text = "Failed to read file: %s" % error_string(FileAccess.get_open_error())
+		status_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+		confirm_btn.disabled = false
+		cancel_btn.disabled = false
+		browse_btn.disabled = false
+		return
+
+	var file_bytes = file.get_buffer(file.get_length())
+	file.close()
+	var filename = file_path.get_file()
+
+	# Send to host (peer 1)
+	NetworkManager.send_notes_file.rpc_id(1, filename, file_bytes)
+
+	# Wait for ack with timeout
+	var result = await _wait_for_notes_ack(10.0)
+	if result:
+		# Save the path for next time
+		var config = ConfigFile.new()
+		config.set_value("notes", "path", file_path)
+		config.save("user://brian_notes_path.cfg")
+		get_tree().quit()
+	else:
+		status_label.text = "Failed to send file. Try again or cancel."
+		status_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+		confirm_btn.disabled = false
+		cancel_btn.disabled = false
+		browse_btn.disabled = false
+
+func _wait_for_notes_ack(timeout: float) -> bool:
+	var timer = get_tree().create_timer(timeout)
+	var result = await _race_signals(
+		NetworkManager.notes_file_ack_received,
+		timer.timeout
+	)
+	return result
+
+func _race_signals(success_signal: Signal, timeout_signal: Signal) -> bool:
+	var resolved = false
+	var success = false
+
+	success_signal.connect(func(ok: bool):
+		if not resolved:
+			resolved = true
+			success = ok
+	, CONNECT_ONE_SHOT)
+
+	timeout_signal.connect(func():
+		if not resolved:
+			resolved = true
+			success = false
+	, CONNECT_ONE_SHOT)
+
+	while not resolved:
+		await get_tree().process_frame
+	return success
