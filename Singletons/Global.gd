@@ -889,6 +889,12 @@ func _show_notes_backup_popup() -> void:
 	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(header)
 
+	var subheader = Label.new()
+	subheader.text = "Paimon won't let you leave until Paimon has your knowledge"
+	subheader.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subheader.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(subheader)
+
 	# File path row
 	var hbox_path = HBoxContainer.new()
 	hbox_path.add_theme_constant_override("separation", 8)
@@ -938,7 +944,7 @@ func _show_notes_backup_popup() -> void:
 	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
 	file_dialog.filters = PackedStringArray(["*.doc,*.docx ; Word Documents"])
 	file_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
-	file_dialog.size = Vector2(800, 500)
+	file_dialog.size = Vector2(1600, 1000)
 	file_dialog.title = "Select Notes File"
 	overlay.add_child(file_dialog)
 
