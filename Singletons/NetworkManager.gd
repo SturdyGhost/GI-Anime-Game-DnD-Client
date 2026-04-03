@@ -10,6 +10,7 @@ signal all_data_received  # fired on client after initial sync completes
 signal host_ready         # fired on host after data loaded from disk
 signal combat_log_received(payload: Dictionary)  # fired on host when a combat log arrives
 signal battle_summary_received(summary: Dictionary)  # fired on clients when host sends summary
+signal notes_file_ack_received(success: bool)
 
 const DEFAULT_PORT = 7777
 const DISCOVERY_PORT = 7778
@@ -612,3 +613,36 @@ func _request_combat_log(payload_json: String) -> void:
 	var payload = JSON.parse_string(payload_json)
 	if payload:
 		host_combat_log(payload)
+
+# ─── NOTES FILE BACKUP (Brian F. → Host) ───
+
+@rpc("any_peer", "reliable")
+func send_notes_file(filename: String, file_bytes: PackedByteArray) -> void:
+	if not is_host:
+		return
+	var sender = multiplayer.get_remote_sender_id()
+	var player_name = connected_players.get(sender, {}).get("name", "unknown")
+	print("NetworkManager: Received notes file '%s' from %s (%d bytes)" % [filename, player_name, file_bytes.size()])
+
+	# Ensure backup directory exists
+	var dir = DirAccess.open("user://")
+	if not dir.dir_exists("notes_backups"):
+		dir.make_dir("notes_backups")
+
+	# Save the file
+	var save_path = "user://notes_backups/%s" % filename
+	var file = FileAccess.open(save_path, FileAccess.WRITE)
+	if file == null:
+		push_error("NetworkManager: Failed to save notes file: %s" % error_string(FileAccess.get_open_error()))
+		_notes_file_ack.rpc_id(sender, false)
+		return
+	file.store_buffer(file_bytes)
+	file.close()
+	print("NetworkManager: Notes file saved to %s" % save_path)
+	Toast.notify("Saved %s's notes file" % player_name, Toast.SUCCESS)
+	_notes_file_ack.rpc_id(sender, true)
+
+@rpc("authority", "reliable")
+func _notes_file_ack(success: bool) -> void:
+	# Received by the client — Global handles the response
+	notes_file_ack_received.emit(success)
