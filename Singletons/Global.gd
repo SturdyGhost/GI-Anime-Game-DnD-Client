@@ -443,7 +443,7 @@ func set_next_correlation_id(id_value: String) -> void:
 var _json_cache: Dictionary = {}
 
 func _ready() -> void:
-	pass  # Managers handle initialization now
+	get_tree().set_auto_accept_quit(false)
 
 func _read_json_cached(filename: String) -> Array:
 	if _json_cache.has(filename):
