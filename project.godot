@@ -14,6 +14,7 @@ config/name="Genshin DnD Client"
 config/version="0.0.8"
 run/main_scene="res://Scenes/Lobby.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
+run/auto_accept_quit=false
 
 [autoload]
 
