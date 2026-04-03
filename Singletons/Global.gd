@@ -844,6 +844,8 @@ func _party_to_dict(p: PartySaveData) -> Dictionary:
 # ─── NOTES BACKUP (Brian F. exit intercept) ─────────────────────────────────
 
 var _notes_popup_active: bool = false
+var _notes_ack_received: bool = false
+var _notes_ack_success: bool = false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1013,29 +1015,19 @@ func _on_notes_confirm(path_edit: LineEdit, confirm_btn: Button, cancel_btn: But
 		browse_btn.disabled = false
 
 func _wait_for_notes_ack(timeout: float) -> bool:
-	var timer = get_tree().create_timer(timeout)
-	var result = await _race_signals(
-		NetworkManager.notes_file_ack_received,
-		timer.timeout
-	)
-	return result
-
-func _race_signals(success_signal: Signal, timeout_signal: Signal) -> bool:
-	var resolved = false
-	var success = false
-
-	success_signal.connect(func(ok: bool):
-		if not resolved:
-			resolved = true
-			success = ok
-	, CONNECT_ONE_SHOT)
-
-	timeout_signal.connect(func():
-		if not resolved:
-			resolved = true
-			success = false
-	, CONNECT_ONE_SHOT)
-
-	while not resolved:
+	_notes_ack_received = false
+	_notes_ack_success = false
+	NetworkManager.notes_file_ack_received.connect(_on_notes_ack, CONNECT_ONE_SHOT)
+	var elapsed = 0.0
+	while not _notes_ack_received and elapsed < timeout:
 		await get_tree().process_frame
-	return success
+		elapsed += get_process_delta_time()
+	if not _notes_ack_received:
+		# Timeout — disconnect if still connected
+		if NetworkManager.notes_file_ack_received.is_connected(_on_notes_ack):
+			NetworkManager.notes_file_ack_received.disconnect(_on_notes_ack)
+	return _notes_ack_success
+
+func _on_notes_ack(success: bool) -> void:
+	_notes_ack_success = success
+	_notes_ack_received = true
