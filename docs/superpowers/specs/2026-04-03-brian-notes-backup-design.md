@@ -41,13 +41,14 @@ If the ack doesn't come (timeout/error), show an error message in the popup and 
 
 ## Project Settings Change
 
-In `project.godot`, set `auto_accept_quit = false` so `NOTIFICATION_WM_CLOSE_REQUEST` can be intercepted. This affects all players but the `_notification` handler in `player_hub.gd` only shows the backup popup for Brian; everyone else gets the normal quit confirmation.
+In `project.godot`, set `auto_accept_quit = false` so `NOTIFICATION_WM_CLOSE_REQUEST` can be intercepted. The `_notification` handler lives in `Global.gd` (autoload) so it works from any scene. For non-Brian players, it just calls `get_tree().quit()` immediately.
 
 ## Files to Modify
 
 1. **`project.godot`** — Add `auto_accept_quit = false`
-2. **`Scenes/player_hub.gd`** — Add `_notification()` handler, modify `_on_exit_button_pressed()`, add popup creation/management methods
-3. **`Singletons/NetworkManager.gd`** — Add `send_notes_file` and `notes_file_received` RPCs
+2. **`Singletons/Global.gd`** — Add `_notification()` handler for `WM_CLOSE_REQUEST`, popup creation/management methods
+3. **`Scenes/player_hub.gd`** — Modify `_on_exit_button_pressed()` to delegate to Global for Brian
+4. **`Singletons/NetworkManager.gd`** — Add `send_notes_file` and `notes_file_received` RPCs
 
 ## Path Persistence
 
@@ -59,5 +60,5 @@ In `project.godot`, set `auto_accept_quit = false` so `NOTIFICATION_WM_CLOSE_REQ
 ## Edge Cases
 
 - **File too large**: Word docs are typically small (< 1MB). No size limit enforced initially.
-- **Brian quits from a scene other than player_hub**: The `_notification` handler needs to be on an autoload or the main scene tree. Since `player_hub` is the main gameplay scene, and the exit button is there, this covers the primary case. If Brian is in the lobby, the normal quit behavior applies (no notes backup needed since the game hasn't started).
+- **Brian quits from any scene**: The `_notification` handler is on `Global.gd` (autoload), so it intercepts window close from any scene — lobby, player hub, battle, etc.
 - **Host disconnected**: RPC will fail. The timeout/error path handles this — Brian sees an error and can choose to cancel and quit normally.
