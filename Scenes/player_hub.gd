@@ -29,9 +29,10 @@ func _ready() -> void:
 		Global.connect("data_load_complete", handler)
 	# Apply saved settings
 	_apply_saved_volume()
-	# Apply saved font scale
+	# Apply saved font scale and SFX volume
 	var settings_script = preload("res://Scenes/settings_popup.gd")
 	settings_script.load_and_apply_font_scale()
+	settings_script.load_and_apply_sfx_volume()
 	# If data is already available (host, or client already synced), run setup now
 	_try_initial_setup()
 

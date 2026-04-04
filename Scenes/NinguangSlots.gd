@@ -70,7 +70,15 @@ var _spin_btn: Button
 var _result_label: Label
 var _payout_label: Label
 
+# ── Audio ────────────────────────────────────────────────────────────────────
+var _sfx_player: AudioStreamPlayer
+
 func _ready() -> void:
+	# Audio player on SFX bus
+	_sfx_player = AudioStreamPlayer.new()
+	_sfx_player.bus = "SFX"
+	add_child(_sfx_player)
+
 	# Calculate total weight
 	for e in ELEMENTS:
 		_total_weight += e["weight"]
@@ -461,6 +469,7 @@ func _on_spin() -> void:
 	_spinning = true
 	_spin_btn.disabled = true
 	_result_label.text = ""
+	_sfx_spin_start()
 
 	# Deduct bet
 	_update_mora(current_mora - bet)
@@ -489,6 +498,7 @@ func _on_spin() -> void:
 		_result_label.text = "Won %d Mora!" % winnings
 		_result_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
 	else:
+		_sfx_no_win()
 		_result_label.text = "No luck this time..."
 		_result_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
@@ -528,11 +538,14 @@ func _animate_reels() -> void:
 			for row in 3:
 				var rand_elem = ELEMENTS[randi() % ELEMENTS.size()]["name"]
 				_grid_icons[col][row].texture = _get_element_icon(rand_elem)
+			if i % 3 == 0:
+				_sfx_tick()
 			await get_tree().create_timer(0.06).timeout
 
 		# Land on final result
 		for row in 3:
 			_grid_icons[col][row].texture = _get_element_icon(_grid[col][row])
+		_sfx_reel_stop()
 
 		# Brief pause between columns stopping
 		if col < 2:
@@ -588,6 +601,13 @@ func _animate_wins(wins: Array) -> void:
 
 		# Bounce all cells in this winning line together
 		if cells_to_bounce.size() > 0:
+			# Play appropriate win sound
+			if win["payout"] >= 2000:
+				_sfx_jackpot()
+			elif cells_to_bounce.size() >= 3:
+				_sfx_win_big()
+			else:
+				_sfx_win_small()
 			var tween = create_tween()
 			tween.set_parallel(true)
 			for icon in cells_to_bounce:
@@ -619,6 +639,70 @@ func _update_mora(new_amount: int) -> void:
 func _update_mora_display() -> void:
 	var mora = int(Global.Current_Party.get("Mora", 0))
 	_mora_label.text = "Mora: %d" % mora
+
+# ── Sound Effects (procedural) ───────────────────────────────────────────────
+
+func _play_tone(freq: float, duration: float, volume_db: float = 0.0) -> void:
+	var sample_rate = 22050
+	var num_samples = int(sample_rate * duration)
+	var data = PackedByteArray()
+	data.resize(num_samples * 2)  # 16-bit mono
+
+	for i in num_samples:
+		var t = float(i) / sample_rate
+		var envelope = 1.0 - (float(i) / num_samples)  # linear fade out
+		var sample = sin(t * freq * TAU) * envelope * 0.5
+		var s16 = int(clamp(sample * 32767.0, -32768, 32767))
+		data[i * 2] = s16 & 0xFF
+		data[i * 2 + 1] = (s16 >> 8) & 0xFF
+
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = sample_rate
+	stream.data = data
+	stream.stereo = false
+
+	_sfx_player.stream = stream
+	_sfx_player.volume_db = volume_db
+	_sfx_player.play()
+
+func _sfx_spin_start() -> void:
+	# Low rumble / whoosh — descending tone
+	_play_tone(200.0, 0.2, -6.0)
+
+func _sfx_reel_stop() -> void:
+	# Satisfying click/thunk — short mid tone
+	_play_tone(600.0, 0.08, -4.0)
+
+func _sfx_tick() -> void:
+	# Rapid tick during reel cycling
+	_play_tone(800.0, 0.03, -12.0)
+
+func _sfx_win_small() -> void:
+	# Pleasant ding for 2-match
+	_play_tone(880.0, 0.15, -2.0)
+
+func _sfx_win_big() -> void:
+	# Rising triumphant tone for 3-match
+	_play_tone(660.0, 0.12, -2.0)
+	await get_tree().create_timer(0.1).timeout
+	_play_tone(880.0, 0.12, -2.0)
+	await get_tree().create_timer(0.1).timeout
+	_play_tone(1100.0, 0.2, -2.0)
+
+func _sfx_jackpot() -> void:
+	# Fanfare — ascending scale for Hydro jackpot
+	var notes = [523.0, 659.0, 784.0, 1047.0, 1319.0]
+	for note in notes:
+		_play_tone(note, 0.12, 0.0)
+		await get_tree().create_timer(0.1).timeout
+	_play_tone(1568.0, 0.4, 0.0)
+
+func _sfx_no_win() -> void:
+	# Soft descending tone for losing
+	_play_tone(400.0, 0.15, -8.0)
+	await get_tree().create_timer(0.08).timeout
+	_play_tone(300.0, 0.2, -8.0)
 
 # ── Close / save ─────────────────────────────────────────────────────────────
 

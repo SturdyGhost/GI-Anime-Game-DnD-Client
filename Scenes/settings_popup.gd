@@ -3,6 +3,8 @@ extends AcceptDialog
 @onready var server_field: LineEdit = $VBoxContainer/ServerField
 @onready var volume_slider: HSlider = $VBoxContainer/VolumeRow/VolumeSlider
 @onready var volume_label: Label = $VBoxContainer/VolumeRow/VolumeValue
+@onready var sfx_slider: HSlider = $VBoxContainer/SFXRow/SFXSlider
+@onready var sfx_label: Label = $VBoxContainer/SFXRow/SFXValue
 @onready var font_slider: HSlider = $VBoxContainer/FontRow/FontSlider
 @onready var font_label: Label = $VBoxContainer/FontRow/FontValue
 
@@ -30,6 +32,15 @@ func _ready() -> void:
 	_apply_volume(volume_slider.value)
 	_update_volume_label(volume_slider.value)
 	volume_slider.value_changed.connect(_on_volume_changed)
+
+	# SFX slider
+	sfx_slider.min_value = 0.0
+	sfx_slider.max_value = 100.0
+	sfx_slider.step = 1.0
+	sfx_slider.value = _load_setting("audio", "sfx_volume", 50.0)
+	_apply_sfx_volume(sfx_slider.value)
+	_update_sfx_label(sfx_slider.value)
+	sfx_slider.value_changed.connect(_on_sfx_changed)
 
 	# Font scale slider (50% to 150%, default 100%)
 	font_slider.min_value = 50.0
@@ -59,6 +70,44 @@ func _apply_volume(value: float) -> void:
 
 func _update_volume_label(value: float) -> void:
 	volume_label.text = "Muted" if value <= 0.0 else "%d%%" % int(value)
+
+
+# ── SFX Volume ──
+
+func _on_sfx_changed(value: float) -> void:
+	_apply_sfx_volume(value)
+	_update_sfx_label(value)
+	_save_setting("audio", "sfx_volume", value)
+
+
+func _apply_sfx_volume(value: float) -> void:
+	var bus_idx = AudioServer.get_bus_index("SFX")
+	if bus_idx == -1:
+		return
+	if value <= 0.0:
+		AudioServer.set_bus_mute(bus_idx, true)
+	else:
+		AudioServer.set_bus_mute(bus_idx, false)
+		AudioServer.set_bus_volume_db(bus_idx, linear_to_db(value / 100.0))
+
+
+func _update_sfx_label(value: float) -> void:
+	sfx_label.text = "Muted" if value <= 0.0 else "%d%%" % int(value)
+
+
+static func load_and_apply_sfx_volume() -> void:
+	var cfg = ConfigFile.new()
+	var vol = 50.0
+	if cfg.load(SETTINGS_PATH) == OK:
+		vol = cfg.get_value("audio", "sfx_volume", 50.0)
+	var bus_idx = AudioServer.get_bus_index("SFX")
+	if bus_idx == -1:
+		return
+	if vol <= 0.0:
+		AudioServer.set_bus_mute(bus_idx, true)
+	else:
+		AudioServer.set_bus_mute(bus_idx, false)
+		AudioServer.set_bus_volume_db(bus_idx, linear_to_db(vol / 100.0))
 
 
 # ── Font Scale ──
