@@ -74,6 +74,16 @@ var _payout_label: Label
 var _sfx_player: AudioStreamPlayer
 
 func _ready() -> void:
+	# Ensure SFX bus exists (fallback if bus layout didn't load it)
+	if AudioServer.get_bus_index("SFX") == -1:
+		AudioServer.add_bus()
+		var idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(idx, "SFX")
+		AudioServer.set_bus_send(idx, "Master")
+		# Apply saved volume
+		var settings_script = preload("res://Scenes/settings_popup.gd")
+		settings_script.load_and_apply_sfx_volume()
+
 	# Audio player on SFX bus
 	_sfx_player = AudioStreamPlayer.new()
 	_sfx_player.bus = "SFX"
@@ -643,15 +653,16 @@ func _update_mora_display() -> void:
 # ── Sound Effects (procedural) ───────────────────────────────────────────────
 
 func _play_tone(freq: float, duration: float, volume_db: float = 0.0) -> void:
-	var sample_rate = 22050
+	var sample_rate = 44100
 	var num_samples = int(sample_rate * duration)
 	var data = PackedByteArray()
 	data.resize(num_samples * 2)  # 16-bit mono
 
 	for i in num_samples:
 		var t = float(i) / sample_rate
-		var envelope = 1.0 - (float(i) / num_samples)  # linear fade out
-		var sample = sin(t * freq * TAU) * envelope * 0.5
+		# Smooth envelope: quick attack, exponential decay
+		var envelope = exp(-3.0 * t / duration)
+		var sample = sin(t * freq * TAU) * envelope * 0.6
 		var s16 = int(clamp(sample * 32767.0, -32768, 32767))
 		data[i * 2] = s16 & 0xFF
 		data[i * 2 + 1] = (s16 >> 8) & 0xFF
@@ -661,10 +672,16 @@ func _play_tone(freq: float, duration: float, volume_db: float = 0.0) -> void:
 	stream.mix_rate = sample_rate
 	stream.data = data
 	stream.stereo = false
+	stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
 
-	_sfx_player.stream = stream
-	_sfx_player.volume_db = volume_db
-	_sfx_player.play()
+	# Use a fresh player per tone so sounds can overlap
+	var player = AudioStreamPlayer.new()
+	player.bus = "SFX"
+	player.stream = stream
+	player.volume_db = volume_db
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
 
 func _sfx_spin_start() -> void:
 	# Low rumble / whoosh — descending tone
