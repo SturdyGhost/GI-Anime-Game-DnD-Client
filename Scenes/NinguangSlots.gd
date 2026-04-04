@@ -611,13 +611,14 @@ func _animate_wins(wins: Array) -> void:
 
 		# Bounce all cells in this winning line together
 		if cells_to_bounce.size() > 0:
-			# Play appropriate win sound
+			# Play appropriate win sound + coin cascade
 			if win["payout"] >= 2000:
 				_sfx_jackpot()
 			elif cells_to_bounce.size() >= 3:
 				_sfx_win_big()
 			else:
 				_sfx_win_small()
+			_sfx_coins()  # coins falling alongside the bounce (runs async)
 			var tween = create_tween()
 			tween.set_parallel(true)
 			for icon in cells_to_bounce:
@@ -714,6 +715,14 @@ func _sfx_jackpot() -> void:
 		_play_tone(note, 0.12, 0.0)
 		await get_tree().create_timer(0.1).timeout
 	_play_tone(1568.0, 0.4, 0.0)
+
+func _sfx_coins() -> void:
+	# Coin cascade — rapid randomized metallic tinks
+	for i in randi_range(6, 10):
+		var freq = randf_range(2000.0, 4500.0)
+		var dur = randf_range(0.04, 0.08)
+		_play_tone(freq, dur, randf_range(-10.0, -4.0))
+		await get_tree().create_timer(randf_range(0.03, 0.07)).timeout
 
 func _sfx_no_win() -> void:
 	# Soft descending tone for losing
