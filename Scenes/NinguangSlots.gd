@@ -72,7 +72,6 @@ var _payout_label: Label
 
 # ── Audio ────────────────────────────────────────────────────────────────────
 var _sfx_player: AudioStreamPlayer
-var _coins_looping: bool = false
 
 func _ready() -> void:
 	# Ensure SFX bus exists (fallback if bus layout didn't load it)
@@ -478,7 +477,6 @@ func _on_spin() -> void:
 		return
 
 	_spinning = true
-	_coins_looping = false  # stop any coin loop from previous spin
 	_spin_btn.disabled = true
 	_result_label.text = ""
 	_sfx_spin_start()
@@ -499,10 +497,8 @@ func _on_spin() -> void:
 	var result = _evaluate_winnings()
 	var winnings = int(round(result["total"] * TIER_MULTIPLIERS[_bet_tier]))
 
-	# Start coin loop and animate winning lines
+	# Animate winning lines one at a time
 	if result["wins"].size() > 0:
-		_coins_looping = true
-		_sfx_coins_loop()  # runs async, loops until _coins_looping = false
 		await _animate_wins(result["wins"])
 
 	if winnings > 0:
@@ -622,6 +618,7 @@ func _animate_wins(wins: Array) -> void:
 				_sfx_win_big()
 			else:
 				_sfx_win_small()
+			_sfx_coins()  # coins falling alongside the bounce
 			var tween = create_tween()
 			tween.set_parallel(true)
 			for icon in cells_to_bounce:
@@ -719,13 +716,13 @@ func _sfx_jackpot() -> void:
 		await get_tree().create_timer(0.1).timeout
 	_play_tone(1568.0, 0.4, 0.0)
 
-func _sfx_coins_loop() -> void:
-	# Continuous coin cascade — loops until _coins_looping is set to false
-	while _coins_looping:
+func _sfx_coins() -> void:
+	# Coin cascade — rapid randomized metallic tinks
+	for i in randi_range(6, 10):
 		var freq = randf_range(2000.0, 4500.0)
 		var dur = randf_range(0.04, 0.08)
 		_play_tone(freq, dur, randf_range(-10.0, -4.0))
-		await get_tree().create_timer(randf_range(0.04, 0.1)).timeout
+		await get_tree().create_timer(randf_range(0.03, 0.07)).timeout
 
 func _sfx_no_win() -> void:
 	# Soft descending tone for losing
