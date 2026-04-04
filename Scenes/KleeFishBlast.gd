@@ -99,8 +99,28 @@ func _end_game() -> void:
 	for child in fish_container.get_children():
 		child.queue_free()
 
+	# Determine rewards based on score thresholds
+	var reward_count = 0
+	if score >= 800:
+		reward_count = randi_range(4, 6)
+	elif score >= 700:
+		reward_count = randi_range(2, 3)
+	elif score >= 600:
+		reward_count = 1
+
+	var rewarded_materials: Array = []
+	if reward_count > 0:
+		rewarded_materials = _grant_region_materials(reward_count)
+
 	# Show results
-	result_score_label.text = "Final Score: %d" % score
+	var result_text = "Final Score: %d" % score
+	if rewarded_materials.size() > 0:
+		result_text += "\n\nRewards:"
+		for mat in rewarded_materials:
+			result_text += "\n  %s x%d" % [mat["name"], mat["qty"]]
+	elif score < 600:
+		result_text += "\n\nScore 600+ for rewards!"
+	result_score_label.text = result_text
 	result_panel.visible = true
 	start_button.visible = true
 	start_button.text = "Play Again"
@@ -108,6 +128,77 @@ func _end_game() -> void:
 	# Save result to database
 	_save_result()
 	game_finished.emit(score)
+
+func _grant_region_materials(count: int) -> Array:
+	# Collect all materials for the current region
+	var region = str(Global.Current_Region)
+	var all_materials: Array = []
+	for cache in Global.MATERIAL_CACHES.values():
+		if str(cache.get("Region", "")) != region:
+			continue
+		var mats_str = str(cache.get("Materials", ""))
+		if mats_str == "" or mats_str == "null":
+			continue
+		if mats_str.begins_with("[") and mats_str.ends_with("]"):
+			mats_str = mats_str.substr(1, mats_str.length() - 2)
+		for part in mats_str.split(","):
+			var clean = part.strip_edges()
+			if clean != "" and not all_materials.has(clean):
+				all_materials.append(clean)
+
+	if all_materials.is_empty():
+		return []
+
+	# Pick random materials and give them to the player
+	var given: Array = []
+	for i in count:
+		var mat_name = all_materials[randi() % all_materials.size()]
+		# Check if we already picked this one — stack it
+		var found = false
+		for g in given:
+			if g["name"] == mat_name:
+				g["qty"] += 1
+				found = true
+				break
+		if not found:
+			given.append({"name": mat_name, "qty": 1})
+
+	# Actually give the items using the upsert pattern from gathering
+	for g in given:
+		_upsert_character_item(g["name"], g["qty"])
+
+	return given
+
+func _upsert_character_item(material_name: String, add_qty: int) -> void:
+	var char_name = str(Global.ACTIVE_USER_NAME)
+	var char_id = Global.CHARACTERS_NAME.get(char_name, null)
+	if char_id == null:
+		return
+
+	var existing_id = ""
+	var existing_qty = 0
+	for rec_id in Global.CHARACTER_ITEMS.keys():
+		var rec = Global.CHARACTER_ITEMS[rec_id]
+		if rec.get("Owner", null) == char_name and str(rec.get("Name", "")) == material_name:
+			existing_id = rec_id
+			existing_qty = int(rec.get("Quantity", 0))
+			break
+
+	if existing_id != "":
+		var new_qty = existing_qty + add_qty
+		Global.Update_Records([{"table": "Character_Items", "record_id": int(existing_id), "field": "Quantity", "value": new_qty}])
+	else:
+		var item_type = null
+		var item_rarity = null
+		var item_description = null
+		for item in Global.ITEMS.values():
+			if item.get("Item") == material_name:
+				item_type = item.get("Type")
+				item_rarity = item.get("Rarity")
+				item_description = item.get("Description")
+		Global.Insert("Character_Items",
+			["Owner", "Name", "Quantity", "Type", "Rarity", "Description"],
+			[char_name, material_name, add_qty, item_type, item_rarity, item_description])
 
 func _save_result() -> void:
 	if not Global.ACTIVE_USER_NAME.is_empty():
