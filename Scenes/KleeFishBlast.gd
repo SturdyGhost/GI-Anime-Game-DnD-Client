@@ -11,8 +11,8 @@ extends Control
 signal game_finished(score: int)
 
 @onready var fish_container: Node2D = $FishContainer
-@onready var score_label: Label = $UI/ScoreLabel
-@onready var timer_label: Label = $UI/TimerLabel
+@onready var score_label: Label = $UI/TopBar/ScoreLabel
+@onready var timer_label: Label = $UI/TopBar/TimerLabel
 @onready var start_button: Button = $UI/StartButton
 @onready var result_panel: PanelContainer = $UI/ResultPanel
 @onready var result_score_label: Label = $UI/ResultPanel/VBox/ResultScoreLabel

@@ -936,16 +936,15 @@ func _check_focus_alert() -> void:
 	if get_window().has_focus():
 		return
 	_focus_alert_pending = true
-	# Restore window to foreground
-	var win = get_window()
-	win.grab_focus()
-	var mode = DisplayServer.window_get_mode()
-	if mode == DisplayServer.WINDOW_MODE_MINIMIZED:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+	# Force window to maximized and foreground regardless of current state
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	await get_tree().process_frame
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 	DisplayServer.window_move_to_foreground()
 	DisplayServer.window_request_attention()
+	get_window().grab_focus()
 	# Give the OS a moment to process the restore
-	await get_tree().create_timer(0.2).timeout
+	await get_tree().create_timer(0.3).timeout
 	# Record mouse position and wait 5 seconds to see if they interact
 	_focus_alert_mouse_pos = get_viewport().get_mouse_position()
 	await get_tree().create_timer(5.0).timeout
