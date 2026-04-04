@@ -379,6 +379,8 @@ func _update_cell_highlights() -> void:
 
 	# We need to draw lines after the grid has laid out, so defer one frame
 	_draw_paylines.call_deferred()
+	# Fade them out after a couple seconds
+	_fade_paylines()
 
 func _draw_paylines() -> void:
 	if not is_instance_valid(_payline_overlay):
@@ -436,6 +438,14 @@ func _add_payline(from: Vector2, to: Vector2, color: Color) -> void:
 	_payline_overlay.add_child(line)
 	_payline_lines.append(line)
 
+func _fade_paylines() -> void:
+	# Fade all payline indicators out after 2 seconds
+	await get_tree().create_timer(2.0).timeout
+	for line_node in _payline_lines:
+		if is_instance_valid(line_node):
+			var tween = create_tween()
+			tween.tween_property(line_node, "modulate:a", 0.0, 0.5)
+
 # ── Spin logic ───────────────────────────────────────────────────────────────
 
 func _on_spin() -> void:
@@ -465,8 +475,13 @@ func _on_spin() -> void:
 	await _animate_reels()
 
 	# Evaluate winnings (apply tier multiplier)
-	var raw_winnings = _evaluate_winnings()
-	var winnings = int(round(raw_winnings * TIER_MULTIPLIERS[_bet_tier]))
+	var result = _evaluate_winnings()
+	var winnings = int(round(result["total"] * TIER_MULTIPLIERS[_bet_tier]))
+
+	# Animate winning lines one at a time
+	if result["wins"].size() > 0:
+		await _animate_wins(result["wins"])
+
 	if winnings > 0:
 		var new_mora = int(Global.Current_Party.get("Mora", 0)) + winnings
 		_update_mora(new_mora)
@@ -525,7 +540,8 @@ func _animate_reels() -> void:
 
 # ── Winning evaluation ───────────────────────────────────────────────────────
 
-func _evaluate_winnings() -> int:
+## Returns { "total": int, "wins": Array of { "positions": Array[Vector2i], "payout": int } }
+func _evaluate_winnings() -> Dictionary:
 	var active_paylines: Array
 	match _bet_tier:
 		0: active_paylines = PAYLINES_TIER_1
@@ -534,19 +550,59 @@ func _evaluate_winnings() -> int:
 		_: active_paylines = PAYLINES_TIER_1
 
 	var total = 0
+	var wins: Array = []
 	for line in active_paylines:
 		var symbols = []
+		var positions: Array = []
 		for pos in line:
 			symbols.append(_grid[pos[0]][pos[1]])
+			positions.append(Vector2i(pos[0], pos[1]))
 
 		# Check for 3-match
 		if symbols[0] == symbols[1] and symbols[1] == symbols[2]:
-			total += PAYOUTS_3.get(symbols[0], 0)
-		# Check for 2-match (first two, last two, or first and last)
+			var payout = PAYOUTS_3.get(symbols[0], 0)
+			total += payout
+			wins.append({"positions": positions, "payout": payout})
+		# Check for 2-match — find which cells matched
 		elif symbols[0] == symbols[1] or symbols[1] == symbols[2] or symbols[0] == symbols[2]:
 			total += PAYOUT_2
+			var matched: Array = []
+			if symbols[0] == symbols[1]:
+				matched = [positions[0], positions[1]]
+			elif symbols[1] == symbols[2]:
+				matched = [positions[1], positions[2]]
+			else:
+				matched = [positions[0], positions[2]]
+			wins.append({"positions": matched, "payout": PAYOUT_2})
 
-	return total
+	return {"total": total, "wins": wins}
+
+## Animate winning cells one line at a time — bounce/grow effect
+func _animate_wins(wins: Array) -> void:
+	for win in wins:
+		var cells_to_bounce: Array = []
+		for pos in win["positions"]:
+			var icon: TextureRect = _grid_icons[pos.x][pos.y]
+			if is_instance_valid(icon):
+				cells_to_bounce.append(icon)
+
+		# Bounce all cells in this winning line together
+		if cells_to_bounce.size() > 0:
+			var tween = create_tween()
+			tween.set_parallel(true)
+			for icon in cells_to_bounce:
+				var original_scale = icon.scale
+				tween.tween_property(icon, "scale", original_scale * 1.3, 0.15)
+			await tween.finished
+
+			var tween2 = create_tween()
+			tween2.set_parallel(true)
+			for icon in cells_to_bounce:
+				tween2.tween_property(icon, "scale", Vector2.ONE, 0.15)
+			await tween2.finished
+
+			# Brief pause before showing next winning line
+			await get_tree().create_timer(0.25).timeout
 
 # ── Mora helpers ─────────────────────────────────────────────────────────────
 
