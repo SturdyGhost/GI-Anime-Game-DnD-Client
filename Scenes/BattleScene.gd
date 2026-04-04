@@ -29,7 +29,7 @@ var _background: TextureRect
 var _turn_list: ItemList
 var _round_label: Label
 var _turn_badge: Label
-var _enemy_grid: GridContainer
+var _enemy_grid: HFlowContainer
 var _action_dock: PanelContainer
 var _attack_select: OptionButton
 var _target_list: ItemList
@@ -51,6 +51,7 @@ var _stun_title: Label
 var _stun_text: Label
 var _stun_btn: Button
 var _audio: AudioStreamPlayer
+var _ability_info_box: HBoxContainer
 var _attack_tab: VBoxContainer
 var _effects_tab: VBoxContainer
 var _stats_tab: VBoxContainer
@@ -86,6 +87,11 @@ var _battle_ending = false
 var _battle_logger: BattleLogger = null
 var _last_logged_turn: String = ""
 var _battle_ending_summary_shown: bool = false
+
+# Focus alert state
+var _focus_alert_pending: bool = false
+var _focus_alert_turn: String = ""
+var _focus_alert_mouse_pos: Vector2 = Vector2.ZERO
 
 
 # =============================================================================
@@ -396,8 +402,7 @@ func _build_ui():
 	enemy_pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	enemy_scroll.add_child(enemy_pad)
 
-	_enemy_grid = GridContainer.new()
-	_enemy_grid.columns = 3
+	_enemy_grid = HFlowContainer.new()
 	_enemy_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_enemy_grid.add_theme_constant_override("h_separation", 8)
 	_enemy_grid.add_theme_constant_override("v_separation", 8)
@@ -472,7 +477,14 @@ func _build_ui():
 	_attack_select = OptionButton.new()
 	_attack_select.custom_minimum_size.x = 150
 	_style_option(_attack_select)
+	_attack_select.item_selected.connect(_on_attack_option_changed)
 	ability_col.add_child(_attack_select)
+
+	# Element + stat chip row below dropdown
+	_ability_info_box = HBoxContainer.new()
+	_ability_info_box.add_theme_constant_override("separation", 6)
+	_ability_info_box.visible = false
+	ability_col.add_child(_ability_info_box)
 
 	# Right side of left split: center + right in another HSplit
 	_attack_hsplit_r = HSplitContainer.new()
@@ -629,6 +641,20 @@ func _build_ui():
 	_end_turn_btn.add_theme_color_override("font_color", ACCENT)
 	_end_turn_btn.add_theme_font_size_override("font_size", 14)
 	bottom_bar.add_child(_end_turn_btn)
+
+	# DM Hub button (only visible for DM)
+	if Global.ACTIVE_USER_TYPE == "Dungeon Master":
+		var dm_btn = Button.new()
+		dm_btn.text = "DM HUB"
+		dm_btn.custom_minimum_size = Vector2(100, 30)
+		var dm_normal = _sb(Color(0.4, 0.2, 0.6, 0.15), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
+		dm_btn.add_theme_stylebox_override("normal", dm_normal)
+		var dm_hover = _sb(Color(0.4, 0.2, 0.6, 0.3), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
+		dm_btn.add_theme_stylebox_override("hover", dm_hover)
+		dm_btn.add_theme_color_override("font_color", Color(0.75, 0.55, 0.95))
+		dm_btn.add_theme_font_size_override("font_size", 14)
+		dm_btn.pressed.connect(_on_dm_hub_pressed)
+		bottom_bar.add_child(dm_btn)
 
 	# ═══════════════════════════════════════════════════════════
 	#  RIGHT: Party Sidebar (260px min, resizable)
@@ -892,6 +918,53 @@ func _update_dock_visibility():
 	_action_dock.visible = should_show
 	if should_show:
 		_refresh_action_dock()
+		_check_focus_alert()
+	else:
+		_focus_alert_pending = false
+		_focus_alert_turn = ""
+
+func _check_focus_alert() -> void:
+	var turn_name = str(Current_Turn)
+	# Reset guard if the turn changed
+	if turn_name != _focus_alert_turn:
+		_focus_alert_pending = false
+		_focus_alert_turn = turn_name
+	# Don't re-trigger for the same turn
+	if _focus_alert_pending:
+		return
+	# Only act if window is not focused
+	if get_window().has_focus():
+		return
+	_focus_alert_pending = true
+	# Restore window to foreground
+	var mode = DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_MINIMIZED:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_move_to_foreground()
+	DisplayServer.window_request_attention()
+	# Record mouse position and wait 5 seconds to see if they interact
+	_focus_alert_mouse_pos = get_viewport().get_mouse_position()
+	await get_tree().create_timer(5.0).timeout
+	# If mouse hasn't moved, flash red
+	var current_mouse = get_viewport().get_mouse_position()
+	if current_mouse.distance_to(_focus_alert_mouse_pos) < 5.0:
+		_flash_red()
+
+func _flash_red() -> void:
+	var overlay = ColorRect.new()
+	overlay.color = Color(1, 0, 0, 0)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 100
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_tree().root.add_child(overlay)
+	var tween = create_tween()
+	# Two quick red pulses
+	tween.tween_property(overlay, "color:a", 0.3, 0.2)
+	tween.tween_property(overlay, "color:a", 0.0, 0.2)
+	tween.tween_interval(0.15)
+	tween.tween_property(overlay, "color:a", 0.3, 0.2)
+	tween.tween_property(overlay, "color:a", 0.0, 0.2)
+	tween.tween_callback(overlay.queue_free)
 
 
 # =============================================================================
@@ -919,6 +992,18 @@ func _refresh_enemies():
 		_enemy_grid.add_child(card)
 		card.set_data(str(e.get("id")))
 		card.visible = not bool(e.get("Fog", false))
+	# Normalize card widths after a frame so sizes are calculated
+	call_deferred("_normalize_enemy_card_widths")
+
+func _normalize_enemy_card_widths() -> void:
+	var max_width: float = 0.0
+	for c in _enemy_grid.get_children():
+		if c is EnemyCard and c.visible:
+			max_width = max(max_width, c.size.x)
+	if max_width > 0.0:
+		for c in _enemy_grid.get_children():
+			if c is EnemyCard:
+				c.custom_minimum_size.x = max_width
 
 
 # =============================================================================
@@ -1123,6 +1208,12 @@ func _setup_attacks():
 		var ability: AbilityData = GameDB.get_ability(ability_id)
 		if ability == null:
 			continue
+		# Skip passives by ability_type field or zero weight (non-selectable)
+		if ability.ability_type == "Passive" or ability.weight <= 0.0:
+			continue
+		# Skip abilities with no damage and targeting_type "none" (buff/passive abilities)
+		if ability.dice_count == 0 and ability.dice_die == 0 and ability.targeting_type == "none":
+			continue
 
 		var cooldown = item.get("Ability_Cooldown", 0)
 		var name_text: String = str(ability.name)
@@ -1150,6 +1241,95 @@ func _setup_attacks():
 		if _attack_select.get_item_text(ability_idx) != name_text:
 			_attack_select.set_item_disabled(ability_idx, true)
 
+	_on_attack_option_changed(0)
+
+const ELEMENT_CHIP_COLORS = {
+	"Physical": Color(0.65, 0.65, 0.65),
+	"Fire": Color(0.9, 0.35, 0.2),
+	"Water": Color(0.2, 0.5, 0.9),
+	"Ice": Color(0.55, 0.82, 0.92),
+	"Electric": Color(0.7, 0.45, 0.9),
+	"Wind": Color(0.45, 0.82, 0.65),
+	"Earth": Color(0.85, 0.72, 0.3),
+	"Nature": Color(0.45, 0.78, 0.25),
+}
+
+func _on_attack_option_changed(_idx: int) -> void:
+	for c in _ability_info_box.get_children():
+		c.queue_free()
+	_ability_info_box.visible = false
+
+	if _attack_select.selected <= 0 or Current_Turn == null:
+		return
+	var selected_name = _attack_select.get_item_text(_attack_select.selected)
+	if selected_name == "None":
+		return
+
+	# Find the matching ability
+	var battler = Global.BattlerData.get(Current_Turn, {})
+	var ability: AbilityData = null
+	for item in battler.get("entity_current_active_ability_data", {}).values():
+		var raw_aid = item.get("Ability_ID")
+		if raw_aid == null:
+			continue
+		var a = GameDB.get_ability(int(raw_aid))
+		if a != null and a.name == selected_name:
+			ability = a
+			break
+	if ability == null:
+		return
+
+	# Element chip
+	var elem = ability.element if ability.element != "" else "Physical"
+	var elem_color = ELEMENT_CHIP_COLORS.get(elem, Color(0.5, 0.5, 0.5))
+	_ability_info_box.add_child(_make_info_chip("Applied: " + elem, elem_color))
+
+	# Stat chip
+	var stat_text = "ATK" if elem == "Physical" else "EM"
+	var stat_color = Color(0.85, 0.55, 0.35) if elem == "Physical" else Color(0.35, 0.75, 0.55)
+	_ability_info_box.add_child(_make_info_chip("Roll: " + stat_text, stat_color))
+
+	# Effects chip(s)
+	var effect_parts = []
+	if ability.effect_status > 0:
+		var status_def = GameDB.status_effects.get(ability.effect_status, null)
+		var status_name = status_def.name if status_def else "Status %d" % ability.effect_status
+		var dur = ability.effect_status_duration_rounds
+		var dur_text = " (%d rnd)" % dur if dur > 0 else ""
+		effect_parts.append(status_name + dur_text)
+	if ability.effect_immobilize:
+		effect_parts.append("Immobilize")
+	if ability.effect_mark_name != "":
+		effect_parts.append(ability.effect_mark_name)
+	for eff in ability.effects:
+		if eff is GameEffect and eff.description != "":
+			effect_parts.append(eff.description)
+
+	if effect_parts.size() > 0:
+		var fx_color = Color(0.75, 0.45, 0.45)
+		for part in effect_parts:
+			_ability_info_box.add_child(_make_info_chip(part, fx_color))
+
+	_ability_info_box.visible = true
+
+func _make_info_chip(text: String, color: Color) -> PanelContainer:
+	var panel = PanelContainer.new()
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(color, 0.25)
+	sb.border_color = Color(color, 0.6)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 2
+	sb.content_margin_bottom = 2
+	panel.add_theme_stylebox_override("panel", sb)
+	var lbl = Label.new()
+	lbl.text = text
+	lbl.add_theme_color_override("font_color", Color(color, 1.0).lightened(0.3))
+	lbl.add_theme_font_size_override("font_size", 12)
+	panel.add_child(lbl)
+	return panel
 
 # =============================================================================
 #  Target Selection
@@ -1867,6 +2047,9 @@ func _reset_inputs():
 		child.queue_free()
 	_target_list.deselect_all()
 	_attack_select.selected = 0 if _attack_select.item_count > 0 else -1
+	for c in _ability_info_box.get_children():
+		c.queue_free()
+	_ability_info_box.visible = false
 	_attack_roll_spin.value = 0
 	_tiles_moved_spin.value = 0
 	_burst_gained_spin.value = 0
@@ -1896,6 +2079,36 @@ func _wrap_text(text: String, limit: int) -> String:
 		start = end
 	return result
 
+
+# =============================================================================
+#  DM Hub (mid-battle access)
+# =============================================================================
+
+var _dm_hub_window: Window = null
+
+func _on_dm_hub_pressed() -> void:
+	if _dm_hub_window != null and is_instance_valid(_dm_hub_window):
+		_dm_hub_window.grab_focus()
+		return
+	_dm_hub_window = Window.new()
+	_dm_hub_window.title = "DM Hub"
+	_dm_hub_window.size = Vector2i(1200, 800)
+	_dm_hub_window.transient = true
+	_dm_hub_window.close_requested.connect(_on_dm_hub_closed)
+	add_child(_dm_hub_window)
+	var dm_scene = load("res://Scenes/DMHub.tscn")
+	if dm_scene:
+		var dm_instance = dm_scene.instantiate()
+		_dm_hub_window.add_child(dm_instance)
+	_dm_hub_window.popup_centered()
+
+func _on_dm_hub_closed() -> void:
+	if _dm_hub_window != null:
+		_dm_hub_window.queue_free()
+		_dm_hub_window = null
+	# Refresh battle state after DM changes
+	_refresh_enemies()
+	_refresh_party()
 
 # =============================================================================
 #  Layout Persistence
