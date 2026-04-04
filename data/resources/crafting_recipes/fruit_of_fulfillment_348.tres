@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_5asww"]
+
+[resource]
+script = ExtResource("1_5asww")
+id = 348
+product = "Fruit of Fulfillment"
+region = "Sumeru"
+description = "2 ATT, 3 EM
+On reaction, gain +1 EM (max 3 stacks, resets on burst use)."
+role = "Blacksmith"
+material = "Rukkhashava Mushrooms"
+quantity = 10

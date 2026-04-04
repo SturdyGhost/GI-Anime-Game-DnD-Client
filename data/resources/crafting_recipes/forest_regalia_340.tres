@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_7gmbh"]
+
+[resource]
+script = ExtResource("1_7gmbh")
+id = 340
+product = "Forest Regalia"
+region = "Sumeru"
+description = "5 ATT
+After skill use, next attack deals +1d4 bonus damage."
+role = "Blacksmith"
+material = "Fir Wood"
+quantity = 10

@@ -49,12 +49,14 @@ class_name AbilityData extends Resource
 @export var weight: float
 @export var effects: Array = []
 
-# ── Entity context (merged from Active_Abilities) ───────────────────────────
+# ── Entity context (baked into .tres, replaces Active_Abilities JSON) ────────
 @export var entity_type: String = ""   # "Character", "Companion", "Enemy"
 @export var entity_id: int = 0         # FK to PlayerData/CompanionData/EnemyData
 @export var entity_name: String = ""   # Denormalized for display
 @export var weapon_type: String = ""   # Sword, Claymore, Polearm, Bow, Catalyst
 @export var ability_type: String = ""  # "Basic Attack", "Charged Attack", "Skill", "Burst", "Passive"
+@export var kit_element: String = ""   # Which element kit this belongs to (separate from damage element)
+@export var active_ability_id: int = 0 # Preserved record ID for cooldown tracking compatibility
 @export var ability_cooldown: int = 0  # Runtime cooldown state
 
 static func _i(v) -> int:    return int(v) if v != null else 0

@@ -501,6 +501,18 @@ func _on_confirm_pressed() -> void:
 		return
 
 	var target_avg = ceili(float(d12_roll))
+
+	# Luck bonus/penalty on gathering yields
+	var luck = Global.get_effective_luck(Global.ACTIVE_USER_NAME)
+	if luck >= 85:
+		target_avg += 2
+	elif luck >= 70:
+		target_avg += 1
+	elif luck <= 10:
+		target_avg = max(1, target_avg - 2)
+	elif luck <= 25:
+		target_avg = max(1, target_avg - 1)
+
 	var quantities = _generate_spread_counts(target_avg, materials.size())
 
 	# Apply to inventory and collect results

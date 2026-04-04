@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/enemy_data.gd" id="1_jzmg5"]
+
+[resource]
+script = ExtResource("1_jzmg5")
+id = 113
+name = "Eremite Stone Enchanter"
+tier = "Rare"
+size_tiles = 1
+phase_count = 1
+hp_per_phase = 0
+phase1_hp = 150
+phase2_hp = 0
+phase3_hp = 0
+phase4_hp = 0
+phase1_name = "Encounter"
+phase2_name = ""
+phase3_name = ""
+phase4_name = ""
+turn_structure = "standard"
+defense_scale_per_asc = 0.0
+res_pyro = 1.0
+res_hydro = 1.0
+res_electro = 1.0
+res_cryo = 1.0
+res_anemo = 1.0
+res_geo = 1.0
+res_dendro = 1.0
+notes = "Earth mage who channels a crocodile spirit. Summons geo constructs."

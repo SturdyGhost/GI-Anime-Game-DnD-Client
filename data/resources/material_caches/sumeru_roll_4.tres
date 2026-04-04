@@ -7,4 +7,4 @@ script = ExtResource("1_n0m02")
 id = 16
 region = "Sumeru"
 roll = 4
-materials = ""
+materials = "[Chaos Storage,Chaos Bolt,Faded Red Satin,Nilotpala Lotus]"

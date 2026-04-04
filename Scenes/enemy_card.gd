@@ -238,64 +238,65 @@ func _build_ui() -> void:
 	base_style.corner_radius_top_right = 6
 	base_style.corner_radius_bottom_left = 6
 	base_style.corner_radius_bottom_right = 6
-	base_style.content_margin_left = 8
-	base_style.content_margin_right = 8
-	base_style.content_margin_top = 6
-	base_style.content_margin_bottom = 6
+	base_style.content_margin_left = 14
+	base_style.content_margin_right = 14
+	base_style.content_margin_top = 12
+	base_style.content_margin_bottom = 12
 	add_theme_stylebox_override("panel", base_style)
-	custom_minimum_size = Vector2(220, 0)
+	custom_minimum_size = Vector2(340, 0)
 
 	# Root HBox: portrait | info column
 	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
+	hbox.add_theme_constant_override("separation", 14)
 	add_child(hbox)
 
 	# Portrait
 	_portrait = TextureRect.new()
-	_portrait.custom_minimum_size = Vector2(64, 64)
+	_portrait.custom_minimum_size = Vector2(180, 180)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	hbox.add_child(_portrait)
 
 	# Info column
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(vbox)
 
-	# Header row: name + tier
-	var header = HBoxContainer.new()
-	header.add_theme_constant_override("separation", 6)
-	vbox.add_child(header)
-
+	# Name
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", _sf(15))
+	_name_label.add_theme_font_size_override("font_size", _sf(18))
 	_name_label.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_name_label.custom_minimum_size.y = 24
 	var settings = LabelSettings.new()
-	settings.font_size = 15
+	settings.font_size = 18
 	var font = ThemeDB.fallback_font
 	if font:
 		settings.font = font
 	_name_label.label_settings = settings
-	header.add_child(_name_label)
+	vbox.add_child(_name_label)
 
+	# Tier (own row)
 	_tier_label = Label.new()
-	_tier_label.add_theme_font_size_override("font_size", _sf(13))
+	_tier_label.add_theme_font_size_override("font_size", _sf(15))
 	_tier_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
-	header.add_child(_tier_label)
+	_tier_label.custom_minimum_size.y = 22
+	vbox.add_child(_tier_label)
 
 	# Phase
 	_phase_label = Label.new()
-	_phase_label.add_theme_font_size_override("font_size", _sf(13))
+	_phase_label.add_theme_font_size_override("font_size", _sf(15))
 	_phase_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
+	_phase_label.custom_minimum_size.y = 22
 	_phase_label.visible = false
 	vbox.add_child(_phase_label)
 
 	# Condition
 	_condition_label = Label.new()
-	_condition_label.add_theme_font_size_override("font_size", _sf(15))
+	_condition_label.add_theme_font_size_override("font_size", _sf(18))
 	_condition_label.add_theme_color_override("font_color", COLOR_GREEN)
+	_condition_label.custom_minimum_size.y = 24
 	vbox.add_child(_condition_label)
 
 	# Bottom row: shield + element + effects
@@ -305,13 +306,14 @@ func _build_ui() -> void:
 
 	_shield_label = Label.new()
 	_shield_label.text = "Shielded"
-	_shield_label.add_theme_font_size_override("font_size", _sf(13))
+	_shield_label.add_theme_font_size_override("font_size", _sf(15))
 	_shield_label.add_theme_color_override("font_color", COLOR_BORDER_SHIELD)
+	_shield_label.custom_minimum_size.y = 22
 	_shield_label.visible = false
 	bottom.add_child(_shield_label)
 
 	_element_icon = TextureRect.new()
-	_element_icon.custom_minimum_size = Vector2(20, 20)
+	_element_icon.custom_minimum_size = Vector2(32, 32)
 	_element_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_element_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_element_icon.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -319,10 +321,11 @@ func _build_ui() -> void:
 	bottom.add_child(_element_icon)
 
 	_effects_label = Label.new()
-	_effects_label.add_theme_font_size_override("font_size", _sf(13))
+	_effects_label.add_theme_font_size_override("font_size", _sf(15))
 	_effects_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_effects_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	_effects_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_effects_label.custom_minimum_size.y = 22
 	bottom.add_child(_effects_label)
 
 

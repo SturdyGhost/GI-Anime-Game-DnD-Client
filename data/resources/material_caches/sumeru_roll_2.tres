@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3 uid="uid://q2ywp0513xjk"]
 
-[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_cohhc"]
+[ext_resource type="Script" uid="uid://1eko1g585r3n" path="res://Scripts/resources/material_cache_data.gd" id="1_cohhc"]
 
 [resource]
 script = ExtResource("1_cohhc")
 id = 14
 region = "Sumeru"
 roll = 2
-materials = ""
+materials = "[Scarab,Sand Grease Pupa,Mourning Flower,Zaytun Peach]"

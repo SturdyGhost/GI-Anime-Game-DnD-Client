@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_fnuz9"]
+
+[resource]
+script = ExtResource("1_fnuz9")
+id = 126
+name = "Tulaytullahs Remembrance"
+rarity = "Legendary"
+region = "Sumeru"
+weapon_type = "Catalyst"
+effect = "-3 crit threshold. Normal attacks gain +1 damage per hit (max 4 stacks, resets on charged attack)."
+stat_1_type = "Attack"
+stat_1_value = 4.0
+stat_2_type = "Critical_Damage"
+stat_2_value = 1.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

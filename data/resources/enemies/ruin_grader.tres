@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/enemy_data.gd" id="1_k1izq"]
+
+[resource]
+script = ExtResource("1_k1izq")
+id = 101
+name = "Ruin Grader"
+tier = "Epic"
+size_tiles = 2
+phase_count = 1
+hp_per_phase = 0
+phase1_hp = 250
+phase2_hp = 0
+phase3_hp = 0
+phase4_hp = 0
+phase1_name = "Ruin Assault"
+phase2_name = ""
+phase3_name = ""
+phase4_name = ""
+turn_structure = "standard"
+defense_scale_per_asc = 0.0
+res_pyro = 1.0
+res_hydro = 1.0
+res_electro = 1.0
+res_cryo = 1.0
+res_anemo = 1.0
+res_geo = 1.0
+res_dendro = 1.0
+notes = "Massive ruin machine. Devastating AoE attacks, multi-hit barrages, and relentless charges. Weak point in legs and eye. PASSIVE: Immune to Physical damage. PASSIVE: Absorbs repeated hits — multi-hit moves and AoEs only hit once."

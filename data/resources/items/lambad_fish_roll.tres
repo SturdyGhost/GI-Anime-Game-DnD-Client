@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_6dlw4"]
+
+[resource]
+script = ExtResource("1_6dlw4")
+id = 133
+item_name = "Lambad Fish Roll"
+type = "Consumable"
+rarity = "Uncommon"
+region = "Sumeru"
+description = "Recovers 2 HP per turn over 10 turns."
+value = 600
+buff_duration = 0

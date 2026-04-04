@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_nf91u"]
+
+[resource]
+script = ExtResource("1_nf91u")
+id = 387
+product = "Shawarma Wrap"
+region = "Mondstadt"
+description = "When taking damage, take 2 less damage per hit for all party members for the next battle."
+role = "Artisan"
+material = "Wolfhook"
+quantity = 2

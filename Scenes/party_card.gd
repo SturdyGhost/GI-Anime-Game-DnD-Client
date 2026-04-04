@@ -81,9 +81,19 @@ func refresh() -> void:
 	if _battler_type == "Character" and portrait_val != null and str(portrait_val) != "":
 		portrait_path = "res://UI/Emotes/%s" % str(portrait_val)
 	else:
-		portrait_path = "res://UI/Character Portraits/%s.png" % _battler_name
+		# Try multiple paths for companion portraits
+		var name_slug = _battler_name.to_lower().replace(" ", "-")
+		var candidates = [
+			"res://UI/Character Portaits/ui-avataricon-%s.png" % name_slug,
+			"res://UI/Character Portaits/%s.png" % _battler_name,
+			"res://UI/Character Portraits/%s.png" % _battler_name,
+		]
+		for c in candidates:
+			if ResourceLoader.exists(c):
+				portrait_path = c
+				break
 
-	if ResourceLoader.exists(portrait_path):
+	if portrait_path != "" and ResourceLoader.exists(portrait_path):
 		var tex = load(portrait_path)
 		if tex is Texture2D:
 			_portrait.texture = tex
@@ -285,28 +295,29 @@ func _build_ui() -> void:
 	base_style.corner_radius_top_right = 6
 	base_style.corner_radius_bottom_left = 6
 	base_style.corner_radius_bottom_right = 6
-	base_style.content_margin_left = 10
-	base_style.content_margin_right = 10
-	base_style.content_margin_top = 8
-	base_style.content_margin_bottom = 8
+	base_style.content_margin_left = 12
+	base_style.content_margin_right = 12
+	base_style.content_margin_top = 10
+	base_style.content_margin_bottom = 10
 	add_theme_stylebox_override("panel", base_style)
-	custom_minimum_size = Vector2(240, 0)
+	custom_minimum_size = Vector2(264, 0)
+	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 
 	# Root HBox: portrait | info column
 	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
+	hbox.add_theme_constant_override("separation", 10)
 	add_child(hbox)
 
 	# Portrait
 	_portrait = TextureRect.new()
-	_portrait.custom_minimum_size = Vector2(52, 52)
+	_portrait.custom_minimum_size = Vector2(96, 96)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	hbox.add_child(_portrait)
 
 	# Info column
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 3)
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(vbox)
 
@@ -322,7 +333,7 @@ func _build_ui() -> void:
 	name_row.add_child(_name_label)
 
 	_element_icon = TextureRect.new()
-	_element_icon.custom_minimum_size = Vector2(22, 22)
+	_element_icon.custom_minimum_size = Vector2(32, 32)
 	_element_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_element_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_element_icon.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -333,12 +344,13 @@ func _build_ui() -> void:
 	_subtitle_label = Label.new()
 	_subtitle_label.add_theme_font_size_override("font_size", _sf(13))
 	_subtitle_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
+	_subtitle_label.custom_minimum_size.y = 20
 	_subtitle_label.visible = false
 	vbox.add_child(_subtitle_label)
 
 	# HP bar
 	_hp_bar = ProgressBar.new()
-	_hp_bar.custom_minimum_size = Vector2(0, 10)
+	_hp_bar.custom_minimum_size = Vector2(0, 14)
 	_hp_bar.max_value = 100.0
 	_hp_bar.value = 100.0
 	_hp_bar.show_percentage = false
@@ -392,6 +404,7 @@ func _build_ui() -> void:
 	_effects_label.add_theme_font_size_override("font_size", _sf(13))
 	_effects_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_effects_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	_effects_label.custom_minimum_size.y = 20
 	vbox.add_child(_effects_label)
 
 	# Downed label
@@ -399,6 +412,7 @@ func _build_ui() -> void:
 	_downed_label.text = "DOWNED"
 	_downed_label.add_theme_font_size_override("font_size", _sf(14))
 	_downed_label.add_theme_color_override("font_color", COLOR_RED)
+	_downed_label.custom_minimum_size.y = 20
 	_downed_label.visible = false
 	vbox.add_child(_downed_label)
 

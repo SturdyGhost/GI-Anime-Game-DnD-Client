@@ -1,0 +1,84 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_p1a0r"]
+[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_g2e0r"]
+
+[sub_resource type="Resource" id="Resource_g2e0r"]
+script = ExtResource("1_g2e0r")
+trigger = "PASSIVE"
+condition = "ELEMENT_MATCH"
+condition_value = "Physical"
+effect_type = "DAMAGE_IMMUNITY"
+effect_stat = ""
+effect_value = 1.0
+value_is_percent_of = ""
+effect_dice = ""
+effect_element = "Physical"
+target = "SELF"
+duration = 0
+duration_actions = 0
+max_stacks = 0
+stack_value = 0.0
+unique_per = ""
+resets_on = ""
+effect_id = ""
+description = "Immune to Physical damage"
+
+[resource]
+script = ExtResource("1_p1a0r")
+id = 579
+name = "Iron Plating"
+element = "Physical"
+description = "Passive: Immune to Physical damage. The Ruin Grader's ancient armor nullifies all non-elemental attacks."
+dice_count = 0
+dice_die = 0
+dice_flat = 0
+defense_threshold = 0
+blockable = false
+bypass_defense = false
+targeting_type = "none"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 0
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 0
+hits_count = 0
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = ""
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 0
+phase_idx = 1
+order = 6
+weight = 0.0
+effects = [SubResource("Resource_g2e0r")]
+entity_type = "Enemy"
+entity_id = 101
+entity_name = "Ruin Grader"
+weapon_type = ""
+ability_type = ""
+kit_element = "Physical"
+active_ability_id = 0
+ability_cooldown = 0

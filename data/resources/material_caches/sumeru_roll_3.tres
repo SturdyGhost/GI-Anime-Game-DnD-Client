@@ -7,4 +7,4 @@ script = ExtResource("1_cyf5v")
 id = 15
 region = "Sumeru"
 roll = 3
-materials = ""
+materials = "[Fungal Spores,Luminescent Pollen,Henna Berry,Padisarah]"

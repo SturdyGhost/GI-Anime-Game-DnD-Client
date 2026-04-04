@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_40u8x"]
+
+[resource]
+script = ExtResource("1_40u8x")
+id = 365
+product = "Padisarah Pudding"
+region = "Sumeru"
+description = "+3 EM for all party members for the next battle."
+role = "Artisan"
+material = "Sumeru Rose"
+quantity = 4

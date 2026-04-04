@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_9o145"]
+
+[resource]
+script = ExtResource("1_9o145")
+id = 383
+product = "Biryani"
+region = "Inazuma"
+description = "When dealing damage, add 2 damage to all attacks for all party members for the next battle."
+role = "Artisan"
+material = "Naku Weed"
+quantity = 4

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_ahey5"]
-[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_itxco"]
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_voqp6"]
 
 [sub_resource type="Resource" id="Resource_shvj1"]
 script = ExtResource("1_ahey5")
@@ -46,19 +46,19 @@ effect_id = ""
 description = "Attacks deal +10% current HP"
 
 [resource]
-script = ExtResource("1_itxco")
-id = 104
+script = ExtResource("1_voqp6")
+id = 128
 name = "Jadefalls Splendor"
 rarity = "Legendary"
-region = "Liyue"
+region = "Sumeru"
 weapon_type = "Catalyst"
-effect = "Lower the requirement to crit (20) by 3. Attacks deal extra damage equal to 10% current HP."
-stat_1_type = "Elemental_Mastery"
-stat_1_value = 4.0
-stat_2_type = "Health"
+effect = "Hitting a Rooted target deals +3 bonus damage. After using your skill, gain +2 EM for 2 rounds. Burst transformation rolls gain a bonus equal to half your EM."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
 stat_2_value = 4.0
-stat_3_type = ""
-stat_3_value = 0.0
+stat_3_type = "Critical_Damage"
+stat_3_value = 0.5
 stat_modifier = ""
 stat_modifier_value = 0.0
 effects = [SubResource("Resource_shvj1"), SubResource("Resource_vu3wx")]

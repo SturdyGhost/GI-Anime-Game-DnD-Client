@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_f7xug"]
+
+[resource]
+script = ExtResource("1_f7xug")
+id = 127
+name = "A Thousand Floating Dreams"
+rarity = "Legendary"
+region = "Sumeru"
+weapon_type = "Catalyst"
+effect = "-2 crit threshold. On reaction, all allies gain +2 flat damage for 1 round."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 3.0
+stat_3_type = "Critical_Damage"
+stat_3_value = 0.75
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

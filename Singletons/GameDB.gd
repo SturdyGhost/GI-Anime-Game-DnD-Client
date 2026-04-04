@@ -24,6 +24,7 @@ var minigames: Dictionary = {}
 var _reactions_by_element: Dictionary = {}
 var _artifact_bonus_index: Dictionary = {}
 var _ability_weapon_map: Dictionary = {}  # Ability_ID → Weapon_Type (from Active_Abilities)
+var abilities_by_entity: Dictionary = {}  # "EntityType|EntityID|AbilityID" → AbilityData
 
 const JSON_DIR := "res://data/"
 const TRES_DIR := "res://data/resources/"
@@ -449,8 +450,15 @@ func _register(table_key: String, resources: Array) -> void:
 				weapons_by_name[w.name] = w
 		"abilities":
 			abilities.clear()
+			abilities_by_entity.clear()
+			var entity_count = 0
 			for a in resources:
 				abilities[a.id] = a
+				if a.entity_type != "":
+					var key = "%s|%d|%d" % [a.entity_type, a.entity_id, a.id]
+					abilities_by_entity[key] = a
+					entity_count += 1
+			print("GameDB: abilities_by_entity populated with %d entries (of %d total abilities)" % [entity_count, resources.size()])
 		"items":
 			items.clear(); items_by_name.clear()
 			for it in resources:
@@ -520,6 +528,26 @@ func get_artifact_set_bonuses(set_name: String) -> Array:
 
 func get_ability(ability_id: int) -> AbilityData:
 	return abilities.get(ability_id, null)
+
+## Build the Active_Abilities table from .tres entity context fields.
+## Returns a Dictionary matching the shape consumers expect:
+##   { "record_id_str": { id, Entity_ID, Entity_Type, Ability_ID, Weapon_Type, Element, Ability_Type, Ability_Cooldown } }
+func build_active_abilities_table() -> Dictionary:
+	var result = {}
+	for a in abilities_by_entity.values():
+		# Use stored active_ability_id if available, otherwise generate from ability id
+		var record_id = a.active_ability_id if a.active_ability_id > 0 else a.id + 100000
+		result[str(record_id)] = {
+			"id": record_id,
+			"Entity_ID": a.entity_id,
+			"Entity_Type": a.entity_type,
+			"Ability_ID": a.id,
+			"Weapon_Type": a.weapon_type,
+			"Element": a.kit_element,
+			"Ability_Type": a.ability_type,
+			"Ability_Cooldown": a.ability_cooldown,
+		}
+	return result
 
 func get_enemy(enemy_id: int) -> EnemyData:
 	return enemies.get(enemy_id, null)

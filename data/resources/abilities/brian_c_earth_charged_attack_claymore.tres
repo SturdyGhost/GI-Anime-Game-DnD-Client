@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3 uid="uid://c1tpfrp1x1byn"]
 
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_nv6ym"]
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_vd1ne"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_nv6ym"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_vd1ne"]
 
 [sub_resource type="Resource" id="Resource_nv6ym"]
 script = ExtResource("1_nv6ym")
@@ -95,9 +95,11 @@ phase_idx = 1
 order = 0
 weight = 1.0
 effects = [SubResource("Resource_nv6ym"), SubResource("Resource_0sbq7")]
-entity_type = ""
-entity_id = 0
-entity_name = ""
-weapon_type = ""
-ability_type = ""
+entity_type = "Character"
+entity_id = 2
+entity_name = "Brian C."
+weapon_type = "Claymore"
+ability_type = "Charged Attack"
+kit_element = "Fire"
+active_ability_id = 44
 ability_cooldown = 0

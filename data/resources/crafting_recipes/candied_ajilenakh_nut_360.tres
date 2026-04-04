@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_z16pt"]
+
+[resource]
+script = ExtResource("1_z16pt")
+id = 360
+product = "Candied Ajilenakh Nut"
+region = "Sumeru"
+description = "+3 ATT for all party members for the next battle."
+role = "Artisan"
+material = "Ajilenakh Nut"
+quantity = 6

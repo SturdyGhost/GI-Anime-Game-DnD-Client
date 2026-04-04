@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_kj4m8"]
+
+[resource]
+script = ExtResource("1_kj4m8")
+id = 130
+item_name = "Sumeru Legendary Weapon Billet"
+type = "Billet"
+rarity = "Legendary"
+region = "Sumeru"
+description = "Can be used by the Blacksmith to craft Legendary tier weapons from Sumeru"
+value = 5000
+buff_duration = 0

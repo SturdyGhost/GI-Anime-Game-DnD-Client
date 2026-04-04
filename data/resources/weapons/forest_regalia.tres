@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_5v6t0"]
+
+[resource]
+script = ExtResource("1_5v6t0")
+id = 111
+name = "Forest Regalia"
+rarity = "Rare"
+region = "Sumeru"
+weapon_type = "Claymore"
+effect = "After skill use, next attack deals +1d4 bonus damage."
+stat_1_type = "Attack"
+stat_1_value = 5.0
+stat_2_type = ""
+stat_2_value = 0.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

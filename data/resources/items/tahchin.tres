@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_ldtit"]
+
+[resource]
+script = ExtResource("1_ldtit")
+id = 134
+item_name = "Tahchin"
+type = "Consumable"
+rarity = "Uncommon"
+region = "Sumeru"
+description = "Doubles amount of materials a character gathers when they next go out to collect some."
+value = 600
+buff_duration = 0

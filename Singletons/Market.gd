@@ -97,7 +97,7 @@ func Set_Daily_Luck(luck_value: int) -> void:
 	_daily_luck = luck_value
 
 func Get_Daily_Luck() -> int:
-	return _daily_luck
+	return Global.get_effective_luck(Global.ACTIVE_USER_NAME)
 
 # Sell: base 0.60, +0.01 / 4 luck > 60 (cap 0.70), -0.01 / 2 luck < 50 (floor 0.35)
 func _sell_rate_with_luck(luck_value: int) -> float:
@@ -110,11 +110,11 @@ func _sell_rate_with_luck(luck_value: int) -> float:
 		rate -= 0.01 * float(steps_down)
 	return clamp(rate, SELL_RATE_MIN, SELL_RATE_MAX)
 
-# Buy: +/−1% per step (−1% per 5 above 50; +1% per 2 below 50)
+# Buy: 50-60 neutral, −1% per 5 above 60, +1% per 2 below 50
 func _buy_price_with_luck(base_value: float, luck_value: int) -> int:
 	var multiplier = 1.0
-	if luck_value > 50:
-		var steps_disc = int(floor(float(luck_value - 50) / 5.0))
+	if luck_value > 60:
+		var steps_disc = int(floor(float(luck_value - 60) / 5.0))
 		multiplier -= 0.01 * float(steps_disc)
 	elif luck_value < 50:
 		var steps_mark = int(floor(float(50 - luck_value) / 2.0))
@@ -340,12 +340,8 @@ func _price_weapon(w: Dictionary, current_region: String) -> int:
 			var unit_val2 = _lookup_item_value(item_name2)
 			craft_cost += float(unit_val2 * qty2)
 
-	var base_price = 0.0
-	if craftable == true:
-		base_price = craft_cost * 1.5
-	else:
-		var rarity = w.get("Rarity")
-		base_price = float(WEAPON_RARITY_BASE_PRICE.get(rarity, 75))
+	var rarity = w.get("Rarity")
+	var base_price = float(WEAPON_RARITY_BASE_PRICE.get(rarity, 75))
 
 	base_price = _apply_region_markup(base_price, w.get("Region"), current_region)
 	return int(round(base_price))

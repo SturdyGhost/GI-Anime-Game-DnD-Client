@@ -371,6 +371,7 @@ func _build_preview_contents() -> void:
 
 	_preview_vbox = VBoxContainer.new()
 	_preview_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_preview_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_preview_vbox.add_theme_constant_override("separation", 10)
 	scroll.add_child(_preview_vbox)
 
@@ -388,6 +389,7 @@ func _build_preview_contents() -> void:
 	_preview_name.add_theme_color_override("font_color", TEXT)
 	_preview_name.add_theme_font_size_override("font_size", 20)
 	_preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_preview_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_vbox.add_child(_preview_name)
 
 	# Badges row
@@ -407,6 +409,8 @@ func _build_preview_contents() -> void:
 	_preview_effect.add_theme_color_override("font_color", TEXT_SEC)
 	_preview_effect.add_theme_font_size_override("font_size", 14)
 	_preview_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_preview_effect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_preview_effect.custom_minimum_size = Vector2(0, 40)
 	_preview_effect.visible = false
 	_preview_vbox.add_child(_preview_effect)
 
@@ -414,6 +418,7 @@ func _build_preview_contents() -> void:
 	_preview_luck_note = Label.new()
 	_preview_luck_note.add_theme_font_size_override("font_size", 14)
 	_preview_luck_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_preview_luck_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_luck_note.visible = false
 	_preview_vbox.add_child(_preview_luck_note)
 
@@ -869,6 +874,7 @@ func _add_stat_row(stat_name: String, stat_val: String) -> void:
 	lbl.add_theme_color_override("font_color", TEXT)
 	lbl.add_theme_font_size_override("font_size", 14)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_stats_grid.add_child(lbl)
 
 func _update_luck_note(r: Dictionary) -> void:

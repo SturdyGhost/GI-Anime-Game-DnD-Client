@@ -143,9 +143,69 @@ func _register_all_effects() -> void:
 					if bonus and bonus.effects.size() > 0:
 						effect_processor.register_battler(name, bonus.effects)
 
-	# Register companion effects (from abilities)
-	for name in PartyManager.get_companion_names():
-		pass  # Companions inherit from their abilities during battle
+	# Register companion passive effects from abilities
+	for cname in PartyManager.get_companion_names():
+		var comp_id_str = Global.COMPANIONS_NAME.get(cname, "")
+		if comp_id_str == "":
+			continue
+		var comp_id = int(comp_id_str)
+		for a in GameDB.abilities_by_entity.values():
+			if a.entity_type == "Companion" and a.entity_id == comp_id and a.effects.size() > 0:
+				var passive_effects = []
+				for eff in a.effects:
+					if eff is GameEffect and (eff.trigger == "PASSIVE" or eff.trigger == "ON_DAMAGE_TAKEN"):
+						passive_effects.append(eff)
+				if passive_effects.size() > 0:
+					effect_processor.register_battler(cname, passive_effects)
+
+	# Register enemy passive effects from abilities
+	for e in enemies.values():
+		var enemy_def_id = e.enemy_id
+		# Collect ability IDs for this enemy from ACTIVE_ABILITIES
+		var enemy_ability_ids: Array = []
+		for aa in Global.ACTIVE_ABILITIES.values():
+			if aa.get("Entity_Type") == "Enemy" and int(aa.get("Entity_ID", 0)) == enemy_def_id:
+				var aid = int(aa.get("Ability_ID", 0))
+				if aid > 0 and not enemy_ability_ids.has(aid):
+					enemy_ability_ids.append(aid)
+		# Also scan abilities_by_entity as supplement
+		for a in GameDB.abilities_by_entity.values():
+			if a.entity_type == "Enemy" and a.entity_id == enemy_def_id:
+				if not enemy_ability_ids.has(a.id):
+					enemy_ability_ids.append(a.id)
+		# Register passive effects from each ability
+		for aid in enemy_ability_ids:
+			var a = GameDB.get_ability(aid)
+			if a == null or a.effects.size() == 0:
+				continue
+			var passive_effects = []
+			for eff in a.effects:
+				if eff is GameEffect and (eff.trigger == "PASSIVE" or eff.trigger == "ON_DAMAGE_TAKEN"):
+					passive_effects.append(eff)
+			if passive_effects.size() > 0:
+				effect_processor.register_battler(e.battle_label, passive_effects)
+				print("BattleManager: registered %d passive effects for %s from ability %d (%s)" % [passive_effects.size(), e.battle_label, aid, a.name])
+
+	# Luck-based crit threshold passives
+	for pname in PartyManager.get_player_names():
+		var luck = Global.get_effective_luck(pname)
+		var crit_mod = 0
+		if luck >= 85:
+			crit_mod = -1  # Lucky: easier crits
+		elif luck <= 10:
+			crit_mod = 2   # Very unlucky: harder crits
+		elif luck <= 25:
+			crit_mod = 1   # Unlucky: harder crits
+		if crit_mod != 0:
+			var eff = GameEffect.new()
+			eff.trigger = "PASSIVE"
+			eff.condition = "NONE"
+			eff.condition_value = ""
+			eff.effect_type = "CRIT_THRESHOLD"
+			eff.effect_value = float(crit_mod)
+			eff.target = "SELF"
+			eff.description = "Luck crit modifier: %+d" % crit_mod
+			effect_processor.register_battler(pname, [eff])
 
 func _rebuild_battler_data() -> void:
 	battler_data = BattlerState.build_all(turn_order)

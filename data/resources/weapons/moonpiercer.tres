@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/weapon_data.gd" id="1_td0l0"]
+
+[resource]
+script = ExtResource("1_td0l0")
+id = 112
+name = "Moonpiercer"
+rarity = "Rare"
+region = "Sumeru"
+weapon_type = "Polearm"
+effect = "On reaction, +3 flat damage for 1 round."
+stat_1_type = "Attack"
+stat_1_value = 2.0
+stat_2_type = "Elemental_Mastery"
+stat_2_value = 3.0
+stat_3_type = ""
+stat_3_value = 0.0
+stat_modifier = ""
+stat_modifier_value = 0.0
+effects = []

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/item_data.gd" id="1_w3vsy"]
+
+[resource]
+script = ExtResource("1_w3vsy")
+id = 122
+item_name = "Luminescent Pollen"
+type = "Magical"
+rarity = "Common"
+region = "Sumeru"
+description = " "
+value = 4
+buff_duration = 0

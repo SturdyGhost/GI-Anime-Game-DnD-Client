@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="MaterialCacheData" load_steps=2 format=3 uid="uid://dr0jnr20ciijb"]
 
-[ext_resource type="Script" path="res://Scripts/resources/material_cache_data.gd" id="1_armfw"]
+[ext_resource type="Script" uid="uid://1eko1g585r3n" path="res://Scripts/resources/material_cache_data.gd" id="1_armfw"]
 
 [resource]
 script = ExtResource("1_armfw")
 id = 13
 region = "Sumeru"
 roll = 1
-materials = ""
+materials = "[Kalpalata Lotus,Rukkhashava Mushrooms,Ajilenakh Nut,Sumeru Rose]"

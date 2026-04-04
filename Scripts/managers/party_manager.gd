@@ -55,12 +55,12 @@ func get_companion_names() -> Array:
 	var result = []
 	if SaveManager.data != null:
 		for comp in SaveManager.get_all_companions():
-			if comp.active and comp.player_chosen:
+			if comp.active:
 				result.append(comp.name)
 	else:
 		# Client fallback: read from _synced Companions
 		for comp in Global.COMPANIONS.values():
-			if comp.get("Active") == true and comp.get("Player_Chosen") == true:
+			if comp.get("Active") == true:
 				result.append(comp.get("Name", ""))
 	return result
 
