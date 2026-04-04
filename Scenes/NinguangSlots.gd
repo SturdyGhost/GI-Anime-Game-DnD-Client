@@ -433,7 +433,6 @@ func _add_payline(from: Vector2, to: Vector2, color: Color) -> void:
 	line.points = PackedVector2Array([from, to])
 	line.default_color = color
 	line.width = 3.0
-	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_payline_overlay.add_child(line)
 	_payline_lines.append(line)
 
