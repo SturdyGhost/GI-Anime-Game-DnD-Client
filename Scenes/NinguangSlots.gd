@@ -50,7 +50,9 @@ var _grid_icons: Array = []  # 3x3 array of TextureRect nodes
 var _spinning: bool = false
 var _bet_tier: int = 0  # index into BET_TIERS
 var _session_winnings: int = 0  # total mora won this session (for score)
+var _session_spent: int = 0     # total mora bet this session
 var _total_weight: int = 0
+var _grid_cells: Array = []     # 3x3 array of PanelContainer cell nodes
 
 # ── UI references ────────────────────────────────────────────────────────────
 var _mora_label: Label
@@ -67,9 +69,11 @@ func _ready() -> void:
 	# Initialize grid
 	_grid = []
 	_grid_icons = []
+	_grid_cells = []
 	for col in 3:
 		_grid.append(["", "", ""])
 		_grid_icons.append([null, null, null])
+		_grid_cells.append([null, null, null])
 
 	_build_ui()
 
@@ -199,6 +203,7 @@ func _build_ui() -> void:
 	bottom_hbox.add_child(close_btn)
 
 	main_vbox.add_child(bottom_hbox)
+	_update_cell_highlights()
 
 func _build_payout_table() -> VBoxContainer:
 	var vbox = VBoxContainer.new()
@@ -286,6 +291,7 @@ func _build_reel_grid() -> PanelContainer:
 			cell.add_child(tex_rect)
 
 			_grid_icons[col][row] = tex_rect
+			_grid_cells[col][row] = cell
 			grid.add_child(cell)
 
 	panel.add_child(grid)
@@ -328,6 +334,7 @@ func _set_bet_tier(tier_index: int) -> void:
 		return
 	_bet_tier = tier_index
 	_update_bet_highlight()
+	_update_cell_highlights()
 
 func _update_bet_highlight() -> void:
 	for i in _bet_labels.size():
@@ -336,6 +343,34 @@ func _update_bet_highlight() -> void:
 			btn.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
 		else:
 			btn.remove_theme_color_override("font_color")
+
+func _update_cell_highlights() -> void:
+	# Collect which cells are active for the current bet tier
+	var active_cells = {}
+	var paylines: Array
+	match _bet_tier:
+		0: paylines = PAYLINES_TIER_1
+		1: paylines = PAYLINES_TIER_2
+		2: paylines = PAYLINES_TIER_3
+		_: paylines = PAYLINES_TIER_1
+	for line in paylines:
+		for pos in line:
+			active_cells[Vector2i(pos[0], pos[1])] = true
+
+	# Update cell borders
+	for col in 3:
+		for row in 3:
+			var cell: PanelContainer = _grid_cells[col][row]
+			var csb = StyleBoxFlat.new()
+			csb.bg_color = Color(0.1, 0.08, 0.05, 1.0)
+			csb.set_corner_radius_all(4)
+			if active_cells.has(Vector2i(col, row)):
+				csb.border_color = Color(0.85, 0.7, 0.3, 0.8)
+				csb.set_border_width_all(2)
+			else:
+				csb.border_color = Color(0.3, 0.25, 0.15, 0.3)
+				csb.set_border_width_all(1)
+			cell.add_theme_stylebox_override("panel", csb)
 
 # ── Spin logic ───────────────────────────────────────────────────────────────
 
@@ -355,6 +390,7 @@ func _on_spin() -> void:
 
 	# Deduct bet
 	_update_mora(current_mora - bet)
+	_session_spent += bet
 
 	# Generate final results
 	for col in 3:
@@ -376,7 +412,13 @@ func _on_spin() -> void:
 		_result_label.text = "No luck this time..."
 		_result_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
-	_payout_label.text = "Session: %d Mora" % _session_winnings
+	var net = _session_winnings - _session_spent
+	if net >= 0:
+		_payout_label.text = "Session: +%d Mora" % net
+		_payout_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
+	else:
+		_payout_label.text = "Session: %d Mora" % net
+		_payout_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 	_spinning = false
 	_spin_btn.disabled = false
 
