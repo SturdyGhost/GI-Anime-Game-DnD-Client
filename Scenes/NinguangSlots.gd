@@ -57,6 +57,8 @@ var _session_winnings: int = 0  # total mora won this session (for score)
 var _session_spent: int = 0     # total mora bet this session
 var _total_weight: int = 0
 var _grid_cells: Array = []     # 3x3 array of PanelContainer cell nodes
+var _payline_overlay: Control    # overlay for drawing payline indicators
+var _payline_lines: Array = []   # Line2D nodes for paylines
 
 var _payout_value_labels: Dictionary = {}  # element_name -> Label (payout values)
 var _payout_2_label: Label  # 2-match payout label
@@ -304,6 +306,13 @@ func _build_reel_grid() -> PanelContainer:
 			grid.add_child(cell)
 
 	panel.add_child(grid)
+
+	# Overlay for drawing payline indicators on top of the grid
+	_payline_overlay = Control.new()
+	_payline_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_payline_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(_payline_overlay)
+
 	return panel
 
 func _build_info_panel() -> VBoxContainer:
@@ -362,32 +371,71 @@ func _update_bet_highlight() -> void:
 			btn.remove_theme_color_override("font_color")
 
 func _update_cell_highlights() -> void:
-	# Collect which cells are active for the current bet tier
-	var active_cells = {}
-	var paylines: Array
-	match _bet_tier:
-		0: paylines = PAYLINES_TIER_1
-		1: paylines = PAYLINES_TIER_2
-		2: paylines = PAYLINES_TIER_3
-		_: paylines = PAYLINES_TIER_1
-	for line in paylines:
-		for pos in line:
-			active_cells[Vector2i(pos[0], pos[1])] = true
+	# Clear old payline indicators
+	for line_node in _payline_lines:
+		if is_instance_valid(line_node):
+			line_node.queue_free()
+	_payline_lines.clear()
 
-	# Update cell borders
+	# We need to draw lines after the grid has laid out, so defer one frame
+	_draw_paylines.call_deferred()
+
+func _draw_paylines() -> void:
+	if not is_instance_valid(_payline_overlay):
+		return
+
+	# Cell size + spacing from the grid
+	var cell_size = 120.0
+	var spacing = 8.0
+	var margin = 12.0  # content margin of the panel
+	var step = cell_size + spacing
+
+	# Center of each cell relative to the overlay
+	# Grid is row-major: row 0 col 0, row 0 col 1, row 0 col 2, row 1 col 0, ...
+	# Cell center at (col, row) = margin + col*step + cell_size/2
+	var centers: Array = []  # [col][row] = Vector2
 	for col in 3:
+		var col_centers = []
 		for row in 3:
-			var cell: PanelContainer = _grid_cells[col][row]
-			var csb = StyleBoxFlat.new()
-			csb.bg_color = Color(0.1, 0.08, 0.05, 1.0)
-			csb.set_corner_radius_all(4)
-			if active_cells.has(Vector2i(col, row)):
-				csb.border_color = Color(0.85, 0.7, 0.3, 0.8)
-				csb.set_border_width_all(2)
-			else:
-				csb.border_color = Color(0.3, 0.25, 0.15, 0.3)
-				csb.set_border_width_all(1)
-			cell.add_theme_stylebox_override("panel", csb)
+			col_centers.append(Vector2(
+				margin + col * step + cell_size / 2.0,
+				margin + row * step + cell_size / 2.0
+			))
+		centers.append(col_centers)
+
+	# Define which paylines belong to which tier for color coding
+	# Tier 1: middle horizontal (gold)
+	# Tier 2: top + bottom horizontal (gold, slightly different shade)
+	# Tier 3 extras: 3 vertical (cyan) + 2 diagonal (magenta)
+	var gold = Color(0.95, 0.8, 0.2, 0.6)
+	var cyan = Color(0.2, 0.85, 0.95, 0.6)
+	var magenta = Color(0.9, 0.3, 0.8, 0.6)
+
+	# Horizontal lines (tiers 1 and 2)
+	if _bet_tier >= 0:
+		# Middle row — always active
+		_add_payline(centers[0][1], centers[2][1], gold)
+	if _bet_tier >= 1:
+		# Top and bottom rows
+		_add_payline(centers[0][0], centers[2][0], gold)
+		_add_payline(centers[0][2], centers[2][2], gold)
+	if _bet_tier >= 2:
+		# Vertical lines
+		_add_payline(centers[0][0], centers[0][2], cyan)
+		_add_payline(centers[1][0], centers[1][2], cyan)
+		_add_payline(centers[2][0], centers[2][2], cyan)
+		# Diagonal lines
+		_add_payline(centers[0][0], centers[2][2], magenta)
+		_add_payline(centers[0][2], centers[2][0], magenta)
+
+func _add_payline(from: Vector2, to: Vector2, color: Color) -> void:
+	var line = Line2D.new()
+	line.points = PackedVector2Array([from, to])
+	line.default_color = color
+	line.width = 3.0
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_payline_overlay.add_child(line)
+	_payline_lines.append(line)
 
 # ── Spin logic ───────────────────────────────────────────────────────────────
 
