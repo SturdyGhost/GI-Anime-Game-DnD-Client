@@ -393,9 +393,64 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 			for eff in AbilityEffects.get_effects(aid_int):
 				effect_processor.add_effect(battler_name, eff, "passive", ability_name)
 
+	# Process PASSIVE APPLY_STATUS effects (e.g. Bennett's Unlucky on all allies)
+	_apply_passive_statuses()
+
 	# Recalculate stats now that effects are registered (weapon/artifact stat bonuses)
 	CharacterManager.recalculate_all()
 	sync_active_effects()
+
+## Scan all registered effects for PASSIVE + APPLY_STATUS and apply the
+## referenced status to the correct targets (e.g. ALL_ALLIES).
+func _apply_passive_statuses() -> void:
+	if effect_processor == null:
+		return
+	for battler_name in effect_processor.get_battler_names():
+		var to_remove: Array = []
+		for state in effect_processor.get_effects(battler_name):
+			if not state.is_active:
+				continue
+			var eff: GameEffect = state.effect
+			if eff.trigger != "PASSIVE" or eff.effect_type != "APPLY_STATUS":
+				continue
+
+			# Resolve the status from the effect_value (status ID)
+			var status_id: int = int(eff.effect_value)
+			var status_data = GameDB.status_effects.get(status_id, null)
+			if status_data == null:
+				continue
+			var status_name: String = status_data.name
+			var status_effects: Array = StatusEffectsMap.get_effects(status_name)
+			if status_effects.is_empty():
+				continue
+
+			# Resolve targets
+			var targets: Array = []
+			match eff.target:
+				"ALL_ALLIES":
+					targets = PartyCharacters.duplicate()
+					targets.append_array(PartyCompanions)
+				"SELF":
+					targets = [battler_name]
+				_:
+					targets = [battler_name]
+
+			# Apply the status effects to each target
+			var duration: int = eff.duration if eff.duration > 0 else 99
+			for target_name in targets:
+				for seff in status_effects:
+					var eff_copy = seff.duplicate()
+					eff_copy.duration = duration
+					effect_processor.add_effect(target_name, eff_copy, "status", status_name)
+				print("[Global] Passive status '%s' applied to %s (from %s)" % [status_name, target_name, battler_name])
+
+			# Mark the APPLY_STATUS effect itself for removal (it's been processed)
+			to_remove.append(state)
+
+		# Remove the APPLY_STATUS meta-effects so they don't clutter the effect list
+		for state in to_remove:
+			var effects_arr = effect_processor.get_effects(battler_name)
+			effects_arr.erase(state)
 
 ## Serialize and broadcast active effects to all clients.
 func sync_active_effects() -> void:
