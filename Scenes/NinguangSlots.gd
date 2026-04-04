@@ -13,14 +13,18 @@ const ELEMENTS: Array = [
 	{"name": "Hydro", "icon": "res://UI/Element Icons/Water.png", "weight": 5},
 ]
 
-# Payout per 3-match on a line
+# Base payout per 3-match on a line (at tier 3 / 8 lines)
 const PAYOUTS_3: Dictionary = {
-	"Anemo": 50, "Geo": 50,
-	"Pyro": 100, "Electro": 100,
-	"Cryo": 200, "Dendro": 200,
-	"Hydro": 500,
+	"Anemo": 150, "Geo": 150,
+	"Pyro": 350, "Electro": 350,
+	"Cryo": 750, "Dendro": 750,
+	"Hydro": 2500,
 }
-const PAYOUT_2: int = 10  # any 2-match on a line
+const PAYOUT_2: int = 33  # any 2-match on a line
+
+# Tier multipliers: fewer lines = higher per-line payout
+# Targets: tier 1 ~95% return, tier 2 ~105%, tier 3 ~110%
+const TIER_MULTIPLIERS: Array = [2.3, 1.7, 1.0]
 
 # Paylines: each is an array of [col, row] positions
 const PAYLINES_TIER_1: Array = [  # 50 Mora — middle row
@@ -53,6 +57,9 @@ var _session_winnings: int = 0  # total mora won this session (for score)
 var _session_spent: int = 0     # total mora bet this session
 var _total_weight: int = 0
 var _grid_cells: Array = []     # 3x3 array of PanelContainer cell nodes
+
+var _payout_value_labels: Dictionary = {}  # element_name -> Label (payout values)
+var _payout_2_label: Label  # 2-match payout label
 
 # ── UI references ────────────────────────────────────────────────────────────
 var _mora_label: Label
@@ -229,31 +236,33 @@ func _build_payout_table() -> VBoxContainer:
 		lbl.text = "%s x3" % elem_name
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lbl.add_theme_font_size_override("font_size", 15)
+		var base_payout = PAYOUTS_3[elem_name]
 		var color = Color(0.7, 0.7, 0.7)
-		if PAYOUTS_3[elem_name] >= 500:
+		if base_payout >= 2000:
 			color = Color(0.3, 0.7, 1.0)
-		elif PAYOUTS_3[elem_name] >= 200:
+		elif base_payout >= 700:
 			color = Color(0.8, 0.5, 1.0)
-		elif PAYOUTS_3[elem_name] >= 100:
+		elif base_payout >= 300:
 			color = Color(1.0, 0.6, 0.3)
 		lbl.add_theme_color_override("font_color", color)
 		row.add_child(lbl)
 		var val = Label.new()
-		val.text = "%d" % PAYOUTS_3[elem_name]
+		val.text = "%d" % int(round(base_payout * TIER_MULTIPLIERS[_bet_tier]))
 		val.add_theme_font_size_override("font_size", 15)
 		val.add_theme_color_override("font_color", color)
+		_payout_value_labels[elem_name] = val
 		row.add_child(val)
 		vbox.add_child(row)
 
 	var sep2 = HSeparator.new()
 	vbox.add_child(sep2)
 
-	var two_row = Label.new()
-	two_row.text = "Any x2 = %d" % PAYOUT_2
-	two_row.add_theme_font_size_override("font_size", 14)
-	two_row.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-	two_row.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(two_row)
+	_payout_2_label = Label.new()
+	_payout_2_label.text = "Any x2 = %d" % int(round(PAYOUT_2 * TIER_MULTIPLIERS[_bet_tier]))
+	_payout_2_label.add_theme_font_size_override("font_size", 14)
+	_payout_2_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	_payout_2_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_payout_2_label)
 
 	return vbox
 
@@ -335,6 +344,14 @@ func _set_bet_tier(tier_index: int) -> void:
 	_bet_tier = tier_index
 	_update_bet_highlight()
 	_update_cell_highlights()
+	_update_payout_display()
+
+func _update_payout_display() -> void:
+	var mult = TIER_MULTIPLIERS[_bet_tier]
+	for elem_name in _payout_value_labels:
+		_payout_value_labels[elem_name].text = "%d" % int(round(PAYOUTS_3[elem_name] * mult))
+	if _payout_2_label:
+		_payout_2_label.text = "Any x2 = %d" % int(round(PAYOUT_2 * mult))
 
 func _update_bet_highlight() -> void:
 	for i in _bet_labels.size():
@@ -400,8 +417,9 @@ func _on_spin() -> void:
 	# Animate reels
 	await _animate_reels()
 
-	# Evaluate winnings
-	var winnings = _evaluate_winnings()
+	# Evaluate winnings (apply tier multiplier)
+	var raw_winnings = _evaluate_winnings()
+	var winnings = int(round(raw_winnings * TIER_MULTIPLIERS[_bet_tier]))
 	if winnings > 0:
 		var new_mora = int(Global.Current_Party.get("Mora", 0)) + winnings
 		_update_mora(new_mora)
