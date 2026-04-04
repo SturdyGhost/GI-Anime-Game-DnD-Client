@@ -169,6 +169,7 @@ func _create_fish_node() -> Node2D:
 		points = 20  # Big fish worth more
 
 	fish.set_meta("points", points)
+	fish.set_meta("scale_factor", scale_factor)
 
 	# Draw the fish body using a Polygon2D
 	var body = Polygon2D.new()
@@ -198,40 +199,43 @@ func _create_fish_node() -> Node2D:
 	eye.color = Color.WHITE
 	fish.add_child(eye)
 
-	# Click area
-	var area = Area2D.new()
-	var collision = CollisionShape2D.new()
-	var shape = CircleShape2D.new()
-	shape.radius = 30 * scale_factor
-	collision.shape = shape
-	area.add_child(collision)
-	area.input_event.connect(_on_fish_clicked.bind(fish))
-	fish.add_child(area)
-
-	# Gentle bobbing animation
-	var bob = create_tween().set_loops()
-	bob.tween_property(fish, "position:y", fish.position.y - 5, 0.5).as_relative()
-	bob.tween_property(fish, "position:y", fish.position.y + 5, 0.5).as_relative()
-
 	return fish
 
-func _on_fish_clicked(_viewport: Node, event: InputEvent, _shape_idx: int, fish: Node2D) -> void:
+# Fish click detection via _input (Area2D input_event unreliable in sub-windows)
+func _input(event: InputEvent) -> void:
 	if not game_active:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var points = fish.get_meta("points", 10)
-		score += points
-		score_label.text = "Score: %d" % score
+		var click_pos = event.position
+		# Check all fish — closest first if overlapping
+		var best_fish: Node2D = null
+		var best_dist = 999999.0
+		for fish in fish_container.get_children():
+			if not is_instance_valid(fish):
+				continue
+			var dist = click_pos.distance_to(fish.position)
+			var radius = 30.0 * fish.get_meta("scale_factor", 1.0)
+			if dist <= radius and dist < best_dist:
+				best_fish = fish
+				best_dist = dist
 
-		# Spawn a score popup
-		_spawn_score_popup(fish.global_position, points)
+		if best_fish:
+			_blast_fish(best_fish)
 
-		# Blast effect — quick scale up and fade
-		var tween = create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(fish, "scale", Vector2(2, 2), 0.15)
-		tween.tween_property(fish, "modulate:a", 0.0, 0.15)
-		tween.chain().tween_callback(fish.queue_free)
+func _blast_fish(fish: Node2D) -> void:
+	var points = fish.get_meta("points", 10)
+	score += points
+	score_label.text = "Score: %d" % score
+
+	# Spawn a score popup
+	_spawn_score_popup(fish.global_position, points)
+
+	# Blast effect — quick scale up and fade
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(fish, "scale", Vector2(2, 2), 0.15)
+	tween.tween_property(fish, "modulate:a", 0.0, 0.15)
+	tween.chain().tween_callback(fish.queue_free)
 
 func _spawn_score_popup(pos: Vector2, points: int) -> void:
 	var lbl = Label.new()
