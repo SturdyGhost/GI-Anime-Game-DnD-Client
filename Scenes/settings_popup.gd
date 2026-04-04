@@ -60,7 +60,13 @@ func _on_volume_changed(value: float) -> void:
 
 
 func _apply_volume(value: float) -> void:
-	var bus_idx = AudioServer.get_bus_index("Master")
+	# Ensure Music bus exists
+	if AudioServer.get_bus_index("Music") == -1:
+		AudioServer.add_bus()
+		var idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(idx, "Music")
+		AudioServer.set_bus_send(idx, "Master")
+	var bus_idx = AudioServer.get_bus_index("Music")
 	if value <= 0.0:
 		AudioServer.set_bus_mute(bus_idx, true)
 	else:

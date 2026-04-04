@@ -113,6 +113,7 @@ theme_override_constants/v_separation = 70
 columns = 3
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"Music"
 
 [node name="Button" type="Button" parent="."]
 visible = false

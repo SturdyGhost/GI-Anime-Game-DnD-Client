@@ -750,6 +750,7 @@ type that you have. Compare and search between new
 ones easily."
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+bus = &"Music"
 autoplay = true
 
 [connection signal="pressed" from="UI/TopHotbar/AbilitiesButton" to="." method="_on_abilities_button_pressed"]

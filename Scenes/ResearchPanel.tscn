@@ -66,6 +66,7 @@ placeholder_text = "Type your notes here during the timer…"
 wrap_mode = 2
 
 [node name="CountdownBeep" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
 stream = ExtResource("2_qicg7")
 
 [node name="CountdownTimer" type="Timer" parent="."]

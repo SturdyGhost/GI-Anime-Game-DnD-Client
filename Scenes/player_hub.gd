@@ -123,11 +123,20 @@ func play_next_track():
 	player.play()
 
 func _apply_saved_volume() -> void:
+	# Ensure Music bus exists
+	if AudioServer.get_bus_index("Music") == -1:
+		AudioServer.add_bus()
+		var idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(idx, "Music")
+		AudioServer.set_bus_send(idx, "Master")
 	var cfg = ConfigFile.new()
 	var vol = 0.0  # default muted
-	if cfg.load("user://audio_settings.cfg") == OK:
+	# Try new settings path first, fall back to legacy
+	if cfg.load("user://ui_settings.cfg") == OK:
 		vol = cfg.get_value("audio", "music_volume", 0.0)
-	var bus_idx = AudioServer.get_bus_index("Master")
+	elif cfg.load("user://audio_settings.cfg") == OK:
+		vol = cfg.get_value("audio", "music_volume", 0.0)
+	var bus_idx = AudioServer.get_bus_index("Music")
 	if vol <= 0.0:
 		AudioServer.set_bus_mute(bus_idx, true)
 	else:
