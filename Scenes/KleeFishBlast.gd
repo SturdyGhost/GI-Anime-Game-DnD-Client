@@ -21,8 +21,8 @@ signal game_finished(score: int)
 const GAME_DURATION: float = 30.0
 const SPAWN_INTERVAL_MIN: float = 0.4
 const SPAWN_INTERVAL_MAX: float = 1.2
-const FISH_LIFETIME_MIN: float = 1.5
-const FISH_LIFETIME_MAX: float = 3.5
+const FISH_LIFETIME_MIN: float = 0.8
+const FISH_LIFETIME_MAX: float = 2.0
 const FISH_MIN_SIZE: float = 0.6
 const FISH_MAX_SIZE: float = 1.4
 
