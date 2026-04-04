@@ -15,16 +15,16 @@ const ELEMENTS: Array = [
 
 # Base payout per 3-match on a line (at tier 3 / 8 lines)
 const PAYOUTS_3: Dictionary = {
-	"Anemo": 150, "Geo": 150,
-	"Pyro": 350, "Electro": 350,
-	"Cryo": 750, "Dendro": 750,
-	"Hydro": 2500,
+	"Anemo": 140, "Geo": 140,
+	"Pyro": 325, "Electro": 325,
+	"Cryo": 700, "Dendro": 700,
+	"Hydro": 2300,
 }
-const PAYOUT_2: int = 33  # any 2-match on a line
+const PAYOUT_2: int = 30  # any 2-match on a line
 
 # Tier multipliers: fewer lines = higher per-line payout
-# Targets: tier 1 ~95% return, tier 2 ~105%, tier 3 ~110%
-const TIER_MULTIPLIERS: Array = [2.3, 1.7, 1.0]
+# Targets: tier 1 ~80% return, tier 2 ~95%, tier 3 ~103%
+const TIER_MULTIPLIERS: Array = [2.1, 1.65, 1.0]
 
 # Paylines: each is an array of [col, row] positions
 const PAYLINES_TIER_1: Array = [  # 50 Mora — middle row
