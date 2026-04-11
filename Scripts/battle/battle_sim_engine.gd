@@ -538,19 +538,25 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		var total_damage: int
 		var ability_name: String = str(ability.get("name", ""))
 
-		if not is_player_side:
-			# Enemy damage: roll ability's dice directly (dice_count * d(dice_die) + dice_flat)
+		var attacker_type: String = str(attacker_bd.get("type", ""))
+		var ab_dice_die := int(ability.get("dice_die", 0))
+		var use_ability_dice := (attacker_type == "Enemy" or attacker_type == "Companion") and ab_dice_die > 0
+		if use_ability_dice:
+			# Enemy/Companion damage: roll ability's dice directly (dice_count * d(dice_die) + dice_flat)
+			# The hit check (attack > defense) already passed — damage uses ability dice, not difference
 			var ab_dice_count := maxi(int(ability.get("dice_count", 1)), 1)
-			var ab_dice_die := int(ability.get("dice_die", 0))
 			var ab_dice_flat := int(ability.get("dice_flat", 0))
-			if ab_dice_die <= 0:
-				# No dice specified — use tier-based default
-				var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
-				ab_dice_die = _tier_to_attack_die(tier)
 			var raw_roll := 0
 			for _d in range(ab_dice_count):
 				raw_roll += DiceRoller.roll(ab_dice_die)
 			raw_roll += ab_dice_flat
+			total_damage = int((float(raw_roll) + flat_mod) * mult_mod)
+			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
+		elif attacker_type == "Enemy" and ab_dice_die <= 0:
+			# Enemy with no dice specified — use tier-based default
+			var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
+			var default_die := _tier_to_attack_die(tier)
+			var raw_roll := DiceRoller.roll(default_die) + int(ability.get("dice_flat", 0))
 			total_damage = int((float(raw_roll) + flat_mod) * mult_mod)
 			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
 

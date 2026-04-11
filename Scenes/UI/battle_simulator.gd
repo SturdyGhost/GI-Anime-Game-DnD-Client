@@ -447,7 +447,7 @@ func _populate_dropdowns() -> void:
 
 func _populate_stat_overrides() -> void:
 	# Pre-fill stat override spinboxes with current calculated values
-	var weapon := _get_current_weapon(Global.ACTIVE_USER_NAME)
+	var weapon = _get_current_weapon(Global.ACTIVE_USER_NAME)
 	if not weapon is Dictionary:
 		weapon = {}
 	var artifacts := _get_current_artifacts(Global.ACTIVE_USER_NAME)
@@ -869,26 +869,23 @@ func _display_damage_distribution(dist: Dictionary) -> void:
 			continue
 		children[i].queue_free()
 
-	# Separate players/companions from enemies
+	# Separate players/companions from enemies using enemy config
+	var enemy_names_set: Dictionary = {}
+	for ec in _last_config.get("enemies", []):
+		var eid: int = int(ec.get("enemy_id", 0))
+		var ecount: int = int(ec.get("count", 1))
+		var edef = GameDB.enemies.get(eid)
+		if edef:
+			if ecount > 1:
+				for i in range(ecount):
+					enemy_names_set["%s %d" % [edef.name, i + 1]] = true
+			else:
+				enemy_names_set[edef.name] = true
+
 	var player_dist: Dictionary = {}
 	var enemy_dist: Dictionary = {}
 	for bname in dist:
-		# Check if this is an enemy by looking at battler data
-		var is_enemy := false
-		if _last_results.has("per_battler"):
-			# Enemies are not in the party
-			var is_party := false
-			for pc in _last_config.get("party", []):
-				if pc.get("name", "") == bname:
-					is_party = true
-					break
-				# Check companions
-				var comp = pc.get("companion_override")
-				if comp is Dictionary and str(comp.get("Name", "")) == bname:
-					is_party = true
-					break
-			is_enemy = not is_party
-		if is_enemy:
+		if enemy_names_set.has(bname):
 			enemy_dist[bname] = dist[bname]
 		else:
 			player_dist[bname] = dist[bname]
@@ -985,36 +982,64 @@ func _display_party_performance(per_battler: Dictionary, n: float) -> void:
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		header_row.add_child(lbl)
 
-	# Compute averages for arrows
-	var totals := {"avg_dmg": 0.0, "avg_taken": 0.0, "absorbed": 0.0, "downs": 0, "deaths": 0, "revives": 0, "crits": 0}
-	var count := per_battler.size()
+	# Build enemy name set for categorization
+	var enemy_names_perf: Dictionary = {}
+	for ec in _last_config.get("enemies", []):
+		var eid: int = int(ec.get("enemy_id", 0))
+		var ecount: int = int(ec.get("count", 1))
+		var edef = GameDB.enemies.get(eid)
+		if edef:
+			if ecount > 1:
+				for i in range(ecount):
+					enemy_names_perf["%s %d" % [edef.name, i + 1]] = true
+			else:
+				enemy_names_perf[edef.name] = true
+
+	# Compute separate averages for party vs enemies
+	var party_totals := {"avg_dmg": 0.0, "avg_taken": 0.0, "absorbed": 0.0, "downs": 0, "deaths": 0, "revives": 0, "crits": 0}
+	var enemy_totals := {"avg_dmg": 0.0, "avg_taken": 0.0, "absorbed": 0.0, "downs": 0, "deaths": 0, "revives": 0, "crits": 0}
+	var party_count := 0
+	var enemy_count := 0
 	for bname in per_battler:
 		var b: Dictionary = per_battler[bname]
-		totals["avg_dmg"]  += b.get("avg_damage_dealt", 0.0)
-		totals["avg_taken"] += b.get("avg_damage_taken", 0.0)
-		totals["absorbed"] += b.get("avg_damage_absorbed", 0.0)
-		totals["downs"]    += int(b.get("total_downs", 0))
-		totals["deaths"]   += int(b.get("total_deaths", 0))
-		totals["revives"]  += int(b.get("total_revives_given", 0))
-		totals["crits"]    += int(b.get("total_crits", 0))
+		var is_enemy := enemy_names_perf.has(bname)
+		var t: Dictionary = enemy_totals if is_enemy else party_totals
+		t["avg_dmg"]  += b.get("avg_damage_dealt", 0.0)
+		t["avg_taken"] += b.get("avg_damage_taken", 0.0)
+		t["absorbed"] += b.get("avg_damage_absorbed", 0.0)
+		t["downs"]    += int(b.get("total_downs", 0))
+		t["deaths"]   += int(b.get("total_deaths", 0))
+		t["revives"]  += int(b.get("total_revives_given", 0))
+		t["crits"]    += int(b.get("total_crits", 0))
+		if is_enemy:
+			enemy_count += 1
+		else:
+			party_count += 1
 
-	var avgs := {}
-	if count > 0:
-		for k in totals:
-			avgs[k] = totals[k] / float(count)
+	var party_avgs := {}
+	if party_count > 0:
+		for k in party_totals:
+			party_avgs[k] = party_totals[k] / float(party_count)
+	var enemy_avgs := {}
+	if enemy_count > 0:
+		for k in enemy_totals:
+			enemy_avgs[k] = enemy_totals[k] / float(enemy_count)
 
 	for bname in per_battler:
 		var b: Dictionary = per_battler[bname]
+		var is_enemy := enemy_names_perf.has(bname)
+		var avgs: Dictionary = enemy_avgs if is_enemy else party_avgs
 		var row := _make_hbox(2)
 		_party_table.add_child(row)
 
-		# Name
-		var nl := _lbl(bname, 14, TEXT_COLOR)
+		# Name — color code by type
+		var name_color := RED if is_enemy else TEXT_COLOR
+		var nl := _lbl(bname, 14, name_color)
 		nl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		row.add_child(nl)
 
-		# Values with arrows
+		# Values with arrows (compared to own group average)
 		var vals := [
 			{"val": b.get("avg_damage_dealt", 0.0), "avg": avgs.get("avg_dmg", 0.0), "fmt": "%.0f", "higher_good": true},
 			{"val": b.get("avg_damage_taken", 0.0), "avg": avgs.get("avg_taken", 0.0), "fmt": "%.0f", "higher_good": false},
