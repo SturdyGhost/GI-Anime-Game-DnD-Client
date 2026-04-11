@@ -18,6 +18,8 @@ var _turn_index: int = 0
 var _round: int = 0
 var _damage_mod_players: float = 1.0
 var _damage_mod_enemies: float = 1.0
+var _player_attack_stats: Array = []  # Individual player attack stats for companion averaging
+var _player_em_stats: Array = []      # Individual player EM stats for companion averaging
 
 # Per-battle tracking
 var _stats: Dictionary = {}  # name -> tracking dict
@@ -110,6 +112,8 @@ func _init_battle(config: Dictionary) -> void:
 	_stats.clear()
 	_turn_order.clear()
 	_round = 0
+	_player_attack_stats.clear()
+	_player_em_stats.clear()
 	_damage_mod_players = config.get("damage_modifier_players", 1.0)
 	_damage_mod_enemies = config.get("damage_modifier_enemies", 1.0)
 
@@ -172,6 +176,9 @@ func _init_battle(config: Dictionary) -> void:
 		_stats[name] = _empty_stats()
 		player_names.append(name)
 		_turn_order.append(name)
+		# Store individual stats for companion roll averaging
+		_player_attack_stats.append(calc.get("attack", 10.0))
+		_player_em_stats.append(calc.get("elemental_mastery", 7.0))
 
 	# Compute average player stats for companions
 	var avg_atk := 0.0
@@ -422,17 +429,26 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			accuracy_stat = attacker_bd.get("em_stat", 7.0)
 
 	# Roll accuracy
-	var attack_roll := DiceRoller.roll_stat(accuracy_stat)
-
-	# For enemies, use tier-based dice instead of stat-based
-	if not is_player_side:
+	var attack_roll: int
+	if attacker_bd.get("type") == "Companion":
+		# Companions: each player rolls their own dice, companion uses the average
+		var use_em := (ability_element != "Physical" and ability_element != "None")
+		var stat_list: Array = _player_em_stats if use_em else _player_attack_stats
+		var roll_total := 0
+		for stat_val in stat_list:
+			roll_total += DiceRoller.roll_stat(stat_val)
+		attack_roll = int(float(roll_total) / maxf(float(stat_list.size()), 1.0))
+	elif attacker_bd.get("type") == "Enemy":
+		# Enemies: use ability dice if specified, otherwise tier-based
 		var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
 		var enemy_dice: int = _tier_to_attack_die(tier)
-		# Check if ability specifies its own dice
 		var ab_dice: int = int(ability.get("dice_die", 0))
 		if ab_dice > 0:
 			enemy_dice = ab_dice
 		attack_roll = DiceRoller.roll(enemy_dice)
+	else:
+		# Players: roll based on accuracy stat
+		attack_roll = DiceRoller.roll_stat(accuracy_stat)
 
 	# Crit check
 	var crit_threshold: int = attacker_bd.get("crit_threshold", 20)
@@ -518,10 +534,27 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			flat_mod += _effect_processor.sum_flat_damage(attacker_name, "ON_CRIT", hit_ctx)
 			mult_mod *= _effect_processor.damage_multiplier(attacker_name, "ON_CRIT", hit_ctx)
 
-		# Check for escalation-based damage (Brian C. Nature Skill)
+		# Determine damage based on attacker type
 		var total_damage: int
 		var ability_name: String = str(ability.get("name", ""))
-		if _is_escalation_ability(ability_name, ability_element):
+
+		if not is_player_side:
+			# Enemy damage: roll ability's dice directly (dice_count * d(dice_die) + dice_flat)
+			var ab_dice_count := maxi(int(ability.get("dice_count", 1)), 1)
+			var ab_dice_die := int(ability.get("dice_die", 0))
+			var ab_dice_flat := int(ability.get("dice_flat", 0))
+			if ab_dice_die <= 0:
+				# No dice specified — use tier-based default
+				var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
+				ab_dice_die = _tier_to_attack_die(tier)
+			var raw_roll := 0
+			for _d in range(ab_dice_count):
+				raw_roll += DiceRoller.roll(ab_dice_die)
+			raw_roll += ab_dice_flat
+			total_damage = int((float(raw_roll) + flat_mod) * mult_mod)
+			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
+
+		elif _is_escalation_ability(ability_name, ability_element):
 			# Check for talent modifiers
 			var has_push_further := _has_effect_type(attacker_name, "ESCALATION_THRESHOLD_REDUCTION")
 			var has_lucky_collapse := _has_effect_type(attacker_name, "ESCALATION_LUCKY_COLLAPSE")
