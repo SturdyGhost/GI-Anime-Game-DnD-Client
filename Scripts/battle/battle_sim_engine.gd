@@ -245,7 +245,7 @@ func _init_battle(config: Dictionary) -> void:
 					"Max_Health": enemy_def.phase1_hp,
 					"Tier": enemy_def.tier,
 					"Size": enemy_def.size_tiles,
-					"Movement": enemy_def.size_tiles * 2,  # Larger enemies move more
+					"Movement": maxi(enemy_def.size_tiles * 2, 5),  # Min 5 movement, larger enemies move more
 				},
 				"entity_current_ability_data": _get_enemy_abilities(enemy_id),
 				"current_health": enemy_def.phase1_hp,
@@ -380,17 +380,23 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		if target_bd.is_empty() or target_bd.get("killed_status", false):
 			continue
 
-		# Move into range if needed (global abilities always hit, no range check)
+		# Determine effective range and movement
 		var targeting_type: String = str(ability.get("targeting_type", ""))
-		var is_global := targeting_type.to_lower() == "global"
 		var ab_range := int(ability.get("targeting_length", 0))
-		if not is_global:
-			if not _spatial.in_range(attacker_name, target_name, ab_range):
-				_spatial.move_toward(attacker_name, target_name, float(movement))
-			# Still out of range after moving? Miss.
-			if not _spatial.in_range(attacker_name, target_name, ab_range):
-				_track(attacker_name, "misses", 1)
-				continue
+		# Global with range 0 = melee AoE (adjacent tiles, range 1)
+		if targeting_type.to_lower() == "global" and ab_range <= 0:
+			ab_range = 1
+		# Total movement = base movement + ability built-in movement
+		var ab_movement := int(ability.get("movement", 0))
+		var total_move := float(movement + ab_movement)
+
+		# Move into range if needed
+		if not _spatial.in_range(attacker_name, target_name, ab_range):
+			_spatial.move_toward(attacker_name, target_name, total_move)
+		# Still out of range after moving? Miss.
+		if not _spatial.in_range(attacker_name, target_name, ab_range):
+			_track(attacker_name, "misses", 1)
+			continue
 
 		# Roll defense
 		var defense_stat: float = target_bd.get("defense_stat", 10.0)
