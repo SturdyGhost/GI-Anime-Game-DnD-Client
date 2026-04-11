@@ -6,6 +6,7 @@ class_name BattleSimEngine extends RefCounted
 const MAX_ROUNDS := 50  # Safety limit to prevent infinite battles
 const DEFAULT_MOVEMENT := 7
 const DEFAULT_REVIVES := 1  # Each player gets 1 revive
+var debug_log: bool = false  # Set true to print turn-by-turn details
 
 var _spatial: SimSpatial
 var _effect_processor: EffectProcessor
@@ -57,6 +58,16 @@ func run_battle(config: Dictionary) -> Dictionary:
 				_effect_processor, _cooldowns.get(battler_name, {}),
 				_revives
 			)
+
+			if debug_log:
+				var ab_name: String = str(decision.get("ability", {}).get("name", ""))
+				var tgt: String = str(decision.get("targets", [""])[0]) if decision.get("targets", []).size() > 0 else ""
+				var hp_str: String = "%d/%d" % [int(bd.get("current_health", 0)), int(bd.get("max_health", 0))]
+				print("R%d %s [%s] hp=%s action=%s ability=%s target=%s burst=%d" % [
+					_round, battler_name, bd.get("type", "?"), hp_str,
+					decision.get("action", "?"), ab_name, tgt,
+					int(bd.get("burst_charges", 0))
+				])
 
 			match decision.get("action", "skip"):
 				"attack":
@@ -504,7 +515,7 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 				attacker_bd["current_health"] = maxi(int(attacker_bd.get("current_health", 0)) - hp_spent, 1)
 			# High Roller: +1 burst charge per successful escalation step
 			if has_burst_per_step:
-				var steps := esc_result.get("rolls", []).size()
+				var steps = esc_result.get("rolls", []).size()
 				var burst_cap := 10
 				var abilities_dict: Dictionary = attacker_bd.get("entity_current_ability_data", {})
 				for aid in abilities_dict:
@@ -551,6 +562,10 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 						total_damage += int(act.get("value", 0))
 					"PERCENT_DAMAGE":
 						total_damage = int(float(total_damage) * float(act.get("value", 1.0)))
+
+		if debug_log:
+			print("  -> %s atk_roll=%d def_roll=%d diff=%d dmg=%d crit=%s" % [
+				target_name, attack_roll, defense_roll, diff, total_damage, str(is_crit)])
 
 		# Apply damage to target
 		_apply_damage(target_name, total_damage, attacker_name)

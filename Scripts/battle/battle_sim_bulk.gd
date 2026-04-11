@@ -60,6 +60,8 @@ func _run_battles() -> Dictionary:
 			break
 
 		var engine := BattleSimEngine.new()
+		if i == 0:
+			engine.debug_log = true  # Debug print the first battle
 		var result := engine.run_battle(_config)
 		agg["battles_run"] += 1
 
