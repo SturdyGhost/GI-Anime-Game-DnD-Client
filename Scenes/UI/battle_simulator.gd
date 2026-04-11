@@ -121,12 +121,12 @@ func _build_ui() -> void:
 	# ── Main split ──
 	var split := HSplitContainer.new()
 	split.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	split.split_offset = 340
+	split.split_offset = 420
 	root.add_child(split)
 
 	# Left panel (setup)
 	var left_scroll := ScrollContainer.new()
-	left_scroll.custom_minimum_size.x = 340
+	left_scroll.custom_minimum_size.x = 420
 	left_scroll.size_flags_horizontal = Control.SIZE_FILL
 	left_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	split.add_child(left_scroll)
@@ -865,6 +865,14 @@ func _display_damage_distribution(dist: Dictionary) -> void:
 
 
 func _add_dist_bars(dist: Dictionary, max_pct: float, color_offset: int) -> void:
+	# Calculate average for the group
+	var avg_pct := 0.0
+	if dist.size() > 0:
+		var total := 0.0
+		for v in dist.values():
+			total += float(v)
+		avg_pct = total / float(dist.size())
+
 	var color_i := color_offset
 	for bname in dist:
 		var pct: float = dist[bname]
@@ -883,11 +891,20 @@ func _add_dist_bars(dist: Dictionary, max_pct: float, color_offset: int) -> void
 
 		var bar_fill := ColorRect.new()
 		bar_fill.color = BAR_COLORS[color_i % BAR_COLORS.size()]
-		# Scale bar width as fraction of max (so highest = full width)
 		var fill_ratio := pct / maxf(max_pct, 1.0)
 		bar_fill.anchor_right = fill_ratio
 		bar_fill.anchor_bottom = 1.0
 		bar_bg.add_child(bar_fill)
+
+		# Average line (gold vertical marker)
+		var avg_ratio := avg_pct / maxf(max_pct, 1.0)
+		var avg_line := ColorRect.new()
+		avg_line.color = GOLD
+		avg_line.anchor_left = avg_ratio
+		avg_line.anchor_right = avg_ratio + 0.003  # Thin line
+		avg_line.anchor_bottom = 1.0
+		avg_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar_bg.add_child(avg_line)
 
 		var pct_lbl := _lbl("%.1f%%" % pct, 14, MUTED)
 		pct_lbl.custom_minimum_size.x = 55
@@ -1040,7 +1057,12 @@ func _display_recommendations(r: Dictionary, n: float) -> void:
 	if per_b.is_empty():
 		return
 
-	# Compute party averages
+	# Identify which battlers are player characters
+	var party_names: Array = []
+	for pc in _last_config.get("party", []):
+		party_names.append(str(pc.get("name", "")))
+
+	# Compute averages only across player characters
 	var avg_dmg := 0.0
 	var avg_taken := 0.0
 	var avg_absorbed := 0.0
@@ -1049,6 +1071,8 @@ func _display_recommendations(r: Dictionary, n: float) -> void:
 	var avg_misses := 0.0
 	var player_count := 0
 	for bname in per_b:
+		if bname not in party_names:
+			continue
 		var b: Dictionary = per_b[bname]
 		avg_dmg += b.get("avg_damage_dealt", 0.0)
 		avg_taken += b.get("avg_damage_taken", 0.0)
@@ -1065,8 +1089,8 @@ func _display_recommendations(r: Dictionary, n: float) -> void:
 		avg_deaths /= player_count
 		avg_misses /= player_count
 
-	# Get stats from config for each battler
-	var config_stats: Dictionary = {}  # name -> calc stats dict
+	# Get stats from config for player characters only
+	var config_stats: Dictionary = {}
 	for pc in _last_config.get("party", []):
 		var pname: String = str(pc.get("name", ""))
 		var char_raw = pc.get("character_data")
@@ -1077,8 +1101,10 @@ func _display_recommendations(r: Dictionary, n: float) -> void:
 		var artifacts: Array = a_raw if a_raw is Array else []
 		config_stats[pname] = BattleSimEngine._calc_stats(char_data, weapon, artifacts)
 
-	# Generate recommendations per battler
+	# Generate recommendations for player characters only (not companions/enemies)
 	for bname in per_b:
+		if bname not in party_names:
+			continue
 		var b: Dictionary = per_b[bname]
 		var stats: Dictionary = config_stats.get(bname, {})
 		var recs: Array = []
