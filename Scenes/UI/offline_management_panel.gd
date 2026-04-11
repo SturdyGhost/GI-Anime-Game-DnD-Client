@@ -1,5 +1,5 @@
 extends PanelContainer
-## Offline-only panel for players to add/remove weapons, artifacts, items, and edit mora.
+## Offline-only panel for players to add/remove weapons, artifacts, and items.
 ## Mirrors the DM Hub's first tab but scoped to the active player's character only.
 
 signal panel_closed
@@ -9,8 +9,6 @@ var _item_list: ItemList
 var _search_field: LineEdit
 var _add_btn: Button
 var _remove_btn: Button
-var _mora_spin: SpinBox
-var _mora_btn: Button
 var _close_btn: Button
 
 var _current_category: String = "Weapons"
@@ -93,24 +91,6 @@ func _build_ui() -> void:
 	_remove_btn.text = "Remove Selected"
 	_remove_btn.pressed.connect(_on_remove_pressed)
 	btn_hbox.add_child(_remove_btn)
-
-	# Mora editor
-	var mora_hbox = HBoxContainer.new()
-	vbox.add_child(mora_hbox)
-	var mora_label = Label.new()
-	mora_label.text = "Mora:"
-	mora_hbox.add_child(mora_label)
-	_mora_spin = SpinBox.new()
-	_mora_spin.max_value = 999999
-	_mora_spin.step = 100
-	# Load current mora from Party record
-	var party = Global.Current_Party
-	_mora_spin.value = int(party.get("Mora", 0)) if party else 0
-	mora_hbox.add_child(_mora_spin)
-	_mora_btn = Button.new()
-	_mora_btn.text = "Set Mora"
-	_mora_btn.pressed.connect(_on_set_mora)
-	mora_hbox.add_child(_mora_btn)
 
 	# Region selector
 	var region_hbox = HBoxContainer.new()
@@ -259,13 +239,4 @@ func _on_remove_pressed() -> void:
 	Global.Remove_Record(table, int(record.get("id", 0)))
 	_refresh_owned_list()
 
-func _on_set_mora() -> void:
-	var party = Global.Current_Party
-	if party == null or not party.has("id"):
-		return
-	Global.Update_Records([{
-		"table": "Party",
-		"record_id": int(party["id"]),
-		"field": "Mora",
-		"value": int(_mora_spin.value)
-	}])
+

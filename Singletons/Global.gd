@@ -562,6 +562,11 @@ func load_synced_snapshot() -> bool:
 		push_error("Global: Invalid snapshot JSON")
 		return false
 
+	# Validate critical tables exist before loading
+	if not snapshot.has("Characters") or not snapshot.has("Party"):
+		push_error("Global: Snapshot missing critical tables (Characters/Party)")
+		return false
+
 	for table_name in snapshot.keys():
 		_process_table(table_name, snapshot[table_name])
 

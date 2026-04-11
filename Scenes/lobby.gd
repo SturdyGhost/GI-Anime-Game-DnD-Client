@@ -74,6 +74,7 @@ func _hide_all() -> void:
 
 func _show_main_menu() -> void:
 	current_state = State.MAIN_MENU
+	Global.is_offline = false
 	_hide_all()
 	host_button.visible = true
 	join_button.visible = true
