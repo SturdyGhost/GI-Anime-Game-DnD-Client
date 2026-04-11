@@ -519,6 +519,15 @@ func _ack_offline_changes(success: bool) -> void:
 	else:
 		Toast.notify("Failed to merge offline changes", Toast.ERROR)
 
+## Damage breakdown sent from host to acting player after a turn.
+signal damage_breakdown_received(turn_input: Dictionary)
+
+@rpc("authority", "reliable")
+func _send_damage_breakdown(json_str: String) -> void:
+	var input = JSON.parse_string(json_str)
+	if input != null and input is Dictionary:
+		damage_breakdown_received.emit(input)
+
 ## Client requests a field update. Host validates, applies, saves, broadcasts.
 @rpc("any_peer", "reliable")
 func request_update(updates_json: String) -> void:

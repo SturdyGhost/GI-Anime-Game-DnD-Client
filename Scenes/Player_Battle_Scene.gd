@@ -32,6 +32,7 @@ func _ready() -> void:
 	tree_exiting.connect(_disconnect_signals)
 	if PlayerTurnUI.has_signal("turn_ended"):
 		PlayerTurnUI.turn_ended.connect(_on_child_turn_ended)
+	NetworkManager.damage_breakdown_received.connect(_on_damage_breakdown_received)
 	_refresh_all()
 	set_background()
 	load_region_music(Global.Current_Region)
@@ -44,6 +45,22 @@ func _disconnect_signals() -> void:
 	var h = Callable(self, "_on_data_load_complete")
 	if Global.is_connected("data_load_complete", h):
 		Global.disconnect("data_load_complete", h)
+	if NetworkManager.damage_breakdown_received.is_connected(_on_damage_breakdown_received):
+		NetworkManager.damage_breakdown_received.disconnect(_on_damage_breakdown_received)
+
+func _on_damage_breakdown_received(turn_input: Dictionary) -> void:
+	var panel = preload("res://Scenes/UI/damage_breakdown_panel.tscn").instantiate()
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	panel.panel_closed.connect(func(): win.queue_free())
+	win.add_child(panel)
+	add_child(win)
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.setup(turn_input)
 
 
 func update_enemies():

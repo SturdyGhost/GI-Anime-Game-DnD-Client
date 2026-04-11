@@ -1586,6 +1586,11 @@ func _on_end_turn_pressed():
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
+	# Show damage breakdown panel and broadcast to acting player
+	_show_damage_breakdown(input)
+	if not Global.is_offline:
+		_broadcast_damage_breakdown(input)
+
 	# Log the turn — send to host for logging
 	var total_dmg = 0
 	var kills = []
@@ -1613,6 +1618,62 @@ func _on_end_turn_pressed():
 		NetworkManager.host_combat_log(log_payload)
 
 	_advance_turn()
+
+
+func _show_damage_breakdown(input: Dictionary) -> void:
+	# DM sees breakdown for enemy turns; in offline mode, DM sees all turns
+	var battler_name: String = str(input.get("battler_name", ""))
+	var bd = Global.BattlerData.get(battler_name, {})
+	var b_type: String = str(bd.get("type", ""))
+
+	# In online mode, DM only sees enemy turn breakdowns (players see their own via RPC)
+	# In offline mode, DM sees everything
+	if not Global.is_offline and b_type != "Enemy":
+		return
+
+	var targets: Array = input.get("targets", [])
+	if targets.is_empty():
+		return
+
+	var panel = preload("res://Scenes/UI/damage_breakdown_panel.tscn").instantiate()
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	panel.panel_closed.connect(func(): win.queue_free())
+	win.add_child(panel)
+	add_child(win)
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.setup(input)
+
+
+func _broadcast_damage_breakdown(input: Dictionary) -> void:
+	# Send the turn input to the acting player's client so they can show the breakdown
+	var battler_name: String = str(input.get("battler_name", ""))
+	var bd = Global.BattlerData.get(battler_name, {})
+	var b_type: String = str(bd.get("type", ""))
+
+	# Only broadcast player/companion turns to the owning player
+	if b_type == "Enemy":
+		return
+
+	# Find the peer ID for this player
+	var player_name: String = battler_name
+	if b_type == "Companion":
+		# Find the companion's owner
+		for c in Global.COMPANIONS.values():
+			if c.get("Name") == battler_name:
+				player_name = str(c.get("Owner", ""))
+				break
+
+	# Find peer ID by player name
+	for peer_id in NetworkManager.connected_players:
+		var info: Dictionary = NetworkManager.connected_players[peer_id]
+		if info.get("name") == player_name:
+			NetworkManager._send_damage_breakdown.rpc_id(peer_id, JSON.stringify(input))
+			break
 
 
 # =============================================================================
