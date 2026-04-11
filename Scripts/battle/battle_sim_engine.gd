@@ -430,8 +430,25 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			flat_mod += _effect_processor.sum_flat_damage(attacker_name, "ON_CRIT", hit_ctx)
 			mult_mod *= _effect_processor.damage_multiplier(attacker_name, "ON_CRIT", hit_ctx)
 
-		# Roll damage
-		var total_damage := DiceRoller.roll_damage(diff, hits_count, flat_mod, mult_mod)
+		# Check for escalation-based damage (Brian C. Nature Skill)
+		var total_damage: int
+		var ability_name: String = str(ability.get("name", ""))
+		if _is_escalation_ability(ability_name, ability_element):
+			# Escalation replaces the standard damage die step
+			# Passive: can spend 2 HP per threshold reduction
+			var hp_available: int = int(attacker_bd.get("current_health", 0)) - 1  # Don't kill self
+			var esc_result := DiceRoller.roll_escalation(hp_available)
+			if esc_result.get("succeeded", false):
+				total_damage = int((float(esc_result.get("damage", 0)) + flat_mod) * mult_mod)
+			else:
+				total_damage = 0
+			# Apply passive HP cost
+			var hp_spent: int = esc_result.get("hp_spent", 0)
+			if hp_spent > 0:
+				attacker_bd["current_health"] = maxi(int(attacker_bd.get("current_health", 0)) - hp_spent, 1)
+		else:
+			# Standard damage formula
+			total_damage = DiceRoller.roll_damage(diff, hits_count, flat_mod, mult_mod)
 
 		# Apply crit multiplier
 		if is_crit:
@@ -754,6 +771,12 @@ static func _calc_stats(char_data: Dictionary, weapon: Dictionary, artifacts: Ar
 
 static func _sf(val) -> float:
 	return float(val) if val != null else 0.0
+
+
+## Check if an ability uses the escalation damage formula instead of standard.
+static func _is_escalation_ability(ability_name: String, element: String) -> bool:
+	# Brian C.'s Nature Skill uses escalation (d4→d6→d8→d10→d12→d20)
+	return ability_name.contains("Brian C.") and ability_name.contains("Skill") and element == "Nature"
 
 
 static func _tier_to_defense_die(tier: String) -> int:

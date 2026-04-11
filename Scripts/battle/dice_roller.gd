@@ -92,6 +92,8 @@ static func all_possible_damages(diff: int, hits: int, flat_mod: float, mult_mod
 	return results
 
 ## Brian C.'s Nature Skill escalation chain.
+## Passive: spend 2 HP per threshold reduction (min threshold of 1).
+## AI spends HP when the roll would otherwise fail.
 ## Returns {damage: int, hp_spent: int, rolls: Array[int], succeeded: bool}
 static func roll_escalation(hp_available: int) -> Dictionary:
 	var chain := [4, 6, 8, 10, 12, 20]
@@ -99,6 +101,7 @@ static func roll_escalation(hp_available: int) -> Dictionary:
 	var cumulative := 0
 	var hp_spent := 0
 	var rolls: Array[int] = []
+	var hp_remaining := hp_available
 
 	for i in range(chain.size()):
 		var die_size: int = chain[i]
@@ -106,8 +109,22 @@ static func roll_escalation(hp_available: int) -> Dictionary:
 		var result := roll(die_size)
 		rolls.append(result)
 
+		# If roll fails, try spending HP to reduce threshold (passive)
 		if result < threshold:
-			return {"damage": 0, "hp_spent": hp_spent, "rolls": rolls, "succeeded": false}
+			var deficit := threshold - result  # How much we need to reduce threshold
+			var reductions_needed := deficit
+			var hp_cost := reductions_needed * 2
+			# Can't reduce below 1, so max reductions = threshold - 1
+			var max_reductions := threshold - 1
+			reductions_needed = mini(reductions_needed, max_reductions)
+			hp_cost = reductions_needed * 2
+			if hp_cost <= hp_remaining and result >= (threshold - reductions_needed):
+				# Spend HP to save the roll
+				hp_spent += hp_cost
+				hp_remaining -= hp_cost
+			else:
+				# Can't afford or threshold can't go low enough — fail
+				return {"damage": 0, "hp_spent": hp_spent, "rolls": rolls, "succeeded": false}
 
 		cumulative += result
 
