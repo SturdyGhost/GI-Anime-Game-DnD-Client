@@ -10,6 +10,7 @@ var http: Node  # kept for compat, no longer used for HTTP
 @onready var CriticalDamageButton = $"UI/StatButtonsContainer/Critical Damage Button"
 @onready var RegionButton = $UI/TopHotbar/RegionButton
 @onready var ElementButton = $UI/TopHotbar/ElementButton
+@onready var CombatButton = $"UI/BottomHotbar/HBoxContainer/Combat Button"
 @onready var Mora = $UI/TopHotbar/MoraButton
 @onready var Level = $UI/TopHotbar/LvlButton
 @onready var settings_popup_scene := preload("res://Scenes/SettingsPopup.tscn")
@@ -166,6 +167,9 @@ func _try_initial_setup() -> void:
 		call_deferred("_deferred_market_refresh")
 	if Global.is_offline:
 		_show_offline_indicator()
+		# Disable combat/turn order — DM manages all combat
+		if CombatButton != null:
+			CombatButton.visible = false
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
