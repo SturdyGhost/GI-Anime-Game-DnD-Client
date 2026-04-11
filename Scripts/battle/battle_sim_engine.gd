@@ -334,7 +334,11 @@ func _register_effects(config: Dictionary) -> void:
 		if talent_effects.size() > 0:
 			_effect_processor.register_battler(pname, talent_effects)
 
-	# Register player/companion ability effects (passives + triggered)
+	# Register player/companion ability effects — only persistent combat modifiers.
+	# Skip temporary ability mechanics (movement lock, extra actions, immunity)
+	# that should only apply during the turn the ability is used.
+	const SKIP_PERMANENT := ["PREVENT_MOVEMENT", "EXTRA_ACTION", "DOUBLE_ACTION",
+		"DAMAGE_IMMUNITY", "SUMMON", "MOVEMENT_COST"]
 	for name in _battler_data:
 		var bd: Dictionary = _battler_data[name]
 		if bd.get("type") == "Enemy":
@@ -342,8 +346,13 @@ func _register_effects(config: Dictionary) -> void:
 		var abilities: Dictionary = bd.get("entity_current_ability_data", {})
 		for aid in abilities:
 			var effects := AbilityEffects.get_effects(int(aid))
-			if effects.size() > 0:
-				_effect_processor.register_battler(name, effects)
+			var filtered: Array = []
+			for eff in effects:
+				if eff is GameEffect and eff.effect_type in SKIP_PERMANENT and eff.trigger == "PASSIVE":
+					continue  # Don't register as permanent
+				filtered.append(eff)
+			if filtered.size() > 0:
+				_effect_processor.register_battler(name, filtered)
 
 	# Register companion ability passives from GameDB
 	for name in _battler_data:
