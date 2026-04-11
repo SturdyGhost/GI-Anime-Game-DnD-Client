@@ -476,12 +476,23 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		_track(attacker_name, "damage_dealt", total_damage)
 		_track_ability(attacker_name, str(ability.get("name", "Unknown")), total_damage)
 
-	# Generate burst charges
-	var burst_gained := int(ability.get("burst_gained", 0))
-	if burst_gained > 0:
+	# Generate burst charges — Skills and Charged Attacks roll 1d4 * ER
+	if ab_type.contains("skill") or ab_type.contains("charged"):
+		var d4_roll := DiceRoller.roll(4)
+		var er: float = attacker_bd.get("er_stat", 1.0)
+		var burst_gained := int(float(d4_roll) * er)
+		# Burst cap = cost of their Burst ability (find it)
+		var burst_cap := 10
+		var abilities_dict: Dictionary = attacker_bd.get("entity_current_ability_data", {})
+		for aid in abilities_dict:
+			var ab: Dictionary = abilities_dict[aid]
+			var abt: String = str(ab.get("ability_type", "")).to_lower()
+			if abt.contains("burst"):
+				burst_cap = maxi(int(ab.get("charge_cost", 10)), 1)
+				break
 		attacker_bd["burst_charges"] = mini(
 			int(attacker_bd.get("burst_charges", 0)) + burst_gained,
-			10  # Burst cap
+			burst_cap
 		)
 
 
