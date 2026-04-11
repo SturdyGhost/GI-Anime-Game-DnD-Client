@@ -266,6 +266,10 @@ func _on_peer_disconnected(id: int) -> void:
 func _on_connected_to_server() -> void:
 	print("NetworkManager: Connected to host!")
 	is_connected_to_host = true
+	# Submit offline changes before registration if they exist
+	if OfflineChanges.has_changes():
+		print("NetworkManager: Submitting offline changes to host")
+		_submit_offline_changes.rpc_id(1, Global.ACTIVE_USER_NAME, OfflineChanges.get_changes_json())
 	_register_with_host.rpc_id(1, Global.ACTIVE_USER_NAME, str(Global.ACTIVE_USER_RECORD_ID))
 	Toast.notify("Connected to host", Toast.SUCCESS)
 	emit_signal("connection_succeeded")
@@ -298,8 +302,18 @@ func _attempt_reconnect() -> void:
 			print("NetworkManager: Reconnected successfully!")
 			Toast.notify("Reconnected to host", Toast.SUCCESS)
 			return
-	Toast.notify("Failed to reconnect after 5 attempts", Toast.ERROR, 5.0)
-	push_warning("NetworkManager: Failed to reconnect after 5 attempts")
+	Toast.notify("Failed to reconnect — returning to lobby", Toast.ERROR, 5.0)
+	push_warning("NetworkManager: Failed to reconnect after 5 attempts — returning to lobby")
+	_return_to_lobby()
+
+func _return_to_lobby() -> void:
+	is_connected_to_host = false
+	if peer:
+		peer.close()
+		peer = null
+	multiplayer.multiplayer_peer = null
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://Scenes/Lobby.tscn")
 
 # ─── PLAYER REGISTRATION ───
 
@@ -374,6 +388,9 @@ func _receive_table_sync(table_name: String, json_str: String) -> void:
 		Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
 		emit_signal("all_data_received")
 		Global.save_synced_snapshot()
+		if Global.is_offline:
+			Global.is_offline = false
+			print("NetworkManager: Exited offline mode after successful sync")
 
 	# Post-sync broadcasts only (not during initial sync) — recalculate if relevant
 	if _initial_sync_complete:
@@ -427,6 +444,53 @@ func _receive_field_updates(json_str: String) -> void:
 	Global.emit_signal("data_load_complete")
 
 # ─── CLIENT -> HOST REQUESTS ───
+
+## Client submits offline changes to host on reconnect. Host applies them before full sync.
+@rpc("any_peer", "reliable")
+func _submit_offline_changes(player_name: String, changes_json: String) -> void:
+	if not is_host:
+		return
+	var sender = multiplayer.get_remote_sender_id()
+	var changes = JSON.parse_string(changes_json)
+	if changes == null or not changes is Array:
+		push_warning("NetworkManager: Invalid offline changes from peer %d" % sender)
+		_ack_offline_changes.rpc_id(sender, true)
+		return
+
+	print("NetworkManager: Applying %d offline changes from %s (peer %d)" % [changes.size(), player_name, sender])
+
+	for change in changes:
+		var action = str(change.get("action", ""))
+		var table = str(change.get("table", ""))
+		match action:
+			"update":
+				var record_id = str(int(change.get("record_id", 0)))
+				var field = str(change.get("field", ""))
+				var value = change.get("value")
+				Global._apply_local_update(table, record_id, field, value)
+				DataStore.persist_table(table)
+			"insert":
+				var data = change.get("data", {})
+				var new_id = _next_id_for_table(table)
+				data["id"] = new_id
+				Global._insert_record(table, str(new_id), data)
+				DataStore.persist_table(table)
+			"delete":
+				var record_id = str(int(change.get("record_id", 0)))
+				Global._remove_record(table, record_id)
+				DataStore.persist_table(table)
+
+	Toast.notify("Applied offline changes from %s" % player_name, Toast.SUCCESS)
+	_ack_offline_changes.rpc_id(sender, true)
+
+@rpc("authority", "reliable")
+func _ack_offline_changes(success: bool) -> void:
+	if success:
+		print("NetworkManager: Host acknowledged offline changes — clearing local log")
+		OfflineChanges.clear()
+		Toast.notify("Offline changes merged successfully", Toast.SUCCESS)
+	else:
+		Toast.notify("Failed to merge offline changes", Toast.ERROR)
 
 ## Client requests a field update. Host validates, applies, saves, broadcasts.
 @rpc("any_peer", "reliable")
