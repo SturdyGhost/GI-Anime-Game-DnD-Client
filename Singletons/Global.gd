@@ -568,6 +568,22 @@ func load_synced_snapshot() -> bool:
 	print("Global: Loaded sync snapshot from %s" % path)
 	return true
 
+func export_synced_to_file(path: String) -> void:
+	var snapshot: Dictionary = {}
+	for table_name in _synced.keys():
+		var records: Array = []
+		for rid in _synced[table_name].keys():
+			records.append(_synced[table_name][rid].duplicate(true))
+		snapshot[table_name] = records
+	var json_str = JSON.stringify(snapshot, "\t")
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		push_error("Global: Failed to export synced data to %s" % path)
+		return
+	file.store_string(json_str)
+	file.close()
+	print("Global: Exported synced data to %s" % path)
+
 # ── Network-aware write operations (kept for compat) ────────────────────────
 func Update_Records(updates: Array) -> void:
 	print("Global.Update_Records: %d updates, is_host=%s, is_offline=%s" % [updates.size(), str(NetworkManager.is_host), str(is_offline)])
