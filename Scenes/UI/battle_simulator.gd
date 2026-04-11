@@ -178,7 +178,7 @@ func _build_encounter_setup(parent: VBoxContainer) -> void:
 	_enemy_dropdown = OptionButton.new()
 	_enemy_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_enemy_dropdown.add_theme_color_override("font_color", TEXT_COLOR)
-	_enemy_dropdown.add_theme_font_size_override("font_size", 13)
+	_style_dropdown(_enemy_dropdown)
 	add_row.add_child(_enemy_dropdown)
 
 	_add_enemy_btn = Button.new()
@@ -211,7 +211,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Kit (Element + Weapon)", 13, MUTED))
 	_kit_dropdown = OptionButton.new()
 	_kit_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_kit_dropdown.add_theme_font_size_override("font_size", 13)
+	_style_dropdown(_kit_dropdown)
 	_kit_dropdown.item_selected.connect(_on_kit_changed)
 	vbox.add_child(_kit_dropdown)
 
@@ -219,14 +219,14 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Companion", 13, MUTED))
 	_companion_dropdown = OptionButton.new()
 	_companion_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_companion_dropdown.add_theme_font_size_override("font_size", 13)
+	_style_dropdown(_companion_dropdown)
 	vbox.add_child(_companion_dropdown)
 
 	# Weapon
 	vbox.add_child(_lbl("Weapon", 13, MUTED))
 	_weapon_dropdown = OptionButton.new()
 	_weapon_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_weapon_dropdown.add_theme_font_size_override("font_size", 13)
+	_style_dropdown(_weapon_dropdown)
 	vbox.add_child(_weapon_dropdown)
 
 	# Artifact slots
@@ -239,7 +239,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 		row.add_child(type_lbl)
 		var dd := OptionButton.new()
 		dd.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		dd.add_theme_font_size_override("font_size", 12)
+		_style_dropdown(dd)
 		row.add_child(dd)
 		_artifact_dropdowns[art_type] = dd
 
@@ -247,7 +247,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Food Buff", 13, MUTED))
 	var food_dd := OptionButton.new()
 	food_dd.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	food_dd.add_theme_font_size_override("font_size", 13)
+	_style_dropdown(food_dd)
 	food_dd.add_item("None")
 	# Populate from Character_Items owned by this player
 	var items_dict: Dictionary = Global._synced.get("Character_Items", {})
@@ -379,6 +379,8 @@ func _build_results_panel(parent: VBoxContainer) -> void:
 
 	_ability_battler_dropdown = OptionButton.new()
 	_ability_battler_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ability_battler_dropdown.add_theme_font_size_override("font_size", 12)
+	_ability_battler_dropdown.custom_minimum_size.y = 0
 	_ability_battler_dropdown.item_selected.connect(_on_ability_battler_selected)
 	abil_vbox.add_child(_ability_battler_dropdown)
 
@@ -804,7 +806,7 @@ func _display_damage_distribution(dist: Dictionary) -> void:
 		var bar_row := _make_hbox(4)
 		_damage_dist_container.add_child(bar_row)
 
-		var name_lbl := _lbl(bname, 12, TEXT_COLOR)
+		var name_lbl := _lbl(bname, 14, TEXT_COLOR)
 		name_lbl.custom_minimum_size.x = 100
 		bar_row.add_child(name_lbl)
 
@@ -824,7 +826,7 @@ func _display_damage_distribution(dist: Dictionary) -> void:
 		bar_fill.custom_minimum_size = Vector2(maxf(pct / 100.0 * 200.0, 2.0), 14)
 		bar_bg.add_child(bar_fill)
 
-		var pct_lbl := _lbl("%.1f%%" % pct, 12, MUTED)
+		var pct_lbl := _lbl("%.1f%%" % pct, 14, MUTED)
 		pct_lbl.custom_minimum_size.x = 50
 		bar_row.add_child(pct_lbl)
 
@@ -840,7 +842,7 @@ func _display_party_performance(per_battler: Dictionary, n: float) -> void:
 	var header_row := _make_hbox(2)
 	_party_table.add_child(header_row)
 	for h in headers:
-		var lbl := _lbl(h, 12, GOLD)
+		var lbl := _lbl(h, 14, GOLD)
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		header_row.add_child(lbl)
@@ -869,7 +871,7 @@ func _display_party_performance(per_battler: Dictionary, n: float) -> void:
 		_party_table.add_child(row)
 
 		# Name
-		var nl := _lbl(bname, 12, TEXT_COLOR)
+		var nl := _lbl(bname, 14, TEXT_COLOR)
 		nl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		row.add_child(nl)
@@ -895,7 +897,7 @@ func _display_party_performance(per_battler: Dictionary, n: float) -> void:
 			elif v["val"] < v["avg"] * 0.99:
 				arrow = " v"
 				col = RED if v["higher_good"] else GREEN
-			var vl := _lbl(text + arrow, 12, col)
+			var vl := _lbl(text + arrow, 14, col)
 			vl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			row.add_child(vl)
@@ -920,7 +922,7 @@ func _on_ability_battler_selected(idx: int) -> void:
 	var hdr := _make_hbox(4)
 	_ability_table.add_child(hdr)
 	for h in ["Ability", "Avg Uses", "Avg Dmg/Use", "Total Dmg"]:
-		var lbl := _lbl(h, 12, GOLD)
+		var lbl := _lbl(h, 14, GOLD)
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		hdr.add_child(lbl)
@@ -930,13 +932,13 @@ func _on_ability_battler_selected(idx: int) -> void:
 		var row := _make_hbox(4)
 		_ability_table.add_child(row)
 
-		var name_lbl := _lbl(ab_name, 11, TEXT_COLOR)
+		var name_lbl := _lbl(ab_name, 13, TEXT_COLOR)
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		row.add_child(name_lbl)
 
 		for val in [ab.get("avg_uses", 0.0), ab.get("avg_damage", 0.0), float(ab.get("total_damage", 0))]:
-			var vl := _lbl("%.1f" % val, 11, TEXT_COLOR)
+			var vl := _lbl("%.1f" % val, 13, TEXT_COLOR)
 			vl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			row.add_child(vl)
@@ -959,10 +961,10 @@ func _display_battle_stats(r: Dictionary, n: float) -> void:
 	]
 
 	for s in stats:
-		var key_lbl := _lbl(s[0], 12, MUTED)
+		var key_lbl := _lbl(s[0], 14, MUTED)
 		key_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_stats_grid.add_child(key_lbl)
-		var val_lbl := _lbl(s[1], 12, TEXT_COLOR)
+		var val_lbl := _lbl(s[1], 14, TEXT_COLOR)
 		_stats_grid.add_child(val_lbl)
 
 
@@ -992,10 +994,10 @@ func _make_card(title: String) -> PanelContainer:
 	sb.border_color = CARD_BORDER
 	sb.set_border_width_all(1)
 	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 14
 	pc.add_theme_stylebox_override("panel", sb)
 
 	var vbox := VBoxContainer.new()
@@ -1047,3 +1049,17 @@ func _style_button(btn: Button, bg_color: Color) -> void:
 
 	btn.add_theme_color_override("font_color", TEXT_COLOR)
 	btn.add_theme_font_size_override("font_size", 14)
+
+
+func _style_dropdown(dd: OptionButton) -> void:
+	dd.add_theme_font_size_override("font_size", 12)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.12, 0.14, 0.20)
+	sb.border_color = CARD_BORDER
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 6
+	sb.content_margin_right = 6
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
+	dd.add_theme_stylebox_override("normal", sb)
