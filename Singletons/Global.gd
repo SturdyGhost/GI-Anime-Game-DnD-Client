@@ -524,6 +524,10 @@ func calculate_all_stats() -> void:
 	if SaveManager.get_player(ACTIVE_USER_NAME):
 		var p = SaveManager.get_player(ACTIVE_USER_NAME)
 		Current_Region = p.current_region
+	elif is_offline:
+		# Offline mode: read region from _synced character data
+		var char_data = CHARACTERS_NAME.get(ACTIVE_USER_NAME, {})
+		Current_Region = str(char_data.get("Current_Region", "")) if char_data.get("Current_Region") != null else ""
 
 # ── Sync snapshot (offline mode support) ────────────────────────────────────
 func save_synced_snapshot() -> void:
