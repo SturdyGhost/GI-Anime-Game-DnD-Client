@@ -199,18 +199,34 @@ func _init_battle(config: Dictionary) -> void:
 		avg_cd /= pc_count
 		avg_hp /= pc_count
 
-	# Build companion battlers
+	# Build companion battlers — add ALL active companions from config + _synced
+	var added_companions: Dictionary = {}  # Track by name to avoid duplicates
+
+	# First add any companion overrides from config
 	for pc in config.get("party", []):
 		var comp = pc.get("companion_override")
-		if comp == null:
-			continue
-		if comp is Dictionary and comp.is_empty():
-			continue
-		if not comp is Dictionary:
+		if comp == null or not comp is Dictionary or comp.is_empty():
 			continue
 		var comp_name: String = str(comp.get("Name", ""))
-		if comp_name == "":
+		if comp_name == "" or added_companions.has(comp_name):
 			continue
+		added_companions[comp_name] = comp
+
+	# Then scan all companions in _synced for any active ones owned by party members
+	var party_names_set: Dictionary = {}
+	for pn in player_names:
+		party_names_set[pn] = true
+	for rid in Global._synced.get("Companions", {}):
+		var c: Dictionary = Global._synced["Companions"][rid]
+		var owner: String = str(c.get("Owner", ""))
+		var comp_name: String = str(c.get("Name", ""))
+		if comp_name == "" or added_companions.has(comp_name):
+			continue
+		if owner in party_names_set and c.get("Active", false):
+			added_companions[comp_name] = c
+
+	for comp_name in added_companions:
+		var comp: Dictionary = added_companions[comp_name]
 		var comp_bd := {
 			"id": int(comp.get("id", 0)),
 			"name": comp_name,
