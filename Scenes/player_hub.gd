@@ -148,8 +148,8 @@ func _try_initial_setup() -> void:
 		return
 	if not Global.CHARACTERS_NAME.has(Global.ACTIVE_USER_NAME):
 		return
-	# Wait for connection if we're a client
-	if not NetworkManager.is_host and not NetworkManager.is_connected_to_host:
+	# Wait for connection if we're a client (skip in offline mode)
+	if not Global.is_offline and not NetworkManager.is_host and not NetworkManager.is_connected_to_host:
 		_show_reconnect_popup()
 		return
 	_initial_setup_done = true
@@ -164,6 +164,17 @@ func _try_initial_setup() -> void:
 	if Global.get("_returned_from_battle") == true:
 		Global._returned_from_battle = false
 		call_deferred("_deferred_market_refresh")
+	if Global.is_offline:
+		_show_offline_indicator()
+
+func _show_offline_indicator() -> void:
+	var indicator = Label.new()
+	indicator.name = "OfflineIndicator"
+	indicator.text = "OFFLINE"
+	indicator.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+	indicator.add_theme_font_size_override("font_size", 18)
+	indicator.position = Vector2(20, 20)
+	add_child(indicator)
 
 func _deferred_market_refresh() -> void:
 	Market.Refresh_Stock(Global.Current_Region)

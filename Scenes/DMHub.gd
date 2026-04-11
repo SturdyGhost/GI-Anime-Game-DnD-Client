@@ -71,6 +71,17 @@ func _ready() -> void:
 	_refresh_specifics_options()
 	_build_data_editor()
 	_build_artifact_panel()
+	if Global.is_offline:
+		_show_offline_indicator()
+
+func _show_offline_indicator() -> void:
+	var indicator = Label.new()
+	indicator.name = "OfflineIndicator"
+	indicator.text = "OFFLINE"
+	indicator.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
+	indicator.add_theme_font_size_override("font_size", 18)
+	indicator.position = Vector2(20, 20)
+	add_child(indicator)
 
 func _process(delta: float) -> void:
 	check_matches()
