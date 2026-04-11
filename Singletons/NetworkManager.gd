@@ -373,6 +373,7 @@ func _receive_table_sync(table_name: String, json_str: String) -> void:
 			Global.calculate_all_stats()
 		Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
 		emit_signal("all_data_received")
+		Global.save_synced_snapshot()
 
 	# Post-sync broadcasts only (not during initial sync) — recalculate if relevant
 	if _initial_sync_complete:

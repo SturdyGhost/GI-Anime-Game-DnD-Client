@@ -524,6 +524,49 @@ func calculate_all_stats() -> void:
 		var p = SaveManager.get_player(ACTIVE_USER_NAME)
 		Current_Region = p.current_region
 
+# ── Sync snapshot (offline mode support) ────────────────────────────────────
+func save_synced_snapshot() -> void:
+	var snapshot: Dictionary = {}
+	for table_name in _synced.keys():
+		var records: Array = []
+		for rid in _synced[table_name].keys():
+			records.append(_synced[table_name][rid].duplicate(true))
+		snapshot[table_name] = records
+	var json_str = JSON.stringify(snapshot, "\t")
+	var file = FileAccess.open("user://last_sync.json", FileAccess.WRITE)
+	if file == null:
+		push_error("Global: Failed to save sync snapshot")
+		return
+	file.store_string(json_str)
+	file.close()
+	print("Global: Saved sync snapshot to user://last_sync.json")
+
+func load_synced_snapshot() -> bool:
+	var path := "user://last_sync.json"
+	if not FileAccess.file_exists(path):
+		path = "res://data/default_sync.json"
+		if not FileAccess.file_exists(path):
+			push_error("Global: No sync snapshot or default found")
+			return false
+
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("Global: Failed to open snapshot at %s" % path)
+		return false
+	var text = file.get_as_text()
+	file.close()
+
+	var snapshot = JSON.parse_string(text)
+	if snapshot == null or typeof(snapshot) != TYPE_DICTIONARY:
+		push_error("Global: Invalid snapshot JSON")
+		return false
+
+	for table_name in snapshot.keys():
+		_process_table(table_name, snapshot[table_name])
+
+	print("Global: Loaded sync snapshot from %s" % path)
+	return true
+
 # ── Network-aware write operations (kept for compat) ────────────────────────
 func Update_Records(updates: Array) -> void:
 	print("Global.Update_Records: %d updates, is_host=%s" % [updates.size(), str(NetworkManager.is_host)])
