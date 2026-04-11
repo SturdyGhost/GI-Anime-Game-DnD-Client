@@ -57,8 +57,17 @@ static func decide_turn(
 
 	# Pick best ability that can reach a target
 	for ab in available:
+		var targeting_type: String = str(ab.get("targeting_type", "")).to_lower()
+		var is_global := targeting_type == "global"
 		var ab_range := int(ab.get("targeting_length", 0))
-		var is_melee := ab_range <= 0
+		var is_melee := ab_range <= 0 and not is_global
+		# Global abilities can always reach — just pick lowest HP target
+		if is_global:
+			var sorted_enemies := enemies.duplicate()
+			sorted_enemies.sort_custom(func(a, b):
+				return int(all_battlers[a].get("current_health", 999)) < int(all_battlers[b].get("current_health", 999))
+			)
+			return {"action": "attack", "ability": ab, "targets": [sorted_enemies[0]], "movement": movement}
 		var best_target := _pick_target(battler_name, enemies, all_battlers, spatial, ab_range, movement, is_melee)
 		if best_target != "":
 			return {"action": "attack", "ability": ab, "targets": [best_target], "movement": movement}

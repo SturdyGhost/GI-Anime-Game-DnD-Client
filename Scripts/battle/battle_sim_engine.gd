@@ -380,15 +380,17 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		if target_bd.is_empty() or target_bd.get("killed_status", false):
 			continue
 
-		# Move into range if needed
+		# Move into range if needed (global abilities always hit, no range check)
+		var targeting_type: String = str(ability.get("targeting_type", ""))
+		var is_global := targeting_type.to_lower() == "global"
 		var ab_range := int(ability.get("targeting_length", 0))
-		if not _spatial.in_range(attacker_name, target_name, ab_range):
-			_spatial.move_toward(attacker_name, target_name, float(movement))
-
-		# Still out of range after moving? Miss.
-		if not _spatial.in_range(attacker_name, target_name, ab_range):
-			_track(attacker_name, "misses", 1)
-			continue
+		if not is_global:
+			if not _spatial.in_range(attacker_name, target_name, ab_range):
+				_spatial.move_toward(attacker_name, target_name, float(movement))
+			# Still out of range after moving? Miss.
+			if not _spatial.in_range(attacker_name, target_name, ab_range):
+				_track(attacker_name, "misses", 1)
+				continue
 
 		# Roll defense
 		var defense_stat: float = target_bd.get("defense_stat", 10.0)
