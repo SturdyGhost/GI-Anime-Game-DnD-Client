@@ -168,12 +168,20 @@ func _try_initial_setup() -> void:
 		call_deferred("_deferred_market_refresh")
 	if Global.is_offline:
 		_show_offline_indicator()
-		# Replace combat button with inventory management
+		# Replace combat button with a plain text button for inventory management
 		if CombatButton != null:
-			var lbl = CombatButton.get_node_or_null("Label")
-			if lbl:
-				lbl.text = "Inventory"
-			CombatButton.tooltip_text = "Manage your weapons, artifacts, and items offline."
+			var parent = CombatButton.get_parent()
+			var idx = CombatButton.get_index()
+			var btn_size = CombatButton.custom_minimum_size
+			CombatButton.visible = false
+			var inv_btn = Button.new()
+			inv_btn.name = "OfflineInventoryBtn"
+			inv_btn.text = "Manage\nInventory"
+			inv_btn.custom_minimum_size = btn_size
+			inv_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			inv_btn.pressed.connect(_open_offline_management)
+			parent.add_child(inv_btn)
+			parent.move_child(inv_btn, idx)
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()

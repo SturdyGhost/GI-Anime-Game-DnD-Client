@@ -26,17 +26,27 @@ func _ready() -> void:
 	_refresh_owned_list()
 
 func _build_ui() -> void:
-	custom_minimum_size = Vector2(500, 600)
+	# Fill the entire parent (full-screen Window)
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 	var vbox = VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(vbox)
 
-	# Title
+	# Top bar: title + close button
+	var top_bar = HBoxContainer.new()
+	vbox.add_child(top_bar)
 	var title = Label.new()
 	title.text = "Offline Inventory Management"
 	title.add_theme_font_size_override("font_size", 20)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_bar.add_child(title)
+	_close_btn = Button.new()
+	_close_btn.text = "X  Close"
+	_close_btn.pressed.connect(func(): panel_closed.emit(); queue_free())
+	top_bar.add_child(_close_btn)
 
 	# Category selector
 	var cat_hbox = HBoxContainer.new()
@@ -134,11 +144,7 @@ func _build_ui() -> void:
 	)
 	region_hbox.add_child(region_btn)
 
-	# Close button
-	_close_btn = Button.new()
-	_close_btn.text = "Close"
-	_close_btn.pressed.connect(func(): panel_closed.emit(); queue_free())
-	vbox.add_child(_close_btn)
+	# Close button is at the top bar
 
 func _on_category_changed(_index: int) -> void:
 	_current_category = _category_btn.get_item_text(_index)
