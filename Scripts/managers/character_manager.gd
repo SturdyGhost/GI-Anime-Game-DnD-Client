@@ -4,6 +4,13 @@ extends Node
 
 signal stats_recalculated(player_name: String)
 
+## Safe numeric casts — JSON nulls survive .get() defaults when the key exists with null value.
+static func _safe_int(val) -> int:
+	return int(val) if val != null else 0
+
+static func _safe_float(val) -> float:
+	return float(val) if val != null else 0.0
+
 # Cache of calculated stats per player name
 var _calculated: Dictionary = {}  # name → CalculatedStats
 
@@ -114,8 +121,8 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 	}
 	for stat in stat_map:
 		var key: String = stat_map[stat]
-		var base: float = float(pd.get("%s_Base_Points" % key, 0))
-		var skill: float = float(pd.get("%s_Skill_Points" % key, 0))
+		var base: float = _safe_float(pd.get("%s_Base_Points" % key, 0))
+		var skill: float = _safe_float(pd.get("%s_Skill_Points" % key, 0))
 		var value: float = (base + skill) * scaling[stat]
 
 		# Add weapon stats
@@ -124,7 +131,7 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 				for i in range(1, 4):
 					var wstat = str(w.get("Stat_%d_Type" % i, ""))
 					if wstat != "" and wstat.to_lower().replace(" ", "_") == stat:
-						value += float(w.get("Stat_%d_Value" % i, 0))
+						value += _safe_float(w.get("Stat_%d_Value" % i, 0))
 				# Weapon stat modifier from GameDB definition
 				var wdef: WeaponData = GameDB.weapons_by_name.get(w.get("Weapon", ""), null)
 				if wdef and wdef.stat_modifier != "" and wdef.stat_modifier.to_lower().contains(stat):
@@ -138,7 +145,7 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 				for i in range(1, 3):
 					var astat = str(a.get("Stat_%d_Type" % i, ""))
 					if astat != "" and astat.to_lower().replace(" ", "_") == stat:
-						value += float(a.get("Stat_%d_Value" % i, 0))
+						value += _safe_float(a.get("Stat_%d_Value" % i, 0))
 				var sn = a.get("Artifact_Set", "")
 				if sn != "":
 					set_pieces[sn] = set_pieces.get(sn, 0) + 1
@@ -169,12 +176,12 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 			"energy_recharge": calc.energy_recharge = snapped(value, 0.01)
 			"critical_damage": calc.critical_damage = snapped(value, 0.01)
 
-	calc.current_health = int(pd.get("Current_Health", 0) if pd.get("Current_Health") != null else 0)
-	calc.max_health = int(pd.get("Max_Health", 0) if pd.get("Max_Health") != null else 0)
-	calc.burst_charges = int(pd.get("Burst_Charges", 0) if pd.get("Burst_Charges") != null else 0)
-	calc.shield_health = int(pd.get("Shield_Health", 0) if pd.get("Shield_Health") != null else 0)
-	calc.shield_duration = int(pd.get("Shield_Duration", 0) if pd.get("Shield_Duration") != null else 0)
-	calc.applied_element = str(pd.get("Applied_Element", "None") if pd.get("Applied_Element") != null else "None")
+	calc.current_health = _safe_int(pd.get("Current_Health", 0))
+	calc.max_health = _safe_int(pd.get("Max_Health", 0))
+	calc.burst_charges = _safe_int(pd.get("Burst_Charges", 0))
+	calc.shield_health = _safe_int(pd.get("Shield_Health", 0))
+	calc.shield_duration = _safe_int(pd.get("Shield_Duration", 0))
+	calc.applied_element = str(pd.get("Applied_Element", "None")) if pd.get("Applied_Element") != null else "None"
 	calc.crit_threshold = 20
 
 	_calculated[player_name] = calc
@@ -220,9 +227,9 @@ func _apply_effect_stat_mods(player_name: String, stat: String, value: float) ->
 			continue
 		match fx.get("effect_type", ""):
 			"STAT_BONUS":
-				bonus_total += float(fx.get("value", 0))
+				bonus_total += _safe_float(fx.get("value", 0))
 			"STAT_MULTIPLIER":
-				mult_total *= (1.0 + float(fx.get("value", 0)))
+				mult_total *= (1.0 + _safe_float(fx.get("value", 0)))
 
 	# Fallback: if no battle effects, check weapon/artifact passive effects directly
 	# This makes weapon effects like "+30% HP" apply outside of battle too
