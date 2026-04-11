@@ -305,6 +305,19 @@ func _register_effects(config: Dictionary) -> void:
 					if bonus != null and bonus.effects.size() > 0:
 						_effect_processor.register_battler(name, bonus.effects)
 
+	# Register talent effects for each player
+	for pc in config.get("party", []):
+		var pname: String = pc.get("name", "")
+		var char_raw = pc.get("character_data")
+		var char_data: Dictionary = char_raw if char_raw is Dictionary else {}
+		var element: String = str(char_data.get("Element", ""))
+		var kit = pc.get("kit_override")
+		if kit != null:
+			element = str(kit.get("element", element))
+		var talent_effects := TalentEffects.get_player_talent_effects(pname, element)
+		if talent_effects.size() > 0:
+			_effect_processor.register_battler(pname, talent_effects)
+
 	# Register player/companion ability effects (passives + triggered)
 	for name in _battler_data:
 		var bd: Dictionary = _battler_data[name]
@@ -465,18 +478,41 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		var total_damage: int
 		var ability_name: String = str(ability.get("name", ""))
 		if _is_escalation_ability(ability_name, ability_element):
+			# Check for talent modifiers
+			var has_push_further := _has_effect_type(attacker_name, "ESCALATION_THRESHOLD_REDUCTION")
+			var has_lucky_collapse := _has_effect_type(attacker_name, "ESCALATION_LUCKY_COLLAPSE")
+			var has_burst_per_step := _has_effect_type(attacker_name, "ESCALATION_BURST_CHARGE")
 			# Escalation replaces the standard damage die step
-			# Passive: can spend 2 HP per threshold reduction
-			var hp_available: int = int(attacker_bd.get("current_health", 0)) - 1  # Don't kill self
-			var esc_result := DiceRoller.roll_escalation(hp_available)
+			var hp_available: int = int(attacker_bd.get("current_health", 0)) - 1
+			var esc_result := DiceRoller.roll_escalation(hp_available, has_push_further)
 			if esc_result.get("succeeded", false):
 				total_damage = int((float(esc_result.get("damage", 0)) + flat_mod) * mult_mod)
+			elif has_lucky_collapse:
+				# Lucky Collapse: on failure, deal half of highest successful roll
+				var highest: int = 0
+				for r in esc_result.get("rolls", []):
+					highest = maxi(highest, int(r))
+				total_damage = int((float(highest) / 2.0 + flat_mod) * mult_mod)
 			else:
 				total_damage = 0
 			# Apply passive HP cost
 			var hp_spent: int = esc_result.get("hp_spent", 0)
 			if hp_spent > 0:
 				attacker_bd["current_health"] = maxi(int(attacker_bd.get("current_health", 0)) - hp_spent, 1)
+			# High Roller: +1 burst charge per successful escalation step
+			if has_burst_per_step:
+				var steps := esc_result.get("rolls", []).size()
+				var burst_cap := 10
+				var abilities_dict: Dictionary = attacker_bd.get("entity_current_ability_data", {})
+				for aid in abilities_dict:
+					var ab: Dictionary = abilities_dict[aid]
+					if str(ab.get("ability_type", "")).to_lower().contains("burst"):
+						burst_cap = maxi(int(ab.get("charge_cost", 10)), 1)
+						break
+				attacker_bd["burst_charges"] = mini(
+					int(attacker_bd.get("burst_charges", 0)) + steps,
+					burst_cap
+				)
 		else:
 			# Standard damage formula
 			total_damage = DiceRoller.roll_damage(diff, hits_count, flat_mod, mult_mod)
@@ -803,6 +839,14 @@ static func _calc_stats(char_data: Dictionary, weapon: Dictionary, artifacts: Ar
 static func _sf(val) -> float:
 	return float(val) if val != null else 0.0
 
+
+## Check if a battler has a specific effect type registered.
+func _has_effect_type(battler_name: String, effect_type: String) -> bool:
+	var effects := _effect_processor.query(battler_name, "PASSIVE", {})
+	for es in effects:
+		if es.effect.effect_type == effect_type:
+			return true
+	return false
 
 ## Check if an ability uses the escalation damage formula instead of standard.
 static func _is_escalation_ability(ability_name: String, element: String) -> bool:

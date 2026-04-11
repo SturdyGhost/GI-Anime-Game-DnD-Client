@@ -95,7 +95,7 @@ static func all_possible_damages(diff: int, hits: int, flat_mod: float, mult_mod
 ## Passive: spend 2 HP per threshold reduction (min threshold of 1).
 ## AI spends HP when the roll would otherwise fail.
 ## Returns {damage: int, hp_spent: int, rolls: Array[int], succeeded: bool}
-static func roll_escalation(hp_available: int) -> Dictionary:
+static func roll_escalation(hp_available: int, push_further: bool = false) -> Dictionary:
 	var chain := [4, 6, 8, 10, 12, 20]
 	var thresholds := [3, 4, 5, 6, 7, 11]
 	var cumulative := 0
@@ -106,6 +106,9 @@ static func roll_escalation(hp_available: int) -> Dictionary:
 	for i in range(chain.size()):
 		var die_size: int = chain[i]
 		var threshold: int = thresholds[i]
+		# Push Further talent: first roll gets -1 requirement
+		if push_further and i == 0:
+			threshold = maxi(threshold - 1, 1)
 		var result := roll(die_size)
 		rolls.append(result)
 
