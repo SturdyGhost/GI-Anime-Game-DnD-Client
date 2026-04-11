@@ -353,6 +353,21 @@ func _build_ui():
 	_turn_list.add_theme_stylebox_override("panel", _sb(Color.TRANSPARENT, Color.TRANSPARENT, 0, 0, Vector4(2, 2, 2, 2)))
 	turn_vbox.add_child(_turn_list)
 
+	# DM Hub button (always visible, outside the action dock)
+	if Global.ACTIVE_USER_TYPE == "Dungeon Master":
+		var dm_btn = Button.new()
+		dm_btn.text = "DM HUB"
+		dm_btn.custom_minimum_size = Vector2(0, 30)
+		dm_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var dm_normal = _sb(Color(0.4, 0.2, 0.6, 0.15), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
+		dm_btn.add_theme_stylebox_override("normal", dm_normal)
+		var dm_hover = _sb(Color(0.4, 0.2, 0.6, 0.3), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
+		dm_btn.add_theme_stylebox_override("hover", dm_hover)
+		dm_btn.add_theme_color_override("font_color", Color(0.75, 0.55, 0.95))
+		dm_btn.add_theme_font_size_override("font_size", 14)
+		dm_btn.pressed.connect(_on_dm_hub_pressed)
+		turn_vbox.add_child(dm_btn)
+
 	# Inner split: center + party (second draggable divider)
 	_inner_split = HSplitContainer.new()
 	_inner_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -641,20 +656,6 @@ func _build_ui():
 	_end_turn_btn.add_theme_color_override("font_color", ACCENT)
 	_end_turn_btn.add_theme_font_size_override("font_size", 14)
 	bottom_bar.add_child(_end_turn_btn)
-
-	# DM Hub button (only visible for DM)
-	if Global.ACTIVE_USER_TYPE == "Dungeon Master":
-		var dm_btn = Button.new()
-		dm_btn.text = "DM HUB"
-		dm_btn.custom_minimum_size = Vector2(100, 30)
-		var dm_normal = _sb(Color(0.4, 0.2, 0.6, 0.15), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
-		dm_btn.add_theme_stylebox_override("normal", dm_normal)
-		var dm_hover = _sb(Color(0.4, 0.2, 0.6, 0.3), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
-		dm_btn.add_theme_stylebox_override("hover", dm_hover)
-		dm_btn.add_theme_color_override("font_color", Color(0.75, 0.55, 0.95))
-		dm_btn.add_theme_font_size_override("font_size", 14)
-		dm_btn.pressed.connect(_on_dm_hub_pressed)
-		bottom_bar.add_child(dm_btn)
 
 	# ═══════════════════════════════════════════════════════════
 	#  RIGHT: Party Sidebar (260px min, resizable)
@@ -2095,7 +2096,8 @@ func _on_dm_hub_pressed() -> void:
 		return
 	_dm_hub_window = Window.new()
 	_dm_hub_window.title = "DM Hub"
-	_dm_hub_window.size = Vector2i(1200, 800)
+	var screen_size = DisplayServer.screen_get_size()
+	_dm_hub_window.size = Vector2i(int(screen_size.x * 0.98), int(screen_size.y * 0.9))
 	_dm_hub_window.transient = true
 	_dm_hub_window.close_requested.connect(_on_dm_hub_closed)
 	add_child(_dm_hub_window)
