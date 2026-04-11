@@ -71,6 +71,13 @@ func _ready() -> void:
 	_refresh_specifics_options()
 	_build_data_editor()
 	_build_artifact_panel()
+	# Add Encounter Balancer button to the QuickBar
+	var quick_hbox = $Layout/QuickBar/QuickHBox
+	var bal_btn = Button.new()
+	bal_btn.text = "Encounter Balancer"
+	bal_btn.add_theme_font_size_override("font_size", 16)
+	bal_btn.pressed.connect(_open_encounter_balancer)
+	quick_hbox.add_child(bal_btn)
 	if Global.is_offline:
 		_show_offline_indicator()
 		# Disable item management tab — players self-manage in offline mode
@@ -1246,3 +1253,23 @@ func _de_on_delete() -> void:
 	# Refresh table list
 	await get_tree().create_timer(0.3).timeout
 	_de_on_table_selected(_de_table_btn.selected)
+
+
+# ── Encounter Balancer ──
+
+func _open_encounter_balancer() -> void:
+	var s: PackedScene = preload("res://Scenes/UI/encounter_balancer.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
