@@ -499,10 +499,10 @@ func _populate_artifacts() -> void:
 				# Show set bonus info
 				var bonus_2 = GameDB.get_artifact_bonus(set_name, 2)
 				if bonus_2:
-					tip_lines.append("2pc: %s" % str(bonus_2.description) if bonus_2.description != "" else "2pc bonus")
+					tip_lines.append("2pc: %s" % (str(bonus_2.effect) if bonus_2.effect != "" else "Set bonus"))
 				var bonus_4 = GameDB.get_artifact_bonus(set_name, 4)
 				if bonus_4:
-					tip_lines.append("4pc: %s" % str(bonus_4.description) if bonus_4.description != "" else "4pc bonus")
+					tip_lines.append("4pc: %s" % (str(bonus_4.effect) if bonus_4.effect != "" else "Set bonus"))
 				dd.set_item_tooltip(dd.item_count - 1, "\n".join(tip_lines))
 
 
