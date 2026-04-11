@@ -29,6 +29,7 @@ func get_effective_luck(player_name: String) -> int:
 # ── Synced table data (populated by host on both host+client via _process_table)
 var _synced: Dictionary = {}          # { "TableName": { "rid": {record}, ... } }
 var _synced_name: Dictionary = {}     # { "TableName": { "Name": "rid", ... } }  (only for tables with Name field)
+var is_offline: bool = false
 
 # ── Signals (kept for backward compat — scenes await these) ─────────────────
 signal table_loaded(table_name: String, records_loaded: int)
@@ -569,7 +570,19 @@ func load_synced_snapshot() -> bool:
 
 # ── Network-aware write operations (kept for compat) ────────────────────────
 func Update_Records(updates: Array) -> void:
-	print("Global.Update_Records: %d updates, is_host=%s" % [updates.size(), str(NetworkManager.is_host)])
+	print("Global.Update_Records: %d updates, is_host=%s, is_offline=%s" % [updates.size(), str(NetworkManager.is_host), str(is_offline)])
+	if is_offline:
+		for u in updates:
+			_apply_update_to_save(u)
+			OfflineChanges.log_update(
+				str(u.get("table", "")),
+				int(u.get("record_id", 0)),
+				str(u.get("field", "")),
+				u.get("value")
+			)
+		CharacterManager.recalculate_all()
+		emit_signal("data_load_complete")
+		return
 	if NetworkManager.is_host:
 		NetworkManager.host_update_records(updates)
 	else:
@@ -585,6 +598,21 @@ func Insert(table: String, columns: Array, values: Array) -> void:
 		return
 	if columns.size() != values.size():
 		return
+
+	if is_offline:
+		var new_id = _next_offline_id(table)
+		var record = {"id": new_id}
+		for i in columns.size():
+			record[columns[i]] = values[i]
+		_insert_record(table, str(new_id), record)
+		OfflineChanges.log_insert(table, new_id, record)
+		var corr_id = _next_insert_corr_id
+		_next_insert_corr_id = ""
+		emit_signal("insert_finished", corr_id, table, new_id, record, true)
+		CharacterManager.recalculate_all()
+		emit_signal("data_load_complete")
+		return
+
 	var corr_id = _next_insert_corr_id
 	_next_insert_corr_id = ""
 	if NetworkManager.is_host:
@@ -602,6 +630,12 @@ func Insert(table: String, columns: Array, values: Array) -> void:
 
 func Remove_Record(table: String, record_id: int) -> void:
 	if table.strip_edges() == "":
+		return
+	if is_offline:
+		_remove_record(table, str(record_id))
+		OfflineChanges.log_delete(table, record_id)
+		CharacterManager.recalculate_all()
+		emit_signal("data_load_complete")
 		return
 	if NetworkManager.is_host:
 		NetworkManager.host_remove(table, record_id)
@@ -781,6 +815,15 @@ func _apply_record_update(table_name: String, record_id: String, data: Dictionar
 	_process_table(table_name, [data])
 	CharacterManager.recalculate_all()
 	emit_signal("data_load_complete")
+
+func _next_offline_id(table_name: String) -> int:
+	var dict: Dictionary = _synced.get(table_name, {})
+	var max_id = 0
+	for key in dict.keys():
+		var id_val = int(key)
+		if id_val > max_id:
+			max_id = id_val
+	return max_id + 1
 
 func _insert_record(table_name: String, record_id: String, record: Dictionary) -> void:
 	record["id"] = int(record_id)
