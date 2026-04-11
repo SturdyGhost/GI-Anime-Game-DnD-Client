@@ -150,10 +150,40 @@ func _init_battle(config: Dictionary) -> void:
 		player_names.append(name)
 		_turn_order.append(name)
 
+	# Compute average player stats for companions
+	var avg_atk := 0.0
+	var avg_def := 0.0
+	var avg_em := 0.0
+	var avg_er := 0.0
+	var avg_cd := 0.0
+	var avg_hp := 0.0
+	var pc_count := 0
+	for pname in player_names:
+		var pbd: Dictionary = _battler_data.get(pname, {})
+		if pbd.get("type") == "Character":
+			avg_atk += float(pbd.get("attack_stat", 0))
+			avg_def += float(pbd.get("defense_stat", 0))
+			avg_em += float(pbd.get("em_stat", 0))
+			avg_er += float(pbd.get("er_stat", 0))
+			avg_cd += float(pbd.get("crit_damage_stat", 0))
+			avg_hp += float(pbd.get("max_health", 0))
+			pc_count += 1
+	if pc_count > 0:
+		avg_atk /= pc_count
+		avg_def /= pc_count
+		avg_em /= pc_count
+		avg_er /= pc_count
+		avg_cd /= pc_count
+		avg_hp /= pc_count
+
 	# Build companion battlers
 	for pc in config.get("party", []):
 		var comp = pc.get("companion_override")
-		if comp == null or comp.is_empty():
+		if comp == null:
+			continue
+		if comp is Dictionary and comp.is_empty():
+			continue
+		if not comp is Dictionary:
 			continue
 		var comp_name: String = str(comp.get("Name", ""))
 		if comp_name == "":
@@ -165,18 +195,18 @@ func _init_battle(config: Dictionary) -> void:
 			"entity_data": comp.duplicate(true),
 			"entity_weapon_data": {},
 			"entity_current_ability_data": _get_companion_abilities(int(comp.get("id", 0))),
-			"current_health": int(comp.get("Current_Health", comp.get("Max_Health", 20))),
-			"max_health": int(comp.get("Max_Health", 20)),
+			"current_health": int(avg_hp) if avg_hp > 0 else 20,
+			"max_health": int(avg_hp) if avg_hp > 0 else 20,
 			"burst_charges": 0,
 			"applied_element": "None",
 			"killed_status": false,
 			"skipped_status": false,
 			"skipped_duration": 0,
-			"attack_stat": 8.0,
-			"defense_stat": 8.0,
-			"em_stat": 5.0,
-			"er_stat": 1.0,
-			"crit_damage_stat": 0.0,
+			"attack_stat": avg_atk if avg_atk > 0 else 8.0,
+			"defense_stat": avg_def if avg_def > 0 else 8.0,
+			"em_stat": avg_em if avg_em > 0 else 5.0,
+			"er_stat": avg_er if avg_er > 0 else 1.0,
+			"crit_damage_stat": avg_cd,
 			"crit_threshold": 20,
 		}
 		_battler_data[comp_name] = comp_bd
@@ -218,9 +248,9 @@ func _init_battle(config: Dictionary) -> void:
 				"killed_status": false,
 				"skipped_status": false,
 				"skipped_duration": 0,
-				"attack_stat": 12.0,  # Enemies use tier-based dice, not stat-based
-				"defense_stat": 12.0,
-				"em_stat": 10.0,
+				"attack_stat": float(_tier_to_attack_die(enemy_def.tier)),
+				"defense_stat": float(_tier_to_defense_die(enemy_def.tier)),
+				"em_stat": float(_tier_to_attack_die(enemy_def.tier)),
 				"er_stat": 1.0,
 				"crit_damage_stat": 0.0,
 				"crit_threshold": 20,

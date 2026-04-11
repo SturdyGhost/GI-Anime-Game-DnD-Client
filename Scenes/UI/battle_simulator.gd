@@ -808,37 +808,89 @@ func _display_damage_distribution(dist: Dictionary) -> void:
 	var children := _damage_dist_container.get_children()
 	for i in range(children.size()):
 		if children[i] is Label:
-			continue  # keep headers already part of card
+			continue
 		children[i].queue_free()
 
-	var color_i := 0
+	# Separate players/companions from enemies
+	var player_dist: Dictionary = {}
+	var enemy_dist: Dictionary = {}
+	for bname in dist:
+		# Check if this is an enemy by looking at battler data
+		var is_enemy := false
+		if _last_results.has("per_battler"):
+			# Enemies are not in the party
+			var is_party := false
+			for pc in _last_config.get("party", []):
+				if pc.get("name", "") == bname:
+					is_party = true
+					break
+				# Check companions
+				var comp = pc.get("companion_override")
+				if comp is Dictionary and str(comp.get("Name", "")) == bname:
+					is_party = true
+					break
+			is_enemy = not is_party
+		if is_enemy:
+			enemy_dist[bname] = dist[bname]
+		else:
+			player_dist[bname] = dist[bname]
+
+	# Find max percentage in each group for scaling bars
+	var player_max := 0.0
+	for v in player_dist.values():
+		player_max = maxf(player_max, float(v))
+	var enemy_max := 0.0
+	for v in enemy_dist.values():
+		enemy_max = maxf(enemy_max, float(v))
+
+	# Display player/companion bars
+	if player_dist.size() > 0:
+		_damage_dist_container.add_child(_lbl("Party", 13, MUTED))
+		_add_dist_bars(player_dist, player_max, 0)
+
+	# Display enemy bars (compared to each other)
+	if enemy_dist.size() > 0:
+		_damage_dist_container.add_child(_lbl("Enemies", 13, MUTED))
+		# Recalculate enemy percentages relative to enemies only
+		var enemy_total := 0.0
+		for v in enemy_dist.values():
+			enemy_total += float(v)
+		var enemy_relative: Dictionary = {}
+		for bname in enemy_dist:
+			enemy_relative[bname] = float(enemy_dist[bname]) / maxf(enemy_total, 0.01) * 100.0
+		var emax := 0.0
+		for v in enemy_relative.values():
+			emax = maxf(emax, float(v))
+		_add_dist_bars(enemy_relative, emax, player_dist.size())
+
+
+func _add_dist_bars(dist: Dictionary, max_pct: float, color_offset: int) -> void:
+	var color_i := color_offset
 	for bname in dist:
 		var pct: float = dist[bname]
 		var bar_row := _make_hbox(4)
 		_damage_dist_container.add_child(bar_row)
 
 		var name_lbl := _lbl(bname, 14, TEXT_COLOR)
-		name_lbl.custom_minimum_size.x = 100
+		name_lbl.custom_minimum_size.x = 120
 		bar_row.add_child(name_lbl)
 
-		# Bar background
-		var bar_bg := PanelContainer.new()
+		# Use a Control with a colored child sized proportionally
+		var bar_bg := Control.new()
 		bar_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		bar_bg.custom_minimum_size.y = 18
-		var bg_sb := StyleBoxFlat.new()
-		bg_sb.bg_color = CARD_BORDER
-		bg_sb.set_corner_radius_all(3)
-		bar_bg.add_theme_stylebox_override("panel", bg_sb)
 		bar_row.add_child(bar_bg)
 
-		# Bar fill
 		var bar_fill := ColorRect.new()
 		bar_fill.color = BAR_COLORS[color_i % BAR_COLORS.size()]
-		bar_fill.custom_minimum_size = Vector2(maxf(pct / 100.0 * 200.0, 2.0), 14)
+		# Scale bar width as fraction of max (so highest = full width)
+		var fill_ratio := pct / maxf(max_pct, 1.0)
+		bar_fill.anchor_right = fill_ratio
+		bar_fill.anchor_bottom = 1.0
 		bar_bg.add_child(bar_fill)
 
 		var pct_lbl := _lbl("%.1f%%" % pct, 14, MUTED)
-		pct_lbl.custom_minimum_size.x = 50
+		pct_lbl.custom_minimum_size.x = 55
 		bar_row.add_child(pct_lbl)
 
 		color_i += 1
