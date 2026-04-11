@@ -230,8 +230,34 @@ func _enter_offline_mode() -> void:
 		Global.is_offline = false
 		return
 
+	# Replay any pending offline changes on top of the loaded snapshot
+	if OfflineChanges.has_changes():
+		_replay_offline_changes()
+
 	Global.calculate_all_stats()
 	_go_to_game()
+
+func _replay_offline_changes() -> void:
+	var changes = JSON.parse_string(OfflineChanges.get_changes_json())
+	if changes == null or not changes is Array:
+		return
+	for change in changes:
+		var action = str(change.get("action", ""))
+		var table = str(change.get("table", ""))
+		match action:
+			"update":
+				var record_id = str(int(change.get("record_id", 0)))
+				var field = str(change.get("field", ""))
+				var value = change.get("value")
+				Global._apply_local_update(table, record_id, field, value)
+			"insert":
+				var data = change.get("data", {})
+				var rid = int(data.get("id", Global._next_offline_id(table)))
+				data["id"] = rid
+				Global._insert_record(table, str(rid), data)
+			"delete":
+				var record_id = str(int(change.get("record_id", 0)))
+				Global._remove_record(table, record_id)
 
 func _on_host_selected(index: int) -> void:
 	if Global.ACTIVE_USER_NAME == "":
