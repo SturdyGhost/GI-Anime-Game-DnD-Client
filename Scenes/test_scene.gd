@@ -628,10 +628,10 @@ func _test_offline_snapshot_save_load():
 	_assert("Characters restored from snapshot", Global.CHARACTERS.size() == original_char_count,
 		"expected %d, got %d" % [original_char_count, Global.CHARACTERS.size()])
 
-	# Verify all tables survived round-trip
+	# Verify all tables survived round-trip (empty tables are valid)
 	var missing_tables = []
 	for t in original_tables:
-		if not Global._synced.has(t) or Global._synced[t].is_empty():
+		if not Global._synced.has(t):
 			missing_tables.append(t)
 	_assert("All tables survive snapshot round-trip", missing_tables.is_empty(),
 		"missing: %s" % str(missing_tables) if not missing_tables.is_empty() else "%d tables" % original_tables.size())
