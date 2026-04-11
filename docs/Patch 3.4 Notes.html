@@ -1,0 +1,121 @@
+<html>
+<body>
+
+<h1>Patch 3.4</h1>
+
+<h2>Offline Mode</h2>
+
+<p>The client no longer bricks when you can't connect to the host. A new <b>"Play Offline"</b> button in the lobby lets you continue playing locally with your own save data. Changes you make offline sync automatically when you reconnect in a future session.</p>
+
+<ul>
+  <li><b>How it works:</b> Every time you successfully connect to the host, the client saves a snapshot of your data locally. When you go offline, it loads from that snapshot. If you've never connected before, a bundled default save is included with the client.</li>
+  <li><b>Players in offline mode</b> can access the full hub — swap equipment, gather materials, visit the market, view companion kits, and change their region. The Combat button is replaced with a <b>Manage Inventory</b> panel where you can add/remove weapons, artifacts, and items from the full GameDB list.</li>
+  <li><b>DM in offline mode</b> can set up and run full battles — add enemies, process turns manually for each player, and manage the battle end-to-end. The Party Management tab is disabled (players manage their own stuff in offline mode).</li>
+  <li><b>Merge on reconnect:</b> When everyone comes back online, each player's offline changes are automatically submitted to the host before the full sync. The host applies them and broadcasts the merged save to everyone. No manual file exchange needed.</li>
+  <li><b>Multiple offline sessions:</b> If you go offline multiple times between connections, your changes accumulate. Each new offline session replays your pending changes on top of the latest snapshot so you always see your current state.</li>
+  <li><b>Mora:</b> Everyone can edit mora in offline mode (coordinate verbally). On merge, the highest mora value across all submissions wins to prevent accidental loss.</li>
+  <li><b>Offline indicator:</b> A red "OFFLINE" label shows in the hub so you always know your connection status.</li>
+  <li><b>Disconnect handling:</b> If your connection drops mid-session, the client returns you to the lobby instead of showing an endless reconnect popup. From there you can try to reconnect or go offline.</li>
+</ul>
+
+<h2>Battle Simulator</h2>
+
+<p>A full battle simulation engine is now built into the client. It can run thousands of simulated battles using the actual game mechanics — dice rolls, damage formulas, weapon effects, talent bonuses, reactions, and smart AI for ability selection and targeting.</p>
+
+<h3>Post-Turn Damage Breakdown</h3>
+
+<p>After every turn in a real battle, a popup now shows what the system calculated as the possible outcomes for your attack. This appears for the acting player (DM sees enemy turns).</p>
+
+<ul>
+  <li>Shows your actual damage dealt prominently at the top for each target.</li>
+  <li>Below that, a table of every possible damage roll value with the calculated damage after modifiers (flat bonuses, multipliers, multi-hit reduction all applied).</li>
+  <li>The system estimates which roll you likely got and highlights it — marked as "EST." since it may not account for every active modifier.</li>
+  <li>Useful for seeing if you rolled above or below average on any given turn.</li>
+  <li>Dismissible with a close button, no auto-timeout.</li>
+</ul>
+
+<h3>Practice Mode (Player Hub)</h3>
+
+<p>The <b>Practice</b> button on the player hub hotbar now opens a full battle simulator. Set up any encounter, tweak your loadout, and run up to 10,000 simulated battles to see how your build performs.</p>
+
+<ul>
+  <li><b>Encounter setup:</b> Add any enemies from the GameDB with a searchable dropdown. Set how many of each enemy type you want to fight.</li>
+  <li><b>Loadout overrides (sandbox only — never changes your real data):</b>
+    <ul>
+      <li>Swap between your available kits (element + weapon type combinations)</li>
+      <li>Swap companion, weapon, and food buff</li>
+      <li>5 individual artifact slots showing your currently equipped piece with dropdown to swap to any other artifact of the same type in your inventory</li>
+      <li>Hover tooltips on weapons show stats and effect descriptions, artifacts show stats and set bonuses</li>
+    </ul>
+  </li>
+  <li><b>Stat overrides:</b> Manually set any stat (Attack, Defense, EM, ER, Crit Damage, Health) to a custom value for "what if" testing. Pre-filled with your current calculated values. Toggle each one individually.</li>
+  <li><b>Damage modifiers:</b> Separate player and enemy damage multiplier sliders (0.5x–1.5x) to calibrate the simulator against what you actually see in real battles.</li>
+  <li><b>Results panel:</b>
+    <ul>
+      <li>Win rate, total wipes, and average rounds at a glance</li>
+      <li>Damage distribution bar graph with party and enemies shown separately, gold average line per group</li>
+      <li>Per-battler performance table with above/below average arrows (enemies compared to other enemies, party compared to party)</li>
+      <li>Ability breakdown per character showing uses, average damage, and total damage</li>
+      <li>Battle statistics grid (min/max rounds, zero deaths %, full wipe %, perma-death %)</li>
+      <li>Per-player recommendations analyzing stats vs performance — tells you if you need more Attack, EM, Defense, etc.</li>
+    </ul>
+  </li>
+  <li><b>Single-screen iteration:</b> Change any setup value and hit "Run Again" — results update in place. No navigation back and forth.</li>
+</ul>
+
+<h3>Encounter Balancer (DM Hub)</h3>
+
+<p>A new <b>Encounter Balancer</b> button on the DM Hub opens a simulator focused on tuning enemy difficulty. Select an enemy, pick a target difficulty tier, run simulations, and get advisory suggestions for stat adjustments.</p>
+
+<ul>
+  <li><b>Target difficulty tiers</b> with fixed profiles:
+    <ul>
+      <li><b>Common:</b> ~99% win rate, 1-2 rounds per enemy, no resources needed</li>
+      <li><b>Uncommon:</b> ~95% win rate, 3-5 rounds, occasional items</li>
+      <li><b>Rare:</b> ~85% win rate, 5-8 rounds, revives occasionally needed</li>
+      <li><b>Epic:</b> ~80% win rate, 8-12 rounds, all revives burned in most fights</li>
+      <li><b>Boss:</b> ~75% win rate, full wipe ~25%, all revives burned in half of wins</li>
+      <li><b>Legendary:</b> ~50% win rate, full wipe ~40%, clean wins rare</li>
+    </ul>
+  </li>
+  <li><b>Profile comparison:</b> Horizontal bars showing actual results vs tier targets with gold target markers.</li>
+  <li><b>Advisory suggestions:</b> Specific recommendations like "Increase HP from 120 to 145" or "Increase Attack Dice" with reasoning and expected impact. Marked as advisory only — the DM applies changes manually.</li>
+  <li><b>Profiles scale with encounter composition</b> — 4 common enemies together shifts expectations appropriately.</li>
+</ul>
+
+<h2>Combat Mechanics in the Simulator</h2>
+
+<p>The simulator implements the full combat system:</p>
+
+<ul>
+  <li><b>Damage formula:</b> Stat → dice → accuracy roll vs defense roll → difference → damage die → roll → flat mods → mult mods → multi-hit reduction (1/3 per successive hit, ceiling division, minimum 1).</li>
+  <li><b>Crits:</b> Accuracy roll of 20+ is a crit. Crit damage multiplier applies.</li>
+  <li><b>Weapon effects:</b> All 47 weapons with effects are active — Prototype Archaic's repeat attack, Sacrificial cooldown resets, Aqua Simulacra's damage bonus, Staff of Homa's HP scaling, etc.</li>
+  <li><b>All 20 chosen talents</b> across every kit/element are implemented — Brian C.'s escalation chain with Push Further and Lucky Collapse, Brian F.'s Measured Wind-Up, Dylan's basic attack burst generation, and more.</li>
+  <li><b>Brian C.'s Nature Skill escalation</b> fully simulated — d4→d6→d8→d10→d12→d20 chain with passive HP spending to reduce thresholds.</li>
+  <li><b>Companion rolls:</b> Each player rolls their own dice independently, companion uses the average of those results (not one die from an averaged stat).</li>
+  <li><b>Smart AI:</b> Prioritizes reviving downed allies → burst when charges full → skill/charged for max damage → basic attack → move only. Targets lowest HP enemy. Respects root/slow status, spatial distance, ability range, and built-in movement.</li>
+  <li><b>Spatial model:</b> Simplified distance-based positioning. Players start at one end, enemies at the other. Movement, range checks, and melee/ranged distinctions all factor into AI decisions.</li>
+  <li><b>Reactions:</b> Element application and reaction damage bonuses from the effect system.</li>
+  <li><b>Status effects:</b> Stun, root, slow, and other status effects applied from abilities.</li>
+</ul>
+
+<h2>Bug Fixes</h2>
+
+<ul>
+  <li>Fixed null value crashes in character stat calculation when loading from JSON data with null fields (Shield_Health, Shield_Duration, etc.).</li>
+  <li>Fixed stale hosts lingering in the LAN discovery list — hosts that stop broadcasting now expire after 3 seconds.</li>
+  <li>Fixed crafting recipe tests using wrong data source (Global.CRAFTING_RECIPES returns dicts, not CraftingRecipeData).</li>
+  <li>Added 15 missing scene instantiation tests to the test suite.</li>
+</ul>
+
+<h2>Data Updates</h2>
+
+<ul>
+  <li>All player characters set to Nature element and Sumeru region.</li>
+  <li>Brian C.: 2 unspent skill points allocated to Elemental Mastery.</li>
+  <li>Default sync file populated with all 13 tables (916 records) for first-time offline use.</li>
+</ul>
+
+</body>
+</html>
