@@ -194,7 +194,8 @@ func poll_discovery() -> void:
 			"ip": ip,
 			"port": int(parsed.get("port", DEFAULT_PORT)),
 			"name": str(parsed.get("host_name", "Unknown")),
-			"players": int(parsed.get("player_count", 0))
+			"players": int(parsed.get("player_count", 0)),
+			"_last_seen": Time.get_ticks_msec()
 		}
 
 		# Update or add
@@ -206,6 +207,12 @@ func poll_discovery() -> void:
 				break
 		if not found:
 			discovered_hosts.append(entry)
+
+	# Expire hosts that haven't sent a beacon in 3 seconds
+	var now = Time.get_ticks_msec()
+	for i in range(discovered_hosts.size() - 1, -1, -1):
+		if now - discovered_hosts[i].get("_last_seen", 0) > 3000:
+			discovered_hosts.remove_at(i)
 
 func _stop_discovery() -> void:
 	if _discovery_socket:
