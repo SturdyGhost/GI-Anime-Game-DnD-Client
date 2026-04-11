@@ -553,15 +553,23 @@ func _track_ability(name: String, ability_name: String, damage: int) -> void:
 func _get_abilities_for_config(pc: Dictionary, char_data: Dictionary) -> Dictionary:
 	var element: String = str(char_data.get("Element", ""))
 	var kit = pc.get("kit_override")
-	if kit:
+	if kit != null:
 		element = str(kit.get("element", element))
 	var weapon_type: String = ""
 	var weapon_raw = pc.get("weapon_override")
 	var weapon: Dictionary = weapon_raw if weapon_raw is Dictionary else {}
 	if weapon.has("Type"):
 		weapon_type = str(weapon.get("Type", ""))
-	elif kit:
+	elif kit != null:
 		weapon_type = str(kit.get("weapon_type", ""))
+	# If still no weapon type, look up the player's currently equipped weapon
+	if weapon_type == "":
+		var pname: String = str(pc.get("name", ""))
+		for rid in Global._synced.get("Character_Weapons", {}):
+			var w: Dictionary = Global._synced["Character_Weapons"][rid]
+			if w.get("Owner") == pname and w.get("Equipped", false):
+				weapon_type = str(w.get("Type", ""))
+				break
 
 	var result: Dictionary = {}
 	var char_id := int(char_data.get("id", 0))

@@ -178,6 +178,7 @@ func _build_encounter_setup(parent: VBoxContainer) -> void:
 	_enemy_dropdown = OptionButton.new()
 	_enemy_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_enemy_dropdown.add_theme_color_override("font_color", TEXT_COLOR)
+	_enemy_dropdown.add_theme_font_size_override("font_size", 13)
 	add_row.add_child(_enemy_dropdown)
 
 	_add_enemy_btn = Button.new()
@@ -190,6 +191,7 @@ func _build_encounter_setup(parent: VBoxContainer) -> void:
 	_enemy_search = LineEdit.new()
 	_enemy_search.placeholder_text = "Filter enemies..."
 	_enemy_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_enemy_search.add_theme_font_size_override("font_size", 13)
 	_enemy_search.text_changed.connect(_on_enemy_search_changed)
 	vbox.add_child(_enemy_search)
 
@@ -209,6 +211,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Kit (Element + Weapon)", 13, MUTED))
 	_kit_dropdown = OptionButton.new()
 	_kit_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_kit_dropdown.add_theme_font_size_override("font_size", 13)
 	_kit_dropdown.item_selected.connect(_on_kit_changed)
 	vbox.add_child(_kit_dropdown)
 
@@ -216,12 +219,14 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Companion", 13, MUTED))
 	_companion_dropdown = OptionButton.new()
 	_companion_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_companion_dropdown.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(_companion_dropdown)
 
 	# Weapon
 	vbox.add_child(_lbl("Weapon", 13, MUTED))
 	_weapon_dropdown = OptionButton.new()
 	_weapon_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_weapon_dropdown.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(_weapon_dropdown)
 
 	# Artifact slots
@@ -234,6 +239,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 		row.add_child(type_lbl)
 		var dd := OptionButton.new()
 		dd.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		dd.add_theme_font_size_override("font_size", 12)
 		row.add_child(dd)
 		_artifact_dropdowns[art_type] = dd
 
@@ -241,6 +247,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(_lbl("Food Buff", 13, MUTED))
 	var food_dd := OptionButton.new()
 	food_dd.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	food_dd.add_theme_font_size_override("font_size", 13)
 	food_dd.add_item("None")
 	# Populate from Character_Items owned by this player
 	var items_dict: Dictionary = Global._synced.get("Character_Items", {})
@@ -268,6 +275,7 @@ func _build_sim_config_ui(parent: VBoxContainer) -> void:
 	_battle_spin.max_value = 10000
 	_battle_spin.step = 10
 	_battle_spin.value = 1000
+	_battle_spin.add_theme_font_size_override("font_size", 13)
 	_battle_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_battle_spin.value_changed.connect(func(v): _battle_count = int(v))
 	bc_row.add_child(_battle_spin)
@@ -691,15 +699,24 @@ func _get_companion_override():
 	return Global._synced.get("Companions", {}).get(rid)
 
 
-func _get_artifact_overrides() -> Dictionary:
-	var overrides := {}
+func _get_artifact_overrides() -> Array:
+	var overrides: Array = []
 	for art_type in ARTIFACT_TYPES:
 		var dd: OptionButton = _artifact_dropdowns[art_type]
 		var idx := dd.selected - 1
 		var ids: Array = _artifact_slots.get(art_type, {}).get("ids", [])
 		if idx >= 0 and idx < ids.size():
 			var rid = ids[idx]
-			overrides[art_type] = Global._synced.get("Character_Artifacts", {}).get(rid)
+			var art = Global._synced.get("Character_Artifacts", {}).get(rid)
+			if art is Dictionary:
+				overrides.append(art)
+		else:
+			# No override — use currently equipped for this slot
+			for rid in Global._synced.get("Character_Artifacts", {}):
+				var a: Dictionary = Global._synced["Character_Artifacts"][rid]
+				if a.get("Owner") == Global.ACTIVE_USER_NAME and str(a.get("Type", "")) == art_type and a.get("Equipped", false):
+					overrides.append(a)
+					break
 	return overrides
 
 
@@ -726,14 +743,12 @@ func _get_current_companion(player_name: String):
 	return null
 
 
-func _get_current_artifacts(player_name: String) -> Dictionary:
-	var arts := {}
+func _get_current_artifacts(player_name: String) -> Array:
+	var arts: Array = []
 	for rid in Global._synced.get("Character_Artifacts", {}):
 		var a: Dictionary = Global._synced["Character_Artifacts"][rid]
 		if a.get("Owner") == player_name and a.get("Equipped") == true:
-			var atype: String = str(a.get("Type", ""))
-			if atype != "":
-				arts[atype] = a
+			arts.append(a)
 	return arts
 
 
