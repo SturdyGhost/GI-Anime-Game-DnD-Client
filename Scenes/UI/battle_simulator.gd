@@ -445,7 +445,24 @@ func _populate_weapons(filter_type: String = "") -> void:
 			_weapon_ids.append(rid)
 			var wname: String = str(w.get("Name", "Weapon %s" % rid))
 			var wtype: String = str(w.get("Type", ""))
-			_weapon_dropdown.add_item("%s (%s)" % [wname, wtype])
+			var equipped: bool = w.get("Equipped", false)
+			var display := "%s (%s)%s" % [wname, wtype, " [E]" if equipped else ""]
+			_weapon_dropdown.add_item(display)
+			# Build tooltip with stats and effects
+			var tip_lines: Array = [wname, "Type: %s" % wtype]
+			for i in range(1, 4):
+				var stype: String = str(w.get("Stat_%d_Type" % i, ""))
+				var sval = w.get("Stat_%d_Value" % i, 0)
+				if stype != "":
+					tip_lines.append("%s: +%s" % [stype, str(sval)])
+			var wdef = GameDB.weapons_by_name.get(wname, null)
+			if wdef and wdef.stat_modifier != "":
+				tip_lines.append("%s: +%s" % [wdef.stat_modifier, str(wdef.stat_modifier_value)])
+			var effects := WeaponEffects.get_effects(wname)
+			for eff in effects:
+				if eff is GameEffect and eff.description != "":
+					tip_lines.append("Effect: %s" % eff.description)
+			_weapon_dropdown.set_item_tooltip(_weapon_dropdown.item_count - 1, "\n".join(tip_lines))
 
 
 func _populate_artifacts() -> void:
@@ -458,8 +475,35 @@ func _populate_artifacts() -> void:
 			var a: Dictionary = Global._synced["Character_Artifacts"][rid]
 			if a.get("Owner") == Global.ACTIVE_USER_NAME and str(a.get("Type", "")) == art_type:
 				_artifact_slots[art_type]["ids"].append(rid)
-				var aname: String = str(a.get("Name", a.get("Set_Name", "Artifact")))
-				dd.add_item(aname)
+				var set_name: String = str(a.get("Set_Name", a.get("Artifact_Set", "")))
+				var equipped: bool = a.get("Equipped", false)
+				# Build display with stats
+				var stat_parts: Array = []
+				for i in range(1, 3):
+					var stype: String = str(a.get("Stat_%d_Type" % i, ""))
+					var sval = a.get("Stat_%d_Value" % i, 0)
+					if stype != "":
+						stat_parts.append("%s +%s" % [stype, str(sval)])
+				var stats_str := " | ".join(stat_parts) if stat_parts.size() > 0 else ""
+				var display := "%s%s" % [set_name, " [E]" if equipped else ""]
+				if stats_str != "":
+					display += " (%s)" % stats_str
+				dd.add_item(display)
+				# Tooltip with full details
+				var tip_lines: Array = ["%s — %s" % [set_name, art_type]]
+				for i in range(1, 3):
+					var stype: String = str(a.get("Stat_%d_Type" % i, ""))
+					var sval = a.get("Stat_%d_Value" % i, 0)
+					if stype != "":
+						tip_lines.append("  %s: +%s" % [stype, str(sval)])
+				# Show set bonus info
+				var bonus_2 = GameDB.get_artifact_bonus(set_name, 2)
+				if bonus_2:
+					tip_lines.append("2pc: %s" % str(bonus_2.description) if bonus_2.description != "" else "2pc bonus")
+				var bonus_4 = GameDB.get_artifact_bonus(set_name, 4)
+				if bonus_4:
+					tip_lines.append("4pc: %s" % str(bonus_4.description) if bonus_4.description != "" else "4pc bonus")
+				dd.set_item_tooltip(dd.item_count - 1, "\n".join(tip_lines))
 
 
 # ═══════════════════════════════════════════

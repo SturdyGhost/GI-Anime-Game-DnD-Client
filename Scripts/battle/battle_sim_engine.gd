@@ -104,7 +104,8 @@ func _init_battle(config: Dictionary) -> void:
 	# Build player battlers from config
 	for pc in config.get("party", []):
 		var name: String = pc.get("name", "")
-		var char_data: Dictionary = pc.get("character_data", {}).duplicate(true)
+		var char_raw = pc.get("character_data")
+		var char_data: Dictionary = (char_raw.duplicate(true)) if char_raw is Dictionary else {}
 		var stats := CharacterManager.get_stats(name)
 
 		# Apply kit override
@@ -231,7 +232,8 @@ func _register_effects(config: Dictionary) -> void:
 	# Register weapon effects for each player
 	for pc in config.get("party", []):
 		var name: String = pc.get("name", "")
-		var weapon: Dictionary = pc.get("weapon_override", {})
+		var w_raw = pc.get("weapon_override")
+		var weapon: Dictionary = w_raw if w_raw is Dictionary else {}
 		var weapon_name: String = str(weapon.get("Name", weapon.get("Weapon", "")))
 		if weapon_name != "":
 			var effects := WeaponEffects.get_effects(weapon_name)
@@ -553,7 +555,8 @@ func _get_abilities_for_config(pc: Dictionary, char_data: Dictionary) -> Diction
 	if kit:
 		element = str(kit.get("element", element))
 	var weapon_type: String = ""
-	var weapon: Dictionary = pc.get("weapon_override", {})
+	var weapon_raw = pc.get("weapon_override")
+	var weapon: Dictionary = weapon_raw if weapon_raw is Dictionary else {}
 	if weapon.has("Type"):
 		weapon_type = str(weapon.get("Type", ""))
 	elif kit:
