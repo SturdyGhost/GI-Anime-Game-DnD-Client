@@ -121,6 +121,13 @@ func _init_battle(config: Dictionary) -> void:
 		# Calculate stats from character data + gear (not from live game state)
 		var calc := _calc_stats(char_data, weapon, artifacts)
 
+		# Apply manual stat overrides (sandbox "what if" testing)
+		var overrides = pc.get("stat_overrides")
+		if overrides is Dictionary:
+			for stat_key in overrides:
+				if calc.has(stat_key):
+					calc[stat_key] = float(overrides[stat_key])
+
 		# Build battler dict
 		var bd := {
 			"id": int(char_data.get("id", 0)),

@@ -31,6 +31,8 @@ var _artifact_slots: Dictionary = {}  # type → {ids: [], selected_idx: int}
 var _player_dmg_mod: float = 1.0
 var _enemy_dmg_mod: float = 1.0
 var _battle_count: int = 1000
+var _stat_overrides: Dictionary = {}  # stat_name -> SpinBox reference
+var _stat_override_enabled: Dictionary = {}  # stat_name -> CheckButton reference
 
 # --- UI refs ---
 var _enemy_list_vbox: VBoxContainer
@@ -261,6 +263,32 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 	vbox.add_child(food_dd)
 	_artifact_dropdowns["Food"] = food_dd  # stash for easy retrieval
 
+	# Stat overrides — manual adjustments for "what if" testing
+	vbox.add_child(_lbl("Stat Overrides (sandbox only)", 13, MUTED))
+	var stat_names := ["Attack", "Defense", "Elemental Mastery", "Energy Recharge", "Critical Damage", "Health"]
+	for stat_name in stat_names:
+		var stat_key: String = stat_name.to_lower().replace(" ", "_")
+		var row := _make_hbox(4)
+		vbox.add_child(row)
+		var cb := CheckButton.new()
+		cb.add_theme_font_size_override("font_size", 11)
+		row.add_child(cb)
+		_stat_override_enabled[stat_key] = cb
+		var slbl := _lbl(stat_name, 12, TEXT_COLOR)
+		slbl.custom_minimum_size.x = 110
+		row.add_child(slbl)
+		var spin := SpinBox.new()
+		spin.min_value = 0
+		spin.max_value = 100
+		spin.step = 1
+		spin.value = 0
+		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spin.add_theme_font_size_override("font_size", 11)
+		spin.editable = false
+		cb.toggled.connect(func(on): spin.editable = on)
+		row.add_child(spin)
+		_stat_overrides[stat_key] = spin
+
 # ── Simulation config card ──
 
 func _build_sim_config_ui(parent: VBoxContainer) -> void:
@@ -414,6 +442,23 @@ func _populate_dropdowns() -> void:
 	_populate_companions()
 	_populate_weapons()
 	_populate_artifacts()
+	_populate_stat_overrides()
+
+
+func _populate_stat_overrides() -> void:
+	# Pre-fill stat override spinboxes with current calculated values
+	var weapon := _get_current_weapon(Global.ACTIVE_USER_NAME)
+	if not weapon is Dictionary:
+		weapon = {}
+	var artifacts := _get_current_artifacts(Global.ACTIVE_USER_NAME)
+	var rid := Global.CHARACTERS_NAME.get(Global.ACTIVE_USER_NAME, "")
+	var char_data: Dictionary = Global.CHARACTERS.get(rid, {})
+	if char_data.is_empty():
+		return
+	var calc := BattleSimEngine._calc_stats(char_data, weapon, artifacts)
+	for stat_key in _stat_overrides:
+		var spin: SpinBox = _stat_overrides[stat_key]
+		spin.value = calc.get(stat_key, 0.0)
 
 
 func _populate_enemies(filter: String = "") -> void:
@@ -668,7 +713,7 @@ func _build_sim_config() -> Dictionary:
 			continue
 		var char_data: Dictionary = Global.CHARACTERS.get(rid, {}).duplicate(true)
 		var is_active: bool = (pname == Global.ACTIVE_USER_NAME)
-		party.append({
+		var pc_entry := {
 			"name": pname,
 			"character_data": char_data,
 			"weapon_override": _get_weapon_override() if is_active else _get_current_weapon(pname),
@@ -676,7 +721,10 @@ func _build_sim_config() -> Dictionary:
 			"companion_override": _get_companion_override() if is_active else _get_current_companion(pname),
 			"kit_override": _get_kit_override() if is_active else null,
 			"food_buff": _get_food_buff() if is_active else "None",
-		})
+		}
+		if is_active:
+			pc_entry["stat_overrides"] = _get_stat_overrides()
+		party.append(pc_entry)
 
 	return {
 		"party": party,
@@ -735,6 +783,16 @@ func _get_food_buff() -> String:
 	if dd == null or dd.selected <= 0:
 		return "None"
 	return dd.get_item_text(dd.selected)
+
+
+func _get_stat_overrides() -> Dictionary:
+	var overrides: Dictionary = {}
+	for stat_key in _stat_override_enabled:
+		var cb: CheckButton = _stat_override_enabled[stat_key]
+		if cb.button_pressed:
+			var spin: SpinBox = _stat_overrides[stat_key]
+			overrides[stat_key] = spin.value
+	return overrides
 
 
 func _get_current_weapon(player_name: String):
