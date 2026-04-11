@@ -64,6 +64,8 @@ var _stats_grid: GridContainer
 
 var _runner: BattleSimBulkRunner = null
 var _last_results: Dictionary = {}
+var _last_config: Dictionary = {}
+var _recommendations_vbox: VBoxContainer
 
 # ── Artifact slot types (canonical order) ──
 const ARTIFACT_TYPES := ["Flower of Life", "Feather of Death", "Sands of Time", "Goblet of Space", "Circlet of Principles"]
@@ -397,6 +399,11 @@ func _build_results_panel(parent: VBoxContainer) -> void:
 	_stats_grid.add_theme_constant_override("v_separation", 6)
 	stats_card.get_child(0).add_child(_stats_grid)
 
+	# Player Recommendations
+	var rec_card := _make_card("Recommendations")
+	parent.add_child(rec_card)
+	_recommendations_vbox = rec_card.get_child(0)
+
 # ═══════════════════════════════════════════
 #  Dropdown population
 # ═══════════════════════════════════════════
@@ -618,6 +625,7 @@ func _on_run_simulation() -> void:
 	_progress_bar.value = 0
 
 	var config := _build_sim_config()
+	_last_config = config
 	_runner = BattleSimBulkRunner.new()
 	add_child(_runner)
 	_runner.simulation_progress.connect(_on_sim_progress)
@@ -790,6 +798,9 @@ func _display_results(r: Dictionary) -> void:
 
 	# Battle statistics grid
 	_display_battle_stats(r, n)
+
+	# Player recommendations
+	_display_recommendations(r, n)
 
 
 func _display_damage_distribution(dist: Dictionary) -> void:
@@ -966,6 +977,144 @@ func _display_battle_stats(r: Dictionary, n: float) -> void:
 		_stats_grid.add_child(key_lbl)
 		var val_lbl := _lbl(s[1], 14, TEXT_COLOR)
 		_stats_grid.add_child(val_lbl)
+
+
+func _display_recommendations(r: Dictionary, n: float) -> void:
+	# Clear previous
+	for c in _recommendations_vbox.get_children():
+		c.queue_free()
+
+	var per_b: Dictionary = r.get("per_battler", {})
+	if per_b.is_empty():
+		return
+
+	# Compute party averages
+	var avg_dmg := 0.0
+	var avg_taken := 0.0
+	var avg_absorbed := 0.0
+	var avg_downs := 0.0
+	var avg_deaths := 0.0
+	var avg_misses := 0.0
+	var player_count := 0
+	for bname in per_b:
+		var b: Dictionary = per_b[bname]
+		avg_dmg += b.get("avg_damage_dealt", 0.0)
+		avg_taken += b.get("avg_damage_taken", 0.0)
+		avg_absorbed += b.get("avg_damage_absorbed", 0.0)
+		avg_downs += float(b.get("total_downs", 0)) / n
+		avg_deaths += float(b.get("total_deaths", 0)) / n
+		avg_misses += float(b.get("total_misses", 0)) / n
+		player_count += 1
+	if player_count > 0:
+		avg_dmg /= player_count
+		avg_taken /= player_count
+		avg_absorbed /= player_count
+		avg_downs /= player_count
+		avg_deaths /= player_count
+		avg_misses /= player_count
+
+	# Get stats from config for each battler
+	var config_stats: Dictionary = {}  # name -> calc stats dict
+	for pc in _last_config.get("party", []):
+		var pname: String = str(pc.get("name", ""))
+		var char_raw = pc.get("character_data")
+		var char_data: Dictionary = char_raw if char_raw is Dictionary else {}
+		var w_raw = pc.get("weapon_override")
+		var weapon: Dictionary = w_raw if w_raw is Dictionary else {}
+		var a_raw = pc.get("artifact_overrides")
+		var artifacts: Array = a_raw if a_raw is Array else []
+		config_stats[pname] = BattleSimEngine._calc_stats(char_data, weapon, artifacts)
+
+	# Generate recommendations per battler
+	for bname in per_b:
+		var b: Dictionary = per_b[bname]
+		var stats: Dictionary = config_stats.get(bname, {})
+		var recs: Array = []
+
+		var my_dmg: float = b.get("avg_damage_dealt", 0.0)
+		var my_taken: float = b.get("avg_damage_taken", 0.0)
+		var my_absorbed: float = b.get("avg_damage_absorbed", 0.0)
+		var my_downs: float = float(b.get("total_downs", 0)) / n
+		var my_deaths: float = float(b.get("total_deaths", 0)) / n
+		var my_misses: float = float(b.get("total_misses", 0)) / n
+		var my_crits: float = float(b.get("total_crits", 0)) / n
+
+		var atk: float = stats.get("attack", 0.0)
+		var em: float = stats.get("elemental_mastery", 0.0)
+		var defense: float = stats.get("defense", 0.0)
+		var health: float = stats.get("health", 0.0)
+		var crit_dmg: float = stats.get("critical_damage", 0.0)
+
+		# Check damage output
+		if my_dmg < avg_dmg * 0.7 and avg_dmg > 0:
+			# Low damage — figure out why
+			if my_misses > avg_misses * 1.3:
+				# Missing a lot — accuracy issue
+				if em > atk:
+					recs.append("Missing frequently — consider boosting EM (currently %.0f) via weapon or artifacts for better accuracy on elemental abilities." % em)
+				else:
+					recs.append("Missing frequently — consider boosting Attack (currently %.0f) via weapon or artifacts for better accuracy." % atk)
+			else:
+				# Hitting but low damage — damage stat or crit issue
+				if my_crits < avg_dmg * 0.01:
+					recs.append("Rarely critting — Crit Damage is %.1f. Consider crit-boosting weapons or effects." % crit_dmg)
+				if atk < 10 and em < 10:
+					recs.append("Both Attack (%.0f) and EM (%.0f) are low — damage will be weak regardless of element. Prioritize the stat matching the primary kit." % [atk, em])
+				elif atk < avg_dmg * 0.5:
+					recs.append("Attack stat (%.0f) is low — consider weapons/artifacts with Attack bonuses for physical damage." % atk)
+				elif em < avg_dmg * 0.5:
+					recs.append("Elemental Mastery (%.0f) is low — consider weapons/artifacts with EM bonuses for elemental damage." % em)
+		elif my_dmg > avg_dmg * 1.5:
+			recs.append("Strong damage output — carrying %.0f%% above party average." % ((my_dmg / avg_dmg - 1.0) * 100.0))
+
+		# Check survivability
+		if my_downs > avg_downs * 1.5 and avg_downs > 0:
+			if defense < 8:
+				recs.append("Getting downed frequently — Defense is low (%.0f). Artifacts or weapons with Defense bonuses would help survivability." % defense)
+			elif health < 20:
+				recs.append("Getting downed frequently — Health is low (%.0f). Consider Health-boosting gear to increase survivability." % health)
+			else:
+				recs.append("Getting downed frequently despite decent stats — may need better positioning or a shielding companion.")
+
+		# Check damage taken vs defense
+		if my_taken > avg_taken * 1.3 and avg_taken > 0:
+			if defense < avg_dmg * 0.5:
+				recs.append("Taking more damage than average — Defense (%.0f) is below the party norm. Defense artifacts would reduce incoming damage." % defense)
+
+		# Check if dying too much
+		if my_deaths > avg_deaths * 1.5 and my_deaths > 0.1:
+			recs.append("Dying more than average (%.0f%% of battles). Needs either more Health/Defense or party support." % (my_deaths * 100.0))
+
+		# If no issues
+		if recs.is_empty():
+			recs.append("Performing well — stats are balanced for this encounter.")
+
+		# Display
+		var name_lbl := _lbl(bname, 15, GOLD)
+		_recommendations_vbox.add_child(name_lbl)
+
+		for rec in recs:
+			var rec_panel := PanelContainer.new()
+			var rec_sb := StyleBoxFlat.new()
+			rec_sb.bg_color = Color(0.10, 0.16, 0.10)
+			rec_sb.border_color = Color(0.16, 0.28, 0.16)
+			rec_sb.set_border_width_all(1)
+			rec_sb.set_corner_radius_all(6)
+			rec_sb.set_content_margin_all(10)
+			rec_panel.add_theme_stylebox_override("panel", rec_sb)
+			_recommendations_vbox.add_child(rec_panel)
+
+			var rec_lbl := Label.new()
+			rec_lbl.text = rec
+			rec_lbl.add_theme_font_size_override("font_size", 13)
+			rec_lbl.add_theme_color_override("font_color", Color(0.63, 0.78, 0.63))
+			rec_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			rec_panel.add_child(rec_lbl)
+
+		# Spacing between players
+		var spacer := Control.new()
+		spacer.custom_minimum_size.y = 6
+		_recommendations_vbox.add_child(spacer)
 
 
 # ═══════════════════════════════════════════
