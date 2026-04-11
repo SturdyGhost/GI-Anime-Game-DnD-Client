@@ -182,6 +182,41 @@ func _try_initial_setup() -> void:
 			inv_btn.pressed.connect(_open_offline_management)
 			parent.add_child(inv_btn)
 			parent.move_child(inv_btn, idx)
+	# Add Simulator button next to Practice Button
+	_add_simulator_button()
+
+func _add_simulator_button() -> void:
+	var hotbar_hbox = $"UI/BottomHotbar/HBoxContainer"
+	var practice_btn = $"UI/BottomHotbar/HBoxContainer/Practice Button"
+	if hotbar_hbox == null or practice_btn == null:
+		return
+	var idx = practice_btn.get_index() + 1
+	var sim_btn = Button.new()
+	sim_btn.name = "SimulatorBtn"
+	sim_btn.text = "Battle\nSimulator"
+	sim_btn.custom_minimum_size = practice_btn.custom_minimum_size
+	sim_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	sim_btn.add_theme_font_size_override("font_size", 16)
+	sim_btn.pressed.connect(_open_simulator)
+	hotbar_hbox.add_child(sim_btn)
+	hotbar_hbox.move_child(sim_btn, idx)
+
+func _open_simulator() -> void:
+	var s: PackedScene = preload("res://Scenes/UI/battle_simulator.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
