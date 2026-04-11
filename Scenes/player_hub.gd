@@ -168,10 +168,12 @@ func _try_initial_setup() -> void:
 		call_deferred("_deferred_market_refresh")
 	if Global.is_offline:
 		_show_offline_indicator()
-		_add_offline_management_button()
-		# Disable combat/turn order — DM manages all combat
+		# Replace combat button with inventory management
 		if CombatButton != null:
-			CombatButton.visible = false
+			var lbl = CombatButton.get_node_or_null("Label")
+			if lbl:
+				lbl.text = "Inventory"
+			CombatButton.tooltip_text = "Manage your weapons, artifacts, and items offline."
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
@@ -182,21 +184,22 @@ func _show_offline_indicator() -> void:
 	indicator.position = Vector2(20, 20)
 	add_child(indicator)
 
-func _add_offline_management_button() -> void:
-	var btn = Button.new()
-	btn.name = "OfflineManageBtn"
-	btn.text = "Manage Inventory"
-	btn.position = Vector2(20, 50)
-	btn.pressed.connect(_open_offline_management)
-	add_child(btn)
-
 func _open_offline_management() -> void:
-	if has_node("OfflineManagementPanel"):
-		return  # Already open
-	var panel = preload("res://Scenes/UI/offline_management_panel.tscn").instantiate()
-	panel.name = "OfflineManagementPanel"
-	panel.position = Vector2(200, 100)
-	add_child(panel)
+	var s: PackedScene = preload("res://Scenes/UI/offline_management_panel.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 func _deferred_market_refresh() -> void:
 	Market.Refresh_Stock(Global.Current_Region)
@@ -894,6 +897,9 @@ func _on_research_button_pressed() -> void:
 
 
 func _on_combat_button_pressed() -> void:
+	if Global.is_offline:
+		_open_offline_management()
+		return
 	var s: PackedScene = preload("res://Scenes/player_battle_prep.tscn")
 	var dlg = s.instantiate()
 
