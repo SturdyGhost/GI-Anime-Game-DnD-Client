@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Simulator UI Mockups</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1f2e; color: #e8ecf4; }
+
+  /* Tab Navigation */
+  .tab-bar { display: flex; background: #141824; border-bottom: 2px solid #2a3048; }
+  .tab-btn {
+    padding: 14px 28px; cursor: pointer; border: none; background: transparent;
+    color: #7a83a0; font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab-btn:hover { color: #c9cfe0; background: #1e2438; }
+  .tab-btn.active { color: #c9a84c; border-bottom-color: #c9a84c; background: #1a1f2e; }
+  .tab-content { display: none; padding: 24px; min-height: calc(100vh - 52px); }
+  .tab-content.active { display: block; }
+
+  /* Shared styles */
+  h1 { color: #c9a84c; font-size: 22px; margin-bottom: 4px; }
+  h2 { color: #8b93b0; font-size: 13px; font-weight: 400; margin-bottom: 20px; }
+  h3 { color: #c9a84c; font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid #2a3048; padding-bottom: 6px; }
+  .card {
+    background: #1e2438; border: 1px solid #2a3048; border-radius: 8px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-green { background: #1a3a2a; color: #4ada7e; }
+  .badge-red { background: #3a1a1a; color: #ef4444; }
+  .badge-blue { background: #1a2a3a; color: #60a5fa; }
+  .badge-yellow { background: #3a351a; color: #c9a84c; }
+  .badge-purple { background: #2a1a3a; color: #a78bfa; }
+  .btn {
+    padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer;
+    font-weight: 600; font-size: 13px; transition: all 0.2s;
+  }
+  .btn-primary { background: #c9a84c; color: #141824; }
+  .btn-primary:hover { background: #d4b85c; }
+  .btn-danger { background: #ef4444; color: white; }
+  .btn-secondary { background: #2a3048; color: #8b93b0; }
+  .btn-secondary:hover { background: #353d5a; }
+  .btn-close { background: #2a3048; color: #ef4444; border: 1px solid #3a2020; }
+  .btn-close:hover { background: #3a2020; }
+  select, input[type="number"] {
+    background: #141824; border: 1px solid #2a3048; color: #e8ecf4;
+    padding: 6px 10px; border-radius: 4px; font-size: 13px;
+  }
+  select { min-width: 180px; }
+  input[type="number"] { width: 80px; text-align: center; }
+  label { color: #8b93b0; font-size: 12px; display: block; margin-bottom: 4px; }
+  .row { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .row-spread { display: flex; justify-content: space-between; align-items: center; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: #8b93b0; font-size: 11px; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid #2a3048; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 8px; border-bottom: 1px solid #1a1f2e; font-size: 13px; }
+  tr:hover td { background: #252b40; }
+
+  /* ========== TAB 1: Post-Turn Panel ========== */
+  .damage-panel { max-width: 700px; margin: 0 auto; }
+  .damage-header {
+    text-align: center; padding: 16px;
+    background: linear-gradient(135deg, #1e2438 0%, #252b40 100%);
+    border-radius: 8px 8px 0 0; border: 1px solid #2a3048; border-bottom: none;
+  }
+  .damage-actual { font-size: 48px; font-weight: 800; color: #ef4444; }
+  .damage-actual.heal { color: #4ada7e; }
+  .damage-label { color: #8b93b0; font-size: 12px; margin-top: 2px; }
+  .target-name { color: #c9a84c; font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .roll-info { color: #7a83a0; font-size: 12px; }
+  .roll-table-wrap {
+    border: 1px solid #2a3048; border-radius: 0 0 8px 8px;
+    overflow: hidden; margin-bottom: 20px;
+  }
+  .roll-table { width: 100%; }
+  .roll-table th { background: #141824; padding: 8px 12px; }
+  .roll-table td { padding: 8px 12px; text-align: center; }
+  .roll-table td.roll-val { color: #60a5fa; font-weight: 600; }
+  .roll-table td.dmg-val { color: #e8ecf4; }
+  .roll-table tr.actual-row { background: #2a3520 !important; }
+  .roll-table tr.actual-row td { color: #4ada7e; font-weight: 700; }
+  .roll-marker { font-size: 10px; color: #4ada7e; margin-left: 4px; }
+  .panel-close-bar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+  .dice-tag { display: inline-block; background: #2a3048; color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+  .summary-row { display: flex; gap: 20px; justify-content: center; margin-top: 8px; }
+  .summary-item { text-align: center; }
+  .summary-item .val { font-size: 14px; font-weight: 600; color: #e8ecf4; }
+  .summary-item .lbl { font-size: 10px; color: #7a83a0; }
+
+  /* ========== TAB 2: Player Simulator ========== */
+  .sim-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; min-height: calc(100vh - 100px); }
+  .sim-setup { border-right: 1px solid #2a3048; padding-right: 20px; }
+  .sim-results { overflow-y: auto; }
+  .enemy-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 8px; background: #141824; border-radius: 6px; }
+  .enemy-row .name { flex: 1; color: #e8ecf4; font-size: 13px; }
+  .enemy-row .tier { font-size: 11px; }
+  .override-section { margin-bottom: 16px; }
+  .override-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .override-row label { margin: 0; min-width: 90px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .stat-box { background: #141824; border-radius: 6px; padding: 12px; text-align: center; }
+  .stat-box .val { font-size: 28px; font-weight: 800; }
+  .stat-box .lbl { font-size: 11px; color: #7a83a0; margin-top: 2px; }
+  .stat-box.win .val { color: #4ada7e; }
+  .stat-box.loss .val { color: #ef4444; }
+  .stat-box.neutral .val { color: #60a5fa; }
+  .battler-row { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 6px; }
+  .battler-row:hover { background: #252b40; }
+  .battler-icon { width: 36px; height: 36px; background: #2a3048; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .battler-info { flex: 1; }
+  .battler-name { font-size: 13px; font-weight: 600; }
+  .battler-sub { font-size: 11px; color: #7a83a0; }
+  .battler-stats { display: flex; gap: 16px; }
+  .battler-stat { text-align: right; }
+  .battler-stat .val { font-size: 14px; font-weight: 600; }
+  .battler-stat .lbl { font-size: 10px; color: #7a83a0; }
+  .progress-bar { background: #141824; border-radius: 4px; height: 8px; margin: 8px 0; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .progress-fill.green { background: #4ada7e; }
+  .progress-fill.red { background: #ef4444; }
+  .progress-fill.blue { background: #60a5fa; }
+  .dmg-bar { display: flex; height: 24px; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+  .dmg-bar > div { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+  .ability-table td:first-child { color: #c9a84c; }
+  .slider-row { display: flex; align-items: center; gap: 8px; }
+  .slider-row input[type="range"] { flex: 1; accent-color: #c9a84c; }
+  .slider-val { min-width: 45px; text-align: center; font-weight: 600; color: #c9a84c; }
+  .run-btn-area { margin-top: 16px; display: flex; gap: 8px; }
+  .run-btn-area .btn { flex: 1; padding: 12px; font-size: 14px; }
+
+  /* ========== TAB 3: DM Balancer ========== */
+  .bal-layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
+  .tier-bar { display: flex; gap: 4px; margin-bottom: 16px; }
+  .tier-btn {
+    flex: 1; padding: 8px 4px; text-align: center; border: 1px solid #2a3048;
+    background: #141824; color: #7a83a0; border-radius: 4px; cursor: pointer;
+    font-size: 11px; font-weight: 600; transition: all 0.2s;
+  }
+  .tier-btn.active { border-color: #c9a84c; color: #c9a84c; background: #252010; }
+  .tier-btn:hover { border-color: #4a5068; }
+  .target-profile { background: #141824; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+  .target-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+  .target-row .label { color: #7a83a0; }
+  .target-row .value { font-weight: 600; }
+  .suggestion-card { background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .suggestion-card h4 { color: #4ada7e; font-size: 13px; margin-bottom: 6px; }
+  .suggestion-card p { font-size: 12px; color: #a0b0a0; line-height: 1.5; }
+  .suggestion-change { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+  .suggestion-change .from { color: #ef4444; text-decoration: line-through; }
+  .suggestion-change .arrow { color: #7a83a0; }
+  .suggestion-change .to { color: #4ada7e; font-weight: 600; }
+  .comparison-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .comparison-bar .label { min-width: 100px; font-size: 12px; color: #7a83a0; }
+  .comparison-bar .bar-wrap { flex: 1; height: 20px; background: #141824; border-radius: 4px; position: relative; overflow: hidden; }
+  .comparison-bar .bar-actual { height: 100%; border-radius: 4px; position: absolute; left: 0; top: 0; }
+  .comparison-bar .bar-target { position: absolute; top: 0; height: 100%; width: 2px; background: #c9a84c; }
+  .comparison-bar .pct { min-width: 45px; text-align: right; font-size: 12px; font-weight: 600; }
+  .enemy-editor { margin-bottom: 12px; }
+  .enemy-editor .stat-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .enemy-editor .stat-row label { min-width: 100px; margin: 0; }
+  .verdict { padding: 12px; border-radius: 8px; text-align: center; font-weight: 700; font-size: 15px; margin-bottom: 16px; }
+  .verdict.too-easy { background: #1a3a1a; color: #4ada7e; border: 1px solid #2a4a2a; }
+  .verdict.balanced { background: #2a351a; color: #c9a84c; border: 1px solid #4a5520; }
+  .verdict.too-hard { background: #3a1a1a; color: #ef4444; border: 1px solid #4a2020; }
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('tab1')">Post-Turn Damage Panel</button>
+  <button class="tab-btn" onclick="showTab('tab2')">Player Hub Simulator</button>
+  <button class="tab-btn" onclick="showTab('tab3')">DM Encounter Balancer</button>
+</div>
+
+<!-- ==================== TAB 1: POST-TURN DAMAGE PANEL ==================== -->
+<div id="tab1" class="tab-content active">
+  <div class="damage-panel">
+    <div class="panel-close-bar">
+      <button class="btn btn-close">X  Close</button>
+    </div>
+
+    <h1>Turn Results &mdash; Brian C.</h1>
+    <h2>Charged Attack (Nature) &bull; Attack Roll: 15 &bull; 1 Hit</h2>
+
+    <!-- Target 1 -->
+    <div class="damage-header">
+      <div class="target-name">Ruin Guard A</div>
+      <div class="roll-info">Defense Roll: 11 &bull; Difference: 4 <span class="dice-tag">D4</span></div>
+      <div class="damage-actual">4</div>
+      <div class="damage-label">DAMAGE DEALT</div>
+      <div class="summary-row">
+        <div class="summary-item"><div class="val">+1</div><div class="lbl">Flat Mod</div></div>
+        <div class="summary-item"><div class="val">x1.2</div><div class="lbl">Mult Mod</div></div>
+        <div class="summary-item"><div class="val">1 Hit</div><div class="lbl">Hits</div></div>
+      </div>
+    </div>
+    <div class="roll-table-wrap">
+      <table class="roll-table">
+        <thead><tr><th>Damage Roll</th><th>+ Mods</th><th>x Mods</th><th>Final Damage</th></tr></thead>
+        <tbody>
+          <tr><td class="roll-val">1</td><td>1 + 1</td><td>x 1.2</td><td class="dmg-val">2</td></tr>
+          <tr><td class="roll-val">2</td><td>2 + 1</td><td>x 1.2</td><td class="dmg-val">3</td></tr>
+          <tr class="actual-row"><td class="roll-val">3 <span class="roll-marker">ACTUAL</span></td><td>3 + 1</td><td>x 1.2</td><td class="dmg-val">4</td></tr>
+          <tr><td class="roll-val">4</td><td>4 + 1</td><td>x 1.2</td><td class="dmg-val">6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Target 2 -->
+    <div class="damage-header">
+      <div class="target-name">Hilichurl B</div>
+      <div class="roll-info">Defense Roll: 7 &bull; Difference: 8 <span class="dice-tag">D8</span></div>
+      <div class="damage-actual">6</div>
+      <div class="damage-label">DAMAGE DEALT</div>
+      <div class="summary-row">
+        <div class="summary-item"><div class="val">+1</div><div class="lbl">Flat Mod</div></div>
+        <div class="summary-item"><div class="val">x1.2</div><div class="lbl">Mult Mod</div></div>
+        <div class="summary-item"><div class="val">1 Hit</div><div class="lbl">Hits</div></div>
+      </div>
+    </div>
+    <div class="roll-table-wrap">
+      <table class="roll-table">
+        <thead><tr><th>Damage Roll</th><th>+ Mods</th><th>x Mods</th><th>Final Damage</th></tr></thead>
+        <tbody>
+          <tr><td class="roll-val">1</td><td>1 + 1</td><td>x 1.2</td><td class="dmg-val">2</td></tr>
+          <tr><td class="roll-val">2</td><td>2 + 1</td><td>x 1.2</td><td class="dmg-val">3</td></tr>
+          <tr><td class="roll-val">3</td><td>3 + 1</td><td>x 1.2</td><td class="dmg-val">4</td></tr>
+          <tr><td class="roll-val">4</td><td>4 + 1</td><td>x 1.2</td><td class="dmg-val">6</td></tr>
+          <tr class="actual-row"><td class="roll-val">5 <span class="roll-marker">ACTUAL</span></td><td>5 + 1</td><td>x 1.2</td><td class="dmg-val">7</td></tr>
+          <tr><td class="roll-val">6</td><td>6 + 1</td><td>x 1.2</td><td class="dmg-val">8</td></tr>
+          <tr><td class="roll-val">7</td><td>7 + 1</td><td>x 1.2</td><td class="dmg-val">9</td></tr>
+          <tr><td class="roll-val">8</td><td>8 + 1</td><td>x 1.2</td><td class="dmg-val">10</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="text-align: center; color: #7a83a0; font-size: 12px; padding: 8px;">
+      Showing calculated possible outcomes &mdash; actual damage dealt is what was entered by the DM
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: PLAYER HUB SIMULATOR ==================== -->
+<div id="tab2" class="tab-content">
+  <h1>Battle Simulator</h1>
+  <h2>Test loadouts against any encounter &mdash; results are hypothetical, no real data is changed</h2>
+
+  <div class="sim-layout">
+    <!-- LEFT: Setup -->
+    <div class="sim-setup">
+      <h3>Encounter Setup</h3>
+      <div class="card">
+        <div class="enemy-row">
+          <div class="name">Ruin Guard</div>
+          <span class="badge badge-red">Boss</span>
+          <input type="number" value="1" min="0" max="10" style="width:50px">
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;">X</button>
+        </div>
+        <div class="enemy-row">
+          <div class="name">Hilichurl Berserker</div>
+          <span class="badge badge-green">Common</span>
+          <input type="number" value="3" min="0" max="10" style="width:50px">
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;">X</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <select style="flex:1"><option>Add Enemy...</option><option>Abyss Mage</option><option>Fatui Agent</option><option>Lawachurl</option></select>
+          <button class="btn btn-secondary">Add</button>
+        </div>
+      </div>
+
+      <h3>Loadout Overrides</h3>
+      <div class="card">
+        <div class="override-row">
+          <label>Companion</label>
+          <select><option>Xiangling (Current)</option><option>Fischl</option><option>Barbara</option><option>Kaeya</option></select>
+        </div>
+        <div class="override-row">
+          <label>Weapon</label>
+          <select><option>Serpent Spine (Current)</option><option>Royal Greatsword</option><option>Skyward Pride</option></select>
+        </div>
+        <div class="override-row">
+          <label>Artifacts</label>
+          <select><option>Gladiator 4pc (Current)</option><option>Crimson Witch 4pc</option><option>Noblesse 2pc + Glad 2pc</option></select>
+        </div>
+        <div class="override-row">
+          <label>Food Buff</label>
+          <select><option>None</option><option>Adeptus Temptation (+ATK)</option><option>Jade Parcels (+DEF)</option></select>
+        </div>
+      </div>
+
+      <h3>Simulation Config</h3>
+      <div class="card">
+        <div class="override-row">
+          <label>Battles</label>
+          <input type="number" value="1000" min="10" max="10000" step="10">
+        </div>
+        <div style="margin-top: 10px">
+          <label>Player Damage Modifier</label>
+          <div class="slider-row">
+            <input type="range" min="50" max="150" value="100">
+            <span class="slider-val">1.00x</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px">
+          <label>Enemy Damage Modifier</label>
+          <div class="slider-row">
+            <input type="range" min="50" max="150" value="100">
+            <span class="slider-val">1.00x</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="run-btn-area">
+        <button class="btn btn-primary">Run Simulation</button>
+        <button class="btn btn-danger" style="flex:0.4">Stop</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="sim-results">
+      <div class="stat-grid">
+        <div class="stat-box win"><div class="val">73.2%</div><div class="lbl">Win Rate</div></div>
+        <div class="stat-box loss"><div class="val">14.8%</div><div class="lbl">Total Wipes</div></div>
+        <div class="stat-box neutral"><div class="val">8.4</div><div class="lbl">Avg Rounds</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Damage Distribution</h3>
+        </div>
+        <div class="dmg-bar">
+          <div style="width:38%; background:#ef4444;">Brian C. 38%</div>
+          <div style="width:27%; background:#60a5fa;">Brian F. 27%</div>
+          <div style="width:20%; background:#4ada7e;">Dylan 20%</div>
+          <div style="width:15%; background:#a78bfa;">Xiangling 15%</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Party Performance</h3>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Battler</th><th>Avg Dmg</th><th>Avg Taken</th><th>Absorbed</th><th>Downs</th><th>Deaths</th><th>Revives</th><th>Crits</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:#c9a84c">Brian C.</td>
+              <td>42.3</td><td>18.7</td><td>4.2</td>
+              <td>0.8</td><td>0.12</td><td>0.3</td><td>2.1</td>
+            </tr>
+            <tr>
+              <td style="color:#c9a84c">Brian F.</td>
+              <td>31.5</td><td>22.1</td><td>6.8</td>
+              <td>1.1</td><td>0.18</td><td>0.4</td><td>1.4</td>
+            </tr>
+            <tr>
+              <td style="color:#c9a84c">Dylan</td>
+              <td>23.8</td><td>15.4</td><td>2.1</td>
+              <td>0.5</td><td>0.06</td><td>0.5</td><td>1.8</td>
+            </tr>
+            <tr>
+              <td style="color:#a78bfa">Xiangling</td>
+              <td>16.2</td><td>12.3</td><td>0</td>
+              <td>0.9</td><td>0.22</td><td>0.1</td><td>0.7</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Ability Breakdown &mdash; Brian C.</h3>
+          <select style="min-width:120px"><option>Brian C.</option><option>Brian F.</option><option>Dylan</option><option>Xiangling</option></select>
+        </div>
+        <table class="ability-table">
+          <thead>
+            <tr><th>Ability</th><th>Uses</th><th>Avg Dmg</th><th>Total Dmg</th><th>Crits</th><th>Misses</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Basic Attack</td><td>4.2</td><td>5.8</td><td>24.4</td><td>0.6</td><td>0.3</td></tr>
+            <tr><td>Charged Attack</td><td>2.1</td><td>7.2</td><td>15.1</td><td>0.4</td><td>0.2</td></tr>
+            <tr><td>Skill (Nature)</td><td>1.8</td><td>9.4</td><td>16.9</td><td>N/A</td><td>0.7</td></tr>
+            <tr><td>Burst</td><td>0.6</td><td>18.2</td><td>10.9</td><td>0.8</td><td>0.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Battle Statistics</h3>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="target-row"><span class="label">Avg Revives Used</span><span class="value">2.1 / battle</span></div>
+          <div class="target-row"><span class="label">Avg Items Used</span><span class="value">0.8 / battle</span></div>
+          <div class="target-row"><span class="label">Min Rounds</span><span class="value">4</span></div>
+          <div class="target-row"><span class="label">Max Rounds</span><span class="value">16</span></div>
+          <div class="target-row"><span class="label">Battles with 0 Deaths</span><span class="value">68.2%</span></div>
+          <div class="target-row"><span class="label">Battles with Full Wipe</span><span class="value">14.8%</span></div>
+          <div class="target-row"><span class="label">All Revives Burned</span><span class="value">42.1%</span></div>
+          <div class="target-row"><span class="label">Someone Perma-Died</span><span class="value">17.0%</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:#7a83a0; font-size:12px; padding:8px;">
+        Simulated 1,000 battles in 2.4s &mdash; Results are hypothetical
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: DM ENCOUNTER BALANCER ==================== -->
+<div id="tab3" class="tab-content">
+  <h1>Encounter Balancer</h1>
+  <h2>Tune enemy stats to match target difficulty profiles</h2>
+
+  <div class="bal-layout">
+    <!-- LEFT: Enemy Editor + Config -->
+    <div>
+      <h3>Enemy Configuration</h3>
+      <div class="card">
+        <div class="enemy-editor">
+          <div class="override-row">
+            <label>Enemy</label>
+            <select><option>New Boss: Pyro Regisvine</option><option>Create New...</option></select>
+          </div>
+          <div class="stat-row"><label>HP</label><input type="number" value="120"></div>
+          <div class="stat-row"><label>Attack Die</label><select><option>D10</option><option>D12</option><option selected>D20</option></select></div>
+          <div class="stat-row"><label>Defense Die</label><select><option>D10</option><option selected>D12</option><option>D20</option></select></div>
+          <div class="stat-row"><label>Size</label><input type="number" value="3" min="1" max="5"></div>
+          <div class="stat-row"><label>Movement</label><input type="number" value="4" min="1" max="10"></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label>Count in encounter</label>
+          <input type="number" value="1" min="1" max="10" style="width:60px">
+        </div>
+      </div>
+
+      <h3>Target Tier</h3>
+      <div class="tier-bar">
+        <div class="tier-btn">Common</div>
+        <div class="tier-btn">Uncommon</div>
+        <div class="tier-btn">Rare</div>
+        <div class="tier-btn">Epic</div>
+        <div class="tier-btn active">Boss</div>
+        <div class="tier-btn">Legendary</div>
+      </div>
+
+      <div class="target-profile">
+        <div style="font-size:13px; font-weight:600; color:#c9a84c; margin-bottom:8px;">Boss Profile Targets</div>
+        <div class="target-row"><span class="label">Win Rate</span><span class="value">~75%</span></div>
+        <div class="target-row"><span class="label">Total Wipes</span><span class="value">~25%</span></div>
+        <div class="target-row"><span class="label">All Revives Burned (of wins)</span><span class="value">~50%</span></div>
+        <div class="target-row"><span class="label">Perma-Death (of wins)</span><span class="value">~25%</span></div>
+      </div>
+
+      <h3>Simulation Config</h3>
+      <div class="card">
+        <div class="override-row">
+          <label>Battles</label>
+          <input type="number" value="5000" min="10" max="10000">
+        </div>
+        <div style="margin-top:10px">
+          <label>Player Damage Modifier</label>
+          <div class="slider-row">
+            <input type="range" min="50" max="150" value="100">
+            <span class="slider-val">1.00x</span>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Enemy Damage Modifier</label>
+          <div class="slider-row">
+            <input type="range" min="50" max="150" value="100">
+            <span class="slider-val">1.00x</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="run-btn-area">
+        <button class="btn btn-primary">Run Simulation</button>
+        <button class="btn btn-danger" style="flex:0.4">Stop</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results + Suggestions -->
+    <div>
+      <div class="verdict balanced">
+        SLIGHTLY TOO EASY FOR BOSS TIER &mdash; Players winning 82.1% (target: ~75%)
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box win"><div class="val">82.1%</div><div class="lbl">Win Rate</div></div>
+        <div class="stat-box loss"><div class="val">17.9%</div><div class="lbl">Total Wipes</div></div>
+        <div class="stat-box neutral"><div class="val">9.2</div><div class="lbl">Avg Rounds</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Profile Comparison</h3>
+        </div>
+        <div class="comparison-bar">
+          <span class="label">Win Rate</span>
+          <div class="bar-wrap">
+            <div class="bar-actual" style="width:82.1%; background:#4ada7e;"></div>
+            <div class="bar-target" style="left:75%;"></div>
+          </div>
+          <span class="pct" style="color:#4ada7e">82.1%</span>
+        </div>
+        <div class="comparison-bar">
+          <span class="label">Total Wipes</span>
+          <div class="bar-wrap">
+            <div class="bar-actual" style="width:17.9%; background:#ef4444;"></div>
+            <div class="bar-target" style="left:25%;"></div>
+          </div>
+          <span class="pct" style="color:#ef4444">17.9%</span>
+        </div>
+        <div class="comparison-bar">
+          <span class="label">Revives Burned</span>
+          <div class="bar-wrap">
+            <div class="bar-actual" style="width:38%; background:#60a5fa;"></div>
+            <div class="bar-target" style="left:50%;"></div>
+          </div>
+          <span class="pct" style="color:#60a5fa">38.0%</span>
+        </div>
+        <div class="comparison-bar">
+          <span class="label">Perma-Deaths</span>
+          <div class="bar-wrap">
+            <div class="bar-actual" style="width:15%; background:#a78bfa;"></div>
+            <div class="bar-target" style="left:25%;"></div>
+          </div>
+          <span class="pct" style="color:#a78bfa">15.0%</span>
+        </div>
+        <div style="font-size:11px; color:#7a83a0; margin-top:8px;">
+          Gold line = tier target
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Suggested Adjustments</h3>
+          <span class="badge badge-yellow">Advisory Only</span>
+        </div>
+
+        <div class="suggestion-card">
+          <h4>Increase HP: 120 &rarr; 145</h4>
+          <p>Players are killing the boss too quickly (avg 9.2 rounds). More HP extends the fight, increasing resource drain and down frequency. Expected to drop win rate ~5%.</p>
+        </div>
+
+        <div class="suggestion-card">
+          <h4>Increase Attack Die: D20 &rarr; D20+D4</h4>
+          <p>Boss damage output is slightly low. Players rarely need revives (38% vs 50% target). Higher attack die increases pressure without making one-shots common. Expected to increase wipe rate ~4%.</p>
+        </div>
+
+        <div class="suggestion-card">
+          <h4>Keep Defense Die at D12</h4>
+          <p>Defense is well-calibrated. Players deal consistent damage without fights dragging. No change recommended.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 style="margin:0; border:none; padding:0;">Party Performance vs This Enemy</h3>
+        </div>
+        <table>
+          <thead><tr><th>Battler</th><th>Avg Dmg</th><th>Avg Taken</th><th>Downs</th><th>Deaths</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#c9a84c">Brian C.</td><td>38.4</td><td>24.1</td><td>1.2</td><td>0.18</td></tr>
+            <tr><td style="color:#c9a84c">Brian F.</td><td>29.7</td><td>28.6</td><td>1.5</td><td>0.24</td></tr>
+            <tr><td style="color:#c9a84c">Dylan</td><td>21.2</td><td>19.8</td><td>0.8</td><td>0.09</td></tr>
+            <tr><td style="color:#a78bfa">Xiangling</td><td>14.8</td><td>16.2</td><td>1.1</td><td>0.31</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="text-align:center; color:#7a83a0; font-size:12px; padding:8px;">
+        Simulated 5,000 battles in 11.2s &mdash; Suggestions are advisory only, apply changes manually
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
