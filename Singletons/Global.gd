@@ -526,8 +526,10 @@ func calculate_all_stats() -> void:
 		Current_Region = p.current_region
 	elif is_offline:
 		# Offline mode: read region from _synced character data
-		var char_data = CHARACTERS_NAME.get(ACTIVE_USER_NAME, {})
-		Current_Region = str(char_data.get("Current_Region", "")) if char_data.get("Current_Region") != null else ""
+		var rid = CHARACTERS_NAME.get(ACTIVE_USER_NAME, "")
+		if rid != "" and _synced.has("Characters") and _synced["Characters"].has(str(rid)):
+			var char_data = _synced["Characters"][str(rid)]
+			Current_Region = str(char_data.get("Current_Region", "")) if char_data.get("Current_Region") != null else ""
 
 # ── Sync snapshot (offline mode support) ────────────────────────────────────
 func save_synced_snapshot() -> void:
