@@ -466,12 +466,19 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 
 	print("NetworkManager: Applying %d offline changes from %s (peer %d)" % [changes.size(), player_name, sender])
 
+	# Track offline→host ID remapping so deletes/updates on locally-inserted
+	# records target the correct host-assigned ID
+	var id_remap: Dictionary = {}  # "table:offline_id" → host_id
+
 	for change in changes:
 		var action = str(change.get("action", ""))
 		var table = str(change.get("table", ""))
 		match action:
 			"update":
 				var record_id = str(int(change.get("record_id", 0)))
+				var remap_key = "%s:%s" % [table, record_id]
+				if id_remap.has(remap_key):
+					record_id = str(id_remap[remap_key])
 				var field = str(change.get("field", ""))
 				var value = change.get("value")
 				# Mora conflict resolution: highest value wins
@@ -485,12 +492,18 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 				DataStore.persist_table(table)
 			"insert":
 				var data = change.get("data", {})
+				var offline_id = int(data.get("id", 0))
 				var new_id = _next_id_for_table(table)
+				var remap_key = "%s:%d" % [table, offline_id]
+				id_remap[remap_key] = new_id
 				data["id"] = new_id
 				Global._insert_record(table, str(new_id), data)
 				DataStore.persist_table(table)
 			"delete":
 				var record_id = str(int(change.get("record_id", 0)))
+				var remap_key = "%s:%s" % [table, record_id]
+				if id_remap.has(remap_key):
+					record_id = str(id_remap[remap_key])
 				Global._remove_record(table, record_id)
 				DataStore.persist_table(table)
 
