@@ -467,6 +467,13 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 				var record_id = str(int(change.get("record_id", 0)))
 				var field = str(change.get("field", ""))
 				var value = change.get("value")
+				# Mora conflict resolution: highest value wins
+				if table == "Party" and field == "Mora":
+					var current_mora = 0
+					if Global._synced.has("Party") and Global._synced["Party"].has(record_id):
+						current_mora = int(Global._synced["Party"][record_id].get("Mora", 0))
+					if int(value) <= current_mora:
+						continue  # Keep the higher value
 				Global._apply_local_update(table, record_id, field, value)
 				DataStore.persist_table(table)
 			"insert":

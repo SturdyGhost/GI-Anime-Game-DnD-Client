@@ -145,13 +145,14 @@ Clean separation ensures no conflicts during merge:
 | Character_Artifacts | Own character's artifacts (add/remove/equip) |
 | Character_Items | Own character's items (add/remove/quantity) |
 | Companions | View only (kit reference) |
+| Party | Mora only (shared, all players can edit) |
 
 ### DM Owns (everything else)
 
 | Table | Scope |
 |-------|-------|
 | BattleEnemies | Full control (add/remove/configure) |
-| Party | Turn order, current turn, party-level state |
+| Party | Turn order, current turn, party-level state (except Mora) |
 | Active_Abilities | Battle state |
 | Active_Status_Effects | Battle state |
 | Minigames_Results | If applicable |
@@ -163,6 +164,7 @@ Clean separation ensures no conflicts during merge:
 - Battle history syncs as new records added by the DM, not edits to player data
 - Player equipment/inventory changes are authoritative for their own character
 - DM battle data is authoritative for battle records
+- Mora is shared: all players can edit it offline (coordinating verbally). On merge, highest value wins to avoid accidental loss
 
 ## Merge & Reconnect Flow
 
