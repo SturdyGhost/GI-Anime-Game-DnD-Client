@@ -82,6 +82,43 @@ static func get_effects(talent_id: int) -> Array:
 			e.description = "Increase movement before basic/item by 5 tiles"
 			return [e]
 
+		# Brian C. Wind – For each tile traveled in skill, add that much damage to AoE
+		135:
+			var e = GameEffect.new()
+			e.trigger = "ON_SKILL_HIT"
+			e.effect_type = "FLAT_DAMAGE"
+			e.effect_value = 1.0  # Per tile moved (engine multiplies by tiles)
+			e.value_is_percent_of = "tiles_moved"
+			e.description = "Skill distance scaling: +1 damage per tile traveled"
+			return [e]
+
+		# Brian C. Fire – After using skill, absorb next hit with no damage
+		133:
+			var e = GameEffect.new()
+			e.trigger = "ON_SKILL_USE"
+			e.effect_type = "DAMAGE_IMMUNITY"
+			e.duration = 1  # Lasts until next hit
+			e.target = "SELF"
+			e.description = "Post-skill: absorb next hit with no damage"
+			return [e]
+
+		# Brian C. Electric – Burst extension on hit + 2x electric damage while burst active
+		123:
+			var e_extend = GameEffect.new()
+			e_extend.trigger = "ON_DAMAGE_TAKEN"
+			e_extend.effect_type = "BURST_EXTEND"
+			e_extend.effect_value = 1.0  # +1 turn
+			e_extend.max_stacks = 2  # Max 2 extensions
+			e_extend.description = "While burst active: extend duration +1 on hit (max 2)"
+			var e_double = GameEffect.new()
+			e_double.trigger = "ON_HIT"
+			e_double.condition = "ELEMENT_MATCH"
+			e_double.condition_value = "Electric"
+			e_double.effect_type = "PERCENT_DAMAGE"
+			e_double.effect_value = 2.0
+			e_double.description = "While burst active: enemies take 2x electric damage"
+			return [e_extend, e_double]
+
 		# ═════════════════════════════════════════
 		#  BRIAN F. TALENTS
 		# ═════════════════════════════════════════
@@ -95,6 +132,69 @@ static func get_effects(talent_id: int) -> Array:
 			e.effect_value = 2.0
 			e.description = "Measured Wind-Up: no movement = charged attack +2 damage"
 			return [e]
+
+		# Brian F. Wind – While shielded, all party members +5 to EM rolls
+		138:
+			var e = GameEffect.new()
+			e.trigger = "PASSIVE"
+			e.condition = "IS_SHIELDED"
+			e.effect_type = "STAT_BONUS"
+			e.effect_stat = "elemental_mastery"
+			e.effect_value = 5.0
+			e.target = "ALL_ALLIES"
+			e.description = "While shielded: all allies +5 EM"
+			return [e]
+
+		# Brian F. Electric – Physical: 1+ floor, shield break, +1 crit damage
+		34:
+			var e_floor = GameEffect.new()
+			e_floor.trigger = "ON_HIT"
+			e_floor.condition = "ELEMENT_MATCH"
+			e_floor.condition_value = "Physical"
+			e_floor.effect_type = "FLAT_DAMAGE"
+			e_floor.effect_value = 1.0
+			e_floor.description = "Physical hits always deal 1+ damage minimum"
+			var e_crit = GameEffect.new()
+			e_crit.trigger = "PASSIVE"
+			e_crit.effect_type = "CRIT_DAMAGE"
+			e_crit.effect_value = 1.0
+			e_crit.condition = "ELEMENT_MATCH"
+			e_crit.condition_value = "Physical"
+			e_crit.description = "Physical hits: +1.0 crit damage"
+			return [e_floor, e_crit]
+
+		# Brian F. Earth – Burst field: earth crit threshold -4, +0.5 crit damage
+		54:
+			var e_crit_thresh = GameEffect.new()
+			e_crit_thresh.trigger = "PASSIVE"
+			e_crit_thresh.effect_type = "CRIT_THRESHOLD"
+			e_crit_thresh.effect_value = -4.0
+			e_crit_thresh.condition = "ELEMENT_MATCH"
+			e_crit_thresh.condition_value = "Earth"
+			e_crit_thresh.description = "Burst field: earth attacks crit threshold -4"
+			var e_crit_dmg = GameEffect.new()
+			e_crit_dmg.trigger = "PASSIVE"
+			e_crit_dmg.effect_type = "CRIT_DAMAGE"
+			e_crit_dmg.effect_value = 0.5
+			e_crit_dmg.condition = "ELEMENT_MATCH"
+			e_crit_dmg.condition_value = "Earth"
+			e_crit_dmg.description = "Burst field: earth attacks +0.5 crit damage"
+			return [e_crit_thresh, e_crit_dmg]
+
+		# Brian F. Ice – Skill +5 flat damage, burst heal +2 to allies
+		81:
+			var e_skill_dmg = GameEffect.new()
+			e_skill_dmg.trigger = "ON_SKILL_HIT"
+			e_skill_dmg.effect_type = "FLAT_DAMAGE"
+			e_skill_dmg.effect_value = 5.0
+			e_skill_dmg.description = "Skill always deals +5 damage"
+			var e_heal = GameEffect.new()
+			e_heal.trigger = "END_OF_TURN"
+			e_heal.effect_type = "HEAL"
+			e_heal.effect_value = 2.0
+			e_heal.target = "ALL_ALLIES"
+			e_heal.description = "Allies in burst field heal +2 at end of turn"
+			return [e_skill_dmg, e_heal]
 
 		# ═════════════════════════════════════════
 		#  DYLAN TALENTS
@@ -110,6 +210,30 @@ static func get_effects(talent_id: int) -> Array:
 			e.condition_value = "Skill"
 			e.description = "Grasping Vines: skill pull radius +1 tile"
 			return [e]
+
+		# Dylan Earth – Basic attack grants 1 burst charge
+		128:
+			var e = GameEffect.new()
+			e.trigger = "ON_NORMAL_HIT"
+			e.effect_type = "BURST_CHARGE_GAIN"
+			e.effect_value = 1.0
+			e.description = "Basic attacks grant 1 burst charge"
+			return [e]
+
+		# Dylan Wind – Double basic attack, +1 burst charge + Declension per use
+		49:
+			var e_double = GameEffect.new()
+			e_double.trigger = "PASSIVE"
+			e_double.effect_type = "DOUBLE_ACTION"
+			e_double.condition = "ATTACK_TYPE"
+			e_double.condition_value = "Basic Attack"
+			e_double.description = "May use basic attack 2x per turn"
+			var e_burst = GameEffect.new()
+			e_burst.trigger = "ON_NORMAL_HIT"
+			e_burst.effect_type = "BURST_CHARGE_GAIN"
+			e_burst.effect_value = 1.0
+			e_burst.description = "Each basic attack grants +1 burst charge"
+			return [e_double, e_burst]
 
 	return []
 
