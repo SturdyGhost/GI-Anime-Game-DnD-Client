@@ -119,7 +119,14 @@ func _run_all_tests():
 	_test_artifact_forge_stat_resolution()
 	_test_artifact_forge_stat_dice_boundaries()
 
-	_log_header("TEST GROUP 9: Scene Instantiation")
+	_log_header("TEST GROUP 9: Offline Mode")
+	await _test_offline_snapshot_save_load()
+	await _test_offline_changes_logger()
+	await _test_offline_mutation_routing()
+	await _test_offline_changes_replay()
+	_test_offline_management_panel_loads()
+
+	_log_header("TEST GROUP 10: Scene Instantiation")
 	_test_scene_loads("res://Scenes/BattleScene.tscn", "BattleScene")
 	_test_scene_loads("res://Scenes/PlayerInventory.tscn", "PlayerInventory")
 	_test_scene_loads("res://Scenes/MarketPanel.tscn", "MarketPanel")
@@ -575,7 +582,200 @@ func _test_artifact_forge_stat_dice_boundaries():
 
 
 # ═══════════════════════════════════════════════════════════════════════
-#  TEST GROUP 9: Scene Instantiation
+#  TEST GROUP 9: Offline Mode
+# ═══════════════════════════════════════════════════════════════════════
+
+func _test_offline_snapshot_save_load():
+	# Test that save_synced_snapshot and load_synced_snapshot round-trip correctly
+	_assert("_synced has data before snapshot", Global._synced.size() > 0, "%d tables" % Global._synced.size())
+
+	# Save snapshot
+	Global.save_synced_snapshot()
+	_assert("Snapshot file created", FileAccess.file_exists("user://last_sync.json"), "")
+
+	# Remember current state
+	var original_char_count = Global.CHARACTERS.size()
+	var original_tables = Global._synced.keys().duplicate()
+
+	# Clear _synced and reload from snapshot
+	for table_name in Global._synced.keys():
+		Global._synced[table_name].clear()
+	_assert("_synced cleared", Global.CHARACTERS.size() == 0, "chars=%d" % Global.CHARACTERS.size())
+
+	var loaded = Global.load_synced_snapshot()
+	_assert("load_synced_snapshot returns true", loaded, "")
+	_assert("Characters restored from snapshot", Global.CHARACTERS.size() == original_char_count,
+		"expected %d, got %d" % [original_char_count, Global.CHARACTERS.size()])
+
+	# Verify all tables survived round-trip
+	var missing_tables = []
+	for t in original_tables:
+		if not Global._synced.has(t) or Global._synced[t].is_empty():
+			missing_tables.append(t)
+	_assert("All tables survive snapshot round-trip", missing_tables.is_empty(),
+		"missing: %s" % str(missing_tables) if not missing_tables.is_empty() else "%d tables" % original_tables.size())
+
+	await get_tree().process_frame
+
+func _test_offline_changes_logger():
+	# Test OfflineChanges singleton logs and clears correctly
+	OfflineChanges.clear()
+	_assert("OfflineChanges starts empty after clear", not OfflineChanges.has_changes(), "")
+
+	# Log an update
+	OfflineChanges.log_update("Characters", 1, "Current_Region", "Sumeru")
+	_assert("OfflineChanges has changes after log_update", OfflineChanges.has_changes(), "")
+
+	# Log an insert
+	OfflineChanges.log_insert("Character_Weapons", 999, {"id": 999, "Name": "TestWeapon", "Owner": 1})
+	var json = OfflineChanges.get_changes_json()
+	var parsed = JSON.parse_string(json)
+	_assert("OfflineChanges JSON has 2 entries", parsed is Array and parsed.size() == 2, "size=%d" % (parsed.size() if parsed is Array else -1))
+
+	# Verify first entry structure
+	var first = parsed[0] if parsed is Array and parsed.size() > 0 else {}
+	_assert("First change is 'update' action", first.get("action") == "update", first.get("action", ""))
+	_assert("First change has table 'Characters'", first.get("table") == "Characters", first.get("table", ""))
+	_assert("First change has timestamp", first.get("timestamp", "") != "", first.get("timestamp", ""))
+
+	# Verify second entry
+	var second = parsed[1] if parsed is Array and parsed.size() > 1 else {}
+	_assert("Second change is 'insert' action", second.get("action") == "insert", second.get("action", ""))
+	_assert("Second change has data dict", second.get("data") is Dictionary, "")
+
+	# Log a delete
+	OfflineChanges.log_delete("Character_Weapons", 999)
+	json = OfflineChanges.get_changes_json()
+	parsed = JSON.parse_string(json)
+	_assert("OfflineChanges has 3 entries after delete", parsed is Array and parsed.size() == 3, "")
+
+	# Test persistence — reload from disk
+	OfflineChanges._load_from_disk()
+	_assert("OfflineChanges survives disk reload", OfflineChanges.has_changes(), "")
+
+	# Clean up
+	OfflineChanges.clear()
+	_assert("OfflineChanges empty after clear", not OfflineChanges.has_changes(), "")
+	_assert("Changes file deleted", not FileAccess.file_exists("user://offline_changes.json"), "")
+
+	await get_tree().process_frame
+
+func _test_offline_mutation_routing():
+	# Test that Update_Records/Insert/Remove route through offline path
+	var was_offline = Global.is_offline
+	Global.is_offline = true
+	OfflineChanges.clear()
+
+	# Test Update_Records in offline mode
+	var party_id = int(Global.Current_Party.get("id", 0))
+	var original_turn = Global.Current_Party.get("Current_Turn", "")
+	if party_id > 0:
+		Global.Update_Records([{
+			"table": "Party",
+			"record_id": party_id,
+			"field": "Current_Turn",
+			"value": "OfflineTestTurn"
+		}])
+		await get_tree().process_frame
+		var new_turn = Global.Current_Party.get("Current_Turn", "")
+		_assert("Offline Update_Records changes _synced", new_turn == "OfflineTestTurn", "got '%s'" % new_turn)
+		_assert("Offline Update_Records logs to OfflineChanges", OfflineChanges.has_changes(), "")
+
+		# Restore
+		Global.Update_Records([{
+			"table": "Party",
+			"record_id": party_id,
+			"field": "Current_Turn",
+			"value": original_turn
+		}])
+
+	# Test Insert in offline mode
+	var pre_count = Global._synced.get("Character_Items", {}).size()
+	Global.Insert("Character_Items", ["Name", "Owner", "Quantity"], ["OfflineTestItem", Global.ACTIVE_USER_RECORD_ID, 1])
+	await get_tree().process_frame
+	var post_count = Global._synced.get("Character_Items", {}).size()
+	_assert("Offline Insert adds record to _synced", post_count == pre_count + 1, "before=%d after=%d" % [pre_count, post_count])
+
+	# Find the inserted record and remove it
+	var inserted_rid = ""
+	for rid in Global._synced.get("Character_Items", {}).keys():
+		if Global._synced["Character_Items"][rid].get("Name") == "OfflineTestItem":
+			inserted_rid = rid
+			break
+	_assert("Offline Insert record findable in _synced", inserted_rid != "", "rid=%s" % inserted_rid)
+
+	# Test Remove in offline mode
+	if inserted_rid != "":
+		Global.Remove_Record("Character_Items", int(inserted_rid))
+		await get_tree().process_frame
+		var final_count = Global._synced.get("Character_Items", {}).size()
+		_assert("Offline Remove_Record removes from _synced", final_count == pre_count, "before=%d after=%d" % [pre_count, final_count])
+
+	# Verify all 4 operations were logged (2 updates + 1 insert + 1 delete)
+	var json = OfflineChanges.get_changes_json()
+	var parsed = JSON.parse_string(json)
+	_assert("All offline mutations logged", parsed is Array and parsed.size() == 4, "expected 4, got %d" % (parsed.size() if parsed is Array else 0))
+
+	# Clean up
+	OfflineChanges.clear()
+	Global.is_offline = was_offline
+	await get_tree().process_frame
+
+func _test_offline_changes_replay():
+	# Test that pending offline changes are replayed on top of a snapshot
+	var was_offline = Global.is_offline
+	Global.is_offline = true
+	OfflineChanges.clear()
+
+	# Make a change and log it
+	var party_id = int(Global.Current_Party.get("id", 0))
+	var original_turn = Global.Current_Party.get("Current_Turn", "")
+	if party_id > 0:
+		Global.Update_Records([{
+			"table": "Party",
+			"record_id": party_id,
+			"field": "Current_Turn",
+			"value": "ReplayTestValue"
+		}])
+		await get_tree().process_frame
+
+		# Now simulate a fresh offline session: reload snapshot (which has original data)
+		Global.load_synced_snapshot()
+		var after_reload = Global.Current_Party.get("Current_Turn", "")
+		_assert("Snapshot reload reverts to original", after_reload == original_turn,
+			"expected '%s', got '%s'" % [original_turn, after_reload])
+
+		# Replay pending changes (simulating what _enter_offline_mode does)
+		var changes = JSON.parse_string(OfflineChanges.get_changes_json())
+		if changes is Array:
+			for change in changes:
+				var action = str(change.get("action", ""))
+				var table = str(change.get("table", ""))
+				match action:
+					"update":
+						var record_id = str(int(change.get("record_id", 0)))
+						var field = str(change.get("field", ""))
+						var value = change.get("value")
+						Global._apply_local_update(table, record_id, field, value)
+
+		var after_replay = Global.Current_Party.get("Current_Turn", "")
+		_assert("Changes replayed on top of snapshot", after_replay == "ReplayTestValue",
+			"expected 'ReplayTestValue', got '%s'" % after_replay)
+
+		# Restore original
+		Global._apply_local_update("Party", str(party_id), "Current_Turn", original_turn)
+
+	# Clean up
+	OfflineChanges.clear()
+	Global.is_offline = was_offline
+	await get_tree().process_frame
+
+func _test_offline_management_panel_loads():
+	_test_scene_loads("res://Scenes/UI/offline_management_panel.tscn", "OfflineManagementPanel")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  TEST GROUP 10: Scene Instantiation
 # ═══════════════════════════════════════════════════════════════════════
 
 func _test_scene_loads(path: String, name: String):
