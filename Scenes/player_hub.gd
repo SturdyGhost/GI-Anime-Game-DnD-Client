@@ -182,24 +182,10 @@ func _try_initial_setup() -> void:
 			inv_btn.pressed.connect(_open_offline_management)
 			parent.add_child(inv_btn)
 			parent.move_child(inv_btn, idx)
-	# Add Simulator button next to Practice Button
-	_add_simulator_button()
-
-func _add_simulator_button() -> void:
-	var hotbar_hbox = $"UI/BottomHotbar/HBoxContainer"
+	# Wire Practice button to Battle Simulator
 	var practice_btn = $"UI/BottomHotbar/HBoxContainer/Practice Button"
-	if hotbar_hbox == null or practice_btn == null:
-		return
-	var idx = practice_btn.get_index() + 1
-	var sim_btn = Button.new()
-	sim_btn.name = "SimulatorBtn"
-	sim_btn.text = "Battle\nSimulator"
-	sim_btn.custom_minimum_size = practice_btn.custom_minimum_size
-	sim_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	sim_btn.add_theme_font_size_override("font_size", 16)
-	sim_btn.pressed.connect(_open_simulator)
-	hotbar_hbox.add_child(sim_btn)
-	hotbar_hbox.move_child(sim_btn, idx)
+	if practice_btn:
+		practice_btn.pressed.connect(_open_simulator)
 
 func _open_simulator() -> void:
 	var s: PackedScene = preload("res://Scenes/UI/battle_simulator.tscn")
