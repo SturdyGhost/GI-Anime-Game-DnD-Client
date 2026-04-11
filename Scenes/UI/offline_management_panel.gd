@@ -112,6 +112,29 @@ func _build_ui() -> void:
 	_mora_btn.pressed.connect(_on_set_mora)
 	mora_hbox.add_child(_mora_btn)
 
+	# Region selector
+	var region_hbox = HBoxContainer.new()
+	vbox.add_child(region_hbox)
+	var region_label = Label.new()
+	region_label.text = "Region:"
+	region_hbox.add_child(region_label)
+	var region_btn = OptionButton.new()
+	for r in ["Mondstadt", "Liyue", "Inazuma", "Sumeru", "Fontaine", "Natlan", "Snezhnaya"]:
+		region_btn.add_item(r)
+	# Set current region
+	var current = Global.Current_Region
+	for i in region_btn.item_count:
+		if region_btn.get_item_text(i) == current:
+			region_btn.selected = i
+			break
+	region_btn.item_selected.connect(func(idx):
+		var new_region = region_btn.get_item_text(idx)
+		var char_rid = Global.ACTIVE_USER_RECORD_ID
+		Global.Update_Records([{"table": "Characters", "record_id": char_rid, "field": "Region", "value": new_region}])
+		Global.Current_Region = new_region
+	)
+	region_hbox.add_child(region_btn)
+
 	# Close button
 	_close_btn = Button.new()
 	_close_btn.text = "Close"
