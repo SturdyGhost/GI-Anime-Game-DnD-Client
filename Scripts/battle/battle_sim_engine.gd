@@ -310,7 +310,6 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 	var is_crit: bool = attack_roll >= crit_threshold
 
 	# Process ability use effects (ON_SKILL_USE, ON_BURST_USE)
-	var ab_type: String = str(ability.get("ability_type", "")).to_lower()
 	if ab_type.contains("skill"):
 		_effect_processor.process_trigger(attacker_name, "ON_SKILL_USE", {"element": ability_element})
 	elif ab_type.contains("burst"):
