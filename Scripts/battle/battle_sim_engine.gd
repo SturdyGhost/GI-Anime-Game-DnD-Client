@@ -279,10 +279,17 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 	var damage_mod: float = _damage_mod_players if is_player_side else _damage_mod_enemies
 
 	# Determine which stat to use for accuracy
+	# Catalyst wielders always use EM
+	# Everyone else: Basic/Charged use Attack, Skill/Burst use EM if elemental
 	var ability_element: String = str(ability.get("element", "Physical"))
+	var ab_type: String = str(ability.get("ability_type", "")).to_lower()
+	var weapon_type: String = str(attacker_bd.get("entity_weapon_data", {}).get("Type", ""))
 	var accuracy_stat: float = attacker_bd.get("attack_stat", 10.0)
-	if ability_element != "Physical" and ability_element != "None":
+	if weapon_type == "Catalyst":
 		accuracy_stat = attacker_bd.get("em_stat", 7.0)
+	elif not ab_type.contains("basic") and not ab_type.contains("charged"):
+		if ability_element != "Physical" and ability_element != "None":
+			accuracy_stat = attacker_bd.get("em_stat", 7.0)
 
 	# Roll accuracy
 	var attack_roll := DiceRoller.roll_stat(accuracy_stat)
