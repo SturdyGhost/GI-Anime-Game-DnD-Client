@@ -167,6 +167,7 @@ func _try_initial_setup() -> void:
 		call_deferred("_deferred_market_refresh")
 	if Global.is_offline:
 		_show_offline_indicator()
+		_add_offline_management_button()
 		# Disable combat/turn order — DM manages all combat
 		if CombatButton != null:
 			CombatButton.visible = false
@@ -179,6 +180,22 @@ func _show_offline_indicator() -> void:
 	indicator.add_theme_font_size_override("font_size", 18)
 	indicator.position = Vector2(20, 20)
 	add_child(indicator)
+
+func _add_offline_management_button() -> void:
+	var btn = Button.new()
+	btn.name = "OfflineManageBtn"
+	btn.text = "Manage Inventory"
+	btn.position = Vector2(20, 50)
+	btn.pressed.connect(_open_offline_management)
+	add_child(btn)
+
+func _open_offline_management() -> void:
+	if has_node("OfflineManagementPanel"):
+		return  # Already open
+	var panel = preload("res://Scenes/UI/offline_management_panel.tscn").instantiate()
+	panel.name = "OfflineManagementPanel"
+	panel.position = Vector2(200, 100)
+	add_child(panel)
 
 func _deferred_market_refresh() -> void:
 	Market.Refresh_Stock(Global.Current_Region)
