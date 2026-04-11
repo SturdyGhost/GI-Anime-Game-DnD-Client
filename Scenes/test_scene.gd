@@ -124,9 +124,9 @@ func _run_all_tests():
 	await _test_offline_changes_logger()
 	await _test_offline_mutation_routing()
 	await _test_offline_changes_replay()
-	_test_offline_management_panel_loads()
 
 	_log_header("TEST GROUP 10: Scene Instantiation")
+	# Core game scenes
 	_test_scene_loads("res://Scenes/BattleScene.tscn", "BattleScene")
 	_test_scene_loads("res://Scenes/PlayerInventory.tscn", "PlayerInventory")
 	_test_scene_loads("res://Scenes/MarketPanel.tscn", "MarketPanel")
@@ -139,6 +139,24 @@ func _run_all_tests():
 	_test_scene_loads("res://Scenes/CompanionsOverview.tscn", "CompanionsOverview")
 	_test_scene_loads("res://Scenes/SettingsPopup.tscn", "SettingsPopup")
 	_test_scene_loads("res://Scenes/RulesScene.tscn", "RulesScene")
+	# Hub and lobby scenes
+	_test_scene_loads("res://Scenes/Lobby.tscn", "Lobby")
+	_test_scene_loads("res://Scenes/player_hub.tscn", "PlayerHub")
+	_test_scene_loads("res://Scenes/DMHub.tscn", "DMHub")
+	# Battle sub-scenes
+	_test_scene_loads("res://Scenes/player_battle_prep.tscn", "PlayerBattlePrep")
+	_test_scene_loads("res://Scenes/Player_Battle_Scene.tscn", "PlayerBattleScene")
+	_test_scene_loads("res://Scenes/Enemy_Battle_Scene.tscn", "EnemyBattleScene")
+	_test_scene_loads("res://Scenes/TurnOrderPanel.tscn", "TurnOrderPanel")
+	# Minigames and research
+	_test_scene_loads("res://Scenes/MinigamesMenu.tscn", "MinigamesMenu")
+	_test_scene_loads("res://Scenes/NinguangSlots.tscn", "NinguangSlots")
+	_test_scene_loads("res://Scenes/ResearchPanel.tscn", "ResearchPanel")
+	_test_scene_loads("res://Scenes/ResearchDMPanel.tscn", "ResearchDMPanel")
+	# UI components
+	_test_scene_loads("res://Scenes/DailyLuck.tscn", "DailyLuck")
+	_test_scene_loads("res://Scenes/FeedbackPopup.tscn", "FeedbackPopup")
+	_test_scene_loads("res://Scenes/UI/offline_management_panel.tscn", "OfflineManagementPanel")
 
 	_finalize()
 
@@ -449,14 +467,17 @@ func _test_battle_logger():
 # ═══════════════════════════════════════════════════════════════════════
 
 func _test_crafting_recipes_loaded():
-	var count = Global.CRAFTING_RECIPES.size()
-	_assert("Crafting recipes loaded", count > 0, "%d recipes" % count)
+	var count = GameDB.crafting_recipes.size()
+	_assert("Crafting recipes loaded (GameDB)", count > 0, "%d recipes" % count)
+	# Also verify the Global compat layer
+	var compat_count = Global.CRAFTING_RECIPES.size()
+	_assert("Global.CRAFTING_RECIPES populated", compat_count > 0, "%d recipes" % compat_count)
 
 func _test_crafting_recipe_data_fields():
-	# Verify required fields on a sample of recipes
+	# Verify required fields on typed CraftingRecipeData from GameDB
 	var checked = 0
-	for rid in Global.CRAFTING_RECIPES:
-		var r = Global.CRAFTING_RECIPES[rid]
+	for rid in GameDB.crafting_recipes:
+		var r = GameDB.crafting_recipes[rid]
 		if not (r is CraftingRecipeData):
 			_log_fail("Recipe %s is CraftingRecipeData" % str(rid), "got %s" % str(typeof(r)))
 			continue
@@ -473,8 +494,8 @@ func _test_gem_upgrade_downgrade_recipes():
 	# Verify gem crafting recipes exist for upgrades and downgrades
 	var upgrade_count = 0
 	var downgrade_count = 0
-	for rid in Global.CRAFTING_RECIPES:
-		var r = Global.CRAFTING_RECIPES[rid]
+	for rid in GameDB.crafting_recipes:
+		var r = GameDB.crafting_recipes[rid]
 		if not (r is CraftingRecipeData):
 			continue
 		var p = r.product.to_lower()
@@ -486,8 +507,8 @@ func _test_gem_upgrade_downgrade_recipes():
 	_assert("Gem upgrade recipes exist", upgrade_count > 0, "%d upgrades" % upgrade_count)
 	_assert("Gem downgrade recipes exist", downgrade_count > 0, "%d downgrades" % downgrade_count)
 	# Downgrades should produce multiple outputs
-	for rid in Global.CRAFTING_RECIPES:
-		var r = Global.CRAFTING_RECIPES[rid]
+	for rid in GameDB.crafting_recipes:
+		var r = GameDB.crafting_recipes[rid]
 		if not (r is CraftingRecipeData):
 			continue
 		if r.output_quantity > 1:
@@ -769,9 +790,6 @@ func _test_offline_changes_replay():
 	OfflineChanges.clear()
 	Global.is_offline = was_offline
 	await get_tree().process_frame
-
-func _test_offline_management_panel_loads():
-	_test_scene_loads("res://Scenes/UI/offline_management_panel.tscn", "OfflineManagementPanel")
 
 
 # ═══════════════════════════════════════════════════════════════════════
