@@ -39,6 +39,10 @@ text = "Host Game (DM)"
 layout_mode = 2
 text = "Join Game (Player)"
 
+[node name="OfflineButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Play Offline"
+
 [node name="BackButton" type="Button" parent="VBoxContainer"]
 visible = false
 layout_mode = 2

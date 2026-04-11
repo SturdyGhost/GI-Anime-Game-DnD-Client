@@ -12,8 +12,9 @@ extends Control
 @onready var connect_button: Button = $VBoxContainer/ConnectButton
 @onready var player_list: ItemList = $VBoxContainer/PlayerList
 @onready var start_button: Button = $VBoxContainer/StartButton
+@onready var offline_button: Button = $VBoxContainer/OfflineButton
 
-enum State { MAIN_MENU, JOIN_SELECT, WAITING_ROOM }
+enum State { MAIN_MENU, JOIN_SELECT, WAITING_ROOM, OFFLINE_SELECT }
 var current_state: State = State.MAIN_MENU
 
 var _available_characters: Array = []
@@ -22,6 +23,7 @@ var _dm_character = null
 func _ready() -> void:
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
+	offline_button.pressed.connect(_on_offline_pressed)
 	back_button.pressed.connect(_on_back_pressed)
 	connect_button.pressed.connect(_on_connect_pressed)
 	start_button.pressed.connect(_on_start_pressed)
@@ -68,12 +70,14 @@ func _hide_all() -> void:
 	connect_button.visible = false
 	player_list.visible = false
 	start_button.visible = false
+	offline_button.visible = false
 
 func _show_main_menu() -> void:
 	current_state = State.MAIN_MENU
 	_hide_all()
 	host_button.visible = true
 	join_button.visible = true
+	offline_button.visible = true
 	status_label.text = "Genshin DnD"
 
 func _show_join_select() -> void:
@@ -166,6 +170,9 @@ func _on_back_pressed() -> void:
 	_show_main_menu()
 
 func _on_character_selected(index: int) -> void:
+	if current_state == State.OFFLINE_SELECT:
+		_on_offline_character_selected(index)
+		return
 	if index < 0 or index >= _available_characters.size():
 		return
 	var ch = _available_characters[index]
@@ -174,6 +181,56 @@ func _on_character_selected(index: int) -> void:
 	Global.ACTIVE_USER_TYPE = "Player"
 	Global.ACTIVE_USER_EMAIL = ""
 	status_label.text = "Selected: %s — now pick a host or enter IP" % Global.ACTIVE_USER_NAME
+
+func _on_offline_pressed() -> void:
+	_show_offline_select()
+
+func _show_offline_select() -> void:
+	current_state = State.OFFLINE_SELECT
+	_hide_all()
+	back_button.visible = true
+	character_list.visible = true
+	status_label.text = "Select your character for offline play (or DM to manage battles)"
+
+	character_list.clear()
+	# Add DM option first
+	if _dm_character != null:
+		character_list.add_item("[DM] %s (Dungeon Master)" % _dm_character.get("Name", "DM"))
+	for ch in _available_characters:
+		character_list.add_item("%s (Lv%s %s)" % [ch.get("Name", "???"), str(ch.get("Level", "?")), str(ch.get("Element", ""))])
+
+func _on_offline_character_selected(index: int) -> void:
+	# Account for DM being at index 0 if present
+	if _dm_character != null:
+		if index == 0:
+			Global.ACTIVE_USER_NAME = _dm_character.get("Name", "Chase")
+			Global.ACTIVE_USER_RECORD_ID = _dm_character.get("id", 0)
+			Global.ACTIVE_USER_TYPE = "Dungeon Master"
+			Global.ACTIVE_USER_EMAIL = ""
+			_enter_offline_mode()
+			return
+		index -= 1  # Shift for player characters
+
+	if index < 0 or index >= _available_characters.size():
+		return
+	var ch = _available_characters[index]
+	Global.ACTIVE_USER_NAME = ch.get("Name", "")
+	Global.ACTIVE_USER_RECORD_ID = ch.get("id", 0)
+	Global.ACTIVE_USER_TYPE = "Player"
+	Global.ACTIVE_USER_EMAIL = ""
+	_enter_offline_mode()
+
+func _enter_offline_mode() -> void:
+	Global.is_offline = true
+	status_label.text = "Loading offline data..."
+
+	if not Global.load_synced_snapshot():
+		status_label.text = "No offline data available! Connect to host at least once."
+		Global.is_offline = false
+		return
+
+	Global.calculate_all_stats()
+	_go_to_game()
 
 func _on_host_selected(index: int) -> void:
 	if Global.ACTIVE_USER_NAME == "":
