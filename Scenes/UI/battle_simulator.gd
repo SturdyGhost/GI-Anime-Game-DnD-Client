@@ -73,9 +73,13 @@ const ARTIFACT_TYPES := ["Flower of Life", "Feather of Death", "Sands of Time", 
 # ═══════════════════════════════════════════
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	size_flags_vertical   = Control.SIZE_EXPAND_FILL
+	# Force panel to fill the entire window
+	var vp_size := get_viewport_rect().size
+	if vp_size.x < 100:
+		vp_size = Vector2(1920, 1080)
+	custom_minimum_size = vp_size
+	size = vp_size
+	position = Vector2.ZERO
 
 	# Panel background
 	var bg_sb := StyleBoxFlat.new()
