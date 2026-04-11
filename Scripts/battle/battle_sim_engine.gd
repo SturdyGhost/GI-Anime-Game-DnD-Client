@@ -462,11 +462,14 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			continue
 
 		# Get effect modifiers
+		# Roll D20 for dice-check effects (Prototype Archaic, Sacrificial weapons, etc.)
+		var dice_check_roll := DiceRoller.roll(20)
 		var hit_ctx := {
 			"attack_type": ab_type,
 			"element": ability_element,
 			"is_crit": is_crit,
 			"target_element": target_bd.get("applied_element", "None"),
+			"dice_roll": dice_check_roll,
 		}
 		var flat_mod := _effect_processor.sum_flat_damage(attacker_name, "ON_HIT", hit_ctx)
 		var mult_mod := _effect_processor.damage_multiplier(attacker_name, "ON_HIT", hit_ctx)
@@ -552,6 +555,10 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		# Apply damage to target
 		_apply_damage(target_name, total_damage, attacker_name)
 
+		# Process all ON_HIT triggered effects beyond flat/percent damage
+		_process_hit_effects(attacker_name, attacker_bd, target_name, target_bd,
+			hit_ctx, total_damage, diff, hits_count, flat_mod, mult_mod, damage_mod)
+
 		# Apply status effect from ability
 		var status_id := int(ability.get("effect_status", 0))
 		if status_id > 0:
@@ -614,6 +621,91 @@ func _apply_damage(target_name: String, damage: int, attacker_name: String) -> v
 		bd["killed_status"] = true
 		_track(target_name, "times_downed", 1)
 		_spatial.remove(target_name)
+
+
+## Process triggered effects beyond flat/percent damage mods (which are already applied).
+## Handles: REPEAT_ATTACK, BURST_CHARGE_GAIN, SHIELD_GENERATE, HEAL, KNOCKBACK, etc.
+func _process_hit_effects(
+	attacker_name: String, attacker_bd: Dictionary,
+	target_name: String, target_bd: Dictionary,
+	hit_ctx: Dictionary, damage_dealt: int,
+	diff: int, hits: int, flat_mod: float, mult_mod: float, damage_mod: float
+) -> void:
+	var actions := _effect_processor.process_trigger(attacker_name, "ON_HIT", hit_ctx)
+	if hit_ctx.get("is_crit", false):
+		actions.append_array(_effect_processor.process_trigger(attacker_name, "ON_CRIT", hit_ctx))
+
+	for act in actions:
+		var etype: String = str(act.get("effect_type", ""))
+		var value: float = float(act.get("value", 0))
+		match etype:
+			"REPEAT_ATTACK":
+				# Condition already passed via EffectProcessor's DICE_ROLL_CHECK
+				# Repeat the damage roll
+				var repeat_dmg := DiceRoller.roll_damage(diff, hits, flat_mod, mult_mod)
+				repeat_dmg = int(float(repeat_dmg) * damage_mod)
+				repeat_dmg = maxi(repeat_dmg, 1)
+				_apply_damage(target_name, repeat_dmg, attacker_name)
+				_track(attacker_name, "damage_dealt", repeat_dmg)
+
+			"BURST_CHARGE_GAIN":
+				var gain := int(value)
+				if str(act.get("dice", "")) != "":
+					var parts = str(act.get("dice", "")).split("d")
+					if parts.size() == 2:
+						for _j in range(int(parts[0])):
+							gain += DiceRoller.roll(int(parts[1]))
+				# Apply ER scaling if specified
+				if str(act.get("value_is_percent_of", "")) == "Energy_Recharge":
+					gain = int(float(gain) * attacker_bd.get("er_stat", 1.0))
+				var burst_cap := _get_burst_cap(attacker_bd)
+				attacker_bd["burst_charges"] = mini(
+					int(attacker_bd.get("burst_charges", 0)) + gain, burst_cap)
+
+			"SHIELD_GENERATE":
+				var shield_amount := int(value)
+				target_bd["shield_health"] = int(target_bd.get("shield_health", 0)) + shield_amount
+
+			"HEAL":
+				var heal_amount := int(value)
+				var target_for_heal: String = str(act.get("target", "SELF"))
+				if target_for_heal == "SELF":
+					var max_hp := int(attacker_bd.get("max_health", 30))
+					attacker_bd["current_health"] = mini(
+						int(attacker_bd.get("current_health", 0)) + heal_amount, max_hp)
+					_track(attacker_name, "healing_done", heal_amount)
+
+			"HEAL_PERCENT_DEALT":
+				var heal := int(float(damage_dealt) * value)
+				var max_hp := int(attacker_bd.get("max_health", 30))
+				attacker_bd["current_health"] = mini(
+					int(attacker_bd.get("current_health", 0)) + heal, max_hp)
+				_track(attacker_name, "healing_done", heal)
+
+			"KNOCKBACK":
+				# Push target away
+				_spatial.move_away(target_name, attacker_name, value)
+
+			"DAMAGE_REDUCTION":
+				# Registered as a persistent effect, already handled by EffectProcessor
+				pass
+
+			"COOLDOWN_RESET":
+				# Reset a random ability cooldown (Sacrificial weapons)
+				var cds: Dictionary = _cooldowns.get(attacker_name, {})
+				for aid in cds:
+					if cds[aid] > 0:
+						cds[aid] = 0
+						break
+
+
+func _get_burst_cap(bd: Dictionary) -> int:
+	var abilities_dict: Dictionary = bd.get("entity_current_ability_data", {})
+	for aid in abilities_dict:
+		var ab: Dictionary = abilities_dict[aid]
+		if str(ab.get("ability_type", "")).to_lower().contains("burst"):
+			return maxi(int(ab.get("charge_cost", 10)), 1)
+	return 10
 
 
 func _execute_revive(reviver: String, target: String) -> void:
