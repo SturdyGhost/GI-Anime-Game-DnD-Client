@@ -279,9 +279,14 @@ func _register_effects(config: Dictionary) -> void:
 		var name: String = pc.get("name", "")
 		var w_raw = pc.get("weapon_override")
 		var weapon: Dictionary = w_raw if w_raw is Dictionary else {}
-		var weapon_name: String = str(weapon.get("Name", weapon.get("Weapon", "")))
+		var weapon_name: String = str(weapon.get("Weapon", weapon.get("Name", "")))
 		if weapon_name != "":
+			# Try WeaponEffects lookup first, then GameDB weapon resource effects
 			var effects := WeaponEffects.get_effects(weapon_name)
+			if effects.is_empty():
+				var wdef = GameDB.weapons_by_name.get(weapon_name, null)
+				if wdef and wdef.effects.size() > 0:
+					effects = wdef.effects
 			if effects.size() > 0:
 				_effect_processor.register_battler(name, effects)
 
@@ -299,6 +304,32 @@ func _register_effects(config: Dictionary) -> void:
 					var bonus = GameDB.get_artifact_bonus(set_name, bonus_type)
 					if bonus != null and bonus.effects.size() > 0:
 						_effect_processor.register_battler(name, bonus.effects)
+
+	# Register player/companion ability effects (passives + triggered)
+	for name in _battler_data:
+		var bd: Dictionary = _battler_data[name]
+		if bd.get("type") == "Enemy":
+			continue
+		var abilities: Dictionary = bd.get("entity_current_ability_data", {})
+		for aid in abilities:
+			var effects := AbilityEffects.get_effects(int(aid))
+			if effects.size() > 0:
+				_effect_processor.register_battler(name, effects)
+
+	# Register companion ability passives from GameDB
+	for name in _battler_data:
+		var bd: Dictionary = _battler_data[name]
+		if bd.get("type") != "Companion":
+			continue
+		var comp_id := int(bd.get("id", 0))
+		for a in GameDB.abilities_by_entity.values():
+			if a.entity_type == "Companion" and a.entity_id == comp_id and a.effects.size() > 0:
+				var passive_effects: Array = []
+				for eff in a.effects:
+					if eff is GameEffect and (eff.trigger == "PASSIVE" or eff.trigger == "ON_DAMAGE_TAKEN"):
+						passive_effects.append(eff)
+				if passive_effects.size() > 0:
+					_effect_processor.register_battler(name, passive_effects)
 
 	# Register enemy ability passives
 	for name in _battler_data:
