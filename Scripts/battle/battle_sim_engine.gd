@@ -106,33 +106,41 @@ func _init_battle(config: Dictionary) -> void:
 		var name: String = pc.get("name", "")
 		var char_raw = pc.get("character_data")
 		var char_data: Dictionary = (char_raw.duplicate(true)) if char_raw is Dictionary else {}
-		var stats := CharacterManager.get_stats(name)
 
 		# Apply kit override
 		var kit = pc.get("kit_override")
 		if kit != null:
 			char_data["Element"] = kit.get("element", char_data.get("Element", ""))
 
-		# Build battler dict (simplified from BattlerState._build_one)
+		# Get weapon and artifacts (override or current)
+		var w_raw = pc.get("weapon_override")
+		var weapon: Dictionary = w_raw if w_raw is Dictionary else {}
+		var a_raw = pc.get("artifact_overrides")
+		var artifacts: Array = a_raw if a_raw is Array else []
+
+		# Calculate stats from character data + gear (not from live game state)
+		var calc := _calc_stats(char_data, weapon, artifacts)
+
+		# Build battler dict
 		var bd := {
 			"id": int(char_data.get("id", 0)),
 			"name": name,
 			"type": "Character",
 			"entity_data": char_data,
-			"entity_weapon_data": pc.get("weapon_override", {}),
+			"entity_weapon_data": weapon,
 			"entity_current_ability_data": _get_abilities_for_config(pc, char_data),
-			"current_health": int(char_data.get("Current_Health", char_data.get("Max_Health", 30))),
-			"max_health": int(stats.health) if stats else int(char_data.get("Max_Health", 30)),
+			"current_health": int(calc.get("health", 30)),
+			"max_health": int(calc.get("health", 30)),
 			"burst_charges": int(char_data.get("Burst_Charges", 0)),
 			"applied_element": "None",
 			"killed_status": false,
 			"skipped_status": false,
 			"skipped_duration": 0,
-			"attack_stat": stats.attack if stats else 10.0,
-			"defense_stat": stats.defense if stats else 10.0,
-			"em_stat": stats.elemental_mastery if stats else 7.0,
-			"er_stat": stats.energy_recharge if stats else 1.0,
-			"crit_damage_stat": stats.critical_damage if stats else 0.0,
+			"attack_stat": calc.get("attack", 10.0),
+			"defense_stat": calc.get("defense", 10.0),
+			"em_stat": calc.get("elemental_mastery", 7.0),
+			"er_stat": calc.get("energy_recharge", 1.0),
+			"crit_damage_stat": calc.get("critical_damage", 0.0),
 			"crit_threshold": 20,
 		}
 		_battler_data[name] = bd
@@ -624,6 +632,72 @@ func _ability_to_dict(a: AbilityData) -> Dictionary:
 		"effect_status_duration_rounds": a.effect_status_duration_rounds,
 		"effect_status_target": a.effect_status_target,
 	}
+
+
+## Calculate stats from character data + weapon + artifacts (not from live game state).
+## Mirrors CharacterManager._calculate_from_synced but uses provided overrides.
+static func _calc_stats(char_data: Dictionary, weapon: Dictionary, artifacts: Array) -> Dictionary:
+	var stat_map := {
+		"health": "Health", "attack": "Attack", "defense": "Defense",
+		"elemental_mastery": "Elemental_Mastery", "energy_recharge": "Energy_Recharge",
+		"critical_damage": "Critical_Damage"
+	}
+	var scaling := {
+		"health": 2.0, "attack": 1.0, "defense": 1.0,
+		"elemental_mastery": 1.0, "energy_recharge": 0.1, "critical_damage": 0.1,
+	}
+	var result := {}
+	for stat in stat_map:
+		var key: String = stat_map[stat]
+		var base := _sf(char_data.get("%s_Base_Points" % key, 0))
+		var skill := _sf(char_data.get("%s_Skill_Points" % key, 0))
+		var value: float = (base + skill) * scaling[stat]
+
+		# Add weapon stats
+		if not weapon.is_empty():
+			for i in range(1, 4):
+				var wstat: String = str(weapon.get("Stat_%d_Type" % i, ""))
+				if wstat != "" and wstat.to_lower().replace(" ", "_") == stat:
+					value += _sf(weapon.get("Stat_%d_Value" % i, 0))
+			# Weapon stat modifier from GameDB definition
+			var wname: String = str(weapon.get("Weapon", weapon.get("Name", "")))
+			var wdef = GameDB.weapons_by_name.get(wname, null)
+			if wdef and wdef.stat_modifier != "" and wdef.stat_modifier.to_lower().contains(stat):
+				value += wdef.stat_modifier_value
+
+		# Add artifact stats + count sets
+		var set_pieces := {}
+		for a in artifacts:
+			if not a is Dictionary:
+				continue
+			for i in range(1, 3):
+				var astat: String = str(a.get("Stat_%d_Type" % i, ""))
+				if astat != "" and astat.to_lower().replace(" ", "_") == stat:
+					value += _sf(a.get("Stat_%d_Value" % i, 0))
+			var sn: String = str(a.get("Artifact_Set", a.get("Set_Name", "")))
+			if sn != "":
+				set_pieces[sn] = set_pieces.get(sn, 0) + 1
+
+		# Artifact set bonuses
+		for set_name in set_pieces:
+			var piece_count: int = set_pieces[set_name]
+			for bonus_type in [2, 4]:
+				if piece_count < bonus_type:
+					continue
+				var bonus = GameDB.get_artifact_bonus(set_name, bonus_type)
+				if bonus == null or bonus.stat_modifier == "":
+					continue
+				if bonus.stat_modifier.to_lower().contains(stat):
+					if bonus.condition != "":
+						if bonus.condition == "Element" and str(char_data.get("Element", "")) != bonus.condition_value:
+							continue
+					value += bonus.stat_modifier_value
+
+		result[stat] = snapped(value, 0.01)
+	return result
+
+static func _sf(val) -> float:
+	return float(val) if val != null else 0.0
 
 
 static func _tier_to_defense_die(tier: String) -> int:
