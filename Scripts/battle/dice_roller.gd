@@ -67,7 +67,7 @@ static func multi_hit_total(base_damage: int, hits: int) -> int:
 	var total := base_damage
 	var current := base_damage
 	for i in range(1, hits):
-		current = maxi(current / 3, 1)
+		current = maxi(ceili(current / 3.0), 1)
 		total += current
 	return total
 
