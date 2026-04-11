@@ -131,7 +131,7 @@ func _build_ui() -> void:
 
 	_build_encounter_setup(left_vbox)
 	_build_loadout_overrides(left_vbox)
-	_build_sim_config(left_vbox)
+	_build_sim_config_ui(left_vbox)
 
 	# Right panel (results)
 	_results_scroll = ScrollContainer.new()
@@ -249,7 +249,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 
 # ── Simulation config card ──
 
-func _build_sim_config(parent: VBoxContainer) -> void:
+func _build_sim_config_ui(parent: VBoxContainer) -> void:
 	var card := _make_card("Simulation Config")
 	parent.add_child(card)
 	var vbox: VBoxContainer = card.get_child(0)
