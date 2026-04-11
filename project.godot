@@ -31,6 +31,7 @@ Market="*res://Singletons/Market.gd"
 ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"
 Toast="*res://Singletons/Toast.gd"
+OfflineChanges="*res://Singletons/OfflineChanges.gd"
 
 [debug]
 
