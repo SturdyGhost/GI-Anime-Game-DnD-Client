@@ -125,7 +125,19 @@ func _run_all_tests():
 	await _test_offline_mutation_routing()
 	await _test_offline_changes_replay()
 
-	_log_header("TEST GROUP 10: Scene Instantiation")
+	_log_header("TEST GROUP 10: Battle Simulation Engine")
+	_test_dice_roller_stat_mapping()
+	_test_dice_roller_damage_calc()
+	_test_dice_roller_multi_hit()
+	_test_dice_roller_all_possible_damages()
+	_test_sim_spatial_distance()
+	_test_sim_spatial_movement()
+	_test_sim_ai_target_selection()
+	await _test_battle_sim_single_battle()
+	await _test_battle_sim_bulk_runner()
+	_test_tier_profiles()
+
+	_log_header("TEST GROUP 11: Scene Instantiation")
 	# Core game scenes
 	_test_scene_loads("res://Scenes/BattleScene.tscn", "BattleScene")
 	_test_scene_loads("res://Scenes/PlayerInventory.tscn", "PlayerInventory")
@@ -793,7 +805,211 @@ func _test_offline_changes_replay():
 
 
 # ═══════════════════════════════════════════════════════════════════════
-#  TEST GROUP 10: Scene Instantiation
+#  TEST GROUP 10: Battle Simulation Engine
+# ═══════════════════════════════════════════════════════════════════════
+
+func _test_dice_roller_stat_mapping():
+	# Test stat-to-dice mapping follows the table
+	_assert("Stat 3 -> miss (empty)", DiceRoller.stat_to_dice(3.0).is_empty(), "")
+	_assert("Stat 4 -> [D4]", DiceRoller.stat_to_dice(4.0) == [4], str(DiceRoller.stat_to_dice(4.0)))
+	_assert("Stat 6 -> [D6]", DiceRoller.stat_to_dice(6.0) == [6], str(DiceRoller.stat_to_dice(6.0)))
+	_assert("Stat 8 -> [D8]", DiceRoller.stat_to_dice(8.0) == [8], str(DiceRoller.stat_to_dice(8.0)))
+	_assert("Stat 10 -> [D10]", DiceRoller.stat_to_dice(10.0) == [10], str(DiceRoller.stat_to_dice(10.0)))
+	_assert("Stat 12 -> [D12]", DiceRoller.stat_to_dice(12.0) == [12], str(DiceRoller.stat_to_dice(12.0)))
+	_assert("Stat 19 -> [D12]", DiceRoller.stat_to_dice(19.0) == [12], str(DiceRoller.stat_to_dice(19.0)))
+	_assert("Stat 20 -> [D20]", DiceRoller.stat_to_dice(20.0) == [20], str(DiceRoller.stat_to_dice(20.0)))
+	_assert("Stat 24 -> [D20, D4]", DiceRoller.stat_to_dice(24.0) == [20, 4], str(DiceRoller.stat_to_dice(24.0)))
+	_assert("Stat 26 -> [D20, D6]", DiceRoller.stat_to_dice(26.0) == [20, 6], str(DiceRoller.stat_to_dice(26.0)))
+	# Test roll returns valid range
+	for _i in range(20):
+		var r = DiceRoller.roll(20)
+		_assert("D20 roll in range", r >= 1 and r <= 20, "got %d" % r)
+		if r < 1 or r > 20:
+			break
+
+
+func _test_dice_roller_damage_calc():
+	# Test damage with known values
+	var dmg := DiceRoller.roll_damage(0, 1, 0.0, 1.0)
+	_assert("Diff 0 = 0 damage", dmg == 0, "got %d" % dmg)
+	# With mods
+	var dmg2 := DiceRoller.roll_damage(4, 1, 2.0, 1.5)
+	_assert("Diff 4 with mods produces damage > 0", dmg2 > 0, "got %d" % dmg2)
+
+
+func _test_dice_roller_multi_hit():
+	# Test multi-hit reduction: 15 damage, 4 hits = 15 + 5 + 2 + 1 = 23
+	var total := DiceRoller.multi_hit_total(15, 4)
+	_assert("Multi-hit 15 x4 = 23", total == 23, "got %d" % total)
+	# Single hit = base
+	_assert("Multi-hit 15 x1 = 15", DiceRoller.multi_hit_total(15, 1) == 15, "")
+	# Zero hits = 0
+	_assert("Multi-hit 15 x0 = 0", DiceRoller.multi_hit_total(15, 0) == 0, "")
+	# Small values: 3 x3 = 3 + 1 + 1 = 5
+	_assert("Multi-hit 3 x3 = 5", DiceRoller.multi_hit_total(3, 3) == 5, "got %d" % DiceRoller.multi_hit_total(3, 3))
+
+
+func _test_dice_roller_all_possible_damages():
+	var results := DiceRoller.all_possible_damages(4, 1, 0.0, 1.0)
+	_assert("Diff 4 has 4 possible outcomes", results.size() == 4, "got %d" % results.size())
+	if results.size() == 4:
+		_assert("Roll 1 = 1 damage", results[0]["damage"] == 1, "got %d" % results[0]["damage"])
+		_assert("Roll 4 = 4 damage", results[3]["damage"] == 4, "got %d" % results[3]["damage"])
+
+
+func _test_sim_spatial_distance():
+	var sp := SimSpatial.new()
+	sp.setup(["Player1"], ["Enemy1"], {"Enemy1": 1}, 20)
+	var dist := sp.distance("Player1", "Enemy1")
+	_assert("Initial distance is 20", dist == 20.0, "got %.1f" % dist)
+	_assert("Not in melee range", not sp.in_melee_range("Player1", "Enemy1"), "")
+	# Test size bonus
+	sp.setup(["Player1"], ["BigEnemy"], {"BigEnemy": 3}, 20)
+	var dist2 := sp.distance("Player1", "BigEnemy")
+	_assert("Size 3 enemy reduces effective distance", dist2 < 20.0, "got %.1f" % dist2)
+
+
+func _test_sim_spatial_movement():
+	var sp := SimSpatial.new()
+	sp.setup(["Player1"], ["Enemy1"], {"Enemy1": 1}, 20)
+	sp.move_toward("Player1", "Enemy1", 7.0)
+	var new_dist := sp.distance("Player1", "Enemy1")
+	_assert("After moving 7, distance is 13", new_dist == 13.0, "got %.1f" % new_dist)
+
+
+func _test_sim_ai_target_selection():
+	# AI should target lowest HP enemy
+	var spatial := SimSpatial.new()
+	spatial.setup(["Player"], ["E1", "E2"], {"E1": 1, "E2": 1}, 5)
+	# Move player close
+	spatial.move_toward("Player", "E1", 5.0)
+	var battlers := {
+		"Player": {"type": "Character", "killed_status": false, "current_health": 30},
+		"E1": {"type": "Enemy", "killed_status": false, "current_health": 20},
+		"E2": {"type": "Enemy", "killed_status": false, "current_health": 5},
+	}
+	var enemies := SimAI._find_enemies("Player", battlers, true)
+	_assert("AI finds 2 enemies", enemies.size() == 2, "got %d" % enemies.size())
+	# Lowest HP target
+	var target := SimAI._pick_target("Player", enemies, battlers, spatial, 0, 7, true)
+	_assert("AI targets lowest HP enemy (E2)", target == "E2", "got %s" % target)
+
+
+func _test_battle_sim_single_battle():
+	# Run a single battle with current party vs a common enemy
+	var config := _build_test_battle_config()
+	if config.is_empty():
+		_log_warn("Cannot build test battle config — skipping engine test")
+		return
+
+	var engine := BattleSimEngine.new()
+	var result := engine.run_battle(config)
+	_assert("Battle produces outcome", result.get("outcome", "") != "", result.get("outcome", "none"))
+	_assert("Battle has rounds > 0", int(result.get("total_rounds", 0)) > 0, "%d rounds" % result.get("total_rounds", 0))
+	_assert("Battle has per_battler data", result.get("per_battler", {}).size() > 0, "%d battlers" % result.get("per_battler", {}).size())
+	await get_tree().process_frame
+
+
+func _test_battle_sim_bulk_runner():
+	var config := _build_test_battle_config()
+	if config.is_empty():
+		_log_warn("Cannot build test battle config — skipping bulk runner test")
+		return
+
+	var runner := BattleSimBulkRunner.new()
+	add_child(runner)
+	var results_received := [false]
+	var bulk_results := [{}]
+	runner.simulation_complete.connect(func(r):
+		results_received[0] = true
+		bulk_results[0] = r
+	)
+	runner.run(config, 10)
+	# Wait for completion
+	for _j in range(100):
+		if results_received[0]:
+			break
+		await get_tree().create_timer(0.1).timeout
+	_assert("Bulk runner completes", results_received[0], "")
+	if results_received[0]:
+		_assert("Bulk ran 10 battles", int(bulk_results[0].get("battles_run", 0)) == 10, "got %d" % bulk_results[0].get("battles_run", 0))
+		_assert("Has win rate", bulk_results[0].get("win_rate", -1.0) >= 0.0, "%.1f%%" % bulk_results[0].get("win_rate", 0))
+		_assert("Has per_battler data", bulk_results[0].get("per_battler", {}).size() > 0, "")
+		_log_info("Win rate: %.1f%%, Avg rounds: %.1f" % [bulk_results[0].get("win_rate", 0), bulk_results[0].get("avg_rounds", 0)])
+	runner.queue_free()
+	await get_tree().process_frame
+
+
+func _test_tier_profiles():
+	for tier in TierProfiles.get_all_tiers():
+		var profile := TierProfiles.get_profile(tier)
+		_assert("Tier '%s' has win_rate" % tier, profile.has("win_rate"), "")
+		_assert("Tier '%s' has defense_die" % tier, profile.has("defense_die"), "")
+	# Test scaling
+	var common := TierProfiles.get_profile("common")
+	var scaled := TierProfiles.scale_profile(common, 4)
+	_assert("Scaled common has lower win rate", scaled["win_rate"] < common["win_rate"], "%.1f vs %.1f" % [scaled["win_rate"], common["win_rate"]])
+
+
+func _build_test_battle_config() -> Dictionary:
+	# Build a minimal test config from current game data
+	var party: Array = []
+	for name in Global.PartyCharacters:
+		var rid := Global.CHARACTERS_NAME.get(name, "")
+		if rid == "":
+			continue
+		var char_data: Dictionary = Global.CHARACTERS.get(rid, {})
+		if char_data.is_empty():
+			continue
+		# Find equipped weapon
+		var weapon := {}
+		for w in Global.CHARACTER_WEAPONS.values():
+			if w.get("Owner") == name and w.get("Equipped") == true:
+				weapon = w
+				break
+		# Find equipped artifacts
+		var artifacts: Array = []
+		for a in Global.CHARACTER_ARTIFACTS.values():
+			if a.get("Owner") == name and a.get("Equipped") == true:
+				artifacts.append(a)
+		# Find companion
+		var companion := {}
+		for c in Global.COMPANIONS.values():
+			if c.get("Owner") == name:
+				companion = c
+				break
+		party.append({
+			"name": name,
+			"character_data": char_data,
+			"weapon_override": weapon,
+			"artifact_overrides": artifacts,
+			"companion_override": companion,
+			"kit_override": null,
+			"food_buff": "None",
+		})
+
+	if party.is_empty():
+		return {}
+
+	# Pick first available enemy from GameDB
+	var enemy_id := 0
+	for eid in GameDB.enemies:
+		enemy_id = int(eid)
+		break
+	if enemy_id == 0:
+		return {}
+
+	return {
+		"party": party,
+		"enemies": [{"enemy_id": enemy_id, "count": 1}],
+		"damage_modifier_players": 1.0,
+		"damage_modifier_enemies": 1.0,
+		"arena_size": 20,
+	}
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  TEST GROUP 11: Scene Instantiation
 # ═══════════════════════════════════════════════════════════════════════
 
 func _test_scene_loads(path: String, name: String):
