@@ -241,7 +241,8 @@ func _register_effects(config: Dictionary) -> void:
 				_effect_processor.register_battler(name, effects)
 
 		# Register artifact set bonuses
-		var artifacts: Array = pc.get("artifact_overrides", [])
+		var art_raw = pc.get("artifact_overrides")
+		var artifacts: Array = art_raw if art_raw is Array else []
 		var set_counts: Dictionary = {}
 		for a in artifacts:
 			var set_name: String = str(a.get("Set_Name", a.get("Artifact_Set", "")))
