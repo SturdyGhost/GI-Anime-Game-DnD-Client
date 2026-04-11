@@ -583,14 +583,12 @@ func _get_equipped_weapon(player_name: String):
 	return null
 
 
-func _get_equipped_artifacts(player_name: String) -> Dictionary:
-	var arts := {}
+func _get_equipped_artifacts(player_name: String) -> Array:
+	var arts: Array = []
 	for rid in Global._synced.get("Character_Artifacts", {}):
 		var a: Dictionary = Global._synced["Character_Artifacts"][rid]
 		if a.get("Owner") == player_name and a.get("Equipped") == true:
-			var atype: String = str(a.get("Type", ""))
-			if atype != "":
-				arts[atype] = a
+			arts.append(a)
 	return arts
 
 
