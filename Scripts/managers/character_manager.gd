@@ -169,12 +169,12 @@ func _calculate_from_synced(player_name: String) -> CalculatedStats:
 			"energy_recharge": calc.energy_recharge = snapped(value, 0.01)
 			"critical_damage": calc.critical_damage = snapped(value, 0.01)
 
-	calc.current_health = int(pd.get("Current_Health", 0))
-	calc.max_health = int(pd.get("Max_Health", 0))
-	calc.burst_charges = int(pd.get("Burst_Charges", 0))
-	calc.shield_health = int(pd.get("Shield_Health", 0))
-	calc.shield_duration = int(pd.get("Shield_Duration", 0))
-	calc.applied_element = str(pd.get("Applied_Element", "None"))
+	calc.current_health = int(pd.get("Current_Health", 0) if pd.get("Current_Health") != null else 0)
+	calc.max_health = int(pd.get("Max_Health", 0) if pd.get("Max_Health") != null else 0)
+	calc.burst_charges = int(pd.get("Burst_Charges", 0) if pd.get("Burst_Charges") != null else 0)
+	calc.shield_health = int(pd.get("Shield_Health", 0) if pd.get("Shield_Health") != null else 0)
+	calc.shield_duration = int(pd.get("Shield_Duration", 0) if pd.get("Shield_Duration") != null else 0)
+	calc.applied_element = str(pd.get("Applied_Element", "None") if pd.get("Applied_Element") != null else "None")
 	calc.crit_threshold = 20
 
 	_calculated[player_name] = calc
