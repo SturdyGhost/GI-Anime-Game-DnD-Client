@@ -53,6 +53,7 @@ static func decide_turn(
 	# Find enemies to target
 	var enemies := _find_enemies(battler_name, all_battlers, is_player_side)
 	if enemies.is_empty():
+		print("[AI] %s: no enemies found!" % battler_name)
 		return {"action": "skip", "ability": {}, "targets": []}
 
 	# Pick best ability that can reach a target
@@ -69,12 +70,19 @@ static func decide_turn(
 		var best_target := _pick_target(battler_name, enemies, all_battlers, spatial, ab_range, total_movement, is_melee)
 		if best_target != "":
 			return {"action": "attack", "ability": ab, "targets": [best_target], "movement": movement}
+		# Debug: why no target found
+		var enemy_name: String = enemies[0]
+		var dist: float = spatial.distance(battler_name, enemy_name)
+		print("[AI] %s: ability '%s' range=%d+move=%d=%.0f < dist=%.0f (melee=%s)" % [
+			battler_name, str(ab.get("name", "?")), ab_range, total_movement,
+			float(ab_range) + float(total_movement), dist, str(is_melee)])
 
 	# Priority 5: Move only (no ability can reach)
 	var closest_enemy := _closest(battler_name, enemies, spatial)
 	if closest_enemy != "" and movement > 0:
 		return {"action": "move_only", "ability": {}, "targets": [closest_enemy], "movement": movement}
 
+	print("[AI] %s: no closest enemy or movement=0 (movement=%d, closest=%s)" % [battler_name, movement, closest_enemy])
 	return {"action": "skip", "ability": {}, "targets": []}
 
 
