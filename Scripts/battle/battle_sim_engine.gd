@@ -63,10 +63,15 @@ func run_battle(config: Dictionary) -> Dictionary:
 				var ab_name: String = str(decision.get("ability", {}).get("name", ""))
 				var tgt: String = str(decision.get("targets", [""])[0]) if decision.get("targets", []).size() > 0 else ""
 				var hp_str: String = "%d/%d" % [int(bd.get("current_health", 0)), int(bd.get("max_health", 0))]
-				print("R%d %s [%s] hp=%s action=%s ability=%s target=%s burst=%d" % [
+				var num_abilities: int = bd.get("entity_current_ability_data", {}).size()
+				var atk_s: float = bd.get("attack_stat", 0)
+				var em_s: float = bd.get("em_stat", 0)
+				var wtype: String = str(bd.get("entity_weapon_data", {}).get("Type", "?"))
+				print("R%d %s [%s] hp=%s action=%s ability=%s target=%s burst=%d abs=%d atk=%.0f em=%.0f wep=%s pos=%.0f" % [
 					_round, battler_name, bd.get("type", "?"), hp_str,
 					decision.get("action", "?"), ab_name, tgt,
-					int(bd.get("burst_charges", 0))
+					int(bd.get("burst_charges", 0)), num_abilities, atk_s, em_s, wtype,
+					_spatial.get_position(battler_name)
 				])
 
 			match decision.get("action", "skip"):
