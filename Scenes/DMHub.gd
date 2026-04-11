@@ -73,6 +73,12 @@ func _ready() -> void:
 	_build_artifact_panel()
 	if Global.is_offline:
 		_show_offline_indicator()
+		# Disable item management tab — players self-manage in offline mode
+		var tabs = $Layout/MainSplit/Tabs
+		tabs.set_tab_disabled(0, true)
+		tabs.set_tab_title(0, "Party Management (Disabled Offline)")
+		# Default to BattlePrep tab
+		tabs.current_tab = 1
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
