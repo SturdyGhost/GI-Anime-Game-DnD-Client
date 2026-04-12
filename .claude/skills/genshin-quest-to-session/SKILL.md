@@ -23,7 +23,7 @@ Convert Genshin Impact quest content (wiki pages, PDFs, prior session notes) int
 8. **At least 3 meaningful player choices** that branch the session — explicitly marked with "PLAYER CHOICE" boxes showing options and how each branches
 9. **Combat encounters using the project's actual enemy data** — pull real enemy names from `data/Enemies.json` or `data/resources/enemies/`, not generic "boss tier" placeholders. Suggest specific tier (Common/Uncommon/Rare/Epic/Boss/Legendary).
 10. **Prep checklist** — what to print, what props to gather, what to set up before the session
-11. **Player handouts section** — explicit list of things to print and hand to players at specific scenes
+11. **(REMOVED — no player handouts)** This guide is for the DM only. Do NOT include a "player handouts" section. All props, riddles, and physical materials are for the DM to reference during play.
 12. **Cut and expand sections** — what to drop if running short, what to add if running long
 13. **Lead-in to next session** — cliffhanger and prep notes for the DM's next prep cycle
 
@@ -183,9 +183,6 @@ Use this exact CSS skeleton for consistency. Inline everything — no external f
 <h2>Cast</h2>
 [NPC blocks with name, role, voice notes]
 
-<h2>Player Handouts</h2>
-[Each handout in its own .callout.handout box, ready to cut out and hand to players]
-
 <h2>Scene 1 — [Title]</h2>
 <p><span class="tag time">0:00-0:15</span> <span class="tag rp">RP</span></p>
 [Read-aloud, beats, callouts]
@@ -227,11 +224,17 @@ Use this exact CSS skeleton for consistency. Inline everything — no external f
 | Vague read-aloud ("describe the scene") | Write the exact words the DM should speak |
 | Walls of lore | Use bullet "lore dump" callouts, never paragraphs of exposition |
 | Missing prep checklist | Always include — DM needs to know what to gather before the session |
-| Forgetting handouts | If the guide says "hand them an index card", list it in the Handouts section |
+| Including a player handouts section | This guide is for the DM only — never create handouts to give to players |
 | Trying WebFetch on fandom URLs first | Use MediaWiki API directly — Cloudflare blocks WebFetch |
 | Output runs >5 hours or <3 hours | Re-budget scenes, cut subplots or add side beats |
 | Choices that don't matter | Each option must change something tangible (NPC attitude, future scene, item, encounter) |
 
 ## Output Location
 
-Save to `docs/session-[quest-slug].html` where `quest-slug` is the quest name lowercased with hyphens. Example: `docs/session-through-mists-of-smoke-and-forests-dark.html`.
+Save to `docs/superpowers/sessions/YYYY-MM-DD-[quest-slug].html` where:
+- `YYYY-MM-DD` is today's date
+- `quest-slug` is the quest name lowercased with hyphens
+
+Example: `docs/superpowers/sessions/2026-04-11-through-mists-of-smoke-and-forests-dark.html`
+
+Create the `docs/superpowers/sessions/` directory if it doesn't exist.

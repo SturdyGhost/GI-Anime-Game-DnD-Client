@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Session Guide — Festival of Sabzeruz</title>
+<style>
+  @page { size: letter; margin: 0.6in; }
+  * { box-sizing: border-box; }
+  html, body { background: #fdfcf7; color: #1a1a1a; }
+  body { font-family: "Georgia", "Palatino Linotype", serif; font-size: 11pt; line-height: 1.45; max-width: 7.3in; margin: 0 auto; padding: 0.4in 0.3in; }
+  h1 { font-size: 22pt; color: #2d5e3e; border-bottom: 2px solid #2d5e3e; padding-bottom: 4pt; margin: 0 0 4pt 0; }
+  h2 { font-size: 15pt; color: #2d5e3e; border-bottom: 1px solid #c7c2b4; padding-bottom: 2pt; margin: 18pt 0 4pt 0; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; color: #8a6d1f; margin: 10pt 0 3pt 0; page-break-after: avoid; }
+  h4 { font-size: 11pt; margin: 8pt 0 2pt 0; page-break-after: avoid; }
+  .subtitle { color: #555; font-style: italic; margin-bottom: 12pt; }
+  .meta { background: #e8f1ea; border-left: 3px solid #2d5e3e; padding: 8pt 10pt; margin: 8pt 0 14pt 0; font-size: 10pt; }
+  .callout { border: 1px solid #c7c2b4; background: #fff; padding: 8pt 10pt; margin: 8pt 0; border-radius: 3px; page-break-inside: avoid; }
+  .callout.read { background: #f5f0e1; border-left: 4px solid #8a6d1f; font-style: italic; }
+  .callout.read::before { content: "READ ALOUD"; display: block; font-family: sans-serif; font-style: normal; font-size: 8.5pt; letter-spacing: 1pt; color: #8a6d1f; margin-bottom: 4pt; }
+  .callout.dm { background: #fff6f1; border-left: 4px solid #b05a2c; }
+  .callout.combat { background: #fbeaea; border-left: 4px solid #a33; }
+  .callout.lore { background: #eef0f8; border-left: 4px solid #3a4a8a; }
+  .callout.puzzle { background: #fdf6e3; border-left: 4px solid #b58900; }
+  .callout.puzzle::before { content: "PUZZLE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #b58900; margin-bottom: 4pt; }
+  .callout.choice { background: #f0e6f8; border-left: 4px solid #6b3fa0; }
+  .callout.choice::before { content: "PLAYER CHOICE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #6b3fa0; margin-bottom: 4pt; }
+  .callout.alhaitham { background: #eaf2ef; border-left: 4px solid #2d5e3e; }
+  .callout.alhaitham::before { content: "ALHAITHAM — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #2d5e3e; margin-bottom: 4pt; }
+  .tag { display: inline-block; font-family: sans-serif; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; padding: 1pt 5pt; border-radius: 2px; margin-right: 4pt; }
+  .tag.time { background: #2d5e3e; color: #fff; }
+  .tag.rp { background: #6b3fa0; color: #fff; }
+  .tag.combat { background: #a33; color: #fff; }
+  .tag.puzzle { background: #b58900; color: #fff; }
+  .tag.lore { background: #3a4a8a; color: #fff; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt 0; font-size: 10pt; }
+  th, td { border: 1px solid #c7c2b4; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #e8f1ea; }
+  ul, ol { margin: 4pt 0 8pt 18pt; padding: 0; }
+  li { margin: 2pt 0; }
+  code { background: #f0eee6; padding: 1pt 4pt; border-radius: 2px; font-family: "Consolas", monospace; font-size: 10pt; }
+  hr { border: none; border-top: 1px dashed #c7c2b4; margin: 14pt 0; }
+  .mini { font-size: 9pt; color: #555; }
+</style>
+</head>
+<body>
+
+<h1>Festival of Sabzeruz</h1>
+<p class="subtitle">A chess master in Port Ormos, a lonely girl in a looping city, and the slow realization that both were already ten moves ahead of you.</p>
+
+<div class="meta">
+  <p><strong>Runtime:</strong> ~4 hours | <strong>Scenes:</strong> 10 | <strong>Combats:</strong> 3 | <strong>Puzzles:</strong> 1 (loop-pattern) | <strong>Player Choices:</strong> 5</p>
+  <p><strong>Source:</strong> Through Mists of Smoke and Forests Dark (Scenes 7-9) + The Morn a Thousand Roses Brings (openings through loop 3 / investigation start)</p>
+  <p><strong>Load-bearing beats (do not cut):</strong> (1) Alhaitham's Dori setup + the duel contingency; (2) Alhaitham walking off with the Capsule; (3) The first "reset" moment where the party realizes the day restarted; (4) Nahida's "dook dook"; (5) The cliffhanger reveal that something bigger is happening.</p>
+</div>
+
+<h2>Prep Checklist (Before the Session)</h2>
+<ul>
+  <li>&#9744; Print this guide (double-sided, color if possible for the callout boxes)</li>
+  <li>&#9744; Set up Port Ormos duel encounter in DM Hub Battle Prep: 1x <code>Eremite Ravenbeak Halberdier</code> [Rare] (Mizri) + 2x <code>Eremite Sword Dancer</code> [Common] + 1x <code>Eremite Linebreaker</code> [Uncommon]</li>
+  <li>&#9744; Set up Sabzeruz kidnapping encounter: 3x <code>Eremite Desert Clearwater</code> [Common] + 1x <code>Eremite Galehunter</code> [Uncommon]</li>
+  <li>&#9744; Set up optional loop-3 alley ambush: 2x <code>Crossbow Treasure Hoarder</code> [Common] + 1x <code>Shovel Treasure Hoarder</code> [Common]</li>
+  <li>&#9744; Pre-cut 6 small index cards for the Loop Pattern puzzle (see Scene 9). Write one symbol on each: Flower, Candle, Bird, Drum, Bell, Rose.</li>
+  <li>&#9744; Write "Dori paid the real price" on a slip, fold, seal in an envelope marked <em>OPEN WHEN PLAYERS ASK WHY ALHAITHAM USED THEM</em>.</li>
+  <li>&#9744; Re-read Scenes 2-3 (Alhaitham chess-master beats) — he carries the first half.</li>
+  <li>&#9744; Re-read Scene 7 (first loop reset) — the players must not see it coming.</li>
+  <li>&#9744; Queue a soft music track you can loop for the reset moments (same 30 seconds, to reinforce samsara unease).</li>
+</ul>
+
+<h2>Cast</h2>
+<table>
+  <tr><th>NPC</th><th>Role</th><th>Voice / Personality</th></tr>
+  <tr><td><strong>Alhaitham</strong></td><td>Akademiya Scribe. First-half antagonist-ally. Already knows most of what the party will learn.</td><td>Low, clinical, unhurried. Never raises his voice. Answers questions before they finish. Slightly amused at how long others take to catch up. Speaks in short declarative sentences.</td></tr>
+  <tr><td><strong>Dori Sangemah Bay</strong></td><td>Shrewd merchant in Port Ormos. Refuses Akademiya business.</td><td>Sing-song, greedy, warm. Calls people "little friend." Every sentence ends with a price.</td></tr>
+  <tr><td><strong>Mizri</strong></td><td>Leader of Ayn Al-Ahmar. Duel opponent. Goes berserk mid-fight.</td><td>Zealous, raspy, grandiose. Invokes King Deshret. After berserk: inhuman echo layered under his voice.</td></tr>
+  <tr><td><strong>Nilou</strong></td><td>Zubayr Theater dancer, devoted to the "Lesser Lord."</td><td>Bright, graceful, unbearably sincere. Moves her hands when she talks.</td></tr>
+  <tr><td><strong>Dunyarzad</strong></td><td>Festival organizer, terminally ill with Eleazar.</td><td>Gentle, formal, tired beneath her smile. Uses ornate Sumeran phrasing.</td></tr>
+  <tr><td><strong>Dehya</strong></td><td>Eremite mercenary, Dunyarzad's bodyguard.</td><td>Brash, loud, protective. Calls everyone "kid." Warm once trust is earned.</td></tr>
+  <tr><td><strong>Nahida (unnamed this session)</strong></td><td>A small barefoot girl the party keeps glimpsing. Seems aware of the loop. The party <em>do not know</em> she is the Dendro Archon.</td><td>Soft, curious, lonely. Talks like a child who has read too many books. Shy at first, then startlingly direct. Makes small animal noises.</td></tr>
+  <tr><td><strong>Vihar</strong></td><td>Candy stall vendor at the festival. Runs the Yalda Candy mystery box.</td><td>Boisterous, theatrical barker voice.</td></tr>
+  <tr><td><strong>Lambad</strong></td><td>Tavern owner, night of loop 1.</td><td>Dry, kind, remembers faces forever.</td></tr>
+  <tr><td><strong>Grand Sage Azar &amp; Secretary Setaria</strong></td><td>Festival-shutters. Feel wrong. Speak in unison by loop 3.</td><td>Azar: oily and certain. Setaria: reedy and nervous. DM note: by loop 3 you should start making their dialogue slightly off — wrong word order, dead eyes.</td></tr>
+</table>
+
+<h2>Scene 1 — Port Ormos, Before the Duel</h2>
+<p><span class="tag time">0:00-0:25</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+  The stink of tar and cardamom rolls off the water. Port Ormos crowds the dockside like a patient that refuses to lie still — merchants shouting over one another in six languages, half-furled sails slapping masts, and somewhere beneath it all the thrum of the Akasha in every passing ear. You came here chasing a stolen thing from a silent god. You leave the inn that morning to the sound of a man being politely, publicly, almost gently threatened. He is the one doing the threatening. His name is Alhaitham, and three members of Ayn Al-Ahmar are walking away from him with the careful steps of people who have just agreed to something they now regret.
+</div>
+
+<h3>DM Beats</h3>
+<ul>
+  <li>Alhaitham is wrapping up the public argument with the Eremites. A duel is set for "a few days" — the clock is running.</li>
+  <li>The party saw the tail end. Let them approach him. He does not look up from his book.</li>
+  <li>He already knows who they are. Establish this immediately — he uses one of their names before they give it.</li>
+</ul>
+
+<div class="callout alhaitham">
+  "You came from The Chasm. You walked through Gandharva Ville. Tighnari is not known for introducing himself twice, so I will assume you are not here to waste my afternoon. The item you're looking for is in a locked room in a house you cannot find, owned by a woman who does not sell to anyone wearing an Akasha Terminal. I, regrettably, am wearing one. You are not. Now — shall we agree to be useful to each other, or shall I find other tools?"
+</div>
+
+<div class="callout dm">
+  <strong>Show him knowing.</strong> When a player asks "how did you —", interrupt them mid-sentence with the answer. When they ask <em>why</em> he's helping, say: "I'm not. You're helping me. You simply haven't realized yet that the terms are favorable to you." Then return to his book.
+</div>
+
+<div class="callout choice">
+  <h4>Working With Alhaitham</h4>
+  <p><strong>Setup:</strong> He will trade information for a "small errand" with Dori. He refuses to share what he knows until after.</p>
+  <ul>
+    <li><strong>Agree immediately</strong> &rarr; He nods once, gives them a coin purse (2,000 mora) and an address. No warmth. "Do not haggle." Unlocks Scene 2.</li>
+    <li><strong>Try to extract info first</strong> &rarr; He closes the book. "You think withholding your cooperation costs me something. It doesn't. It costs <em>her</em>." He nods toward a passing woman with the Eleazar tremor. Guilt trip. Same outcome, but the party feels dirtier.</li>
+    <li><strong>Refuse and investigate alone</strong> &rarr; He shrugs. They waste 30 minutes of in-game time bumping into dead ends, then circle back and take the deal anyway. <em>Persistent impact:</em> Alhaitham's respect for them drops a notch. In the Scene 5 duel he will not warn them about the berserk.</li>
+  </ul>
+  <p><strong>Persistent impact:</strong> Whichever option they pick, mark it on your prep sheet. It affects Alhaitham's willingness to hint later.</p>
+</div>
+
+<h2>Scene 2 — Being Dori's Customer</h2>
+<p><span class="tag time">0:25-0:55</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+  The address leads to a shaded courtyard behind the bazaar. A woman sits cross-legged on a cushion the color of bruised plums, counting coins onto a tray with the practiced boredom of someone who has counted a great many coins. She looks up. Her eyes do a little accounting of their own. "Oh? Oh — little friends. Come in, come in. Tell Auntie Dori what a handsome sum is doing on such tired shoulders."
+</div>
+
+<h3>DM Beats — The Errand</h3>
+<ul>
+  <li>Dori offers absurd luxury items: a "genuine" Mondstadt Cecilia pressed in amber, a vial of "distilled moonlight," a beetle in a jar she swears is a reincarnated poet.</li>
+  <li>Alhaitham said: <em>do not haggle.</em> Emphasize the discomfort — the players are spending someone else's money on obvious junk, and something about it feels like a test.</li>
+  <li>One player is expected to eventually ask Dori a <em>question</em> while transacting. This is the play.</li>
+</ul>
+
+<div class="callout choice">
+  <h4>What to Buy From Dori</h4>
+  <p><strong>Setup:</strong> They have 2,000 mora and strict instructions. They must buy <em>something</em>.</p>
+  <ul>
+    <li><strong>The amber Cecilia (800m)</strong> &rarr; Useless. Dori warms up slightly.</li>
+    <li><strong>The "moonlight vial" (1,200m)</strong> &rarr; Dori chuckles. "A connoisseur!" Warms more.</li>
+    <li><strong>Ask Dori what she knows about the Knowledge Capsule (cost: full purse, but she'll tell them)</strong> &rarr; Dori freezes, then smiles. "You're <em>his</em> little friends, aren't you. Of course. Of course you are. Tell him the answer is Mizri, and the price is the whole purse." <em>This was what Alhaitham wanted all along.</em></li>
+  </ul>
+  <p><strong>Persistent impact:</strong> If they don't figure it out organically, have Dori lean in and say "Ah — or did he not tell you what to ask? Dear dear. Let Auntie help." She spoon-feeds it for a small mora penalty.</p>
+</div>
+
+<div class="callout dm">
+  <strong>The reveal — play this for maximum "oh.":</strong> When they return to Alhaitham and report, he does not thank them. He simply says the line below, and the DM should actually pause and wait for the players' reaction before continuing.
+</div>
+
+<div class="callout alhaitham">
+  "Good. Dori does not lie to paying customers — a point of pride. She would have lied to me. I needed her to say the name out loud, to someone, while sober. Now she has. Thank you for your 2,000 mora. I'll reimburse it from the Akademiya's discretionary fund next week. Shall we go to the duel?"
+</div>
+
+<h2>Scene 3 — Walking to the Duel Grounds</h2>
+<p><span class="tag time">0:55-1:10</span> <span class="tag rp">RP</span> <span class="tag lore">LORE</span></p>
+
+<h3>DM Beats — Show the Chess Master</h3>
+<ul>
+  <li>As they walk, Alhaitham lists, unprompted, the exact order in which the fight will go wrong.</li>
+  <li>He points out three Eremite lookouts the party hadn't noticed. "Two. Four. There. Don't look. They've been watching us since the fountain."</li>
+  <li>A player will probably ask how he knows Mizri will go berserk. He answers, cleanly, like it's obvious.</li>
+</ul>
+
+<div class="callout alhaitham">
+  "The Capsule is not a weapon. Ayn Al-Ahmar believe it is. When a man who believes in a thing finally holds the thing, and the thing disappoints him, he does one of two things. He weeps, or he breaks. Mizri does not weep. So he will break, and when he breaks he will reach for the Akasha because that is the only power he still trusts, and the Akasha will not save him because the Akasha was never his. That is when I will sever his terminal. Please stand to the left of the third pillar when it happens. The fragments fly right."
+</div>
+
+<div class="callout dm">
+  <strong>Correcting their assumptions.</strong> If a player says "so you're going to steal the Capsule after?" — Alhaitham does not confirm or deny. He simply says: "I am going to do what is necessary." Make a mental note of whichever player asked. In Scene 6 he will look at that player specifically when he walks away with it.
+</div>
+
+<h2>Scene 4 — The Duel Grounds</h2>
+<p><span class="tag time">1:10-1:50</span> <span class="tag combat">COMBAT</span></p>
+
+<div class="callout read">
+  The duel ground is an old sunstone quarry south of Ormos — three broken pillars, a floor of cracked white tile, wind tugging at a dozen Eremite banners. Mizri stands at the center with the Capsule already in his fist. He is speaking, but you cannot hear him over the blood in your ears. Alhaitham, three paces ahead of you, quietly says: "Left of the third pillar. Now."
+</div>
+
+<div class="callout combat">
+  <h4>Encounter — The Duel of Ayn Al-Ahmar</h4>
+  <p><strong>Setup:</strong> Alhaitham fights Mizri 1v1 in the center. The party is <em>supposed</em> to handle Mizri's lieutenants so the duel stays clean. It will not stay clean.</p>
+  <p><strong>Enemies:</strong> 1x <code>Eremite Ravenbeak Halberdier</code> [Rare] (Mizri, locked to Alhaitham in Phase 1), 2x <code>Eremite Sword Dancer</code> [Common], 1x <code>Eremite Linebreaker</code> [Uncommon]</p>
+  <p><strong>Phase 1 (Rounds 1-2):</strong> Party vs. the lieutenants. Alhaitham and Mizri exchange blows in the background; describe Alhaitham calmly parrying and reading as he fights.</p>
+  <p><strong>Phase 2 (Round 3):</strong> Mizri cracks the Capsule, screams, and <em>goes berserk</em>. His tier effectively ticks up — treat him as Epic for this round only. He attacks his <em>own</em> surviving lieutenants first. This is the "it's happening now" moment.</p>
+  <p><strong>Phase 3 (Round 4+):</strong> On Alhaitham's turn he severs Mizri's Akasha Terminal ("Left of the third pillar. <em>Now.</em>"). Mizri collapses. If any party member is actually standing in that spot, they take no damage from the shrapnel; anyone not there eats 1d8 piercing.</p>
+  <p><strong>Goal:</strong> Survive to Phase 3 without letting a lieutenant reach Alhaitham.</p>
+  <p><strong>Twist:</strong> As Mizri falls, he whispers — loud enough only for the Traveler-proxy / lore-carrying PC to hear — "...World... forget me..." The same words from the red-sky vision in the cave. <em>Say nothing more about it. Let it hang.</em></p>
+  <p><strong>Reward:</strong> Story progression; the Matra arrive and take Mizri away.</p>
+</div>
+
+<h2>Scene 5 — Alhaitham Walks Away With It</h2>
+<p><span class="tag time">1:50-2:05</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+  The Matra take Mizri. The lieutenants are dead, or cuffed, or fled. Alhaitham closes his book — you didn't even see him open it again — and walks past the broken tile to where the Capsule lies in the dust. He picks it up. He dusts it off on his sleeve. He puts it in an inner pocket. Then, as if remembering that he shares the world with other people, he turns to you.
+</div>
+
+<div class="callout alhaitham">
+  "An informative afternoon. The Capsule contains no divine knowledge and no divine power — what it contains is a particular kind of madness, the same madness that breaks scholars who probe Irminsul too deeply. I suspected as much, but I needed a zealot to confirm it. Thank you for being exactly as useful as I expected. You came to Sumeru looking for the Dendro Archon. I cannot help you with that. She is inaccessible. Go to the Sabzeruz Festival and make your other inquiries there. One last thing —" <em>(he looks at whichever player asked about stealing the Capsule earlier)</em> "— you were right about the question. You were wrong about the answer."
+</div>
+
+<div class="callout dm">
+  <strong>This is the moment.</strong> Open the pre-sealed envelope marked <em>OPEN WHEN PLAYERS ASK WHY ALHAITHAM USED THEM</em>. Inside: "Dori paid the real price." Hand it to a player. Do not explain. Let them work out that the whole errand — the coins, the haggle-ban, the question — was Alhaitham building a record-able transaction that makes Dori legally complicit, so she cannot later testify against him without destroying her own business. He did not use the party. He used Dori. The party was the invoice.
+</div>
+
+<div class="callout choice">
+  <h4>Confront Alhaitham?</h4>
+  <p><strong>Setup:</strong> The envelope has been opened. The party realizes.</p>
+  <ul>
+    <li><strong>Call him out publicly</strong> &rarr; He nods: "Yes. Is there a question inside the accusation?" No apology. He walks off. Party gains +1 "Alhaitham owes us" marker for a future session.</li>
+    <li><strong>Let him walk</strong> &rarr; He pauses, just once, and says "Thank you for the professional courtesy." This is the closest thing to respect he gives. +1 "Alhaitham is impressed" marker.</li>
+    <li><strong>Try to take the Capsule from him</strong> &rarr; He does not resist. He hands it over. "Open it." (He knows they won't. If they do — roll a WIS save, DC 16, on fail the PC sees the red-sky vision and is dazed for 1 round.) Either way, he says: "Now do you understand why I was going to keep it?" and holds out his hand. If they give it back, he leaves with approval. If not, he leaves without — and the party now carries a cursed artifact they don't understand.</li>
+  </ul>
+  <p><strong>Persistent impact:</strong> Note which ending you got. It affects his next appearance.</p>
+</div>
+
+<h2>Scene 6 — Sumeru City, The Festival Morning</h2>
+<p><span class="tag time">2:05-2:30</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+  Sumeru City wakes in gold. The Divine Tree's leaves throw dappled light across the Grand Bazaar and the air smells of saffron, citrus, and hot sugar. Banners in purple and green hang from every balcony. Dunyarzad meets you at the edge of the bazaar with a tired smile and a guest list in her hand. "You came," she says, like it matters that you did. "Today is going to be lovely."
+</div>
+
+<h3>DM Beats — Establish the "Normal" Day</h3>
+<ul>
+  <li>Dunyarzad walks them through three festival venues. Hit each briefly:
+    <ol>
+      <li><strong>Vihar's Yalda Candy stall</strong> — mystery box flavors. Let a player pick a box blind. Describe the flavor. (Remember it. It matters in loop 2.)</li>
+      <li><strong>The garland weavers</strong> — a quiet station where an old man weaves Padisarah replicas from purple-dyed silk. He complains they don't look right. The color is wrong.</li>
+      <li><strong>The performance stage</strong> — Nilou is warming up. She is radiant and terrified.</li>
+    </ol>
+  </li>
+  <li>A small, barefoot girl in a white dress watches the party from three stalls away. When they look, she's gone. Do this twice — never three times. (She is Nahida. Not yet revealed.)</li>
+  <li>En route to the stage, Eremite mercenaries ambush the group trying to grab Dunyarzad. Dehya appears.</li>
+</ul>
+
+<div class="callout combat">
+  <h4>Encounter — Kidnapping Attempt</h4>
+  <p><strong>Setup:</strong> A narrow alley between the bazaar and the bathhouse. Dehya holds the alley mouth, the party defends Dunyarzad in the middle, civilians at the far end.</p>
+  <p><strong>Enemies:</strong> 3x <code>Eremite Desert Clearwater</code> [Common], 1x <code>Eremite Galehunter</code> [Uncommon]</p>
+  <p><strong>Goal:</strong> Don't let Dunyarzad take any hits. She is terminal and any damage triggers a collapse.</p>
+  <p><strong>Twist:</strong> Halfway through, Dunyarzad's knees buckle anyway — Eleazar flare. The party must decide: finish the fight, or pull her out. Dehya can hold alone if pressed.</p>
+  <p><strong>Reward:</strong> Dehya's trust. A quiet aside from Dunyarzad: "Please don't tell Nilou. Today has to be perfect."</p>
+</div>
+
+<h3>The Stage — Azar Shuts It Down</h3>
+<ul>
+  <li>They arrive at the stage to find Grand Sage Azar and Secretary Setaria. Azar cites "eleven regulatory violations." The festival is canceled.</li>
+  <li>Nilou is crushed. Dunyarzad accepts with dignity. The party's choice is to protest, accept, or try to stall.</li>
+  <li>As Azar walks off, he says the line: <em>"Enjoy your celebration of the birth of that god — to your heart's content."</em> Emphasize "that god." It is too strange to be a slip.</li>
+  <li>Somewhere, a faint beeping sound. One player might hear it on a passive Perception 14. Describe it for one heartbeat, then let it fade.</li>
+</ul>
+
+<div class="callout choice">
+  <h4>Respond to Azar</h4>
+  <p><strong>Setup:</strong> The Grand Sage is shutting down a dying girl's festival.</p>
+  <ul>
+    <li><strong>Publicly argue with him</strong> &rarr; He does not engage. He repeats himself. Setaria logs the party's names.</li>
+    <li><strong>Quietly gather info on him</strong> &rarr; A bystander says Azar has been "strange lately." Vendor mentions they haven't seen the Dendro Archon in public <em>ever</em>. Useful for loop investigation.</li>
+    <li><strong>Let it go and comfort Dunyarzad</strong> &rarr; She gives them a small token: a handwritten booklet of Sumeran folk legends. <em>Keep this prop — it matters in a later session.</em></li>
+  </ul>
+</div>
+
+<p class="mini">(At this point the party goes to sleep at Dunyarzad's house. The DM hears the beep. The players do too if they made the passive check. Fade to black.)</p>
+
+<h2>Scene 7 — The First Reset</h2>
+<p><span class="tag time">2:30-2:50</span> <span class="tag rp">RP</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout dm">
+  <strong>How to run the reset.</strong> Do not announce it. Re-read the Scene 6 opening — <em>the exact same words, same voice</em> — "Sumeru City wakes in gold. The Divine Tree's leaves throw dappled light..." Keep a straight face. When a player interrupts with "wait — didn't you already —", act mildly confused and keep reading. Let the tension build for 20-30 seconds before breaking.
+</div>
+
+<div class="callout read">
+  Sumeru City wakes in gold. The Divine Tree's leaves throw dappled light across the Grand Bazaar and the air smells of saffron, citrus, and hot sugar. Banners in purple and green hang from every balcony. Dunyarzad meets you at the edge of the bazaar with a tired smile and a guest list in her hand. "You came," she says, like it matters that you did. "Today is going to be lovely."
+</div>
+
+<h3>DM Beats — Loop 2</h3>
+<ul>
+  <li>Let the players act on their memory. They alone remember. Dunyarzad, Nilou, Vihar, Dehya — all forgot.</li>
+  <li>The Yalda Candy at Vihar's stall — Vihar offers the mystery box. If a player says the flavor before biting it, <em>confirm they are correct.</em> "How did you — oh, lucky guess!" Vihar is delighted. The player is not.</li>
+  <li>The small barefoot girl shows up <em>deliberately</em> this time. She locks eyes with a PC. Then she vanishes behind the weaver's stall.</li>
+  <li>The kidnapping attempt happens again, at the same alley, with the same enemies. Let the party handle it faster or differently. Same outcome: Dunyarzad collapses, Azar cancels the festival, the beep, the dark.</li>
+</ul>
+
+<div class="callout dm">
+  <strong>Important sync note.</strong> Only the players keep memory between loops. They do <em>not</em> keep HP, positioning, items acquired during a loop, or spells cast. At each reset: heal to full, restore consumables, reset character sheets to their morning-of-festival state. The one thing they keep: <em>knowledge.</em> If they learned something in loop 1, they know it in loop 2. Write player-made discoveries on an index card and keep it face-up on the table.
+</div>
+
+<h2>Scene 8 — Loop 3: Chasing the Girl</h2>
+<p><span class="tag time">2:50-3:15</span> <span class="tag rp">RP</span> <span class="tag combat">COMBAT</span></p>
+
+<div class="callout read">
+  Sumeru City wakes in gold. You know this morning by heart now. You know the smell, the angle of the light, the moment Dunyarzad will say "You came." You also know that somewhere in this bazaar is a girl in a white dress who has been watching you, and today you are not going to miss her.
+</div>
+
+<h3>DM Beats — Breaking Pattern</h3>
+<ul>
+  <li>The party can now abandon Dunyarzad and go hunting. Let them. The city will warp around their detour.</li>
+  <li>Describe inconsistencies: a vendor whose stall was in one place yesterday is now two streets over. Two different children wearing the same face. A cat that walks into a wall and phases through it.</li>
+  <li>Chasing the girl leads through a side alley where they're ambushed by Treasure Hoarders — wrong enemies for this part of the city. Optional combat; if the party is tired, skip it and have the hoarders flee.</li>
+</ul>
+
+<div class="callout combat">
+  <h4>Encounter — The Wrong Alley (Optional)</h4>
+  <p><strong>Setup:</strong> A side alley the party has never seen on previous loops. These enemies don't belong in Sumeru City.</p>
+  <p><strong>Enemies:</strong> 2x <code>Crossbow Treasure Hoarder</code> [Common], 1x <code>Shovel Treasure Hoarder</code> [Common]</p>
+  <p><strong>Goal:</strong> Win or scatter them.</p>
+  <p><strong>Twist:</strong> When defeated, the bodies do not fall. They <em>unravel</em> — crumble into motes of leaf-green light and scatter. The dream is spending computation it didn't budget for.</p>
+  <p><strong>Reward:</strong> Strong evidence this is not the real world.</p>
+</div>
+
+<h3>Meeting the Girl</h3>
+<p>The chase ends at Bimarstan — the clinic. The girl is sitting cross-legged on a windowsill, humming. She notices the party and does not flinch.</p>
+
+<div class="callout dm">
+  <strong>Nahida voice reminder:</strong> She is a small, lonely, too-well-read child. Protective instincts should fire. The party MUST NOT know she's the Archon. If a player meta-guesses, play dumb: "She's just a girl. She seems like she's been alone a long time."
+</div>
+
+<div class="callout read">
+  She looks up from her humming. Her feet are bare and they don't quite touch the windowsill. "You're the ones who keep seeing me," she says. "I wasn't sure if you would today. Some days you don't. On the days you don't I go home early." She tilts her head, and her eyes track something invisible near your shoulder — a little insect, maybe, or a thought. "There's a beetle on your arm. A green one. He's saying — "
+  <br><br>
+  <em>She makes a small, cheerful, rhythmic sound with her mouth.</em>
+  <br><br>
+  "<strong>Dook. Dook. Dook dook dook.</strong>"
+  <br><br>
+  "That's beetle for 'I am very round and I am going to the sun.' He says it a lot. I think he means it." She looks up again. "You don't remember me, do you? That's all right. I remember you. I remember you every morning."
+</div>
+
+<div class="callout dm">
+  <strong>The "dook dook" line is load-bearing.</strong> Deliver it deadpan. Let it land. The player reaction is the point. If any player bursts out laughing, Nahida <em>beams</em> — it is the first time she has made anyone laugh in a very, very long time. That look matters later.
+</div>
+
+<h3>What Nahida Tells Them (Loop 3)</h3>
+<ul>
+  <li>She calls the phenomenon a <em>samsara</em>. She is careful with the word.</li>
+  <li>She says the party can see her because of "what you are, and what you're carrying." She will not elaborate.</li>
+  <li>She says she can't tell them the answer, because "if I say it plainly, your head will go —" and she mimes a gentle pop with her hands.</li>
+  <li>She will tell them: "The day is a dream. Somebody is dreaming it. When you find who, you can wake them up, and then it will stop."</li>
+  <li>She does not say who she is. If they ask her name, she says: "You can call me whatever you like. Names get confusing where I come from."</li>
+</ul>
+
+<h2>Scene 9 — The Loop Pattern Puzzle</h2>
+<p><span class="tag time">3:15-3:40</span> <span class="tag puzzle">PUZZLE</span></p>
+
+<div class="callout puzzle">
+  <h4>The Pattern of the Festival</h4>
+  <p><strong>DM prep:</strong> 6 pre-cut index cards. Each has one symbol written large: <code>FLOWER</code>, <code>CANDLE</code>, <code>BIRD</code>, <code>DRUM</code>, <code>BELL</code>, <code>ROSE</code>.</p>
+  <p><strong>Setup:</strong> Nahida tells the party that every loop, the festival rings six signals in a specific order — she has heard them from her window but cannot remember the pattern, because her memory is "heavier than theirs." If the party can write down the correct order of the six signals across the remaining loop time, they can retroactively "mark" the loop and leave a trace. (This is the hook for next session — the "marker" they leave is what Nahida will use later.)</p>
+  <p><strong>Tell the players:</strong> As they act through the last minutes of Loop 3, the DM will mention signals at specific moments in the narration. At the end of the loop, they must lay the six cards on the table in the correct order, from memory.</p>
+  <p><strong>The signals the DM must weave into loop 3 narration (in this exact order):</strong>
+    <ol>
+      <li><strong>BELL</strong> — "The bazaar bell rings noon as you pass the archway."</li>
+      <li><strong>FLOWER</strong> — "A child drops a silk Padisarah at your feet. Purple, but not purple enough."</li>
+      <li><strong>DRUM</strong> — "Somewhere up the hill, a drum begins the festival overture."</li>
+      <li><strong>BIRD</strong> — "A startled dusk bird flies across the plaza, black against the gold."</li>
+      <li><strong>CANDLE</strong> — "Vihar lights the first candle at his stall as the shadows lengthen."</li>
+      <li><strong>ROSE</strong> — "On the stage, Nilou lifts a single white rose above her head. The audience goes still."</li>
+    </ol>
+  </p>
+  <p><strong>Solution:</strong> Bell &rarr; Flower &rarr; Drum &rarr; Bird &rarr; Candle &rarr; Rose. Players must arrange the six cards in this order on the table at the end of the loop. No re-reads.</p>
+  <p><strong>Hint progression:</strong>
+    <ul>
+      <li><em>Hint 1 (free):</em> Nahida says, "Start with the loudest thing."</li>
+      <li><em>Hint 2:</em> Nahida says, "The flower came before the music. The music came before the wings."</li>
+      <li><em>Hint 3:</em> Nahida sighs and names the first three in order, leaving the last three to them.</li>
+    </ul>
+  </p>
+  <p><strong>Unlock:</strong> When solved, Nahida's eyes widen slightly. "Oh. Oh, that's — that's a very clean pattern. Somebody wrote this dream on purpose. Somebody is <em>composing</em> it." This is the revelation the session hinges on. Mark it with a beat of silence.</p>
+  <p><strong>If they fail:</strong> Nahida is kind about it. "That's all right. Try again tomorrow." She writes a partial pattern on a slip of paper and tucks it into a PC's pocket. Next session starts with them having the partial solution.</p>
+</div>
+
+<h2>Scene 10 — The Beep, And What's Behind It</h2>
+<p><span class="tag time">3:40-4:00</span> <span class="tag rp">RP</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout read">
+  You are back at Dunyarzad's house. She is sleeping. You can hear her breathing. You can also hear — now that you know to listen for it — a small, regular, mechanical beep, coming from somewhere that is not here. It sounds like a heart monitor. It sounds like a countdown. It sounds like it is waiting for you. And then, for the first time since this began, a voice you have never heard before speaks into the dark, and it is not Nahida. It is an old man, calm and certain, and he says: "The project has entered its most critical phase. Jnana Energy output is — stable. Continue."
+</div>
+
+<div class="callout choice">
+  <h4>How Does the Session End?</h4>
+  <p><strong>Setup:</strong> The party can choose, in-character, how they spend the final minutes of Loop 3. Pick the ending that best matches what they did this session.</p>
+  <ul>
+    <li><strong>They solved the puzzle</strong> &rarr; End on Nahida's "somebody is composing it." Cut to black. Next session opens on Loop 4 with the party knowing they are in a composition — and looking for the composer.</li>
+    <li><strong>They befriended Nahida deeply</strong> &rarr; End on Nahida taking one of their hands in both of hers and saying, very seriously, "Thank you for remembering me today. I am going to try to remember you tomorrow, too." She is lying — she remembers every loop. But it is the kindest lie she knows how to tell.</li>
+    <li><strong>They investigated Azar</strong> &rarr; End on the party standing at the locked gates of the Akademiya, hearing the beep, and realizing the beep comes from <em>inside</em>. Cut to black.</li>
+    <li><strong>They figured out it's not the real world</strong> &rarr; End on a PC walking to the edge of the city at sunset, looking out at a horizon that does not quite render correctly — the palm trees in the distance are the same palm tree, copied forty times. Cut to black.</li>
+    <li><strong>They got stuck</strong> &rarr; End on Nahida giving them the partial pattern slip and saying "Tomorrow. We have as many tomorrows as we need. But not more." Cut to black.</li>
+  </ul>
+  <p><strong>Persistent impact:</strong> Whichever ending you use, write the last line on an index card and put it in the middle of the table. That is the opening line of next session.</p>
+</div>
+
+<div class="callout dm">
+  <strong>The cliffhanger line, in every ending:</strong> after the cut to black, say this out loud once more, quietly, so it's the last thing the players hear before you close the book:
+  <br><br>
+  "Sumeru City wakes in gold."
+</div>
+
+<h2>If You Run Short</h2>
+<ul>
+  <li>Cut the optional Loop 3 Treasure Hoarder combat (Scene 8). Nahida is the important beat, not the fight.</li>
+  <li>Shorten Scene 6 to two festival venues instead of three (drop the garland weaver).</li>
+  <li>Resolve the Dori errand in one exchange rather than a full buy-negotiate sequence — jump straight to the "ask the question" beat.</li>
+  <li>Skip Dehya's Scene 6 alley ambush; have her meet them after the Azar confrontation instead.</li>
+</ul>
+
+<h2>If You Have Extra Time</h2>
+<ul>
+  <li>Add a Loop 2.5 "breakfast at Lambad's Tavern" scene — let the party taste the flavor they remember from a dream they can't place.</li>
+  <li>Expand Scene 3 with a roadside puzzle: Alhaitham wordlessly hands a PC a riddle on a torn page and watches them solve it. "You'll need this later." (He's right. He won't say when.)</li>
+  <li>Introduce a second sighting of the small girl during Scene 6 — she trades a single Padisarah petal for a coin, and the petal is the right shade of purple. Let them keep it.</li>
+  <li>Add a brief RP beat with Katheryne at the Adventurers' Guild — she speaks <em>too</em> casually, and something about her eyes is wrong. (Setup for "Dawn" in a future session.)</li>
+</ul>
+
+<h2>Lead-In to Next Session</h2>
+<ul>
+  <li><strong>Open cold on:</strong> "Sumeru City wakes in gold." The exact same opening. Let the players groan.</li>
+  <li><strong>Carry forward:</strong> The Loop Pattern cards (if solved), the folk legends booklet from Dunyarzad, any Alhaitham relationship markers, and the partial pattern slip (if Nahida gave it to them).</li>
+  <li><strong>Seeds to plant now that will pay off:</strong>
+    <ul>
+      <li>The words "World... forget me" — said by Mizri, heard in the vision, and eventually said by Rukkhadevata herself.</li>
+      <li>Nahida's "I remember you every morning" — a lie the players may feel later as a kindness.</li>
+      <li>The beep. The voice of the old man. The "project."</li>
+      <li>The wrong shade of purple — the real Padisarahs only grow when Nilou wakes up.</li>
+    </ul>
+  </li>
+  <li><strong>Next session should cover:</strong> Loops 4-6, the investigation of the Akasha, the removal of the terminals (and its uselessness), and — if the party push hard — the revelation that the girl is the Dendro Archon. If they don't push, hold the reveal another session. It hits harder the longer you wait.</li>
+  <li><strong>DM prep between sessions:</strong> Re-read the Scene 9 puzzle. Decide what the party "marked" in this loop means mechanically for next session. Consider giving them one item they keep across loops as a reward for solving the pattern — something small, like Nahida's beetle drawing on a scrap of paper. It should have no stats. It should just exist, impossibly, on the next loop's morning. That is the hook.</li>
+</ul>
+
+</body>
+</html>
