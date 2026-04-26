@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_j5txw"]
+
+[resource]
+script = ExtResource("1_j5txw")
+id = 343
+product = "Moonpiercer"
+region = "Sumeru"
+description = "2 ATT, 3 EM
+On reaction, +3 flat damage for 1 round."
+role = "Blacksmith"
+material = "Bamboo Segment"
+quantity = 10

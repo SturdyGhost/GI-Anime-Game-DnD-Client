@@ -216,8 +216,9 @@ const TIER_SCORES := {
 	"uncommon": 2, "Uncommon": 2,
 	"rare": 5, "Rare": 5,
 	"epic": 8, "Epic": 8,
-	"world_boss": 25, "World Boss": 25,
-	"story_boss": 40, "Story Boss": 40,
+	"world_boss": 25, "World Boss": 25,   # Boss tier
+	"story_boss": 25, "Story Boss": 25,   # Boss tier (same as world_boss)
+	"legendary": 40, "Legendary": 40,     # No enemies use this yet
 }
 
 # Score thresholds → {loot_tier, min_qty, max_qty, cache_count}

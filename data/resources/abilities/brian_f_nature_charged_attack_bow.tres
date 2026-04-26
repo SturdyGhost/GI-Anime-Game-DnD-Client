@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3 uid="uid://d2dccymwlhhi8"]
 
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_86t8y"]
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_p2cpy"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_86t8y"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_p2cpy"]
 
 [sub_resource type="Resource" id="Resource_p2cpy"]
 script = ExtResource("1_p2cpy")
@@ -29,7 +29,7 @@ script = ExtResource("1_86t8y")
 id = 440
 name = "Brian F. – Charged Attack"
 element = "Nature"
-description = "Attack within 12 tiles. Nature damage. Add damage equal to tiles traveled. If target Rooted, +3 damage. Gain no burst charges and move no tiles."
+description = "Attack within 12 tiles. Nature damage. Add damage equal to the tiles travelled. If target Rooted, +5 damage (prev. +3) OR 2x damage (whichever is higher) and gain ½ usual amount of burst charges. Move no tiles. Gain no burst charges if not-rooted."
 dice_count = 1
 dice_die = 12
 dice_flat = 0

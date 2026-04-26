@@ -19,8 +19,24 @@ var _owned_items: Array = []     # Items owned by this player in _synced
 var _player_rid: int = 0
 var _avail_list: ItemList  # Store reference to avoid tree traversal
 
+# Artifact prompt fields
+var _artifact_fields: VBoxContainer
+var _artifact_type_btn: OptionButton
+var _artifact_stat1_btn: OptionButton
+var _artifact_stat1_val: SpinBox
+var _artifact_stat2_btn: OptionButton
+var _artifact_stat2_val: SpinBox
+
+const ARTIFACT_SLOTS = ["Flower of Life", "Feather of Death", "Sands of Time", "Goblet of Space", "Circlet of Principles"]
+const ARTIFACT_STATS = ["HP", "ATK", "DEF", "HP%", "ATK%", "DEF%", "Elemental Mastery", "Energy Recharge%", "Crit Rate%", "Crit DMG%", "Physical DMG%", "Elemental DMG%", "Healing Bonus%"]
+
 func _ready() -> void:
 	_player_rid = Global.ACTIVE_USER_RECORD_ID
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	var bg = StyleBoxFlat.new()
+	bg.bg_color = Color(0.065, 0.082, 0.122, 0.98)
+	bg.set_content_margin_all(16)
+	add_theme_stylebox_override("panel", bg)
 	_build_ui()
 	_refresh_available_list("")
 	_refresh_owned_list()
@@ -104,6 +120,51 @@ func _build_ui() -> void:
 	_remove_btn.pressed.connect(_on_remove_pressed)
 	btn_hbox.add_child(_remove_btn)
 
+	# Artifact detail fields (hidden unless category is Artifacts)
+	_artifact_fields = VBoxContainer.new()
+	_artifact_fields.visible = false
+	vbox.add_child(_artifact_fields)
+	var af_label = Label.new()
+	af_label.text = "Artifact Details"
+	af_label.add_theme_font_size_override("font_size", 16)
+	_artifact_fields.add_child(af_label)
+
+	var type_row = HBoxContainer.new()
+	_artifact_fields.add_child(type_row)
+	var type_lbl = Label.new()
+	type_lbl.text = "Slot:"
+	type_row.add_child(type_lbl)
+	_artifact_type_btn = OptionButton.new()
+	for slot in ARTIFACT_SLOTS:
+		_artifact_type_btn.add_item(slot)
+	type_row.add_child(_artifact_type_btn)
+
+	var stat1_row = HBoxContainer.new()
+	_artifact_fields.add_child(stat1_row)
+	var s1_lbl = Label.new()
+	s1_lbl.text = "Stat 1:"
+	stat1_row.add_child(s1_lbl)
+	_artifact_stat1_btn = OptionButton.new()
+	for s in ARTIFACT_STATS:
+		_artifact_stat1_btn.add_item(s)
+	stat1_row.add_child(_artifact_stat1_btn)
+	_artifact_stat1_val = SpinBox.new()
+	_artifact_stat1_val.max_value = 9999
+	stat1_row.add_child(_artifact_stat1_val)
+
+	var stat2_row = HBoxContainer.new()
+	_artifact_fields.add_child(stat2_row)
+	var s2_lbl = Label.new()
+	s2_lbl.text = "Stat 2:"
+	stat2_row.add_child(s2_lbl)
+	_artifact_stat2_btn = OptionButton.new()
+	for s in ARTIFACT_STATS:
+		_artifact_stat2_btn.add_item(s)
+	stat2_row.add_child(_artifact_stat2_btn)
+	_artifact_stat2_val = SpinBox.new()
+	_artifact_stat2_val.max_value = 9999
+	stat2_row.add_child(_artifact_stat2_val)
+
 	# Mora editor — players coordinate verbally, highest value wins on merge
 	var mora_hbox = HBoxContainer.new()
 	vbox.add_child(mora_hbox)
@@ -139,7 +200,7 @@ func _build_ui() -> void:
 	region_btn.item_selected.connect(func(idx):
 		var new_region = region_btn.get_item_text(idx)
 		var char_rid = Global.ACTIVE_USER_RECORD_ID
-		Global.Update_Records([{"table": "Characters", "record_id": char_rid, "field": "Region", "value": new_region}])
+		Global.Update_Records([{"table": "Characters", "record_id": char_rid, "field": "Current_Region", "value": new_region}])
 		Global.Current_Region = new_region
 	)
 	region_hbox.add_child(region_btn)
@@ -149,6 +210,7 @@ func _build_ui() -> void:
 func _on_category_changed(_index: int) -> void:
 	_current_category = _category_btn.get_item_text(_index)
 	_search_field.text = ""
+	_artifact_fields.visible = (_current_category == "Artifacts")
 	_refresh_available_list("")
 	_refresh_owned_list()
 
@@ -236,12 +298,16 @@ func _on_add_pressed() -> void:
 			columns = ["Name", "Owner", "Equipped", "Refinement"]
 			values = [source_item.get("Name", ""), _player_rid, false, 1]
 		"Artifacts":
-			# Store the raw artifact_set name (without the "(Xpc)" suffix) for DB compatibility
 			var raw_set_name := ""
 			if source_item["_resource"] is ArtifactSetData:
 				raw_set_name = (source_item["_resource"] as ArtifactSetData).artifact_set
-			columns = ["Name", "Owner", "Equipped", "Set_Name"]
-			values = [source_item.get("Name", ""), _player_rid, false, raw_set_name]
+			var slot_type = _artifact_type_btn.get_item_text(_artifact_type_btn.selected)
+			var stat1 = _artifact_stat1_btn.get_item_text(_artifact_stat1_btn.selected)
+			var stat1v = int(_artifact_stat1_val.value)
+			var stat2 = _artifact_stat2_btn.get_item_text(_artifact_stat2_btn.selected)
+			var stat2v = int(_artifact_stat2_val.value)
+			columns = ["Name", "Owner", "Equipped", "Set_Name", "Type", "Stat1", "Stat1Value", "Stat2", "Stat2Value"]
+			values = [source_item.get("Name", ""), _player_rid, false, raw_set_name, slot_type, stat1, stat1v, stat2, stat2v]
 		"Items":
 			columns = ["Name", "Owner", "Quantity"]
 			values = [source_item.get("Name", ""), _player_rid, 1]

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_10kru"]
+
+[resource]
+script = ExtResource("1_10kru")
+id = 235
+product = "Meatnado"
+region = "Mondstadt"
+description = "Increases all party members EM by 3 for next battle."
+role = "Artisan"
+material = "Radish"
+quantity = 2

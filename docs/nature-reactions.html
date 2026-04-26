@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature Elemental Reactions</title>
+<style>
+  :root {
+    --nature: #4CAF50;
+    --nature-dark: #2E7D32;
+    --electric: #FFC107;
+    --electric-dark: #F9A825;
+    --ice: #81D4FA;
+    --ice-dark: #039BE5;
+    --favorable: #66BB6A;
+    --unfavorable: #EF5350;
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --card-border: #0f3460;
+    --text: #e0e0e0;
+    --text-muted: #9e9e9e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 0.3rem;
+  }
+  h1 .nature { color: var(--nature); }
+  h1 .sep { color: var(--text-muted); }
+  .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+  }
+  .pair-section {
+    max-width: 860px;
+    margin: 0 auto 3rem;
+  }
+  .pair-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .elem-badge {
+    display: inline-block;
+    padding: 0.15rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .elem-badge.nature { background: rgba(76,175,80,0.2); color: var(--nature); }
+  .elem-badge.electric { background: rgba(255,193,7,0.2); color: var(--electric); }
+  .elem-badge.ice { background: rgba(129,212,250,0.2); color: var(--ice); }
+  .arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+  .reaction-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .reaction-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .reaction-header.favorable {
+    background: linear-gradient(135deg, rgba(102,187,106,0.15), transparent);
+    border-bottom: 1px solid rgba(102,187,106,0.2);
+  }
+  .reaction-header.unfavorable {
+    background: linear-gradient(135deg, rgba(239,83,80,0.15), transparent);
+    border-bottom: 1px solid rgba(239,83,80,0.2);
+  }
+  .reaction-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .outcome-badge {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .outcome-badge.favorable {
+    background: rgba(102,187,106,0.2);
+    color: var(--favorable);
+  }
+  .outcome-badge.unfavorable {
+    background: rgba(239,83,80,0.2);
+    color: var(--unfavorable);
+  }
+  .reaction-body {
+    padding: 1.2rem 1.5rem;
+  }
+  .trigger-line {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+  }
+  .trigger-line strong { color: var(--text); }
+  .effect-text {
+    font-size: 1rem;
+    color: var(--text);
+    padding: 0.8rem 1rem;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    border-left: 3px solid var(--text-muted);
+  }
+  .effect-text.favorable { border-left-color: var(--favorable); }
+  .effect-text.unfavorable { border-left-color: var(--unfavorable); }
+
+  .breakdown {
+    margin-top: 0.8rem;
+    list-style: none;
+    padding: 0;
+  }
+  .breakdown li {
+    font-size: 0.88rem;
+    padding: 0.25rem 0;
+    color: var(--text);
+  }
+  .breakdown li::before {
+    content: "▸ ";
+    color: var(--text-muted);
+  }
+  .breakdown li strong {
+    color: #fff;
+  }
+
+  .warning-note {
+    margin-top: 0.6rem;
+    font-size: 0.82rem;
+    color: var(--unfavorable);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h1><span class="nature">🌿 Nature</span> <span class="sep">Elemental Reactions</span></h1>
+<p class="subtitle">Nature ↔ Electric and Nature ↔ Ice — effect descriptions and element order</p>
+
+<!-- ═══════════════════ NATURE ↔ ELECTRIC ═══════════════════ -->
+<div class="pair-section">
+  <div class="pair-title">
+    <span class="elem-badge nature">🌿 Nature</span>
+    <span class="arrow">⟷</span>
+    <span class="elem-badge electric">⚡ Electric</span>
+  </div>
+
+  <!-- Nature → Electric -->
+  <div class="reaction-card">
+    <div class="reaction-header favorable">
+      <div class="reaction-label">
+        <span>Nature applied → Electric target</span>
+      </div>
+      <span class="outcome-badge favorable">✓ Favorable</span>
+    </div>
+    <div class="reaction-body">
+      <div class="trigger-line">
+        <strong>Trigger:</strong> A Nature attack hits an enemy that already has the <span class="elem-badge electric" style="font-size:0.75rem;">Electric</span> element applied.
+      </div>
+      <div class="effect-text favorable">
+        Fire a piercing vine bolt at any target within 4 tiles dealing D8 Nature damage to the target.
+      </div>
+      <ul class="breakdown">
+        <li><strong>Bonus ranged attack</strong> — 4-tile range vine bolt</li>
+        <li><strong>D8 Nature damage</strong> to the selected target</li>
+        <li><strong>Piercing</strong> — hits regardless of positioning</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Electric → Nature -->
+  <div class="reaction-card">
+    <div class="reaction-header unfavorable">
+      <div class="reaction-label">
+        <span>Electric applied → Nature target</span>
+      </div>
+      <span class="outcome-badge unfavorable">✗ Unfavorable</span>
+    </div>
+    <div class="reaction-body">
+      <div class="trigger-line">
+        <strong>Trigger:</strong> An Electric attack hits an enemy that already has the <span class="elem-badge nature" style="font-size:0.75rem;">Nature</span> element applied.
+      </div>
+      <div class="effect-text unfavorable">
+        The vine reflects back at the attacker dealing D6 Nature damage and rooting them for 1 turn.
+      </div>
+      <ul class="breakdown">
+        <li><strong>Reflect damage</strong> — D6 Nature damage back to the attacker</li>
+        <li><strong>Root</strong> — attacker cannot move for 1 turn</li>
+      </ul>
+      <p class="warning-note">⚠ Punishes the attacker — be careful applying Electric to Nature-marked enemies!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ NATURE ↔ ICE ═══════════════════ -->
+<div class="pair-section">
+  <div class="pair-title">
+    <span class="elem-badge nature">🌿 Nature</span>
+    <span class="arrow">⟷</span>
+    <span class="elem-badge ice">❄ Ice</span>
+  </div>
+
+  <!-- Nature → Ice -->
+  <div class="reaction-card">
+    <div class="reaction-header favorable">
+      <div class="reaction-label">
+        <span>Nature applied → Ice target</span>
+      </div>
+      <span class="outcome-badge favorable">✓ Favorable</span>
+    </div>
+    <div class="reaction-body">
+      <div class="trigger-line">
+        <strong>Trigger:</strong> A Nature attack hits an enemy that already has the <span class="elem-badge ice" style="font-size:0.75rem;">Ice</span> element applied.
+      </div>
+      <div class="effect-text favorable">
+        The target deals &minus;2 damage for 2 turns. Earth attacks against them deal +6 damage for 1 turn.
+      </div>
+      <ul class="breakdown">
+        <li><strong>&minus;2 damage debuff</strong> on the target for <strong>2 turns</strong></li>
+        <li><strong>Earth vulnerability</strong> — Earth attacks deal <strong>+6 bonus damage</strong> to the target for <strong>1 turn</strong></li>
+        <li>Great setup for Earth-element follow-ups</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Ice → Nature -->
+  <div class="reaction-card">
+    <div class="reaction-header unfavorable">
+      <div class="reaction-label">
+        <span>Ice applied → Nature target</span>
+      </div>
+      <span class="outcome-badge unfavorable">✗ Unfavorable</span>
+    </div>
+    <div class="reaction-body">
+      <div class="trigger-line">
+        <strong>Trigger:</strong> An Ice attack hits an enemy that already has the <span class="elem-badge nature" style="font-size:0.75rem;">Nature</span> element applied.
+      </div>
+      <div class="effect-text unfavorable">
+        The attacker is encased in ice, stunned for 1 turn. They additionally lose the ability to apply any element for the rest of the battle.
+      </div>
+      <ul class="breakdown">
+        <li><strong>Stun</strong> — attacker skips their next turn</li>
+        <li><strong>Permanent element lock</strong> — attacker can no longer apply any element <em>for the rest of the battle</em></li>
+      </ul>
+      <p class="warning-note">⚠ One of the harshest penalties in the game — completely shuts down elemental play for the attacker!</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

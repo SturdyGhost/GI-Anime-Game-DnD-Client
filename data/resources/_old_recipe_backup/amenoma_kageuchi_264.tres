@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_4h2wg"]
+
+[resource]
+script = ExtResource("1_4h2wg")
+id = 264
+product = "Amenoma Kageuchi"
+region = "Inazuma"
+description = "5 ATT
+After using your skill gain 1 seed (max 3). After using your burst immediately gain 1.5 burst charges per seed."
+role = "Blacksmith"
+material = "Famed Handguard"
+quantity = 35

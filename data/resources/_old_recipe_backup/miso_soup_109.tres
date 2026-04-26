@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_foweh"]
+
+[resource]
+script = ExtResource("1_foweh")
+id = 109
+product = "Miso Soup"
+region = "Mondstadt"
+description = "Revives a character at half health and lets them regenerate 20% of their max health every turn for 4 turns."
+role = "Artisan"
+material = "Naku Weed"
+quantity = 4

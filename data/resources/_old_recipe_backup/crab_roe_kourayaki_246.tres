@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_cxgdq"]
+
+[resource]
+script = ExtResource("1_cxgdq")
+id = 246
+product = "Crab Roe Kourayaki"
+region = "Mondstadt"
+description = "Increase CD and ER by 0.75 for all party members for the next battle."
+role = "Artisan"
+material = "Raimei Angelfish"
+quantity = 8

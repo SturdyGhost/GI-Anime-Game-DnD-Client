@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_58tdj"]
+
+[resource]
+script = ExtResource("1_58tdj")
+id = 366
+product = "Padisarah Pudding"
+region = "Liyue"
+description = "+3 EM for all party members for the next battle."
+role = "Artisan"
+material = "Glabrous Beans"
+quantity = 2

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_in3c4"]
+
+[resource]
+script = ExtResource("1_in3c4")
+id = 96
+product = "Inazuma Random Legendary Weapon"
+region = "Inazuma"
+description = "Used to craft a random Legendary weapon from Inazuma."
+role = "Blacksmith"
+material = "Famed Handguard"
+quantity = 35

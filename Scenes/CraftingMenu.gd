@@ -595,39 +595,28 @@ func _get_active_role() -> String:
 func _build_product_groups() -> void:
 	_grouped_recipes.clear()
 	var active_role = _get_active_role()
-	if not ("CRAFTING_RECIPES" in Global) or not (Global.CRAFTING_RECIPES is Dictionary):
-		return
 
-	for rec_id in Global.CRAFTING_RECIPES.keys():
-		var r = Global.CRAFTING_RECIPES[rec_id]
-		if str(r.get("Role", "")) != active_role:
+	# Read directly from GameDB for accurate typed resource access
+	for recipe_res in GameDB.crafting_recipes.values():
+		if recipe_res.role != active_role:
 			continue
-		var product = str(r.get("Product", ""))
-		if product == "":
+		if recipe_res.product == "":
 			continue
 
-		# Use the resource's get_recipes() for the new multi-ingredient format
-		var resource = r.get("_resource")
-		var recipes: Array = []
-		if resource and resource.has_method("get_recipes"):
-			recipes = resource.get_recipes()
+		var recipes: Array = recipe_res.get_recipes()
 		if recipes.is_empty():
-			# Fallback: legacy single-material
-			var mat = str(r.get("Material", ""))
-			var qty = int(r.get("Quantity", 1))
-			if mat != "":
-				recipes = [{"slots": [{"options": [{"material": mat, "quantity": qty}]}]}]
+			continue
 
-		_grouped_recipes[product] = {
+		_grouped_recipes[recipe_res.product] = {
 			"meta": {
-				"Product": product,
-				"Region": str(r.get("Region", "")),
-				"Description": str(r.get("Description", "")),
-				"Icon": r.get("Icon", null),
-				"output_quantity": int(r.get("Output_Quantity", 1)),
+				"Product": recipe_res.product,
+				"Region": recipe_res.region,
+				"Description": recipe_res.description,
+				"Icon": null,
+				"output_quantity": recipe_res.output_quantity,
 			},
 			"recipes": recipes,
-			"_resource": resource,
+			"_resource": recipe_res,
 		}
 
 
@@ -815,7 +804,8 @@ func _check_recipe(recipe: Dictionary) -> bool:
 		for opt in options:
 			var mat = str(opt.get("material", ""))
 			var needed = int(opt.get("quantity", 1))
-			var matches = _find_inventory_matches(mat)
+			var is_type = bool(opt.get("match_type", false))
+			var matches = _find_inventory_matches(mat, is_type)
 			var total_have = 0
 			for m in matches:
 				total_have += _to_int(m.get("Quantity", 0))
@@ -1146,8 +1136,9 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	var need_per = int(req.get("quantity", 1))
 	var need_total = need_per * int(qty_spin.value)
 	var options = req.get("options", [])
+	var is_type = bool(req.get("match_type", false))
 
-	var matches = _find_inventory_matches(material)
+	var matches = _find_inventory_matches(material, is_type)
 	var best_have = 0
 	for m in matches:
 		var h = _to_int(m.get("Quantity", 0))
@@ -1159,8 +1150,9 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	if not satisfied and options.size() > 1:
 		for opt in options:
 			var opt_mat = str(opt.get("material", ""))
+			var opt_is_type = bool(opt.get("match_type", false))
 			var opt_need = int(opt.get("quantity", 1)) * int(qty_spin.value)
-			var opt_matches = _find_inventory_matches(opt_mat)
+			var opt_matches = _find_inventory_matches(opt_mat, opt_is_type)
 			for m in opt_matches:
 				if _to_int(m.get("Quantity", 0)) >= opt_need:
 					satisfied = true
@@ -1229,7 +1221,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 		hbox.add_child(opt_select)
 	else:
 		var name_label = Label.new()
-		name_label.text = material
+		name_label.text = ("Any %s" % material) if is_type else material
 		name_label.add_theme_font_size_override("font_size", 15)
 		name_label.add_theme_color_override("font_color", TEXT)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1272,7 +1264,8 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 func _populate_option_for_requirement(opt: OptionButton, slot_idx: int, req: Dictionary) -> void:
 	opt.clear()
 	var material = str(req.get("material", ""))
-	var matches = _find_inventory_matches(material)
+	var is_type = bool(req.get("match_type", false))
+	var matches = _find_inventory_matches(material, is_type)
 	var need_per = int(req.get("quantity", 1))
 	var need_total = need_per * int(qty_spin.value)
 
@@ -1447,7 +1440,7 @@ func _get_inventory_item_by_id(item_id) -> Dictionary:
 	return {}
 
 
-func _find_inventory_matches(material_or_type: String) -> Array:
+func _find_inventory_matches(material_or_type: String, type_match: bool = false) -> Array:
 	var inv_arr = _get_inventory_array()
 	var out = []
 	var needle = material_or_type.strip_edges().to_lower()
@@ -1455,8 +1448,16 @@ func _find_inventory_matches(material_or_type: String) -> Array:
 		var nm = str(it.get("Name", "")).to_lower()
 		var tp = str(it.get("Type", "")).to_lower()
 		var have = int(it.get("Quantity", 0))
-		if have > 0 and (nm == needle or tp == needle or (needle != "" and tp.find(needle) != -1)):
-			out.append(it)
+		if have <= 0:
+			continue
+		if type_match:
+			# Match by item type only
+			if tp == needle:
+				out.append(it)
+		else:
+			# Match by specific item name, or fall back to type
+			if nm == needle or tp == needle or (needle != "" and tp.find(needle) != -1):
+				out.append(it)
 	return out
 
 

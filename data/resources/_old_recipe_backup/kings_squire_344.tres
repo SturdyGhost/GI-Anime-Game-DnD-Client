@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_xjpjl"]
+
+[resource]
+script = ExtResource("1_xjpjl")
+id = 344
+product = "King's Squire"
+region = "Sumeru"
+description = "3 ATT, 0.5 ER
+After skill or burst, +2 flat damage for 2 rounds."
+role = "Blacksmith"
+material = "Nilotpala Lotus"
+quantity = 15

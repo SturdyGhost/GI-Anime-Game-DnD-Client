@@ -1064,14 +1064,13 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size.x = 100
 	_style_btn(cancel_btn, false)
-	cancel_btn.pressed.connect(func(): overlay.queue_free())
 	btn_row.add_child(cancel_btn)
 
 	var confirm_btn = Button.new()
 	confirm_btn.text = "Confirm"
 	confirm_btn.custom_minimum_size.x = 100
-	_style_btn(confirm_btn, false)
-	confirm_btn.add_theme_color_override("font_color", Color(0.937, 0.267, 0.267))
+	_style_btn(confirm_btn, true)
+	cancel_btn.pressed.connect(func(): overlay.queue_free())
 	confirm_btn.pressed.connect(func():
 		overlay.queue_free()
 		on_confirm.call()
@@ -1137,21 +1136,24 @@ func _style_btn(btn: Button, primary: bool) -> void:
 		btn.add_theme_color_override("font_color", ACCENT)
 		btn.add_theme_color_override("font_hover_color", ACCENT)
 	else:
-		# Normal button — visible bg with light text
-		var sb = _flat(BG_CARD)
+		# Normal button — dark bg with gold text (matches artifact style)
+		var sb = _flat(BG_INSET)
 		sb.border_color = BORDER
 		sb.set_border_width_all(1)
 		sb.set_corner_radius_all(4)
-		sb.content_margin_left = 16
-		sb.content_margin_right = 16
-		sb.content_margin_top = 8
-		sb.content_margin_bottom = 8
+		sb.content_margin_left = 12
+		sb.content_margin_right = 12
+		sb.content_margin_top = 6
+		sb.content_margin_bottom = 6
 		btn.add_theme_stylebox_override("normal", sb)
 		var sbh = sb.duplicate()
-		sbh.bg_color = BG_HOVER
+		sbh.bg_color = BG_INSET.lightened(0.15)
 		btn.add_theme_stylebox_override("hover", sbh)
-		btn.add_theme_color_override("font_color", TEXT)
-		btn.add_theme_color_override("font_hover_color", TEXT)
+		var sbp = sb.duplicate()
+		sbp.bg_color = BG_INSET.lightened(0.25)
+		btn.add_theme_stylebox_override("pressed", sbp)
+		btn.add_theme_color_override("font_color", ACCENT)
+		btn.add_theme_color_override("font_hover_color", ACCENT)
 	btn.add_theme_font_size_override("font_size", FONT_BODY)
 
 func _style_btn_sm(btn: Button) -> void:

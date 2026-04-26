@@ -1501,14 +1501,13 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size.x = 100
 	_style_button(cancel_btn)
-	cancel_btn.pressed.connect(func(): overlay.queue_free())
 	btn_row.add_child(cancel_btn)
 
 	var confirm_btn = Button.new()
 	confirm_btn.text = "Confirm"
 	confirm_btn.custom_minimum_size.x = 100
-	_style_button(confirm_btn)
-	confirm_btn.add_theme_color_override("font_color", RED)
+	_style_button(confirm_btn, true)
+	cancel_btn.pressed.connect(func(): overlay.queue_free())
 	confirm_btn.pressed.connect(func():
 		overlay.queue_free()
 		on_confirm.call()

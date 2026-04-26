@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_hbs01"]
+
+[resource]
+script = ExtResource("1_hbs01")
+id = 150
+product = "Hamayumi"
+region = "Inazuma"
+description = "5 ATT
+Increase normal + charged attack damage by 15%, while at full burst charges this effect is doubled."
+role = "Blacksmith"
+material = "Sango Pearl"
+quantity = 35

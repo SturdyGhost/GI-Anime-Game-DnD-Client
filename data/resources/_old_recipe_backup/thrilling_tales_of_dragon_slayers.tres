@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_3nvit"]
+
+[resource]
+script = ExtResource("1_3nvit")
+id = 187
+product = "Thrilling Tales of Dragon Slayers"
+region = "Mondstadt"
+description = "4 HP"
+role = "Blacksmith"
+material = "Glaze Lily"
+quantity = 5

@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature Kit Reference</title>
+<style>
+  :root {
+    --nature: #4CAF50;
+    --nature-dark: #2E7D32;
+    --nature-light: #C8E6C9;
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --card-border: #0f3460;
+    --text: #e0e0e0;
+    --text-muted: #9e9e9e;
+    --weak: #9E9E9E;
+    --medium: #42A5F5;
+    --strong: #FFD54F;
+    --chosen: #66BB6A;
+    --chosen-bg: rgba(76, 175, 80, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    color: var(--nature);
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(76,175,80,0.3);
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+  }
+  .character-section {
+    max-width: 900px;
+    margin: 0 auto 3rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .character-header {
+    background: linear-gradient(135deg, var(--nature-dark), #1B5E20);
+    padding: 1.2rem 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .character-header h2 {
+    font-size: 1.6rem;
+    color: #fff;
+  }
+  .character-header .weapon-tag {
+    background: rgba(255,255,255,0.15);
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--nature-light);
+  }
+  .kit-section {
+    padding: 1.5rem 1.8rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .kit-section:last-child { border-bottom: none; }
+  .section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--nature);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  .ability {
+    margin-bottom: 1.2rem;
+    padding: 1rem 1.2rem;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    border-left: 3px solid var(--nature);
+  }
+  .ability:last-child { margin-bottom: 0; }
+  .ability-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.15rem;
+  }
+  .ability-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .ability-meta span { white-space: nowrap; }
+  .ability-desc {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .effects-list {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    list-style: none;
+  }
+  .effects-list li {
+    font-size: 0.85rem;
+    color: var(--nature-light);
+    padding: 0.15rem 0;
+  }
+  .effects-list li::before {
+    content: "▸ ";
+    color: var(--nature);
+  }
+
+  /* Talents & Constellations */
+  .talent-item, .constellation-item {
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.2);
+    font-size: 0.92rem;
+    border-left: 3px solid transparent;
+  }
+  .talent-item:last-child, .constellation-item:last-child { margin-bottom: 0; }
+  .talent-item.chosen {
+    background: var(--chosen-bg);
+    border-left-color: var(--chosen);
+  }
+  .talent-item.chosen .chosen-badge,
+  .constellation-item.chosen .chosen-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--chosen);
+    font-weight: 700;
+    margin-left: 0.5rem;
+  }
+  .chosen-badge { display: none; }
+  .constellation-item.chosen {
+    background: var(--chosen-bg);
+    border-left-color: var(--chosen);
+  }
+
+  .tier-group { margin-bottom: 1rem; }
+  .tier-group:last-child { margin-bottom: 0; }
+  .tier-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+    padding-left: 0.3rem;
+  }
+  .tier-label.weak { color: var(--weak); }
+  .tier-label.medium { color: var(--medium); }
+  .tier-label.strong { color: var(--strong); }
+  .constellation-item.weak { border-left-color: var(--weak); }
+  .constellation-item.medium { border-left-color: var(--medium); }
+  .constellation-item.strong { border-left-color: var(--strong); }
+</style>
+</head>
+<body>
+
+<h1>🌿 Nature Kit Reference</h1>
+<p class="subtitle">Passives, Talents, and Constellations for Brian C., Brian F., and Dylan</p>
+
+<!-- ═══════════════════ BRIAN C. ═══════════════════ -->
+<div class="character-section">
+  <div class="character-header">
+    <h2>Brian C.</h2>
+    <span class="weapon-tag">Claymore</span>
+    <span class="weapon-tag">Earth / Nature</span>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Abilities</div>
+
+    <div class="ability">
+      <div class="ability-name">Basic Attack</div>
+      <div class="ability-meta">
+        <span>Element: Physical</span>
+        <span>Dice: 1d10</span>
+        <span>Range: 5 tiles</span>
+        <span>Movement: 4 tiles</span>
+      </div>
+      <div class="ability-desc">Slash all adjacent enemies. After attacking, move up to 4 tiles.</div>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Charged Attack</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d10</span>
+        <span>AoE: Global (adjacent)</span>
+        <span>Movement: 1 tile</span>
+      </div>
+      <div class="ability-desc">Slash all adjacent enemies. Applies Nature. Gain 1d4 burst charges &times; ER. Move 1 tile before or after.</div>
+      <ul class="effects-list">
+        <li>Applies Nature to target</li>
+        <li>Gain 1d4 burst charges &times; Energy Recharge</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Skill</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d10</span>
+        <span>AoE: Global</span>
+        <span>Movement: 1 tile</span>
+        <span>Cooldown: 2 turns</span>
+      </div>
+      <div class="ability-desc">Choose a tile within 2 tiles. Enemies on that tile and adjacent tiles take Nature damage.<br><br>
+        <strong>Escalation:</strong> d4 &rarr; d6 &rarr; d8 &rarr; d10 &rarr; d12 &rarr; d20 (must roll above half to succeed). Damage = cumulative result of success rolls (pre-multiplier). Failure results in 0 damage. Gain 1d4 burst charges &times; ER after.</div>
+      <ul class="effects-list">
+        <li>Gain 1d4 burst charges &times; Energy Recharge after</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Burst</div>
+      <div class="ability-meta">
+        <span>Element: Physical</span>
+        <span>Dice: 1d10</span>
+        <span>Cost: 12 charges</span>
+        <span>Movement: 0</span>
+      </div>
+      <div class="ability-desc">Cannot move this turn. Perform up to 2 Basic or Charged Attacks as Nature using EM. Double Nature reactions triggered. Roll 1d4; on 4 regain 6 charges.</div>
+      <ul class="effects-list">
+        <li>Perform up to 2 Basic or Charged Attacks</li>
+        <li>Double Nature reactions triggered</li>
+        <li>Cannot move this turn</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Passive</div>
+    <div class="ability">
+      <div class="ability-name">Nature Passive</div>
+      <div class="ability-desc">Before an escalation roll, lose 2 HP to reduce the requirement by 1 (multiple times allowed). The requirement cannot be reduced below 1.</div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Talents</div>
+    <div class="talent-item chosen">
+      Push Further &ndash; First escalation each turn: &minus;1 requirement.
+      <span class="chosen-badge">&#10003; Selected</span>
+    </div>
+    <div class="talent-item chosen">
+      Nature Takes Its Due &ndash; If 10+ HP lost this turn, next Nature damage doubled.
+      <span class="chosen-badge">&#10003; Selected</span>
+    </div>
+    <div class="talent-item">
+      Lucky Collapse &ndash; On failure, deal half highest successful roll.
+    </div>
+    <div class="talent-item">
+      High Roller &ndash; Each voluntary escalation grants +1 burst charge.
+    </div>
+    <div class="talent-item">
+      Nature Remembers &ndash; 10+ total damage grants +2 burst charges.
+    </div>
+    <div class="talent-item">
+      Each time you go out to gather materials, gain the ability to also collect 1 D6 of any resource/material of your choice (elemental gems are not counted as part of this).
+    </div>
+    <div class="talent-item">
+      Learn how to use another weapon of your choice, doing so will allow you to equip either weapon type. Note: your basic and charged attacks will change based on the type of weapon being used.
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Constellations</div>
+
+    <div class="tier-group">
+      <div class="tier-label weak">Weak</div>
+      <div class="constellation-item weak chosen">
+        Add 1 D4 to your base defense
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item weak chosen">
+        Once per battle, swap spaces with an ally.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item weak chosen">
+        When gathering materials, you may choose which material cache you go to rather than rolling for it.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item weak">
+        Any food buffs last for twice as long for you only.
+      </div>
+      <div class="constellation-item weak">
+        Increase your personal revival consumable item hold cap by 1.
+      </div>
+      <div class="constellation-item weak">
+        Gain 2 extra movement that you can do while still being able to basic attack.
+      </div>
+      <div class="constellation-item weak">
+        Learn how to use another weapon type of your choice.
+      </div>
+      <div class="constellation-item weak">
+        When attacking a debuffed enemy (rooted, slowed, frozen, etc.) add +2 damage to your attack.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label medium">Medium</div>
+      <div class="constellation-item medium chosen">
+        Add 1 D20 to base Health
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item medium">
+        Allow yourself to choose another talent with that talent filling this constellation spot for each kit.
+      </div>
+      <div class="constellation-item medium">
+        On defense rolls gain the ability to roll twice and choose the better of the two rolls.
+      </div>
+      <div class="constellation-item medium">
+        Whatever movement you have for your basic attack, enable it for your elemental skill.
+      </div>
+      <div class="constellation-item medium">
+        On your normal attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label strong">Strong</div>
+      <div class="constellation-item strong">
+        Gain the ability to have 2 food Buffs Active at once.
+      </div>
+      <div class="constellation-item strong">
+        On your charged attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+      <div class="constellation-item strong">
+        Whatever movement you have for your basic attack, enable it for your charged attack and elemental burst.
+      </div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Energy Recharge.
+      </div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Crit Damage.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Battle guarantees the next attack will be a D20.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Session, if your health drops to 0 and you are downed, pump yourself up, and restore yourself up to half health without consuming any items.
+      </div>
+      <div class="constellation-item strong">
+        You can no longer hurt your allies with any of your attacks.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BRIAN F. ═══════════════════ -->
+<div class="character-section">
+  <div class="character-header">
+    <h2>Brian F.</h2>
+    <span class="weapon-tag">Bow</span>
+    <span class="weapon-tag">Electric / Nature</span>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Abilities</div>
+
+    <div class="ability">
+      <div class="ability-name">Basic Attack</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d12</span>
+        <span>Range: 10 tiles</span>
+        <span>Movement: 1 tile</span>
+      </div>
+      <div class="ability-desc">Attack within 10 tiles. Move up to 1 tile after. If target Rooted, +2 damage.</div>
+      <ul class="effects-list">
+        <li>If target Rooted, +2 damage</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Charged Attack</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d12</span>
+        <span>Range: 12 tiles</span>
+        <span>Movement: 0</span>
+      </div>
+      <div class="ability-desc">Attack within 12 tiles. Nature damage. Add damage equal to tiles traveled. If target Rooted, +3 damage. Gain no burst charges and move no tiles.</div>
+      <ul class="effects-list">
+        <li>If target Rooted, +3 damage</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Skill &ndash; Root Beer</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d12</span>
+        <span>Range: 5 tiles</span>
+        <span>Movement: 1 tile</span>
+        <span>Cooldown: 3 turns</span>
+      </div>
+      <div class="ability-desc">Gain Root Beer for 2 turns. Gain 1d4 burst charges &times; ER. First enemy damaged each turn: +4 Nature damage and Root.</div>
+      <ul class="effects-list">
+        <li>Gain 1d4 burst charges &times; Energy Recharge</li>
+        <li>First enemy damaged each turn: +4 Nature damage</li>
+        <li>First enemy damaged each turn: Root</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Burst</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d12</span>
+        <span>AoE: Global</span>
+        <span>Cost: 11 charges</span>
+        <span>Movement: 0</span>
+      </div>
+      <div class="ability-desc">Range +2 this turn, can use basic attack as well this turn, deal Nature damage and Root (2 turns). For 2 turns: first damage each turn +5 Nature damage and ignore 1 Defense. Cannot move on activation turn.</div>
+      <ul class="effects-list">
+        <li>Range +2 this turn</li>
+        <li>Can use basic attack as well this turn</li>
+        <li>Root target for 2 turns</li>
+        <li>First damage each turn +5 Nature damage</li>
+        <li>Ignore 1 Defense for 2 turns</li>
+        <li>Cannot move on activation turn</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Passive</div>
+    <div class="ability" style="border-left-color: var(--text-muted);">
+      <div class="ability-name" style="color: var(--text-muted);">No Nature Passive</div>
+      <div class="ability-desc" style="color: var(--text-muted); font-style: italic;">Brian F. does not currently have a Nature passive ability.</div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Talents</div>
+    <div class="talent-item chosen">
+      Measured Wind-Up &ndash; If no movement this turn, next Charged Attack +2 damage.
+      <span class="chosen-badge">&#10003; Selected</span>
+    </div>
+    <div class="talent-item">
+      Long Sight Lines &ndash; +2 range on all attacks.
+    </div>
+    <div class="talent-item">
+      Dead Calm &ndash; First 8+ tile hit per turn +1 burst charge.
+    </div>
+    <div class="talent-item">
+      Rooted Crosshair &ndash; Damage to Rooted enemies ignores +1 Defense.
+    </div>
+    <div class="talent-item">
+      Overpressure Brew &ndash; While Root Beer is active, Charged Attacks count as +2 tiles traveled.
+    </div>
+    <div class="talent-item">
+      Each time you go out to gather materials, gain the ability to also collect 1 D6 of any resource/material of your choice (elemental gems are not counted as part of this).
+    </div>
+    <div class="talent-item">
+      Learn how to use another weapon of your choice, doing so will allow you to equip either weapon type. Note: your basic and charged attacks will change based on the type of weapon being used.
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Constellations</div>
+
+    <div class="tier-group">
+      <div class="tier-label weak">Weak</div>
+      <div class="constellation-item weak chosen">
+        Add 1 D4 to your base defense.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item weak">
+        When gathering materials, you may choose which material cache you go to rather than rolling for it.
+      </div>
+      <div class="constellation-item weak">
+        Once per battle, swap spaces with an ally.
+      </div>
+      <div class="constellation-item weak">
+        When attacking a debuffed enemy (rooted, slowed, frozen, etc.) add +2 damage to your attack.
+      </div>
+      <div class="constellation-item weak">
+        Learn how to use another weapon type of your choice.
+      </div>
+      <div class="constellation-item weak">
+        Any food buffs last for twice as long for you only.
+      </div>
+      <div class="constellation-item weak">
+        Increase your personal revival consumable item hold cap by 1.
+      </div>
+      <div class="constellation-item weak">
+        Gain 2 extra movement that you can do while still being able to basic attack.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label medium">Medium</div>
+      <div class="constellation-item medium chosen">
+        Add 1 D20 to base Health.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item medium">
+        Allow yourself to choose another talent with that talent filling this constellation spot for each kit.
+      </div>
+      <div class="constellation-item medium">
+        Whatever movement you have for your basic attack, enable it for your elemental skill.
+      </div>
+      <div class="constellation-item medium">
+        On defense rolls gain the ability to roll twice and choose the better of the two rolls.
+      </div>
+      <div class="constellation-item medium">
+        On your normal attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label strong">Strong</div>
+      <div class="constellation-item strong">
+        You can no longer hurt your allies with any of your attacks.
+      </div>
+      <div class="constellation-item strong">
+        On your charged attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+      <div class="constellation-item strong">
+        Whatever movement you have for your basic attack, enable it for your charged attack and elemental burst.
+      </div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Crit Damage.
+      </div>
+      <div class="constellation-item strong">
+        Gain the ability to have 2 food Buffs Active at once.
+      </div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Energy Recharge.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Battle guarantees the next attack will be a D20.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Session, if your health drops to 0 and you are downed, pump yourself up, and restore yourself up to half health without consuming any items.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DYLAN ═══════════════════ -->
+<div class="character-section">
+  <div class="character-header">
+    <h2>Dylan</h2>
+    <span class="weapon-tag">Catalyst</span>
+    <span class="weapon-tag">Nature</span>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Abilities</div>
+
+    <div class="ability">
+      <div class="ability-name">Basic Attack</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d20</span>
+        <span>Range: 3 tiles</span>
+        <span>Movement: 4 tiles</span>
+      </div>
+      <div class="ability-desc">Attack within 3 tiles. Pull small units 1 tile on hit. Move up to 4 tiles after.</div>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Charged Attack</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d20</span>
+        <span>Range: 2 tiles</span>
+        <span>Movement: 1 tile</span>
+      </div>
+      <div class="ability-desc">Attack any unit within 2 tiles. Pull small units 1 tile. Any hit are Rooted until end of next turn. Gain 1d4 burst charges &times; ER. Move 1 tile before or after.</div>
+      <ul class="effects-list">
+        <li>Rooted until end of next turn</li>
+        <li>Gain 1d4 burst charges &times; Energy Recharge</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Skill</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d20</span>
+        <span>Range: 5 tiles</span>
+        <span>Radius: 2 tiles</span>
+        <span>Movement: 1 tile</span>
+        <span>Cooldown: 3 turns</span>
+      </div>
+      <div class="ability-desc">Choose tile within 5 tiles. 2-tile radius eruption. Small enemies pulled to center. All enemies take Nature damage and are Rooted.</div>
+      <ul class="effects-list">
+        <li>All enemies are Rooted</li>
+        <li>Apply Nature element</li>
+      </ul>
+    </div>
+
+    <div class="ability">
+      <div class="ability-name">Elemental Burst &ndash; Wild Shape</div>
+      <div class="ability-meta">
+        <span>Element: Nature</span>
+        <span>Dice: 1d20 (EM die)</span>
+        <span>Cost: 14 charges</span>
+        <span>Duration: 2 turns</span>
+        <span>Movement: 0</span>
+      </div>
+      <div class="ability-desc">Roll EM die for transformation (2 turns). Cannot move on activation turn.</div>
+      <div style="margin-top: 0.6rem; padding: 0.8rem; background: rgba(76,175,80,0.08); border-radius: 6px; font-size: 0.9rem;">
+        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--weak);">Roll 1&ndash;4:</strong> Turn into a heal. A party member may interact with it to heal 1d6+EM. If no one interacts by end of turn, it automatically heals the closest ally for 1d4+EM instead.</div>
+        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--medium);">Roll 5&ndash;14:</strong> +2 movement, pull on attacks, Charged attacks root, temp HP = 1/4 EM.</div>
+        <div style="margin-bottom: 0.5rem;"><strong style="color: var(--strong);">Roll 15&ndash;19:</strong> All attacks and abilities gain +1 tile to their area of effect. At the end of your turn, all enemies adjacent to you become Rooted. Temp HP = 1/2 EM.</div>
+        <div><strong style="color: #FF7043;">Roll 20+:</strong> Choose form.</div>
+      </div>
+      <ul class="effects-list">
+        <li>Cannot move on activation turn</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Passive</div>
+    <div class="ability" style="border-left-color: var(--text-muted);">
+      <div class="ability-name" style="color: var(--text-muted);">No Nature Passive</div>
+      <div class="ability-desc" style="color: var(--text-muted); font-style: italic;">Dylan does not currently have a Nature passive ability.</div>
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Talents</div>
+    <div class="talent-item chosen">
+      Grasping Vines &ndash; Your Skill's pull radius is increased by 1 tile.
+      <span class="chosen-badge">&#10003; Selected</span>
+    </div>
+    <div class="talent-item chosen">
+      Learn how to use another weapon of your choice, doing so will allow you to equip either weapon type. Note: your basic and charged attacks will change based on the type of weapon being used.
+      <span class="chosen-badge">&#10003; Selected</span>
+    </div>
+    <div class="talent-item">
+      Photosynthesis &ndash; While transformed, heal 1 HP at the start of each of your turns.
+    </div>
+    <div class="talent-item">
+      Wild Shape Stability &ndash; Roll two dice for Wild Shape transformation, choose which result to keep.
+    </div>
+    <div class="talent-item">
+      Lingering Spores &ndash; When you apply Root to an enemy, adjacent enemies gain Nature element applied.
+    </div>
+    <div class="talent-item">
+      Barbed Reach &ndash; +1 tile range on Basic and Charged attacks.
+    </div>
+    <div class="talent-item">
+      Each time you go out to gather materials, gain the ability to also collect 1 D6 of any resource/material of your choice (elemental gems are not counted as part of this).
+    </div>
+  </div>
+
+  <div class="kit-section">
+    <div class="section-title">Constellations</div>
+
+    <div class="tier-group">
+      <div class="tier-label weak">Weak</div>
+      <div class="constellation-item weak chosen">
+        Increase your personal revival consumable item hold cap by 1.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item weak">
+        Add 1 D4 to your base defense.
+      </div>
+      <div class="constellation-item weak">
+        Once per battle, swap spaces with an ally.
+      </div>
+      <div class="constellation-item weak">
+        Any food buffs last for twice as long for you only.
+      </div>
+      <div class="constellation-item weak">
+        Learn how to use another weapon type of your choice.
+      </div>
+      <div class="constellation-item weak">
+        Gain 2 extra movement that you can do while still being able to basic attack.
+      </div>
+      <div class="constellation-item weak">
+        When attacking a debuffed enemy (rooted, slowed, frozen, etc.) add +2 damage to your attack.
+      </div>
+      <div class="constellation-item weak">
+        When gathering materials, you may choose which material cache you go to rather than rolling for it.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label medium">Medium</div>
+      <div class="constellation-item medium chosen">
+        Add 1 D20 to base Health.
+        <span class="chosen-badge">&#10003; Selected</span>
+      </div>
+      <div class="constellation-item medium">
+        Allow yourself to choose another talent with that talent filling this constellation spot for each kit.
+      </div>
+      <div class="constellation-item medium">
+        On your normal attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+      <div class="constellation-item medium">
+        Whatever movement you have for your basic attack, enable it for your elemental skill.
+      </div>
+      <div class="constellation-item medium">
+        On defense rolls gain the ability to roll twice and choose the better of the two rolls.
+      </div>
+    </div>
+
+    <div class="tier-group">
+      <div class="tier-label strong">Strong</div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Energy Recharge.
+      </div>
+      <div class="constellation-item strong">
+        You can no longer hurt your allies with any of your attacks.
+      </div>
+      <div class="constellation-item strong">
+        Add 1.0 to your base Crit Damage.
+      </div>
+      <div class="constellation-item strong">
+        Gain the ability to have 2 food Buffs Active at once.
+      </div>
+      <div class="constellation-item strong">
+        Whatever movement you have for your basic attack, enable it for your charged attack and elemental burst.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Battle guarantees the next attack will be a D20.
+      </div>
+      <div class="constellation-item strong">
+        On your charged attack gain the option to have it deal either physical or elemental damage regardless of your weapon.
+      </div>
+      <div class="constellation-item strong">
+        Once Per Session, if your health drops to 0 and you are downed, pump yourself up, and restore yourself up to half health without consuming any items.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

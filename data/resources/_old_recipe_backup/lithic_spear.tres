@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_jwvfl"]
+
+[resource]
+script = ExtResource("1_jwvfl")
+id = 49
+product = "Lithic Spear"
+region = "Liyue"
+description = "2 ATT
+If your 4th Party member is from Liyue, take 2 less damage each hit. If not, take 4 extra damage each hit."
+role = "Blacksmith"
+material = "Bamboo Segment"
+quantity = 35

@@ -100,6 +100,33 @@
   <li><b>Status effects:</b> Stun, root, slow, and other status effects applied from abilities.</li>
 </ul>
 
+<h2>Balance Adjustment</h2>
+
+<p><b>Brian F. Nature Charged Attack</b> — Attack within 12 tiles. Nature damage. Add damage equal to the tiles travelled. If target Rooted, +5 damage (prev. +3) OR 2x damage (whichever is higher) and gain ½ usual amount of burst charges. Move no tiles. Gain no burst charges if not-rooted.</p>
+
+<p><i>NOTE — Your numbers came in lower than expected comparatively to everyone else, the above buff should increase your baseline threshold and enable you to still build burst charges albeit slower than normal. Note as well this attack has always dealt Nature damage which means it scales off of your EM not your Attack stat even though it's a charged attack.</i></p>
+
+<p><b>Brian C. Nature Skill Attack</b> — Choose a tile within 3 (prev. 2) tiles. Enemies on that tile and adjacent tiles take Nature damage.</p>
+
+<p>Escalation: d4 → d6 → d8 → d10 → d12 → d20 (must roll above half to succeed), Damage = cumulative result of success rolls (pre-multiplier). Failure results in 0 damage. Gain 1d4 burst charges × ER after. For each escalation roll done successfully above a D12 (i.e. D20, D20+D4, etc.), lower the crit threshold of that hit by 5, and add 0.5 to your Crit Damage for that specific hit.</p>
+
+<p><i>NOTE — Increased reward/incentive to continue higher escalation chains hehehe. Also gave you an extra tile of range just so it feels a little bit smoother, 2 felt too restrictive.</i></p>
+
+<p><b>Brian C. Nature Passive</b> — Before an escalation roll, lose 2 HP to reduce the requirement by 1 (multiple times allowed). The requirement cannot be reduced below 1. For every 5 reductions in the same escalation chain, the health cost to reduce the requirement is doubled. (i.e. first 10 health is as described above, the next reduction after that costs 4 HP per point reduction, after another 5 that goes up to 8 HP per point reduction, etc.).</p>
+
+<p><i>NOTE — Still lets you achieve your talent at the same cost but guards against just stacking HP endlessly, high escalations should feel like they have some extent of risk but a reward that feels worth chasing.</i></p>
+
+<h2>UI Improvements</h2>
+
+<ul>
+  <li><b>Player Inventory "Give" button:</b> Restyled to match the artifact detail button style — dark background with gold text and border instead of the old bright gold with black text.</li>
+  <li><b>Weapon Detail buttons:</b> Updated to match the artifact detail style for visual consistency across all equipment screens.</li>
+  <li><b>Weapon &amp; Artifact equip confirmation popups:</b> Confirm button is now the prominent primary style. Cancel is the subtle secondary style. Previously, confirm was bright red and cancel was gold, which was visually backwards.</li>
+  <li><b>Battle screen — attack info tags:</b> Tags for dice, element, and status effects now wrap within the panel instead of expanding the panel width. The panel stays at whatever size you've set it to.</li>
+  <li><b>Battle screen — My Stats panel:</b> Crit DMG and ER now display their actual float values instead of being truncated to integers with a misleading % suffix.</li>
+  <li><b>Battle screen — Burst display:</b> Now shows current charges over max (e.g. "0 / 12") where max is the cost of your most expensive burst ability.</li>
+</ul>
+
 <h2>Bug Fixes</h2>
 
 <ul>
@@ -107,6 +134,11 @@
   <li>Fixed stale hosts lingering in the LAN discovery list — hosts that stop broadcasting now expire after 3 seconds.</li>
   <li>Fixed crafting recipe tests using wrong data source (Global.CRAFTING_RECIPES returns dicts, not CraftingRecipeData).</li>
   <li>Added 15 missing scene instantiation tests to the test suite.</li>
+  <li><b>Fixed DM battle screen going grey after enemy turns.</b> The post-turn damage breakdown was opening in a transparent system Window which rendered as a grey screen on Windows. It now displays as an in-scene overlay with a proper dark background.</li>
+  <li><b>Fixed offline Manage Inventory panel only filling a quarter of the screen.</b> The player hub is a Node2D, so Control anchors didn't work. The panel now uses a CanvasLayer with explicit viewport sizing and renders above toast notifications.</li>
+  <li><b>Fixed offline region defaulting to Inazuma for Brian C.</b> Region changes update the Party table, but the offline loader was reading from the Character table (which was stale). Now reads from the Party record first, which is the actual source of truth for region.</li>
+  <li><b>Fixed offline region selector using wrong field name.</b> The Manage Inventory region dropdown was writing to "Region" instead of "Current_Region", so changes weren't being saved.</li>
+  <li><b>Added artifact detail fields to Manage Inventory.</b> When adding artifacts in offline mode, you can now set the slot type (Flower, Feather, etc.) and both stat lines before adding.</li>
 </ul>
 
 <h2>Data Updates</h2>

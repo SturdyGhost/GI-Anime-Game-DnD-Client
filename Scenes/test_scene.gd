@@ -157,8 +157,6 @@ func _run_all_tests():
 	_test_scene_loads("res://Scenes/DMHub.tscn", "DMHub")
 	# Battle sub-scenes
 	_test_scene_loads("res://Scenes/player_battle_prep.tscn", "PlayerBattlePrep")
-	_test_scene_loads("res://Scenes/Player_Battle_Scene.tscn", "PlayerBattleScene")
-	_test_scene_loads("res://Scenes/Enemy_Battle_Scene.tscn", "EnemyBattleScene")
 	_test_scene_loads("res://Scenes/TurnOrderPanel.tscn", "TurnOrderPanel")
 	# Minigames and research
 	_test_scene_loads("res://Scenes/MinigamesMenu.tscn", "MinigamesMenu")

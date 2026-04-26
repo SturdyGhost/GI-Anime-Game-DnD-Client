@@ -1,0 +1,201 @@
+{
+  "main": {
+    "id": "efc04a175296fb70",
+    "type": "split",
+    "children": [
+      {
+        "id": "9f6509f2946d94c0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1a59840b8849fc9f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/superpowers/specs/2026-04-25-resource-and-role-rework-design.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2026-04-25-resource-and-role-rework-design"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f4d77dd4aee9cf47",
+    "type": "split",
+    "children": [
+      {
+        "id": "6a01b71d4aff321b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9e1e1f96c811b08a",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "9379e376e2e5d7bc",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "092c9be6809d7456",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "5f47ccacb9154ab2",
+    "type": "split",
+    "children": [
+      {
+        "id": "4b592d11c675b4ed",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8962aafc77fda1e3",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/superpowers/specs/2026-04-25-resource-and-role-rework-design.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 2026-04-25-resource-and-role-rework-design"
+            }
+          },
+          {
+            "id": "4f7e5f1cd1da0178",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/superpowers/specs/2026-04-25-resource-and-role-rework-design.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 2026-04-25-resource-and-role-rework-design"
+            }
+          },
+          {
+            "id": "0858fffe50bb7f0a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "7cb829177da00f46",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "76967fe2e53b1c35",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/superpowers/specs/2026-04-25-resource-and-role-rework-design.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 2026-04-25-resource-and-role-rework-design"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "1a59840b8849fc9f",
+  "lastOpenFiles": [
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240520901",
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240510942",
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240502302",
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240486169",
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240460539",
+    "Scripts/resources/crafting_recipe_data.gd.tmp.256923.1777240444086",
+    "Scenes/CraftingMenu.gd.tmp.256923.1777240424876",
+    "data/resources/_old_recipe_backup/wolfhook_juice_245.tres",
+    "data/resources/_old_recipe_backup/wolfhook_juice.tres",
+    "data/resources/_old_recipe_backup/wine_and_song_91.tres",
+    "data/resources/_old_recipe_backup/wine_and_song_170.tres",
+    "docs/superpowers/plans/2026-04-26-resource-role-rework.md"
+  ]
+}

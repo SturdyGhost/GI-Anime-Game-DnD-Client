@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_hx75r"]
+
+[resource]
+script = ExtResource("1_hx75r")
+id = 260
+product = "Tea Break Pancake"
+region = "Mondstadt"
+description = "Recovers 1 HP per turn over 10 turns."
+role = "Artisan"
+material = "Sugar"
+quantity = 2

@@ -298,7 +298,7 @@ func _build_ui() -> void:
 	_give_button = Button.new()
 	_give_button.text = "Give"
 	_give_button.custom_minimum_size = Vector2(80, 36)
-	_style_button(_give_button, ACCENT, Color(0.1, 0.1, 0.1))
+	_style_button(_give_button, INSET, ACCENT)
 	_give_button.pressed.connect(_on_give_button_pressed)
 	give_row.add_child(_give_button)
 
@@ -425,14 +425,19 @@ func _style_chip(btn: Button, active: bool, accent_color: Color = ACCENT) -> voi
 func _style_button(btn: Button, bg_color: Color, text_color: Color) -> void:
 	var sb = StyleBoxFlat.new()
 	sb.bg_color = bg_color
-	sb.set_corner_radius_all(6)
-	sb.set_content_margin_all(8)
+	sb.border_color = BORDER
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 6
+	sb.content_margin_bottom = 6
 	btn.add_theme_stylebox_override("normal", sb)
 	var hover_sb = sb.duplicate()
 	hover_sb.bg_color = bg_color.lightened(0.15)
 	btn.add_theme_stylebox_override("hover", hover_sb)
 	var press_sb = sb.duplicate()
-	press_sb.bg_color = bg_color.darkened(0.1)
+	press_sb.bg_color = bg_color.lightened(0.25)
 	btn.add_theme_stylebox_override("pressed", press_sb)
 	btn.add_theme_color_override("font_color", text_color)
 	btn.add_theme_color_override("font_hover_color", text_color)

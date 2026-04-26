@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_p6gr3"]
+
+[resource]
+script = ExtResource("1_p6gr3")
+id = 18
+product = "Crab Roe Kourayaki"
+region = "Liyue"
+description = "Increase CD and ER by 0.75 for all party members for the next battle."
+role = "Artisan"
+material = "Onikabuto"
+quantity = 8

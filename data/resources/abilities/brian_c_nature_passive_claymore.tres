@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3 uid="uid://cpaxnvr4pm3yk"]
 
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ydfly"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_ydfly"]
 
 [resource]
 script = ExtResource("1_ydfly")
 id = 472
 name = "Brian C. Nature - Passive"
 element = ""
-description = "Before an escalation roll, lose 2 HP to reduce the requirement by 1 (multiple times allowed). The requirement cannot be reduced below 1."
+description = "Before an escalation roll, lose 2 HP to reduce the requirement by 1 (multiple times allowed). The requirement cannot be reduced below 1. For every 5 reductions in the same escalation, the health cost to reduce the requirement is doubled. (i.e. first 10 health is as described above, the next reduction after that costs 4 HP per point reduction, after another 5 that goes up to 8 HP per point reduction)."
 dice_count = 1
 dice_die = 20
 dice_flat = 0

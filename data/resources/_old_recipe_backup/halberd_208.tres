@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_p61mn"]
+
+[resource]
+script = ExtResource("1_p61mn")
+id = 208
+product = "Halberd"
+region = "Mondstadt"
+description = "4 ATT"
+role = "Blacksmith"
+material = "Fir Wood"
+quantity = 5

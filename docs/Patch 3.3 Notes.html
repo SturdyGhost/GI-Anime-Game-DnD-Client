@@ -1,0 +1,186 @@
+<html>
+<body>
+
+<h1>Patch 3.3</h1>
+
+<h2>Multiplayer Overhaul</h2>
+
+<p>The game no longer requires an internet connection or the external server to play. Multiplayer now works directly between your computers over your local network (or the internet if you enter an IP address). When the DM hits "Host Game" the client opens up for players to join, no server middleman involved.</p>
+
+<ul>
+  <li>When you hit "Join" you'll now see any hosts on your network show up automatically in a list. Just pick one and you're in.</li>
+  <li>You can also manually type in an IP address to connect to someone not on the same network. Any host you successfully connect to is automatically saved so you don't have to type it in again next time — saved hosts show up in the list labeled as [Saved].</li>
+  <li>If you get disconnected mid-session (say your wifi hiccups), the client will now automatically try to reconnect up to 5 times. If it reconnects, all your data syncs back up automatically. You'll see a "Reconnecting to host..." popup while it's working on it.</li>
+</ul>
+
+<h2>Battle System</h2>
+
+<p>The way effects work in combat has been completely rebuilt from the ground up. All weapon effects, artifact set bonuses, companion passives, and enemy passives now run through one unified system. What this means for you:</p>
+
+<ul>
+  <li><b>Your weapon and artifact effects actually work now.</b> Previously a lot of these were either not applying or had to be manually tracked. Now things like "deal +2 damage on reaction" or "+30% HP from weapon passive" are automatically calculated when they should be.</li>
+  <li><b>Companion and enemy passives are active in battle.</b> For example, Bennett's "Benny's Luck" passive now properly gives the entire party the Unlucky status when he's in your party during a fight (as intended, sorry not sorry). Ruin Grader's Iron Plating (physical immunity) and Shock Absorbers (multi-hit nullification) also now function automatically.</li>
+  <li><b>Effects display on your battle cards.</b> You can see how many effects are active on any character or enemy, and hovering over them shows what they are, where they come from, and how long they last.</li>
+  <li><b>Luck now affects combat.</b> If your luck is high (85+) your crit threshold is easier to hit. If it's low (25 or below) crits become harder. If Bennett is your active companion, everyone's luck drops by 25% — and in battle, everyone gets the Unlucky status for the whole fight.</li>
+  <li><b>Battle end is now automatic.</b> When all enemies or all players hit 0 HP, the battle ends on its own. No more manually checking the "Killed" box — it detects it from health values. All cleanup (resetting cooldowns, restoring health, clearing elements, removing enemies) is handled automatically when the battle wraps up.</li>
+  <li><b>Stun is handled automatically.</b> If you're stunned, the client will skip your turn for you and tell the host. No more guessing if it worked.</li>
+  <li><b>Battle summary screen.</b> After every battle, everyone gets a summary showing per-combatant stats and who dealt the most damage.</li>
+</ul>
+
+<h2>New Unified Battle Screen</h2>
+
+<p>The battle screen has been completely rebuilt into a single screen that works for both the DM and players. It's a 3-column layout with resizable panels — you can drag the dividers to customize how much space each section gets, and your layout saves between sessions.</p>
+
+<ul>
+  <li><b>Ability info chips</b> — when you pick an attack, you'll see chips below the dropdown telling you the element, which stat it rolls against, and any special effects it has.</li>
+  <li><b>Passive abilities are hidden from the attack dropdown.</b> You won't accidentally try to "use" a passive anymore.</li>
+  <li><b>DM Hub button in battle</b> — The DM now has a purple "DM HUB" button in the battle action bar that opens the DM tools as a floating window without leaving the battle screen. Enemy and party cards refresh when you close it.</li>
+  <li><b>Unspent points banner</b> — If you have unspent skill or base stat points, a gold banner shows up reminding you. You can dismiss it.</li>
+</ul>
+
+<h2>DM Tools</h2>
+
+<ul>
+  <li><b>Data Editor</b> — New tab in the DM Hub that lets the DM directly edit any record in the game. Pick a table (Characters, Companions, Weapons, Artifacts, etc.), pick a record, and edit any field. Includes the ability to create new records and delete existing ones.</li>
+  <li><b>Artifact Generator</b> — When giving out artifacts, the DM now enters the dice rolls (D10 for set, D12 for piece type, D20 for substat count, etc.) and the system automatically generates the artifact with the correct stats, piece type, and set. No more manually building artifact records.</li>
+</ul>
+
+<h2>Artifact Forge (Artisan Role)</h2>
+
+<p>If you have the Artisan role, you now have access to the <b>Artifact Forge</b> in the Crafting menu. This lets you sacrifice artifacts you don't want to create new ones:</p>
+
+<ul>
+  <li><b>Random Set mode</b> — sacrifice 2 artifacts to get a random new one</li>
+  <li><b>Choose Set mode</b> — sacrifice 3 artifacts to pick which set it comes from</li>
+</ul>
+
+<p>You'll enter your dice rolls for the piece type, substats, stat types, and values. The forge walks you through it step by step. There's a confirmation popup before any sacrifice so you don't accidentally trash something valuable.</p>
+
+<h2>Crafting Updates</h2>
+
+<ul>
+  <li><b>Gem crafting recipes</b> are now fully functional — upgrades (2-star to 3-star, 3-star to 4-star) and downgrades (4-star to 3-star, etc.) for all 7 elements.</li>
+  <li><b>Generic material matching</b> — some recipes now accept "any 2-Star Gem" rather than requiring a specific element, making crafting more flexible.</li>
+  <li><b>Recipe variants</b> — if an item can be crafted multiple ways, all recipe options are shown when you expand it. Filter chips let you quickly see what you can craft now vs what you're missing materials for.</li>
+</ul>
+
+<h2>Sumeru Content</h2>
+
+<h3>New Enemies (26)</h3>
+
+<p>A bunch of new enemies have been added for Sumeru across all tiers:</p>
+
+<p><b>Epic</b></p>
+<ul>
+  <li><b>Ruin Grader</b> — The first Epic-tier enemy in the game. 250 HP, takes up 2 tiles, has 7 abilities including a global attack that hits ALL players, and two passives: immune to Physical damage and multi-hit/AoE abilities only deal their first hit to it. Good luck.</li>
+</ul>
+
+<p><b>Rare</b></p>
+<ul>
+  <li>Ruin Drake, Eremite Floral Ring Dancer, Eremite Galehunter, Eremite Scorching Loremaster, Eremite Stone Enchanter — each with 3 abilities and a status effect they can inflict (Stun, Unlucky, Disadvantage, Overheated, and Slow respectively).</li>
+</ul>
+
+<p><b>Uncommon</b></p>
+<ul>
+  <li>Ruin Defender, Ruin Destroyer, Eremite Sword Dancer, Eremite Desert Clearwater, Eremite Linebreaker, Eremite Ravenbeak Halberdier, Eremite Sunfrost, Grounded Earth Shroom, Grounded Water Shroom, Winged Ice Shroom, Winged Nature Shroom</li>
+</ul>
+
+<p><b>Common</b></p>
+<ul>
+  <li>Floating Nature/Water/Wind Fungus, Stretchy Earth/Electric/Fire/Wind Fungus, Whirling Electric/Fire/Ice Fungus — the small fry fungus enemies you'll encounter in Sumeru's wilderness.</li>
+</ul>
+
+<h3>New Weapons (21)</h3>
+
+<p><b>Craftable (Rare)</b></p>
+<ul>
+  <li>Sapwood Blade (Sword), Forest Regalia (Claymore), Moonpiercer (Polearm), Kings Squire (Bow), Fruit of Fulfillment (Catalyst) — all craftable from Sumeru materials.</li>
+</ul>
+
+<p><b>Epic</b> (from Sumeru Epic Weapon Billet)</p>
+<ul>
+  <li>Xiphos Moonlight, Makhaira Aquamarine, Missive Windspear, End of the Line, Wandering Evenstar, Toukabou Shigure, Mailed Flower, Ibis Piercer</li>
+</ul>
+
+<p><b>Legendary</b> (from Sumeru Legendary Weapon Billet)</p>
+<ul>
+  <li>Key of Khaj-Nisut, Light of Foliar Incision, Staff of the Scarlet Sands, Tulaytullahs Remembrance, A Thousand Floating Dreams, Jadefalls Splendor, Beacon of the Reed Sea, Hunters Path</li>
+</ul>
+
+<p><b>Player Signature Weapons</b> — Dylan, Brian C., and Brian F. each have a Legendary weapon tailored specifically to their builds. You'll know them when you find them.</p>
+
+<h3>New Materials (16) &amp; Caches (4)</h3>
+
+<p>Four new gathering caches for Sumeru: Rainforest, Desert, Fungal/Foraging, and Ruins &amp; Eremite. Each has 4 unique materials. If you're gathering in Sumeru you'll be rolling from these tables.</p>
+
+<h3>New Food (8 dishes)</h3>
+
+<p>Eight new Sumeru dishes with various effects:</p>
+<ul>
+  <li><b>Candied Ajilenakh Nut</b> — +3 ATT for entire party for 1 battle</li>
+  <li><b>Padisarah Pudding</b> — +3 EM for entire party for 1 battle</li>
+  <li><b>Lambad Fish Roll</b> — 2 HP/turn healing for 10 turns</li>
+  <li><b>Tahchin</b> — Double gathering materials</li>
+  <li><b>Aaru Mixed Rice</b> — +2 to all attack rolls for 1 battle</li>
+  <li><b>Biryani</b> — +2 damage on all attacks for entire party for 1 battle</li>
+  <li><b>Shawarma Wrap</b> — -2 damage taken per hit for entire party for 1 battle</li>
+  <li><b>Sabza Meat Stew</b> — Restore 1d12 Burst Charges instantly</li>
+</ul>
+
+<h3>New Artifact Sets (8)</h3>
+
+<p>Deepwood Memories, Desert Pavilion Chronicle, Echoes of an Offering, Flower of Paradise Lost, Gilded Dreams, Nymphs Dream, Vermillion Hereafter, Vourukashas Glow</p>
+
+<h2>Luck System Updates</h2>
+
+<p>Luck has been expanded to affect more things:</p>
+
+<ul>
+  <li><b>Market prices</b> — Good luck gives you small discounts when buying. Bad luck inflates prices.</li>
+  <li><b>Gathering yields</b> — High luck (85+) gives +2 extra materials per slot. Low luck (10 or below) gives -2. Scaled in between.</li>
+  <li><b>Combat crits</b> — As mentioned above, luck now makes crits easier or harder.</li>
+  <li><b>Bennett's passive</b> — Having Bennett as your active companion reduces everyone's luck by 25%. In battle, this also applies the Unlucky status to the whole party.</li>
+</ul>
+
+<h2>Minigames</h2>
+
+<h3>Minigame Selector</h3>
+
+<p>The minigames menu has been rebuilt as a card grid showing each available minigame with a preview image and your high score.</p>
+
+<h3>Ninguang's Golden Parlor (New)</h3>
+
+<p>A new slot machine minigame has been added. Bet Mora across three tiers and spin for payouts. Has color-coded paylines that light up on wins and coin cascade sound effects. The return rates are balanced per bet tier so you won't get rich but you won't go broke either — it's gambling, you know how it works.</p>
+
+<h3>Klee's Fish Blast</h3>
+
+<p>Score threshold rewards have been added — do well enough and you earn materials. Fish timing has been tightened up so it feels more responsive.</p>
+
+<h2>Quality of Life</h2>
+
+<ul>
+  <li><b>Font scaling</b> — New setting to scale all text from 50% to 150% of default size. Accessible from the Settings menu.</li>
+  <li><b>Volume control</b> — Separate Music and SFX volume sliders that save between sessions. You can mute one without muting the other.</li>
+  <li><b>Resizable panels everywhere</b> — Battle screen, crafting menu, weapons/artifacts detail views, and companions overview all have draggable panel dividers now. Your layout preferences save automatically.</li>
+  <li><b>Battle turn alert</b> — When it's your turn in battle, the game window comes to the foreground. If you still haven't done anything after 5 seconds it flashes the screen red to get your attention. You're welcome, Brian.</li>
+  <li><b>Brian's notes backup</b> — When Brian F. closes the client, it now prompts to back up his notes file. The notes get sent to the host automatically via the network so nothing gets lost.</li>
+</ul>
+
+<h2>Market Performance</h2>
+
+<p>The market no longer freezes the game while it loads stock. All stock generation now happens in the background — you can keep using the client while it loads. The market also no longer needlessly refreshes every time you open it; stock only refreshes when you come back from a battle.</p>
+
+<h2>Bug Fixes</h2>
+
+<ul>
+  <li>Companions set as "Always Active" by the DM now properly show up in battle (previously required being manually player-chosen)</li>
+  <li>Fixed several crashes caused by null values in burst charges, ability IDs, and target IDs</li>
+  <li>Shield damage calculation now correctly triggers Shield-Break when damage exactly equals shield health (was off by 1)</li>
+  <li>Status effects from abilities now properly apply to ALL selected targets instead of just the first one</li>
+  <li>Fixed burst charge race condition where burst cost could be double-subtracted</li>
+  <li>Ability cooldowns now properly reset for ALL characters when battle ends, not just the person who ended it</li>
+  <li>Fixed various weapon and artifact stat calculation errors</li>
+</ul>
+
+</body>
+</html>

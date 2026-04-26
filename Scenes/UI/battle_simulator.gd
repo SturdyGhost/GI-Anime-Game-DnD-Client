@@ -128,7 +128,7 @@ func _build_ui() -> void:
 
 	# Left panel (setup)
 	var left_scroll := ScrollContainer.new()
-	left_scroll.custom_minimum_size.x = 420
+	left_scroll.custom_minimum_size.x = 800
 	left_scroll.size_flags_horizontal = Control.SIZE_FILL
 	left_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	split.add_child(left_scroll)
@@ -315,8 +315,8 @@ func _build_sim_config_ui(parent: VBoxContainer) -> void:
 	var pd_row := _make_hbox(4)
 	vbox.add_child(pd_row)
 	_player_dmg_slider = HSlider.new()
-	_player_dmg_slider.min_value = 0.5
-	_player_dmg_slider.max_value = 1.5
+	_player_dmg_slider.min_value = 0.1
+	_player_dmg_slider.max_value = 5.0
 	_player_dmg_slider.step = 0.05
 	_player_dmg_slider.value = 1.0
 	_player_dmg_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -334,8 +334,8 @@ func _build_sim_config_ui(parent: VBoxContainer) -> void:
 	var ed_row := _make_hbox(4)
 	vbox.add_child(ed_row)
 	_enemy_dmg_slider = HSlider.new()
-	_enemy_dmg_slider.min_value = 0.5
-	_enemy_dmg_slider.max_value = 1.5
+	_enemy_dmg_slider.min_value = 0.1
+	_enemy_dmg_slider.max_value = 5.0
 	_enemy_dmg_slider.step = 0.05
 	_enemy_dmg_slider.value = 1.0
 	_enemy_dmg_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL

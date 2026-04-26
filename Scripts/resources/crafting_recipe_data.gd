@@ -103,16 +103,21 @@ static func _parse_line(line: String) -> Dictionary:
 			slots.append({"options": options})
 	return {"slots": slots}
 
-## Parse "15x Fungal Spores" into {"material": "Fungal Spores", "quantity": 15}
+## Parse "15x Fungal Spores" or "10x [Ore]" into a dict.
+## Brackets mean item TYPE matching: 10x [Ore] = any item of type "Ore".
+## No brackets = specific item name: 15x Fungal Spores.
+## Returns: {"material": str, "quantity": int, "match_type": bool}
 static func _parse_option(s: String) -> Dictionary:
-	# Match pattern: NUMBERx MATERIAL_NAME
+	# Match pattern: NUMBERx MATERIAL_NAME or NUMBERx [TYPE]
 	var x_pos = s.find("x ")
 	if x_pos <= 0:
-		# No "Nx " prefix — treat entire string as material with quantity 1
 		if s.strip_edges() != "":
-			return {"material": s.strip_edges(), "quantity": 1}
+			return {"material": s.strip_edges(), "quantity": 1, "match_type": false}
 		return {}
 	var qty_str = s.substr(0, x_pos).strip_edges()
 	var mat = s.substr(x_pos + 2).strip_edges()
 	var qty = int(qty_str) if qty_str.is_valid_int() else 1
-	return {"material": mat, "quantity": qty}
+	var is_type = mat.begins_with("[") and mat.ends_with("]")
+	if is_type:
+		mat = mat.substr(1, mat.length() - 2)  # Strip brackets
+	return {"material": mat, "quantity": qty, "match_type": is_type}

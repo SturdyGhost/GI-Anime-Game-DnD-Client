@@ -12,6 +12,11 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	var bg = StyleBoxFlat.new()
+	bg.bg_color = Color(0.065, 0.082, 0.122, 0.95)
+	bg.set_content_margin_all(16)
+	add_theme_stylebox_override("panel", bg)
 	_build_ui()
 
 func setup(turn_input: Dictionary) -> void:
