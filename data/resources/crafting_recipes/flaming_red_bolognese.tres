@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Doubles amount of materials a character gathers when they next go out to collect some."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("3x Calla Lily + 3x Sugar")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":3}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]}]}]"

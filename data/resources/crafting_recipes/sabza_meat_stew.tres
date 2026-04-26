@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "Restores 1 D12 of Burst Charges."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("6x Rukkhashava Mushrooms + 4x Kalpalata Lotus + 4x Sea Ganoderma + 2x Qingxin")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":6}]},{\"options\":[{\"material\":\"Kalpalata Lotus\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":4}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":2}]}]}]"

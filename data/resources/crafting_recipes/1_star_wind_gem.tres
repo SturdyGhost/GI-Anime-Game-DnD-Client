@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Exchanges any 2 1-star elemental gems for a 1-star gem of their choosing element."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("2x 1-Star Gem + 1x 2-Star Gem")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":1}]}]}]"

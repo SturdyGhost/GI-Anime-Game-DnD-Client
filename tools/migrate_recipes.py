@@ -50,14 +50,12 @@ def escape_tres_string(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def write_tres(filepath, data, recipe_lines):
-    """Write a new-format .tres file with recipe_lines."""
+def write_tres(filepath, data, recipe_lines, recipes_json_str):
+    """Write .tres with recipes_json (Godot can parse plain strings).
+    The Godot tool script then converts JSON → recipe_lines and re-saves."""
     escaped_desc = escape_tres_string(str(data['description']))
     escaped_product = escape_tres_string(str(data['product']))
-
-    # Format PackedStringArray for .tres
-    lines_str = ", ".join(f'"{escape_tres_string(line)}"' for line in recipe_lines)
-    packed_array = f"PackedStringArray({lines_str})"
+    escaped_json = escape_tres_string(recipes_json_str)
 
     content = f'''[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
@@ -71,7 +69,7 @@ region = "{escape_tres_string(str(data['region']))}"
 description = "{escaped_desc}"
 role = "{escape_tres_string(str(data['role']))}"
 output_quantity = {data['output_quantity']}
-recipe_lines = {packed_array}
+recipes_json = "{escaped_json}"
 '''
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(content.strip() + "\n")
@@ -140,8 +138,8 @@ def main():
             "output_quantity": output_qty,
         }
 
-        # Build recipe_lines: one line with all ingredients joined by " + "
-        ingredient_parts = []
+        # Build slots for JSON (all ingredients combined as one recipe)
+        slots = []
         for rec in recs:
             d = rec["data"]
             mat = d.get("material", "")
@@ -149,15 +147,16 @@ def main():
             if isinstance(qty, str):
                 qty = int(qty) if qty.isdigit() else 1
             if mat:
-                ingredient_parts.append(f"{qty}x {mat}")
-        recipe_lines = [" + ".join(ingredient_parts)] if ingredient_parts else []
+                slots.append({"options": [{"material": mat, "quantity": qty}]})
+        recipes_list = [{"slots": slots}] if slots else []
+        recipes_json_str = json.dumps(recipes_list, separators=(",", ":"))
 
         # Generate filename from product name
         safe_name = product_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
         safe_name = re.sub(r'[^a-z0-9_]', '', safe_name)
         filename = f"{safe_name}.tres"
 
-        write_tres(os.path.join(RECIPE_DIR, filename), new_data, recipe_lines)
+        write_tres(os.path.join(RECIPE_DIR, filename), new_data, [], recipes_json_str)
         next_id += 1
 
     print(f"Created {next_id - 1} new recipe files")

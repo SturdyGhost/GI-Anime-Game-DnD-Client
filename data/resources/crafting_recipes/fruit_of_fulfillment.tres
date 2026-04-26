@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "\"2 ATT, 3 EM"
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("15x Chaos Storage + 10x Rukkhashava Mushrooms + 10x Amethyst Lump")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":15}]},{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":10}]},{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":10}]}]}]"

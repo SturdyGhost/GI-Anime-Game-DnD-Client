@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "\"1 EM, 0.25 ER"
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("35x Windwheel Aster + 2x 2-Star Gem + 35x Glaze Lily")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":35}]},{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":35}]}]}]"

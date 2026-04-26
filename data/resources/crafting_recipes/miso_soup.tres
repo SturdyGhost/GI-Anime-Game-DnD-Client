@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "Revives a character at half health and lets them regenerate 20% of their max health every turn for 4 turns."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("2x Crab + 4x Naku Weed + 4x Onikabuto + 2x Cabbage + 4x Dendrobium + 2x Glabrous Beans")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]},{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":2}]},{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":4}]},{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]}]}]"

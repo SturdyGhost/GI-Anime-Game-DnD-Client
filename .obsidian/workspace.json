@@ -185,17 +185,17 @@
   },
   "active": "1a59840b8849fc9f",
   "lastOpenFiles": [
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240520901",
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240510942",
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240502302",
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240486169",
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240460539",
-    "Scripts/resources/crafting_recipe_data.gd.tmp.256923.1777240444086",
-    "Scenes/CraftingMenu.gd.tmp.256923.1777240424876",
     "data/resources/_old_recipe_backup/wolfhook_juice_245.tres",
     "data/resources/_old_recipe_backup/wolfhook_juice.tres",
     "data/resources/_old_recipe_backup/wine_and_song_91.tres",
     "data/resources/_old_recipe_backup/wine_and_song_170.tres",
+    "data/resources/_old_recipe_backup/wine_and_song.tres",
+    "data/resources/_old_recipe_backup/white_tassel_158.tres",
+    "data/resources/_old_recipe_backup/white_tassel.tres",
+    "data/resources/_old_recipe_backup/white_iron_greatsword_152.tres",
+    "data/resources/_old_recipe_backup/white_iron_greatsword.tres",
+    "data/resources/_old_recipe_backup/wakatakeni_98.tres",
+    "data/resources/_old_recipe_backup/wakatakeni_71.tres",
     "docs/superpowers/plans/2026-04-26-resource-role-rework.md"
   ]
 }

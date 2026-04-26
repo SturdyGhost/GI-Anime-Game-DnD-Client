@@ -10,4 +10,4 @@ region = "Liyue"
 description = "When taking damage, take 2 less damage per hit for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("12x Sea Ganoderma + 6x Berry + 12x Amakumo Fruit + 6x Qingxin")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":12}]},{\"options\":[{\"material\":\"Berry\",\"quantity\":6}]},{\"options\":[{\"material\":\"Amakumo Fruit\",\"quantity\":12}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]}]}]"

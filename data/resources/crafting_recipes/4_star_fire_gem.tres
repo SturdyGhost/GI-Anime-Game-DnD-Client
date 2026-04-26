@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Combines 4 matching 3-star elemental gems into a single 4-star Fire gem."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("4x 3-Star Gem")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"3-Star Gem\",\"quantity\":4}]}]}]"

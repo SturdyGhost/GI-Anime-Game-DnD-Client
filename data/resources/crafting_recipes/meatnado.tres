@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Increases all party members EM by 3 for next battle."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("2x Dandelion Seed + 2x Cecilia + 2x Radish")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]},{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]}]}]"

@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "\"2 EM, 0.75 ER"
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("35x Famed Handguard + 35x Sharp Arrowhead + 1x 3-Star Gem")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":35}]},{\"options\":[{\"material\":\"Sharp Arrowhead\",\"quantity\":35}]},{\"options\":[{\"material\":\"3-Star Gem\",\"quantity\":1}]}]}]"

@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "Doubles amount of materials a character gathers when they next go out to collect some."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("4x Scarab + 4x Henna Berry + 2x Jueyun Chili + 2x Radish")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Scarab\",\"quantity\":4}]},{\"options\":[{\"material\":\"Henna Berry\",\"quantity\":4}]},{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":2}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]}]}]"

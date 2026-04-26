@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Triples amount of materials a character gathers when they next go out to collect some."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("3x Sugar + 6x Lotus Head + 6x Qingxin + 3x Calla Lily")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]},{\"options\":[{\"material\":\"Lotus Head\",\"quantity\":6}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]},{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":3}]}]}]"

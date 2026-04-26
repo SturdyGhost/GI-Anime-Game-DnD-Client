@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Used to craft a random Epic weapon from Liyue."
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("1x Liyue Epic Weapon Billet + 20x Silk Flower + 20x Silver Raven Insignia + 20x Starconch + 20x Bamboo Segment")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Liyue Epic Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":20}]},{\"options\":[{\"material\":\"Silver Raven Insignia\",\"quantity\":20}]},{\"options\":[{\"material\":\"Starconch\",\"quantity\":20}]},{\"options\":[{\"material\":\"Bamboo Segment\",\"quantity\":20}]}]}]"

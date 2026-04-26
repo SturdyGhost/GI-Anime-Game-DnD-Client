@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Increases all party members ER by 0.75 for next 2 battles."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("6x Qingxin + 3x Sugar + 6x Berry + 3x Wolfhook")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]},{\"options\":[{\"material\":\"Berry\",\"quantity\":6}]},{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":3}]}]}]"

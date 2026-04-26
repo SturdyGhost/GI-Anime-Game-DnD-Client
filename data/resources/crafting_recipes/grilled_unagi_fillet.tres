@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "Increases Defense + Max Health by 3 for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipe_lines = PackedStringArray("8x Purple Shirakodai + 4x Violetgrass + 4x Jueyun Chili + 4x Shrimp Meat + 8x Raimei Angelfish + 8x Naku Weed")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Purple Shirakodai\",\"quantity\":8}]},{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]},{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]},{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":4}]},{\"options\":[{\"material\":\"Raimei Angelfish\",\"quantity\":8}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]}]}]"

@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "\"5 ATT"
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("35x Crystal Marrow + 35x Cor Lapis + 35x Famed Handguard")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":35}]},{\"options\":[{\"material\":\"Cor Lapis\",\"quantity\":35}]},{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":35}]}]}]"

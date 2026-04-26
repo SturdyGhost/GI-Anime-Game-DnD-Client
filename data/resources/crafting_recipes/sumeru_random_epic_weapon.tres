@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "Used to craft a random Epic weapon from Sumeru."
 role = "Blacksmith"
 output_quantity = 1
-recipe_lines = PackedStringArray("1x Sumeru Epic Weapon Billet + 20x Chaos Storage + 20x Fungal Spores + 20x Faded Red Satin + 20x Luminescent Pollen")
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sumeru Epic Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":20}]},{\"options\":[{\"material\":\"Fungal Spores\",\"quantity\":20}]},{\"options\":[{\"material\":\"Faded Red Satin\",\"quantity\":20}]},{\"options\":[{\"material\":\"Luminescent Pollen\",\"quantity\":20}]}]}]"
