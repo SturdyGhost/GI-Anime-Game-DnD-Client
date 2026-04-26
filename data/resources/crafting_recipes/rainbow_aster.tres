@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Restores 10 HP + 1 HP per turn for 5 turns."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":6}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":2}]},{\"options\":[{\"material\":\"Amakumo Fruit\",\"quantity\":6}]},{\"options\":[{\"material\":\"Berry\",\"quantity\":2}]}]}]"
+recipe_text = "6x Sea Ganoderma + 2x Qingxin + 6x Amakumo Fruit + 2x Berry"

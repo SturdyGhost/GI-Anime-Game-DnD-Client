@@ -7,16 +7,18 @@ class_name CraftingRecipeData extends Resource
 @export var role: String
 @export var output_quantity: int = 1
 
-## Human-readable recipe lines. Each string is one alternative recipe.
+## One recipe per line. Multiple lines = alternative recipes (pick one).
 ## Format: "15x Fungal Spores + 10x Padisarah + 10x Iron Chunk"
 ##   +  separates required ingredients (all needed)
 ##   or separates alternatives within a slot (pick one)
+##   [brackets] match by item TYPE instead of name: "10x [Ore]"
 ## Examples:
-##   ["6x Rukkhashava Mushrooms"]                       — one recipe, one ingredient
-##   ["3x 2-Star Gem", "1x 4-Star Gem"]                 — two alternative recipes
-##   ["15x Fungal Spores + 10x Padisarah + 10x Iron"]   — one recipe, three ingredients
-##   ["1x Iron + 2x Coal or 3x Steel"]                  — one recipe, second slot has options
-@export var recipe_lines: PackedStringArray = []
+##   One recipe, one ingredient:      6x Rukkhashava Mushrooms
+##   Two alternative recipes:         3x 2-Star Gem
+##                                    1x 4-Star Gem
+##   Multi-ingredient recipe:         15x Fungal Spores + 10x Padisarah + 10x Iron
+##   Slot with options:               1x Iron + 2x Coal or 3x Steel
+@export_multiline var recipe_text: String = ""
 
 # Legacy fields — auto-converted on load
 @export var recipes_json: String = ""
@@ -36,22 +38,21 @@ static func from_dict(d: Dictionary) -> CraftingRecipeData:
 	r.output_quantity = _i(d.get("Output_Quantity", 1))
 	if r.output_quantity < 1:
 		r.output_quantity = 1
-	# Legacy JSON → convert to recipe_lines
+	# Legacy JSON → convert to recipe_text
 	var json_str = _s(d.get("Recipes_JSON", ""))
 	if json_str != "" and json_str != "[]":
-		r.recipe_lines = _json_to_lines(json_str)
+		r.recipe_text = _json_to_text(json_str)
 	# Legacy single-material
 	r.material = _s(d.get("Material"))
 	r.quantity = _i(d.get("Quantity"))
-	if r.recipe_lines.is_empty() and r.material != "":
-		r.recipe_lines = PackedStringArray(["%dx %s" % [r.quantity, r.material]])
+	if r.recipe_text.strip_edges() == "" and r.material != "":
+		r.recipe_text = "%dx %s" % [r.quantity, r.material]
 	return r
 
-## Convert legacy JSON format to recipe_lines.
-static func _json_to_lines(json_str: String) -> PackedStringArray:
+static func _json_to_text(json_str: String) -> String:
 	var parsed = JSON.parse_string(json_str)
 	if not parsed is Array:
-		return PackedStringArray()
+		return ""
 	var lines: PackedStringArray = []
 	for recipe in parsed:
 		var parts: Array = []
@@ -65,15 +66,17 @@ static func _json_to_lines(json_str: String) -> PackedStringArray:
 					opt_strs.append("%dx %s" % [int(o.get("quantity", 1)), str(o.get("material", "?"))])
 				parts.append(" or ".join(opt_strs))
 		lines.append(" + ".join(parts))
-	return lines
+	return "\n".join(lines)
 
-## Parse recipe_lines into the dict format used by CraftingMenu.
-## Returns Array of { "slots": [ { "options": [ {"material": str, "quantity": int} ] } ] }
+## Parse recipe_text into the dict format used by CraftingMenu.
 func get_recipes() -> Array:
-	if recipe_lines.size() > 0:
+	var text = recipe_text.strip_edges()
+	if text != "":
 		var out: Array = []
-		for line in recipe_lines:
-			out.append(_parse_line(line))
+		for line in text.split("\n"):
+			line = line.strip_edges()
+			if line != "":
+				out.append(_parse_line(line))
 		return out
 	# Fallback: try JSON
 	if recipes_json != "" and recipes_json != "[]":
@@ -85,14 +88,11 @@ func get_recipes() -> Array:
 		return [{"slots": [{"options": [{"material": material, "quantity": quantity}]}]}]
 	return []
 
-## Parse a single recipe line like "15x Fungal Spores + 2x Coal or 3x Steel"
 static func _parse_line(line: String) -> Dictionary:
 	var slots: Array = []
-	# Split on " + " for required slots
 	var slot_parts = line.split(" + ")
 	for part in slot_parts:
 		var options: Array = []
-		# Split on " or " for alternatives within a slot
 		var opt_parts = part.split(" or ")
 		for opt_str in opt_parts:
 			opt_str = opt_str.strip_edges()
@@ -103,12 +103,7 @@ static func _parse_line(line: String) -> Dictionary:
 			slots.append({"options": options})
 	return {"slots": slots}
 
-## Parse "15x Fungal Spores" or "10x [Ore]" into a dict.
-## Brackets mean item TYPE matching: 10x [Ore] = any item of type "Ore".
-## No brackets = specific item name: 15x Fungal Spores.
-## Returns: {"material": str, "quantity": int, "match_type": bool}
 static func _parse_option(s: String) -> Dictionary:
-	# Match pattern: NUMBERx MATERIAL_NAME or NUMBERx [TYPE]
 	var x_pos = s.find("x ")
 	if x_pos <= 0:
 		if s.strip_edges() != "":
@@ -119,5 +114,5 @@ static func _parse_option(s: String) -> Dictionary:
 	var qty = int(qty_str) if qty_str.is_valid_int() else 1
 	var is_type = mat.begins_with("[") and mat.ends_with("]")
 	if is_type:
-		mat = mat.substr(1, mat.length() - 2)  # Strip brackets
+		mat = mat.substr(1, mat.length() - 2)
 	return {"material": mat, "quantity": qty, "match_type": is_type}

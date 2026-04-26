@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "Increases all party members CD by 1.0 for next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Radish\",\"quantity\":4}]},{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]}]}]"
+recipe_text = "4x Radish + 2x Dandelion Seed"

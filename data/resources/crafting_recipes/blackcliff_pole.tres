@@ -10,4 +10,4 @@ region = "Liyue"
 description = "\"3 ATT, 0.75 CD"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Silver Raven Insignia\",\"quantity\":35}]},{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]},{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]}]}]"
+recipe_text = "35x Silver Raven Insignia + 35x Silk Flower + 2x 2-Star Gem"

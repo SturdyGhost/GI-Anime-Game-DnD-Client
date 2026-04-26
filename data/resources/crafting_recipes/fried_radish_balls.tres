@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Increases all party members CD by 1.0 for next 2 battles."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]},{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":8}]}]}]"
+recipe_text = "2x Dandelion Seed + 4x Jueyun Chili + 4x Radish + 8x Cabbage"

@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3 uid="uid://8ckmndhouwdf"]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dw7haxvslkdfq" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
@@ -10,4 +10,8 @@ region = "Liyue"
 description = "Exchanges 2 matching 1-star elemental gems for a 2-star version of the same type."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"3-Star Gem\",\"quantity\":1}]}]}]"
+recipe_text = "2x [1-Star Gem] 
+1x [3-Star Gem]"
+recipes_json = ""
+material = ""
+quantity = 0

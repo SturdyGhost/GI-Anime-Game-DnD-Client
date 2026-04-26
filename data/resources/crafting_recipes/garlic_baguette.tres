@@ -10,4 +10,4 @@ region = "Liyue"
 description = "When Attacking, Adds 1 to all party members roll for next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wheat\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]}]}]"
+recipe_text = "4x Wheat + 2x Cecilia"

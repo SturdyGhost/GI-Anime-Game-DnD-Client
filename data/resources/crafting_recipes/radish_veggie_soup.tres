@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Revives a character at half health."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":2}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]},{\"options\":[{\"material\":\"Raw Meat\",\"quantity\":2}]}]}]"
+recipe_text = "2x Calla Lily + 2x Radish + 2x Raw Meat"

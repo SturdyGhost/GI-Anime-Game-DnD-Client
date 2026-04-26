@@ -10,4 +10,4 @@ region = "Inazuma"
 description = "Increases all party members ER by 0.5 for next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":3}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]}]}]"
+recipe_text = "3x Wolfhook + 3x Sugar"

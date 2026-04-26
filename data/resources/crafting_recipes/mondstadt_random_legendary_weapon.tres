@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Used to craft a random Legendary weapon from Mondstadt."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":35}]},{\"options\":[{\"material\":\"Mondstadt Legendary Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":35}]},{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":35}]},{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":35}]}]}]"
+recipe_text = "35x Fir Wood + 1x Mondstadt Legendary Weapon Billet + 35x Iron Chunk + 35x Glaze Lily + 35x Windwheel Aster"

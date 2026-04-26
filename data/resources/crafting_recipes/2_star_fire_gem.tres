@@ -10,4 +10,5 @@ region = "Liyue"
 description = "Exchanges 2 matching 1-star elemental gems for a 2-star version of the same type."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"3-Star Gem\",\"quantity\":1}]}]}]"
+recipe_text = "2x [1-Star Gem]
+1x [3-Star Gem]"

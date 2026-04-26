@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "When dealing damage add 2 damage to all attacks for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sakura Bloom\",\"quantity\":8}]},{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":4}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]}]}]"
+recipe_text = "4x Violetgrass + 8x Sakura Bloom + 4x Bamboo Shoot + 8x Naku Weed"

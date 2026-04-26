@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "Used to craft a random Epic weapon from Mondstadt."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":20}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":20}]},{\"options\":[{\"material\":\"Mondstadt Epic Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":20}]},{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":20}]}]}]"
+recipe_text = "20x Windwheel Aster + 20x Iron Chunk + 1x Mondstadt Epic Weapon Billet + 20x Fir Wood + 20x Glaze Lily"

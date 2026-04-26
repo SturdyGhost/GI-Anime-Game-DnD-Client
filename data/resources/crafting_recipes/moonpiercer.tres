@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "\"2 ATT, 3 EM"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Kalpalata Lotus\",\"quantity\":15}]},{\"options\":[{\"material\":\"Faded Red Satin\",\"quantity\":10}]},{\"options\":[{\"material\":\"Bamboo Segment\",\"quantity\":10}]}]}]"
+recipe_text = "15x Kalpalata Lotus + 10x Faded Red Satin + 10x Bamboo Segment"

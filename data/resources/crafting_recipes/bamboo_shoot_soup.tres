@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Revives a character at full health."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":4}]},{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":2}]},{\"options\":[{\"material\":\"Raw Meat\",\"quantity\":2}]},{\"options\":[{\"material\":\"Crab\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":4}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]}]}]"
+recipe_text = "4x Glabrous Beans + 2x Calla Lily + 2x Raw Meat + 4x Crab + 4x Cabbage + 2x Radish"

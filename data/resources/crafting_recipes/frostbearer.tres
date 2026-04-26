@@ -10,4 +10,4 @@ region = "Mondstadt"
 description = "\"2 ATT, +4 Elemental Dmg"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":35}]},{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":35}]}]}]"
+recipe_text = "35x Glaze Lily + 2x 2-Star Gem + 35x Windwheel Aster"

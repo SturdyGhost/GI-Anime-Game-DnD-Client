@@ -10,4 +10,4 @@ region = "Sumeru"
 description = "\"5 ATT"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Luminescent Pollen\",\"quantity\":15}]},{\"options\":[{\"material\":\"Chaos Bolt\",\"quantity\":10}]},{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":10}]}]}]"
+recipe_text = "15x Luminescent Pollen + 10x Chaos Bolt + 10x Fir Wood"

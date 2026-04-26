@@ -10,4 +10,4 @@ region = "Liyue"
 description = "Restores 1 D12 of Burst Charges."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Raimei Angelfish\",\"quantity\":6}]},{\"options\":[{\"material\":\"Fluorescent Fungus\",\"quantity\":6}]},{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":6}]},{\"options\":[{\"material\":\"Amakumo Fruit\",\"quantity\":6}]}]}]"
+recipe_text = "6x Raimei Angelfish + 6x Fluorescent Fungus + 6x Sea Ganoderma + 6x Amakumo Fruit"
