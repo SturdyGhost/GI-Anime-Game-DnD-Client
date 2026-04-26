@@ -140,6 +140,20 @@ func show_summary(summary: Dictionary) -> void:
 	total_kills_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root_vbox.add_child(total_kills_label)
 
+	# ── Challenge result ─────────────────────────────────────────────────────
+	var challenge_text: String = str(summary.get("challenge_quest", ""))
+	if challenge_text != "":
+		root_vbox.add_child(_separator())
+		var completed: bool = summary.get("challenge_completed", false)
+		var status_text = "CHALLENGE COMPLETE!" if completed else "Challenge Failed"
+		var status_color = COL_GREEN if completed else COL_RED
+		var status_label = _label(status_text, 16, status_color)
+		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		root_vbox.add_child(status_label)
+		var challenge_desc = _label(challenge_text, 14, COL_TEXT_MUTED)
+		challenge_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		root_vbox.add_child(challenge_desc)
+
 	# ── Loot section ─────────────────────────────────────────────────────────
 	var player_loot: Dictionary = summary.get("player_loot", {})
 	if not player_loot.is_empty():

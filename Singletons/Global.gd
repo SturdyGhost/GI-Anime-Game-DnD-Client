@@ -12,6 +12,7 @@ var PublicIP = ""
 var Luck_Set: bool = false
 var Region_Changed: int = 1
 var _returned_from_battle: bool = false
+var active_challenge_quest: Dictionary = {}
 
 ## Returns effective luck for a player, factoring in Bennett's party penalty.
 ## If Bennett is an active chosen companion, all luck is reduced by 25%.

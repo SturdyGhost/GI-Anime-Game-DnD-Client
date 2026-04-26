@@ -1913,19 +1913,7 @@ func check_battle_end():
 					enemy_snapshot.append({"tier": "common"})
 
 			_host_battle_cleanup()
-
-			# Generate loot and attach to summary
-			var loot = LootGenerator.generate_all_loot(enemy_snapshot, Global.Current_Region)
-			_persist_loot(loot)
-			summary["player_loot"] = loot
-			summary["difficulty_score"] = LootGenerator.calc_difficulty_score(enemy_snapshot)
-			var tier_data = LootGenerator.get_loot_tier(summary["difficulty_score"])
-			summary["loot_tier"] = tier_data["tier"] if tier_data else "Nothing"
-
-			# Send summary to all clients via NetworkManager (node-path safe)
-			if not summary.is_empty():
-				NetworkManager.broadcast_battle_summary(summary)
-			_show_battle_summary(summary)
+			_show_challenge_confirmation(summary, enemy_snapshot)
 		else:
 			# Wait for either the summary broadcast or data sync
 			# The summary RPC will arrive and show the overlay before we go to hub
@@ -1935,6 +1923,57 @@ func check_battle_end():
 				await get_tree().create_timer(2.0).timeout
 				if not _battle_ending_summary_shown:
 					_go_to_hub()
+
+
+func _show_challenge_confirmation(summary: Dictionary, enemy_snapshot: Array) -> void:
+	var quest = Global.active_challenge_quest
+	if quest.is_empty():
+		_finalize_battle_summary(summary, enemy_snapshot, false)
+		return
+
+	var popup = AcceptDialog.new()
+	popup.title = "Challenge Quest"
+	popup.dialog_text = "Challenge: %s\n\nQuest Giver: %s (%s)\n\nDid the party complete this challenge?" % [
+		str(quest.get("challenge_text", "")),
+		str(quest.get("quest_giver_name", "")),
+		str(quest.get("quest_giver_personality", "")),
+	]
+	popup.ok_button_text = "Yes — Completed"
+	popup.add_cancel_button("No — Failed")
+	popup.confirmed.connect(func(): _finalize_battle_summary(summary, enemy_snapshot, true); popup.queue_free())
+	popup.canceled.connect(func(): _finalize_battle_summary(summary, enemy_snapshot, false); popup.queue_free())
+	add_child(popup)
+	popup.popup_centered(Vector2(450, 250))
+
+
+func _finalize_battle_summary(summary: Dictionary, enemy_snapshot: Array, challenge_completed: bool) -> void:
+	var loot = LootGenerator.generate_all_loot(enemy_snapshot, Global.Current_Region)
+
+	if challenge_completed and not Global.active_challenge_quest.is_empty():
+		var multiplier: float = float(Global.active_challenge_quest.get("reward_multiplier", 1.0))
+		var quest_loot = LootGenerator.generate_all_loot(enemy_snapshot, Global.Current_Region)
+		for player_name in quest_loot:
+			if player_name not in loot:
+				loot[player_name] = {}
+			for mat_name in quest_loot[player_name]:
+				var bonus_qty: int = int(ceil(quest_loot[player_name][mat_name] * multiplier))
+				loot[player_name][mat_name] = loot[player_name].get(mat_name, 0) + bonus_qty
+		summary["challenge_completed"] = true
+	else:
+		summary["challenge_completed"] = false
+
+	_persist_loot(loot)
+	summary["player_loot"] = loot
+	summary["difficulty_score"] = LootGenerator.calc_difficulty_score(enemy_snapshot)
+	var tier_data = LootGenerator.get_loot_tier(summary["difficulty_score"])
+	summary["loot_tier"] = tier_data["tier"] if tier_data else "Nothing"
+	summary["challenge_quest"] = Global.active_challenge_quest.get("challenge_text", "")
+
+	Global.active_challenge_quest = {}
+
+	if not summary.is_empty():
+		NetworkManager.broadcast_battle_summary(summary)
+	_show_battle_summary(summary)
 
 
 func _host_battle_cleanup() -> void:

@@ -75,6 +75,11 @@ func _ready() -> void:
 		}]
 		Global.Update_Records(updates)
 
+	# Generate challenge quest if host and none active
+	if NetworkManager.is_host and Global.active_challenge_quest.is_empty():
+		var quest = ChallengeQuestGenerator.generate()
+		Global.active_challenge_quest = quest.to_dict()
+
 	_build_ui()
 	_populate_player_cards()
 	_populate_turn_order()
@@ -496,6 +501,8 @@ var _turn_order: Array = []
 var _turn_order_container: VBoxContainer
 
 func _populate_turn_order() -> void:
+	_build_challenge_section(_right_vbox)
+
 	var header = Label.new()
 	header.text = "Turn Order"
 	header.add_theme_font_size_override("font_size", FONT_SIZE_HEADER)
@@ -665,6 +672,91 @@ func _persist_turn_order() -> void:
 	])
 	# Reset flag after a frame to allow the data_load_complete from our own update to pass
 	get_tree().create_timer(0.5).timeout.connect(func(): _syncing_turn_order = false)
+
+
+func _build_challenge_section(parent: VBoxContainer) -> void:
+	var quest = Global.active_challenge_quest
+	if quest.is_empty():
+		return
+
+	var header = Label.new()
+	header.text = "CHALLENGE QUEST"
+	header.add_theme_font_size_override("font_size", 14)
+	header.add_theme_color_override("font_color", ACCENT_GOLD)
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	parent.add_child(header)
+
+	var card = PanelContainer.new()
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = PANEL_COLOR
+	sb.border_color = ACCENT_GOLD_DIM
+	sb.border_width_left = 2
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 10
+	card.add_theme_stylebox_override("panel", sb)
+	parent.add_child(card)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	card.add_child(vbox)
+
+	var giver_name = str(quest.get("quest_giver_name", ""))
+	var personality = str(quest.get("quest_giver_personality", ""))
+	var giver_label = Label.new()
+	giver_label.text = "%s (%s)" % [giver_name, personality]
+	giver_label.add_theme_font_size_override("font_size", 13)
+	giver_label.add_theme_color_override("font_color", TEXT_DIM)
+	vbox.add_child(giver_label)
+
+	var challenge_label = Label.new()
+	challenge_label.text = str(quest.get("challenge_text", ""))
+	challenge_label.add_theme_font_size_override("font_size", 15)
+	challenge_label.add_theme_color_override("font_color", TEXT_COLOR)
+	challenge_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(challenge_label)
+
+	# DM override controls (Task 10)
+	if Global.ACTIVE_USER_TYPE == "Dungeon Master":
+		var override_btn = Button.new()
+		override_btn.text = "Reroll Challenge"
+		override_btn.custom_minimum_size = Vector2(0, 32)
+		override_btn.add_theme_font_size_override("font_size", 13)
+		override_btn.pressed.connect(_reroll_challenge)
+		vbox.add_child(override_btn)
+
+		var edit_btn = Button.new()
+		edit_btn.text = "Edit Challenge"
+		edit_btn.custom_minimum_size = Vector2(0, 32)
+		edit_btn.add_theme_font_size_override("font_size", 13)
+		edit_btn.pressed.connect(_edit_challenge)
+		vbox.add_child(edit_btn)
+
+
+func _reroll_challenge() -> void:
+	var quest = ChallengeQuestGenerator.generate()
+	Global.active_challenge_quest = quest.to_dict()
+	# Rebuild the UI to show the new challenge
+	_build_ui()
+
+
+func _edit_challenge() -> void:
+	var dialog = AcceptDialog.new()
+	dialog.title = "Edit Challenge"
+	var input = LineEdit.new()
+	input.text = str(Global.active_challenge_quest.get("challenge_text", ""))
+	input.placeholder_text = "Enter custom challenge..."
+	input.custom_minimum_size = Vector2(400, 36)
+	dialog.add_child(input)
+	dialog.confirmed.connect(func():
+		Global.active_challenge_quest["challenge_text"] = input.text
+		dialog.queue_free()
+		_build_ui()
+	)
+	add_child(dialog)
+	dialog.popup_centered(Vector2(450, 150))
 
 
 func _populate_food_buff() -> void:
