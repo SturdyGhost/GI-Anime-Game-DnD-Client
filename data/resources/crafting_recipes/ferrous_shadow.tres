@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_0mauo"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_0mauo")
-id = 24
+script = ExtResource("1_script")
+id = 55
 product = "Ferrous Shadow"
 region = "Mondstadt"
 description = "2 ATT, 2 HP"
 role = "Blacksmith"
-material = "Iron Chunk"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Noctilucous Jade\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

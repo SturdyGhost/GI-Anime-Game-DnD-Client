@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_wmce1"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_wmce1")
-id = 83
+script = ExtResource("1_script")
+id = 54
 product = "Emerald Orb"
 region = "Mondstadt"
 description = "1 EM, 2 ATT"
 role = "Blacksmith"
-material = "Iron Chunk"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

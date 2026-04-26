@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_56q4b"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_56q4b")
-id = 203
+script = ExtResource("1_script")
+id = 36
 product = "Berry And Mint Burst"
 region = "Liyue"
 description = "Increases all party members ER by 0.75 for next 2 battles."
 role = "Artisan"
-material = "Qingxin"
-quantity = 6
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]}]},{\"slots\":[{\"options\":[{\"material\":\"Berry\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":3}]}]}]"
+material = ""
+quantity = 0

@@ -257,7 +257,7 @@ var CRAFTING_RECIPES: Dictionary:
 	get:
 		var d = {}
 		for c in GameDB.crafting_recipes.values():
-			d[str(c.id)] = {"id": c.id, "Product": c.product, "Region": c.region, "Description": c.description, "Role": c.role, "Material": c.material, "Quantity": c.quantity}
+			d[str(c.id)] = {"id": c.id, "Product": c.product, "Region": c.region, "Description": c.description, "Role": c.role, "Material": c.material, "Quantity": c.quantity, "Output_Quantity": c.output_quantity, "Recipes_JSON": c.recipes_json, "_resource": c}
 		return d
 var MATERIAL_CACHES: Dictionary:
 	get:

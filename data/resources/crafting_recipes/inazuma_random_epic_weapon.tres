@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_x32rp"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_x32rp")
-id = 16
+script = ExtResource("1_script")
+id = 69
 product = "Inazuma Random Epic Weapon"
 region = "Inazuma"
 description = "Used to craft a random Epic weapon from Inazuma."
 role = "Blacksmith"
-material = "Cor Lapis"
-quantity = 20
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Cor Lapis\",\"quantity\":20}]}]},{\"slots\":[{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":20}]}]},{\"slots\":[{\"options\":[{\"material\":\"Inazuma Epic Weapon Billet\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sango Pearl\",\"quantity\":20}]}]},{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":20}]}]}]"
+material = ""
+quantity = 0

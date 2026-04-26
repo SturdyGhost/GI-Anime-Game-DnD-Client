@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = 110
+product = "Tahchin"
+region = "Sumeru"
+description = "Doubles amount of materials a character gathers when they next go out to collect some."
+role = "Artisan"
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Scarab\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Henna Berry\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

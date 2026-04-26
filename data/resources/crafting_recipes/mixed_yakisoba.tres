@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_tcauh"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_tcauh")
-id = 118
+script = ExtResource("1_script")
+id = 83
 product = "Mixed Yakisoba"
 region = "Inazuma"
 description = "Increases Attack + Elemental Mastery by 3 for all party members for the next battle."
 role = "Artisan"
-material = "Jueyun Chili"
-quantity = 4
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cabbage\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Purple Shirakodai\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":8}]}]}]"
+material = ""
+quantity = 0

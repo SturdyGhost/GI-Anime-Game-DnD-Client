@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_hjjbq"]
+
+[resource]
+script = ExtResource("1_hjjbq")
+id = 74
+product = "White Tassel"
+region = "Mondstadt"
+description = "1 ATT, 0.75 CD"
+role = "Blacksmith"
+material = "White Iron Chunk"
+quantity = 5

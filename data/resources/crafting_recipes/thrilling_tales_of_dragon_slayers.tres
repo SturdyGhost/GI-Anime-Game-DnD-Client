@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_3nvit"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_3nvit")
-id = 187
+script = ExtResource("1_script")
+id = 113
 product = "Thrilling Tales of Dragon Slayers"
 region = "Mondstadt"
 description = "4 HP"
 role = "Blacksmith"
-material = "Glaze Lily"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

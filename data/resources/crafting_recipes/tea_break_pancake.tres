@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_v3hvv"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_v3hvv")
-id = 130
+script = ExtResource("1_script")
+id = 111
 product = "Tea Break Pancake"
 region = "Mondstadt"
 description = "Recovers 1 HP per turn over 10 turns."
 role = "Artisan"
-material = "Calla Lily"
-quantity = 4
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

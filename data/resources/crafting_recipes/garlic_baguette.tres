@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_6pd6j"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_6pd6j")
-id = 20
+script = ExtResource("1_script")
+id = 63
 product = "Garlic Baguette"
 region = "Liyue"
 description = "When Attacking, Adds 1 to all party members roll for next battle."
 role = "Artisan"
-material = "Wheat"
-quantity = 4
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wheat\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

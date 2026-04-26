@@ -1,14 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_rxj3m"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_rxj3m")
-id = 69
+script = ExtResource("1_script")
+id = 73
 product = "Kitain Cross Spear"
 region = "Inazuma"
-description = "2 ATT, 4 EM
-Increases skill damage by 10%, after using your skill lose 4 burst charges (not multiplied by ER) but gain 2 burst charges (multiplied by ER) back at the start of your turn for 3 turns."
+description = "\"2 ATT, 4 EM"
 role = "Blacksmith"
-material = "Amethyst Lump"
-quantity = 35
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sharp Arrowhead\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cor Lapis\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

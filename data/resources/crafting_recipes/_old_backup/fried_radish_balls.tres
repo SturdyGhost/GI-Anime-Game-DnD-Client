@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_k0sru"]
+
+[resource]
+script = ExtResource("1_k0sru")
+id = 244
+product = "Fried Radish Balls"
+region = "Mondstadt"
+description = "Increases all party members CD by 1.0 for next 2 battles."
+role = "Artisan"
+material = "Dandelion Seed"
+quantity = 2

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_x32rp"]
+
+[resource]
+script = ExtResource("1_x32rp")
+id = 16
+product = "Inazuma Random Epic Weapon"
+region = "Inazuma"
+description = "Used to craft a random Epic weapon from Inazuma."
+role = "Blacksmith"
+material = "Cor Lapis"
+quantity = 20

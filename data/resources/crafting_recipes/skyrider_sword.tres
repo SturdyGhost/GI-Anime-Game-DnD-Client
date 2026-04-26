@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_i15r4"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_i15r4")
-id = 10
+script = ExtResource("1_script")
+id = 105
 product = "Skyrider Sword"
 region = "Mondstadt"
 description = "2 ATT, 0.5 ER"
 role = "Blacksmith"
-material = "Iron Chunk"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"1-Star Wind Gem\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0

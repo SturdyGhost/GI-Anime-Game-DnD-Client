@@ -1,14 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_o186d"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_o186d")
+script = ExtResource("1_script")
 id = 32
 product = "Amenoma Kageuchi"
 region = "Inazuma"
-description = "5 ATT
-After using your skill gain 1 seed (max 3). After using your burst immediately gain 1.5 burst charges per seed."
+description = "\"5 ATT"
 role = "Blacksmith"
-material = "Crystal Marrow"
-quantity = 35
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cor Lapis\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

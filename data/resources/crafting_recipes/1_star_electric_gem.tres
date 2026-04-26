@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_csklx"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_csklx")
-id = 272
+script = ExtResource("1_script")
+id = 2
 product = "1-Star Electric Gem"
 region = "Mondstadt"
 description = "Exchanges any 2 1-star elemental gems for a 1-star gem of their choosing element."
 role = "Artisan"
-material = "1-Star Gem"
-quantity = 2
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0

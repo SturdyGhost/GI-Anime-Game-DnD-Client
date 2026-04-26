@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_ktx68"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_ktx68")
-id = 104
+script = ExtResource("1_script")
+id = 93
 product = "Raven Bow"
 region = "Mondstadt"
 description = "2 ATT, 2 EM"
 role = "Blacksmith"
-material = "1-Star Gem"
-quantity = 1
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Noctilucous Jade\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_niatp"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_niatp")
-id = 128
+script = ExtResource("1_script")
+id = 103
 product = "Silver Raven Insignia"
 region = "Mondstadt"
 description = "Steel made using Iron and Coal"
 role = "Blacksmith"
-material = "Iron Chunk"
-quantity = 1
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Noctilucous Jade\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0

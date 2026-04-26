@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = 29
+product = "Aaru Mixed Rice"
+region = "Sumeru"
+description = "+2 to all party members' attack rolls for the next battle."
+role = "Artisan"
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Mourning Flower\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cabbage\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_8unqf"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_8unqf")
-id = 12
+script = ExtResource("1_script")
+id = 117
 product = "Unagi Chazuke"
 region = "Liyue"
 description = "Restores 1 D12 of Burst Charges."
 role = "Artisan"
-material = "Raimei Angelfish"
-quantity = 6
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Raimei Angelfish\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Fluorescent Fungus\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Amakumo Fruit\",\"quantity\":6}]}]}]"
+material = ""
+quantity = 0

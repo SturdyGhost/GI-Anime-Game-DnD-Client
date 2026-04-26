@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_17bga"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_17bga")
-id = 41
+script = ExtResource("1_script")
+id = 82
 product = "Miso Soup"
 region = "Inazuma"
 description = "Revives a character at half health and lets them regenerate 20% of their max health every turn for 4 turns."
 role = "Artisan"
-material = "Crab"
-quantity = 2
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cabbage\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

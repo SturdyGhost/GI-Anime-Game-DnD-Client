@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_r")
-id = 306
+script = ExtResource("1_script")
+id = 21
 product = "3-Star Wind Gem"
 region = "Liyue"
 description = "Combines 3 matching 2-star elemental gems into a single 3-star Wind gem."
 role = "Artisan"
-material = "2-Star Gem"
-quantity = 3
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":3}]}]},{\"slots\":[{\"options\":[{\"material\":\"4-Star Gem\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0

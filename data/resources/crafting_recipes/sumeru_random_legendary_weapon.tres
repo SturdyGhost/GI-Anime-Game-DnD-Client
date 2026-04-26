@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = 109
+product = "Sumeru Random Legendary Weapon"
+region = "Sumeru"
+description = "Used to craft a random Legendary weapon from Sumeru."
+role = "Blacksmith"
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sumeru Legendary Weapon Billet\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Fungal Spores\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Luminescent Pollen\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Faded Red Satin\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

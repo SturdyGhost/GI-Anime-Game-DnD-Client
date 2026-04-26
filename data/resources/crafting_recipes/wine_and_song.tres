@@ -1,14 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_5pnym"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_5pnym")
-id = 6
+script = ExtResource("1_script")
+id = 121
 product = "Wine and Song"
 region = "Mondstadt"
-description = "1 EM, 0.25 ER
-Damage Dealt + Received +2"
+description = "\"1 EM, 0.25 ER"
 role = "Blacksmith"
-material = "Windwheel Aster"
-quantity = 35
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

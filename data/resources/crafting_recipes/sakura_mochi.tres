@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_dboi6"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_dboi6")
-id = 90
+script = ExtResource("1_script")
+id = 97
 product = "Sakura Mochi"
 region = "Mondstadt"
 description = "When dealing damage add 2 damage to all attacks for all party members for the next battle."
 role = "Artisan"
-material = "Violetgrass"
-quantity = 4
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sakura Bloom\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]}]}]"
+material = ""
+quantity = 0

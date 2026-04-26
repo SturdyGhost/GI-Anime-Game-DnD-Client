@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_vjexk"]
+
+[resource]
+script = ExtResource("1_vjexk")
+id = 29
+product = "Dark Iron Sword"
+region = "Mondstadt"
+description = "2 ATT, 2 EM"
+role = "Blacksmith"
+material = "1-Star Gem"
+quantity = 1

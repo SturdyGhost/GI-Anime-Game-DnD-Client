@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r"]
+
+[resource]
+script = ExtResource("1_r")
+id = 308
+product = "4-Star Fire Gem"
+region = "Liyue"
+description = "Combines 4 matching 3-star elemental gems into a single 4-star Fire gem."
+role = "Artisan"
+material = "3-Star Gem"
+quantity = 4

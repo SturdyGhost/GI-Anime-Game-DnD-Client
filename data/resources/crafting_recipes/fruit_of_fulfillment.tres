@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = 61
+product = "Fruit of Fulfillment"
+region = "Sumeru"
+description = "\"2 ATT, 3 EM"
+role = "Blacksmith"
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":15}]}]},{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":10}]}]},{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":10}]}]}]"
+material = ""
+quantity = 0

@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_p6gr3"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_p6gr3")
-id = 18
+script = ExtResource("1_script")
+id = 49
 product = "Crab Roe Kourayaki"
 region = "Liyue"
 description = "Increase CD and ER by 0.75 for all party members for the next battle."
 role = "Artisan"
-material = "Onikabuto"
-quantity = 8
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sakura Bloom\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Raimei Angelfish\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

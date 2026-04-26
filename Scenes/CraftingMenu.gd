@@ -598,11 +598,6 @@ func _build_product_groups() -> void:
 	if not ("CRAFTING_RECIPES" in Global) or not (Global.CRAFTING_RECIPES is Dictionary):
 		return
 
-	# Collect all recipes, grouping variants by product name
-	# Each product can have multiple "variants" (different ways to craft the same thing)
-	# e.g., "2-Star Electric Gem" can be made by upgrading 1-star OR downgrading 3-star
-	var variant_map = {}  # product -> [variant1, variant2, ...]
-
 	for rec_id in Global.CRAFTING_RECIPES.keys():
 		var r = Global.CRAFTING_RECIPES[rec_id]
 		if str(r.get("Role", "")) != active_role:
@@ -611,38 +606,29 @@ func _build_product_groups() -> void:
 		if product == "":
 			continue
 
-		var variant = {
-			"material": str(r.get("Material", "")),
-			"quantity": int(r.get("Quantity", 1)),
-			"output_quantity": int(r.get("Output_Quantity", 1)),
-			"description": str(r.get("Description", "")),
-			"recipe_id": rec_id,
+		# Use the resource's get_recipes() for the new multi-ingredient format
+		var resource = r.get("_resource")
+		var recipes: Array = []
+		if resource and resource.has_method("get_recipes"):
+			recipes = resource.get_recipes()
+		if recipes.is_empty():
+			# Fallback: legacy single-material
+			var mat = str(r.get("Material", ""))
+			var qty = int(r.get("Quantity", 1))
+			if mat != "":
+				recipes = [{"slots": [{"options": [{"material": mat, "quantity": qty}]}]}]
+
+		_grouped_recipes[product] = {
+			"meta": {
+				"Product": product,
+				"Region": str(r.get("Region", "")),
+				"Description": str(r.get("Description", "")),
+				"Icon": r.get("Icon", null),
+				"output_quantity": int(r.get("Output_Quantity", 1)),
+			},
+			"recipes": recipes,
+			"_resource": resource,
 		}
-
-		if not variant_map.has(product):
-			variant_map[product] = {
-				"meta": {
-					"Product": product,
-					"Region": str(r.get("Region", "")),
-					"Description": str(r.get("Description", "")),
-					"Icon": r.get("Icon", null)
-				},
-				"variants": [],
-				"requirements": [],  # kept for backward compat — uses active variant
-			}
-		variant_map[product]["variants"].append(variant)
-
-	# Build _grouped_recipes — default to first variant's requirements
-	for product in variant_map:
-		var entry = variant_map[product]
-		if entry["variants"].size() > 0:
-			var first = entry["variants"][0]
-			entry["requirements"] = [{
-				"material": first["material"],
-				"quantity": first["quantity"],
-			}]
-			entry["meta"]["output_quantity"] = first.get("output_quantity", 1)
-		_grouped_recipes[product] = entry
 
 
 # ============================================================
@@ -812,27 +798,31 @@ func _select_product(product: String) -> void:
 func _can_craft_product(product: String) -> bool:
 	if not _grouped_recipes.has(product):
 		return false
-	var variants = _grouped_recipes[product].get("variants", [])
-	if variants.is_empty():
-		# Fallback to requirements check
-		return _check_requirements(_grouped_recipes[product].get("requirements", []))
-	# Craftable if ANY variant can be satisfied
-	for variant in variants:
-		var reqs = [{"material": variant.get("material", ""), "quantity": variant.get("quantity", 1)}]
-		if _check_requirements(reqs):
+	var entry = _grouped_recipes[product]
+	var recipes: Array = entry.get("recipes", [])
+	# Craftable if ANY recipe can be fully satisfied
+	for recipe in recipes:
+		if _check_recipe(recipe):
 			return true
 	return false
 
 
-func _check_requirements(reqs: Array) -> bool:
-	for req in reqs:
-		var material = str(req.get("material", ""))
-		var needed = int(req.get("quantity", 1))
-		var matches = _find_inventory_matches(material)
-		var total_have = 0
-		for m in matches:
-			total_have += _to_int(m.get("Quantity", 0))
-		if total_have < needed:
+func _check_recipe(recipe: Dictionary) -> bool:
+	var slots = recipe.get("slots", [])
+	for slot in slots:
+		var options = slot.get("options", [])
+		var any_option_ok = false
+		for opt in options:
+			var mat = str(opt.get("material", ""))
+			var needed = int(opt.get("quantity", 1))
+			var matches = _find_inventory_matches(mat)
+			var total_have = 0
+			for m in matches:
+				total_have += _to_int(m.get("Quantity", 0))
+			if total_have >= needed:
+				any_option_ok = true
+				break
+		if not any_option_ok:
 			return false
 	return true
 
@@ -1061,10 +1051,10 @@ func _build_ingredient_rows(product: String) -> void:
 			c.queue_free()
 
 	var entry = _grouped_recipes.get(product, {})
-	var variants = entry.get("variants", [])
+	var recipes: Array = entry.get("recipes", [])
 
-	# If multiple variants, show a selector dropdown
-	if variants.size() > 1:
+	# If multiple recipes, show a selector dropdown
+	if recipes.size() > 1:
 		var variant_row = HBoxContainer.new()
 		variant_row.add_theme_constant_override("separation", 8)
 		ingredients_container.add_child(variant_row)
@@ -1078,14 +1068,20 @@ func _build_ingredient_rows(product: String) -> void:
 		var variant_dropdown = OptionButton.new()
 		variant_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		variant_dropdown.add_theme_font_size_override("font_size", 14)
-		for vi in variants.size():
-			var v = variants[vi]
-			var out_qty = int(v.get("output_quantity", 1))
-			var label_text = "%dx %s → %dx %s" % [
-				int(v.get("quantity", 1)), str(v.get("material", "?")),
-				out_qty, product
-			]
-			variant_dropdown.add_item(label_text, vi)
+		for vi in recipes.size():
+			var recipe = recipes[vi]
+			var slots = recipe.get("slots", [])
+			var parts: Array = []
+			for slot in slots:
+				var opts = slot.get("options", [])
+				if opts.size() == 1:
+					parts.append("%dx %s" % [int(opts[0].get("quantity", 1)), str(opts[0].get("material", "?"))])
+				elif opts.size() > 1:
+					var opt_strs: Array = []
+					for o in opts:
+						opt_strs.append("%dx %s" % [int(o.get("quantity", 1)), str(o.get("material", "?"))])
+					parts.append("(%s)" % " or ".join(opt_strs))
+			variant_dropdown.add_item("Recipe %d: %s" % [vi + 1, " + ".join(parts)], vi)
 		variant_dropdown.selected = 0
 		variant_dropdown.item_selected.connect(func(idx):
 			_active_variant_idx = idx
@@ -1103,7 +1099,7 @@ func _build_ingredient_rows(product: String) -> void:
 		variant_dropdown.add_theme_color_override("font_color", TEXT)
 		variant_row.add_child(variant_dropdown)
 
-	# Use the active variant's requirements
+	# Use the active recipe
 	_apply_variant(product, _active_variant_idx)
 
 
@@ -1118,20 +1114,25 @@ func _switch_variant(product: String, variant_idx: int) -> void:
 
 func _apply_variant(product: String, variant_idx: int) -> void:
 	var entry = _grouped_recipes.get(product, {})
-	var variants = entry.get("variants", [])
-	if variant_idx >= variants.size():
+	var recipes: Array = entry.get("recipes", [])
+	if variant_idx >= recipes.size():
 		return
 
-	var variant = variants[variant_idx]
-	var reqs = [{"material": variant["material"], "quantity": variant["quantity"]}]
-
-	# Update the entry's active requirements and output_quantity
-	entry["requirements"] = reqs
-	entry["meta"]["output_quantity"] = variant.get("output_quantity", 1)
+	var recipe = recipes[variant_idx]
+	var slots = recipe.get("slots", [])
 
 	_slot_requirements = []
-	for i in range(reqs.size()):
-		var req = reqs[i]
+	for i in range(slots.size()):
+		var slot = slots[i]
+		var options = slot.get("options", [])
+		# Build a requirement dict with the first option as default
+		var req = {}
+		if options.size() == 1:
+			req = {"material": str(options[0].get("material", "")), "quantity": int(options[0].get("quantity", 1))}
+		elif options.size() > 1:
+			req = {"material": str(options[0].get("material", "")), "quantity": int(options[0].get("quantity", 1)), "options": options}
+		else:
+			continue
 		_slot_requirements.append(req)
 		var slot_panel = _create_ingredient_slot(i, req)
 		ingredients_container.add_child(slot_panel)
@@ -1144,6 +1145,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	var material = str(req.get("material", "Material"))
 	var need_per = int(req.get("quantity", 1))
 	var need_total = need_per * int(qty_spin.value)
+	var options = req.get("options", [])
 
 	var matches = _find_inventory_matches(material)
 	var best_have = 0
@@ -1152,6 +1154,19 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 		if h > best_have:
 			best_have = h
 	var satisfied = (best_have >= need_total)
+
+	# Check if any alternative option is satisfied
+	if not satisfied and options.size() > 1:
+		for opt in options:
+			var opt_mat = str(opt.get("material", ""))
+			var opt_need = int(opt.get("quantity", 1)) * int(qty_spin.value)
+			var opt_matches = _find_inventory_matches(opt_mat)
+			for m in opt_matches:
+				if _to_int(m.get("Quantity", 0)) >= opt_need:
+					satisfied = true
+					break
+			if satisfied:
+				break
 
 	# Slot panel
 	var slot = PanelContainer.new()
@@ -1192,16 +1207,36 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 		icon_rect.texture = mat_tex
 	hbox.add_child(icon_rect)
 
-	# Material name
-	var name_label = Label.new()
-	name_label.text = material
-	name_label.add_theme_font_size_override("font_size", 15)
-	name_label.add_theme_color_override("font_color", TEXT)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.clip_text = true
-	hbox.add_child(name_label)
+	# Material name / option selector
+	if options.size() > 1:
+		# Multi-option slot: show dropdown to pick which material
+		var opt_select = OptionButton.new()
+		opt_select.name = "OptSelect_%d" % slot_idx
+		opt_select.custom_minimum_size.x = 200
+		opt_select.add_theme_font_size_override("font_size", 14)
+		for oi in options.size():
+			var o = options[oi]
+			opt_select.add_item("%dx %s" % [int(o.get("quantity", 1)), str(o.get("material", "?"))], oi)
+		opt_select.selected = 0
+		var sidx = slot_idx
+		opt_select.item_selected.connect(func(idx):
+			# Update the requirement for this slot to the selected option
+			var selected_opt = options[idx]
+			_slot_requirements[sidx] = {"material": str(selected_opt.get("material", "")), "quantity": int(selected_opt.get("quantity", 1)), "options": options}
+			# Rebuild this slot
+			_rebuild_single_slot(sidx)
+		)
+		hbox.add_child(opt_select)
+	else:
+		var name_label = Label.new()
+		name_label.text = material
+		name_label.add_theme_font_size_override("font_size", 15)
+		name_label.add_theme_color_override("font_color", TEXT)
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.clip_text = true
+		hbox.add_child(name_label)
 
-	# Dropdown
+	# Inventory item dropdown (find matching items in inventory)
 	var opt = OptionButton.new()
 	opt.name = "Opt_%d" % slot_idx
 	opt.custom_minimum_size.x = 220
@@ -1314,6 +1349,19 @@ func _on_qty_changed(_v: float) -> void:
 	# Rebuild ingredient rows to reflect new quantities
 	_build_ingredient_rows(_selected_product)
 
+
+func _rebuild_single_slot(slot_idx: int) -> void:
+	# Find and replace the slot panel in ingredients_container
+	var slot_node = ingredients_container.get_node_or_null("Slot_%d" % slot_idx)
+	if slot_node == null:
+		return
+	var idx = slot_node.get_index()
+	slot_node.queue_free()
+	var new_slot = _create_ingredient_slot(slot_idx, _slot_requirements[slot_idx])
+	ingredients_container.add_child(new_slot)
+	ingredients_container.move_child(new_slot, idx)
+	_validate_all_slots()
+	_refresh_confirm_enabled()
 
 func _validate_all_slots() -> void:
 	for i in range(_slot_requirements.size()):

@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_jimlx"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_jimlx")
-id = 23
+script = ExtResource("1_script")
+id = 101
 product = "Sharpshooters Oath"
 region = "Mondstadt"
 description = "1 ATT, 0.75 CD"
 role = "Blacksmith"
-material = "White Iron Chunk"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"White Iron Chunk\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

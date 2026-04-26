@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_u6mhh"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_u6mhh")
-id = 31
+script = ExtResource("1_script")
+id = 70
 product = "Inazuma Random Legendary Weapon"
 region = "Inazuma"
 description = "Used to craft a random Legendary weapon from Inazuma."
 role = "Blacksmith"
-material = "Crystal Marrow"
-quantity = 35
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sharp Arrowhead\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Inazuma Legendary Weapon Billet\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

@@ -1,14 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_udybw"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_udybw")
-id = 137
+script = ExtResource("1_script")
+id = 43
 product = "Blackcliff Warbow"
 region = "Liyue"
-description = "3 ATT, 0.75 CD
-When you kill an enemy immediately take another turn, when an enemy hits you, they immediately take another turn."
+description = "\"3 ATT, 0.75 CD"
 role = "Blacksmith"
-material = "2-Star Gem"
-quantity = 2
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Segment\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r4wna"]
+
+[resource]
+script = ExtResource("1_r4wna")
+id = 140
+product = "Barbeque Ribs"
+region = "Liyue"
+description = "Increases all party members ATT by 3 for next battle."
+role = "Artisan"
+material = "Cecilia"
+quantity = 2

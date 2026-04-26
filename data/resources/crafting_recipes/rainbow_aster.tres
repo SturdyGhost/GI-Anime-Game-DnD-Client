@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_sm05h"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_sm05h")
-id = 54
+script = ExtResource("1_script")
+id = 92
 product = "Rainbow Aster"
 region = "Liyue"
 description = "Restores 10 HP + 1 HP per turn for 5 turns."
 role = "Artisan"
-material = "Sea Ganoderma"
-quantity = 6
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Amakumo Fruit\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Berry\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_v0lac"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_v0lac")
-id = 55
+script = ExtResource("1_script")
+id = 116
 product = "Twin Nephrite"
 region = "Mondstadt"
 description = "1 EM, 0.25 CD"
 role = "Blacksmith"
-material = "Glaze Lily"
-quantity = 5
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":5}]}]}]"
+material = ""
+quantity = 0

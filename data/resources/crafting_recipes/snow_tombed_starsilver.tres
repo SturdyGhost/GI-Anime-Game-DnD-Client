@@ -1,14 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_spe3i"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_spe3i")
-id = 196
+script = ExtResource("1_script")
+id = 107
 product = "Snow-Tombed Starsilver"
 region = "Mondstadt"
-description = "2 ATT, +4 Physical Dmg
-Normal + Charged Attacks cost 1 HP From Ally (not you)"
+description = "\"2 ATT, +4 Physical Dmg"
 role = "Blacksmith"
-material = "Iron Chunk"
-quantity = 35
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"White Iron Chunk\",\"quantity\":35}]}]}]"
+material = ""
+quantity = 0

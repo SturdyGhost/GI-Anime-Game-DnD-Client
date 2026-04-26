@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_aky1u"]
+
+[resource]
+script = ExtResource("1_aky1u")
+id = 39
+product = "Cool Steel"
+region = "Mondstadt"
+description = "4 ATT"
+role = "Blacksmith"
+material = "1-Star Ice Gem"
+quantity = 1

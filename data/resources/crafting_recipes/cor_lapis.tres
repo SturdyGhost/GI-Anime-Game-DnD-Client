@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_j8oc3"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_j8oc3")
-id = 166
+script = ExtResource("1_script")
+id = 48
 product = "Cor Lapis"
 region = "Liyue"
 description = "Anthracite made using Mithril and Crystal Marrow"
 role = "Blacksmith"
-material = "Crystal Marrow"
-quantity = 1
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0

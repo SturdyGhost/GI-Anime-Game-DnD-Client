@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_5ekbq"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_5ekbq")
-id = 65
+script = ExtResource("1_script")
+id = 91
 product = "Radish Veggie Soup"
 region = "Mondstadt"
 description = "Revives a character at half health."
 role = "Artisan"
-material = "Calla Lily"
-quantity = 2
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Raw Meat\",\"quantity\":2}]}]}]"
+material = ""
+quantity = 0

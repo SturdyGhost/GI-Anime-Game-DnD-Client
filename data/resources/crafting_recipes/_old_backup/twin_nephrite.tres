@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_v0lac"]
+
+[resource]
+script = ExtResource("1_v0lac")
+id = 55
+product = "Twin Nephrite"
+region = "Mondstadt"
+description = "1 EM, 0.25 CD"
+role = "Blacksmith"
+material = "Glaze Lily"
+quantity = 5

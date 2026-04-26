@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_qvsun"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_qvsun")
-id = 40
+script = ExtResource("1_script")
+id = 33
 product = "Apple Cider"
 region = "Inazuma"
 description = "Restores 10 HP."
 role = "Artisan"
-material = "Wolfhook"
-quantity = 2
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Berry\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":4}]}]}]"
+material = ""
+quantity = 0

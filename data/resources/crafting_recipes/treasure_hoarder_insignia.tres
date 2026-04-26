@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_72lgr"]
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
-script = ExtResource("1_72lgr")
-id = 162
+script = ExtResource("1_script")
+id = 115
 product = "Treasure Hoarder Insignia"
 region = "Mondstadt"
 description = "Steel made using Iron and Refined Coal"
 role = "Blacksmith"
-material = "Clearwater Jade"
-quantity = 1
+output_quantity = 1
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Clearwater Jade\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":1}]}]}]"
+material = ""
+quantity = 0
