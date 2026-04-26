@@ -7,20 +7,12 @@ class_name CraftingRecipeData extends Resource
 @export var role: String
 @export var output_quantity: int = 1
 
-## JSON string encoding the recipe structure:
-## [
-##   {
-##     "slots": [
-##       { "options": [ {"material": "Iron", "quantity": 1} ] },
-##       { "options": [ {"material": "Coal", "quantity": 2}, {"material": "Steel", "quantity": 3} ] }
-##     ]
-##   }
-## ]
-## Each top-level entry is an alternative recipe. All slots in a recipe must be filled.
-## Each slot can have multiple material options (player picks one).
-@export var recipes_json: String = "[]"
+## Alternative recipes — player picks ONE recipe, but must fill ALL slots in it.
+## Each slot can accept one of several material options.
+@export var recipes: Array[CraftingRecipeEntry] = []
 
-# Legacy fields — kept for backwards compat during migration, ignored by new code
+# Legacy fields — auto-converted to recipes on load if recipes array is empty
+@export var recipes_json: String = ""
 @export var material: String = ""
 @export var quantity: int = 0
 
@@ -37,45 +29,63 @@ static func from_dict(d: Dictionary) -> CraftingRecipeData:
 	r.output_quantity = _i(d.get("Output_Quantity", 1))
 	if r.output_quantity < 1:
 		r.output_quantity = 1
-	# New format
-	r.recipes_json = _s(d.get("Recipes_JSON", "[]"))
-	# Legacy single-material format — auto-convert to new format if recipes_json empty
+	# Legacy JSON format — parse into typed resources
+	var json_str = _s(d.get("Recipes_JSON", ""))
+	if json_str != "" and json_str != "[]":
+		r.recipes = _parse_json_to_resources(json_str)
+	# Legacy single-material format
 	r.material = _s(d.get("Material"))
 	r.quantity = _i(d.get("Quantity"))
-	if r.recipes_json == "[]" and r.material != "":
-		r.recipes_json = JSON.stringify([{
-			"slots": [{"options": [{"material": r.material, "quantity": r.quantity}]}]
-		}])
+	if r.recipes.is_empty() and r.material != "":
+		var opt = CraftingMaterialOption.new()
+		opt.material = r.material
+		opt.quantity = r.quantity
+		var slot = CraftingSlot.new()
+		slot.options = [opt]
+		var entry = CraftingRecipeEntry.new()
+		entry.slots = [slot]
+		r.recipes = [entry]
 	return r
 
-## Parse recipes_json into an Array of recipe dicts.
+## Convert recipes_json string to typed resource array.
+static func _parse_json_to_resources(json_str: String) -> Array[CraftingRecipeEntry]:
+	var parsed = JSON.parse_string(json_str)
+	if not parsed is Array:
+		return []
+	var result: Array[CraftingRecipeEntry] = []
+	for recipe_dict in parsed:
+		var entry = CraftingRecipeEntry.new()
+		for slot_dict in recipe_dict.get("slots", []):
+			var slot = CraftingSlot.new()
+			for opt_dict in slot_dict.get("options", []):
+				var opt = CraftingMaterialOption.new()
+				opt.material = str(opt_dict.get("material", ""))
+				opt.quantity = int(opt_dict.get("quantity", 1))
+				slot.options.append(opt)
+			entry.slots.append(slot)
+		result.append(entry)
+	return result
+
+## Get recipes as an Array of Dictionaries (for code that expects the old dict format).
 func get_recipes() -> Array:
-	var parsed = JSON.parse_string(recipes_json)
-	if parsed is Array:
-		return parsed
+	# Convert typed resources to dicts for backwards compat with CraftingMenu
+	if recipes.size() > 0:
+		var out: Array = []
+		for entry in recipes:
+			var slots_arr: Array = []
+			for slot in entry.slots:
+				var opts_arr: Array = []
+				for opt in slot.options:
+					opts_arr.append({"material": opt.material, "quantity": opt.quantity})
+				slots_arr.append({"options": opts_arr})
+			out.append({"slots": slots_arr})
+		return out
+	# Fallback: try JSON
+	if recipes_json != "" and recipes_json != "[]":
+		var parsed = JSON.parse_string(recipes_json)
+		if parsed is Array:
+			return parsed
 	# Fallback: legacy single-material
 	if material != "" and quantity > 0:
 		return [{"slots": [{"options": [{"material": material, "quantity": quantity}]}]}]
 	return []
-
-## Convenience: check if a recipe can be fulfilled given an inventory lookup function.
-## inv_lookup: func(material_name: String) -> int (returns quantity owned)
-func can_craft_recipe(recipe: Dictionary, craft_qty: int, inv_lookup: Callable) -> bool:
-	for slot in recipe.get("slots", []):
-		var any_option_works = false
-		for option in slot.get("options", []):
-			var need = int(option.get("quantity", 1)) * craft_qty
-			var have = inv_lookup.call(str(option.get("material", "")))
-			if have >= need:
-				any_option_works = true
-				break
-		if not any_option_works:
-			return false
-	return true
-
-## Check if ANY recipe is craftable.
-func can_craft_any(craft_qty: int, inv_lookup: Callable) -> bool:
-	for recipe in get_recipes():
-		if can_craft_recipe(recipe, craft_qty, inv_lookup):
-			return true
-	return false
