@@ -1901,7 +1901,27 @@ func check_battle_end():
 			var summary = {}
 			if _battle_logger:
 				summary = _battle_logger.end_battle()
+
+			# Snapshot enemies for loot calc before cleanup removes them
+			var enemy_snapshot: Array = []
+			for enemy in Global.BATTLEENEMIES.values():
+				var enemy_name = str(enemy.get("Enemy_Name", enemy.get("Name", "")))
+				var enemy_def = GameDB.enemies_by_name.get(enemy_name, null)
+				if enemy_def:
+					enemy_snapshot.append({"tier": enemy_def.tier})
+				else:
+					enemy_snapshot.append({"tier": "common"})
+
 			_host_battle_cleanup()
+
+			# Generate loot and attach to summary
+			var loot = LootGenerator.generate_all_loot(enemy_snapshot, Global.Current_Region)
+			_persist_loot(loot)
+			summary["player_loot"] = loot
+			summary["difficulty_score"] = LootGenerator.calc_difficulty_score(enemy_snapshot)
+			var tier_data = LootGenerator.get_loot_tier(summary["difficulty_score"])
+			summary["loot_tier"] = tier_data["tier"] if tier_data else "Nothing"
+
 			# Send summary to all clients via NetworkManager (node-path safe)
 			if not summary.is_empty():
 				NetworkManager.broadcast_battle_summary(summary)
@@ -1950,6 +1970,36 @@ func _host_battle_cleanup() -> void:
 	NetworkManager.broadcast_table_update("BattleEnemies")
 	Global.end_battle_effects()
 	# Don't call _go_to_hub() here — let the summary screen handle it
+
+
+func _persist_loot(loot: Dictionary) -> void:
+	for player_name in loot:
+		var player_loot: Dictionary = loot[player_name]
+		for mat_name in player_loot:
+			var qty: int = player_loot[mat_name]
+			if qty <= 0:
+				continue
+			var found_id: int = -1
+			for item in Global.CHARACTER_ITEMS.values():
+				if str(item.get("Character_Name", "")) == player_name and str(item.get("Item", "")) == mat_name:
+					found_id = int(item.get("id", -1))
+					break
+			if found_id > 0:
+				var old_qty = int(Global.CHARACTER_ITEMS[str(found_id)].get("Quantity", 0))
+				Global.Update_Records([{
+					"table": "Character_Items",
+					"record_id": found_id,
+					"field": "Quantity",
+					"value": old_qty + qty
+				}])
+			else:
+				var item_def = GameDB.items_by_name.get(mat_name, null)
+				var item_type = item_def.type if item_def else "Material"
+				var item_rarity = item_def.rarity if item_def else "Common"
+				var item_desc = item_def.description if item_def else ""
+				Global.Insert("Character_Items",
+					["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
+					[player_name, mat_name, qty, item_type, item_rarity, item_desc])
 
 
 func _assign_random_roles() -> void:
