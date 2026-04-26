@@ -78,8 +78,16 @@ func role_check():
 	if Player_data == null or Player_data.is_empty():
 		return
 	var role = Player_data.get("Role")
-	var crafting_btn = $"UI/BottomHotbar/HBoxContainer/Crafting Button"
-	var research_btn = $"UI/BottomHotbar/HBoxContainer/Research Button"
+	var hotbar = $"UI/BottomHotbar/HBoxContainer"
+	# Try new button names first, fall back to old TextureButton names
+	var crafting_btn = hotbar.get_node_or_null("CraftingButton_Btn")
+	if crafting_btn == null:
+		crafting_btn = hotbar.get_node_or_null("Crafting Button")
+	var research_btn = hotbar.get_node_or_null("ResearchButton_Btn")
+	if research_btn == null:
+		research_btn = hotbar.get_node_or_null("Research Button")
+	if crafting_btn == null or research_btn == null:
+		return
 	match role:
 		"Artisan", "Blacksmith":
 			crafting_btn.disabled = false
@@ -165,7 +173,6 @@ func _try_initial_setup() -> void:
 	_initial_setup_done = true
 	set_ui()
 	set_background()
-	role_check()
 	restore_health()
 	if Global.Luck_Set == false:
 		trigger_luck_popup()
@@ -174,36 +181,66 @@ func _try_initial_setup() -> void:
 	if Global.get("_returned_from_battle") == true:
 		Global._returned_from_battle = false
 		call_deferred("_deferred_market_refresh")
-		if NetworkManager.is_host:
-			_process_expedition_returns()
 	if Global.is_offline:
 		_show_offline_indicator()
-		# Replace combat button with a plain text button for inventory management
-		if CombatButton != null:
-			var parent = CombatButton.get_parent()
-			var idx = CombatButton.get_index()
-			var btn_size = CombatButton.custom_minimum_size
-			CombatButton.visible = false
-			var inv_btn = Button.new()
-			inv_btn.name = "OfflineInventoryBtn"
-			inv_btn.text = "Manage\nInventory"
-			inv_btn.custom_minimum_size = btn_size
-			inv_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			inv_btn.pressed.connect(_open_offline_management)
-			parent.add_child(inv_btn)
-			parent.move_child(inv_btn, idx)
-	# Gathering replaced by Expeditions
-	var gather_btn = $"UI/BottomHotbar/HBoxContainer/Gather Button"
-	if gather_btn:
-		gather_btn.text = "Expeditions"
-		if gather_btn.is_connected("pressed", _on_gather_button_pressed):
-			gather_btn.disconnect("pressed", _on_gather_button_pressed)
-		if not gather_btn.is_connected("pressed", _on_expeditions_button_pressed):
-			gather_btn.connect("pressed", _on_expeditions_button_pressed)
-	# Wire Practice button to Battle Simulator
-	var practice_btn = $"UI/BottomHotbar/HBoxContainer/Practice Button"
-	if practice_btn:
-		practice_btn.pressed.connect(_open_simulator)
+	# Replace all TextureButtons in bottom hotbar with regular Buttons
+	_convert_hotbar_buttons()
+	role_check()
+
+func _convert_hotbar_buttons() -> void:
+	var hotbar = $"UI/BottomHotbar/HBoxContainer"
+	if hotbar == null:
+		return
+
+	# Map button names to their handlers and display labels
+	# Gather → Expeditions, Research removed for non-Scout (handled by role_check disabling)
+	var button_config := {
+		"Market Button": {"label": "Market", "handler": "_on_market_button_pressed"},
+		"Minigames Button": {"label": "Minigames", "handler": "_on_minigames_button_pressed"},
+		"Crafting Button": {"label": "Crafting", "handler": "_on_crafting_button_pressed"},
+		"Research Button": {"label": "Research", "handler": "_on_research_button_pressed"},
+		"Gather Button": {"label": "Expeditions", "handler": "_on_expeditions_button_pressed"},
+		"Combat Button": {"label": "Combat", "handler": "_on_combat_button_pressed"},
+		"Practice Button": {"label": "Practice", "handler": "_open_simulator"},
+		"Exit Button": {"label": "Exit", "handler": "_on_exit_button_pressed"},
+	}
+
+	for btn_name in button_config:
+		var old_btn = hotbar.get_node_or_null(btn_name)
+		if old_btn == null:
+			continue
+		var config = button_config[btn_name]
+		var idx = old_btn.get_index()
+		var btn_size = old_btn.custom_minimum_size
+		var is_disabled = old_btn.disabled if "disabled" in old_btn else false
+		old_btn.visible = false
+
+		# Check if replacement already exists
+		var new_name = btn_name.replace(" ", "") + "_Btn"
+		if hotbar.get_node_or_null(new_name) != null:
+			continue
+
+		var new_btn = Button.new()
+		new_btn.name = new_name
+		new_btn.text = config["label"]
+		new_btn.custom_minimum_size = btn_size
+		new_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		new_btn.add_theme_font_size_override("font_size", 18)
+		new_btn.disabled = is_disabled
+		if has_method(config["handler"]):
+			new_btn.pressed.connect(Callable(self, config["handler"]))
+		hotbar.add_child(new_btn)
+		hotbar.move_child(new_btn, idx)
+
+	# In offline mode, replace Combat with Manage Inventory
+	if Global.is_offline:
+		var combat_btn = hotbar.get_node_or_null("CombatButton_Btn")
+		if combat_btn:
+			combat_btn.text = "Manage\nInventory"
+			if combat_btn.is_connected("pressed", _on_combat_button_pressed):
+				combat_btn.disconnect("pressed", _on_combat_button_pressed)
+			if not combat_btn.is_connected("pressed", _open_offline_management):
+				combat_btn.pressed.connect(_open_offline_management)
 
 func _open_simulator() -> void:
 	var s: PackedScene = preload("res://Scenes/UI/battle_simulator.tscn")
@@ -337,7 +374,7 @@ func set_ui():
 		role_label.add_theme_font_size_override("font_size", 16)
 		role_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		$UI/TopHotbar.add_child(role_label)
-	var role_text = str(Player_data.get("Role", ""))
+	var role_text = str(Player_data.get("Role", "")) if Player_data != null else ""
 	role_label.text = role_text
 	match role_text:
 		"Artisan":

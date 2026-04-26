@@ -1971,9 +1971,80 @@ func _finalize_battle_summary(summary: Dictionary, enemy_snapshot: Array, challe
 
 	Global.active_challenge_quest = {}
 
+	# Process expedition returns so results show on summary screen
+	_process_expedition_returns()
+
 	if not summary.is_empty():
 		NetworkManager.broadcast_battle_summary(summary)
 	_show_battle_summary(summary)
+
+
+func _process_expedition_returns() -> void:
+	# Load from Party record (synced) or Global fallback
+	var party = Global.Current_Party
+	var assignments = Global.get("_expedition_assignments")
+	var pool = Global.get("_expedition_pool")
+
+	if party:
+		var assign_json = str(party.get("Expedition_Assignments", ""))
+		if assign_json != "":
+			var parsed = JSON.parse_string(assign_json)
+			if parsed is Dictionary and not parsed.is_empty():
+				assignments = parsed
+		var pool_json = str(party.get("Expedition_Pool", ""))
+		if pool_json != "":
+			var parsed = JSON.parse_string(pool_json)
+			if parsed is Array and parsed.size() > 0:
+				pool = parsed
+
+	if not assignments is Dictionary or assignments.is_empty():
+		return
+	if not pool is Array or pool.is_empty():
+		return
+	var results: Array = []
+	for idx_key in assignments:
+		var idx = int(idx_key)
+		if idx >= pool.size():
+			continue
+		var exp = ExpeditionData.from_dict(pool[idx])
+		var comp_name: String = str(assignments[idx_key])
+		var comp_data: Dictionary = {}
+		for comp in Global.COMPANIONS.values():
+			if str(comp.get("Name", "")) == comp_name:
+				comp_data = comp
+				break
+		if comp_data.is_empty():
+			continue
+		var exp_loot = ExpeditionManager.process_results(exp, comp_data)
+		results.append({"expedition": exp.expedition_name, "companion": comp_name, "loot": exp_loot})
+		# Persist loot to inventory
+		for mat_name in exp_loot:
+			_persist_expedition_item(comp_name, mat_name, exp_loot[mat_name])
+	Global._expedition_results = results
+	Global._expedition_assignments = {}
+	Global._expedition_pool = []
+
+	# Clear Party record fields
+	if party and party.get("id") != null:
+		var party_id = int(party.get("id"))
+		Global.Update_Records([
+			{"table": "Party", "record_id": party_id, "field": "Expedition_Pool", "value": ""},
+			{"table": "Party", "record_id": party_id, "field": "Expedition_Assignments", "value": ""},
+		])
+
+func _persist_expedition_item(owner_name: String, mat_name: String, qty: int) -> void:
+	for item in Global.CHARACTER_ITEMS.values():
+		if str(item.get("Character_Name", "")) == owner_name and str(item.get("Item", "")) == mat_name:
+			var old_qty = int(item.get("Quantity", 0))
+			Global.Update_Records([{"table": "Character_Items", "record_id": int(item.get("id", 0)), "field": "Quantity", "value": old_qty + qty}])
+			return
+	var item_def = GameDB.items_by_name.get(mat_name, null)
+	Global.Insert("Character_Items",
+		["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
+		[owner_name, mat_name, qty,
+		item_def.type if item_def else "Material",
+		item_def.rarity if item_def else "Common",
+		item_def.description if item_def else ""])
 
 
 func _host_battle_cleanup() -> void:

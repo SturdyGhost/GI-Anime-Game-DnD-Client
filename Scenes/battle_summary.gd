@@ -189,6 +189,29 @@ func show_summary(summary: Dictionary) -> void:
 				var qty_lbl = _label("x%d" % qty, 14, COL_GREEN)
 				loot_grid.add_child(qty_lbl)
 
+	# ── Expedition returns ───────────────────────────────────────────────────
+	var exp_results: Array = Global.get("_expedition_results") if Global.get("_expedition_results") is Array else []
+	if exp_results.size() > 0:
+		root_vbox.add_child(_separator())
+		var exp_header = _label("EXPEDITION RETURNS", 16, Color(0.6, 0.85, 0.5))
+		exp_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		root_vbox.add_child(exp_header)
+
+		for result in exp_results:
+			var comp_name: String = str(result.get("companion", ""))
+			var exp_name: String = str(result.get("expedition", ""))
+			var loot: Dictionary = result.get("loot", {})
+			var result_lbl: Label
+			if loot.is_empty():
+				result_lbl = _label("%s returned empty-handed from %s" % [comp_name, exp_name], 13, COL_RED)
+			else:
+				var items_arr: Array = []
+				for k in loot:
+					items_arr.append("%s x%d" % [k, loot[k]])
+				result_lbl = _label("%s from %s: %s" % [comp_name, exp_name, ", ".join(items_arr)], 13, COL_TEXT)
+			result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			root_vbox.add_child(result_lbl)
+
 	root_vbox.add_child(_separator())
 
 	# ── Continue button ──────────────────────────────────────────────────────

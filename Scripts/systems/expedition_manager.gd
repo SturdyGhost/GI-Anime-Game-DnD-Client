@@ -86,7 +86,10 @@ static func process_results(expedition: ExpeditionData, companion: Dictionary) -
 	var loot: Dictionary = {}
 	var base_qty: int = expedition.base_materials
 	var final_qty: int = maxi(int(ceil(base_qty * bonus)), 1)
-	if expedition.risk_level == "risky":
+	if expedition.risk_level == "moderate":
+		if randf() < 0.1:
+			return {}
+	elif expedition.risk_level == "risky":
 		if randf() < 0.3:
 			return {}
 		final_qty = int(ceil(final_qty * 1.5))

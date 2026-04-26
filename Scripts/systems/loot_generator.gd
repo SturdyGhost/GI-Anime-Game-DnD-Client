@@ -55,7 +55,12 @@ static func apply_luck(base_qty: int, luck: int) -> int:
 static func pick_caches(region: String, count: int) -> Array:
 	var region_caches: Array = []
 	for cache in GameDB.material_caches.values():
-		if str(cache.get("region", cache.get("Region", ""))) == region:
+		var cache_region: String = ""
+		if cache is MaterialCacheData:
+			cache_region = cache.region
+		else:
+			cache_region = str(cache.get("Region", ""))
+		if cache_region == region:
 			region_caches.append(cache)
 	region_caches.shuffle()
 	return region_caches.slice(0, mini(count, region_caches.size()))

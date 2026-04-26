@@ -387,7 +387,7 @@ func _build_preview_contents() -> void:
 	_preview_name = Label.new()
 	_preview_name.text = "Select an item"
 	_preview_name.add_theme_color_override("font_color", TEXT)
-	_preview_name.add_theme_font_size_override("font_size", 20)
+	_preview_name.add_theme_font_size_override("font_size", 24)
 	_preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_vbox.add_child(_preview_name)
@@ -407,7 +407,7 @@ func _build_preview_contents() -> void:
 	# Effect
 	_preview_effect = Label.new()
 	_preview_effect.add_theme_color_override("font_color", TEXT_SEC)
-	_preview_effect.add_theme_font_size_override("font_size", 14)
+	_preview_effect.add_theme_font_size_override("font_size", 16)
 	_preview_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_effect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_effect.custom_minimum_size = Vector2(0, 40)
@@ -435,7 +435,7 @@ func _build_preview_contents() -> void:
 	var qty_label = Label.new()
 	qty_label.text = "Qty:"
 	qty_label.add_theme_color_override("font_color", TEXT_SEC)
-	qty_label.add_theme_font_size_override("font_size", 14)
+	qty_label.add_theme_font_size_override("font_size", 16)
 	qty_hbox.add_child(qty_label)
 
 	_preview_qty_spin = SpinBox.new()
@@ -443,7 +443,7 @@ func _build_preview_contents() -> void:
 	_preview_qty_spin.max_value = 0
 	_preview_qty_spin.value = 0
 	_preview_qty_spin.custom_minimum_size = Vector2(80, 0)
-	_preview_qty_spin.add_theme_font_size_override("font_size", 14)
+	_preview_qty_spin.add_theme_font_size_override("font_size", 16)
 	_preview_qty_spin.value_changed.connect(_on_quantity_changed)
 	qty_hbox.add_child(_preview_qty_spin)
 
@@ -455,7 +455,7 @@ func _build_preview_contents() -> void:
 	_preview_total_label = Label.new()
 	_preview_total_label.text = ""
 	_preview_total_label.add_theme_color_override("font_color", GOLD)
-	_preview_total_label.add_theme_font_size_override("font_size", 16)
+	_preview_total_label.add_theme_font_size_override("font_size", 18)
 	_preview_total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_preview_vbox.add_child(_preview_total_label)
 
@@ -659,6 +659,8 @@ func _build_item_row(r: Dictionary, idx: int) -> PanelContainer:
 		price_lbl.text = str(eff_price) + " Mora"
 		price_lbl.add_theme_color_override("font_color", ACCENT)
 		price_lbl.add_theme_font_size_override("font_size", 14)
+		price_lbl.custom_minimum_size = Vector2(90, 0)
+		price_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		hbox.add_child(price_lbl)
 
 	# Stock / owned qty
@@ -866,13 +868,23 @@ func _build_stats_grid(r: Dictionary) -> void:
 		_add_stat_row("Description", str(desc))
 		has_stats = true
 
+	# Artifact set bonuses
+	var set_name = r.get("Artifact_Set", r.get("Set_Name", ""))
+	if set_name != null and str(set_name) != "" and str(set_name) != "null":
+		for set_data in GameDB.artifact_sets.values():
+			if str(set_data.artifact_set) == str(set_name):
+				var bonus_label = "%d-Piece" % set_data.bonus_type
+				var effect_text = str(set_data.effect) if set_data.effect != "" else str(set_data.stat_modifier) + " +" + str(set_data.stat_modifier_value)
+				_add_stat_row(bonus_label, effect_text)
+				has_stats = true
+
 	_preview_stats_grid.visible = has_stats
 
 func _add_stat_row(stat_name: String, stat_val: String) -> void:
 	var lbl = Label.new()
 	lbl.text = stat_name.replace("_", " ") + ": " + stat_val
 	lbl.add_theme_color_override("font_color", TEXT)
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 16)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_stats_grid.add_child(lbl)

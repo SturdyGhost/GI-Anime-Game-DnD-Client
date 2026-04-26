@@ -25,18 +25,38 @@ func _ready() -> void:
 	_build_ui()
 
 func _load_state() -> void:
-	var saved_pool = Global.get("_expedition_pool")
-	if saved_pool is Array and saved_pool.size() > 0:
-		_expedition_pool = []
-		for d in saved_pool:
-			_expedition_pool.append(ExpeditionData.from_dict(d))
-	else:
-		_expedition_pool = ExpeditionManager.generate_pool(Global.Current_Region)
-		Global._expedition_pool = _expedition_pool.map(func(e): return e.to_dict())
+	# Load from Party record (synced to all clients) or Global fallback
+	var party = Global.Current_Party
+	var pool_json = str(party.get("Expedition_Pool", "")) if party else ""
+	var assign_json = str(party.get("Expedition_Assignments", "")) if party else ""
 
-	var saved_assignments = Global.get("_expedition_assignments")
-	if saved_assignments is Dictionary:
-		_assignments = saved_assignments.duplicate()
+	if pool_json != "":
+		var parsed = JSON.parse_string(pool_json)
+		if parsed is Array and parsed.size() > 0:
+			_expedition_pool = []
+			for d in parsed:
+				_expedition_pool.append(ExpeditionData.from_dict(d))
+
+	# Fallback to Global if Party doesn't have it yet
+	if _expedition_pool.is_empty():
+		var saved_pool = Global.get("_expedition_pool")
+		if saved_pool is Array and saved_pool.size() > 0:
+			_expedition_pool = []
+			for d in saved_pool:
+				_expedition_pool.append(ExpeditionData.from_dict(d))
+		else:
+			_expedition_pool = ExpeditionManager.generate_pool(Global.Current_Region)
+			_save_state()
+
+	if assign_json != "":
+		var parsed = JSON.parse_string(assign_json)
+		if parsed is Dictionary:
+			_assignments = parsed
+
+	if _assignments.is_empty():
+		var saved_assignments = Global.get("_expedition_assignments")
+		if saved_assignments is Dictionary:
+			_assignments = saved_assignments.duplicate()
 
 	var results = Global.get("_expedition_results")
 	if results is Array:
@@ -97,6 +117,12 @@ func _build_ui() -> void:
 	close_btn.custom_minimum_size = Vector2(40, 40)
 	close_btn.pressed.connect(func(): panel_closed.emit())
 	header_row.add_child(close_btn)
+
+	var info_label = Label.new()
+	info_label.text = "Assign idle companions to expeditions. Results are collected after your next battle."
+	info_label.add_theme_font_size_override("font_size", 13)
+	info_label.add_theme_color_override("font_color", MUTED)
+	root.add_child(info_label)
 
 	# Pending results
 	if _pending_results.size() > 0:
@@ -225,12 +251,23 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	elif exp.risk_level == "moderate":
 		risk_color = ACCENT
 
+	var risk_text = "High" if exp.risk_level == "risky" else exp.risk_level.capitalize()
 	var desc = Label.new()
-	desc.text = "%s | %s risk | Best: %s, %s" % [exp.description, exp.risk_level.capitalize(), exp.bonus_weapon, exp.bonus_element]
+	desc.text = "%s | %s risk | Best: %s, %s" % [exp.description, risk_text, exp.bonus_weapon, exp.bonus_element]
 	desc.add_theme_font_size_override("font_size", 13)
 	desc.add_theme_color_override("font_color", risk_color)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)
+
+	# Show expected materials from this expedition's cache
+	var cache_materials := _get_expedition_materials(exp)
+	if cache_materials.size() > 0:
+		var mats_label = Label.new()
+		mats_label.text = "Rewards: %s" % ", ".join(cache_materials)
+		mats_label.add_theme_font_size_override("font_size", 12)
+		mats_label.add_theme_color_override("font_color", SEC)
+		mats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(mats_label)
 
 	if assigned_name != "":
 		var assigned_label = Label.new()
@@ -334,5 +371,28 @@ func _unassign_expedition(index: int) -> void:
 	_build_ui()
 
 func _save_state() -> void:
-	Global._expedition_pool = _expedition_pool.map(func(e): return e.to_dict())
+	var pool_dicts = _expedition_pool.map(func(e): return e.to_dict())
+	Global._expedition_pool = pool_dicts
 	Global._expedition_assignments = _assignments.duplicate()
+
+	# Persist to Party record so it syncs to all clients
+	var party = Global.Current_Party
+	if party and party.get("id") != null:
+		var party_id = int(party.get("id"))
+		var updates = [
+			{"table": "Party", "record_id": party_id, "field": "Expedition_Pool", "value": JSON.stringify(pool_dicts)},
+			{"table": "Party", "record_id": party_id, "field": "Expedition_Assignments", "value": JSON.stringify(_assignments)},
+		]
+		if NetworkManager.is_host:
+			Global.Update_Records(updates)
+			NetworkManager.broadcast_table_update("Party")
+		else:
+			NetworkManager.request_update.rpc_id(1, JSON.stringify(updates))
+
+func _get_expedition_materials(exp: ExpeditionData) -> Array:
+	for c in GameDB.material_caches.values():
+		var c_region = c.region if c is MaterialCacheData else str(c.get("Region", ""))
+		var c_roll = c.roll if c is MaterialCacheData else int(c.get("Roll", 0))
+		if c_region == exp.region and c_roll == exp.cache_roll:
+			return LootGenerator.parse_materials(c)
+	return []
