@@ -663,7 +663,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	var can_craft = _can_craft_product(product)
 
 	var card = PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 56)
+	card.custom_minimum_size = Vector2(0, 64)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# Style with left accent border
@@ -698,9 +698,30 @@ func _create_recipe_card(product: String) -> PanelContainer:
 
 	card.add_theme_stylebox_override("panel", sb)
 
+	var top_hbox = HBoxContainer.new()
+	top_hbox.add_theme_constant_override("separation", 8)
+	top_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(top_hbox)
+
+	# Product icon
+	var product_icon = TextureRect.new()
+	product_icon.custom_minimum_size = Vector2(40, 40)
+	product_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	product_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	product_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var icon_name = product.to_lower().replace(" ", "-")
+	var icon_tex = _load_icon(icon_name)
+	if icon_tex != null:
+		product_icon.texture = icon_tex
+	else:
+		product_icon.visible = false
+	top_hbox.add_child(product_icon)
+
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 2)
-	card.add_child(vbox)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_hbox.add_child(vbox)
 
 	# Product name
 	var name_label = Label.new()
@@ -708,6 +729,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", TEXT if can_craft else MUTED)
 	name_label.clip_text = true
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(name_label)
 
 	# Region + availability
@@ -715,6 +737,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	var region_text = str(meta.get("Region", ""))
 	var bottom_hbox = HBoxContainer.new()
 	bottom_hbox.add_theme_constant_override("separation", 8)
+	bottom_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(bottom_hbox)
 
 	if region_text != "":
@@ -722,10 +745,12 @@ func _create_recipe_card(product: String) -> PanelContainer:
 		region_lbl.text = region_text
 		region_lbl.add_theme_font_size_override("font_size", 14)
 		region_lbl.add_theme_color_override("font_color", MUTED)
+		region_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bottom_hbox.add_child(region_lbl)
 
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom_hbox.add_child(spacer)
 
 	var status_lbl = Label.new()
@@ -736,12 +761,21 @@ func _create_recipe_card(product: String) -> PanelContainer:
 		status_lbl.text = "Missing materials"
 		status_lbl.add_theme_color_override("font_color", RED)
 	status_lbl.add_theme_font_size_override("font_size", 14)
+	status_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom_hbox.add_child(status_lbl)
 
 	# Click handler
 	card.gui_input.connect(_on_recipe_card_input.bind(product, card))
 
 	return card
+
+
+static func _load_icon(hyphen_name: String) -> Texture2D:
+	for folder in ["res://UI/Food Icons/", "res://UI/Weapon Icons/", "res://UI/Item Icons/"]:
+		var path = folder + hyphen_name + ".png"
+		if ResourceLoader.exists(path):
+			return load(path)
+	return null
 
 
 func _on_recipe_card_input(event: InputEvent, product: String, card: PanelContainer) -> void:
@@ -1190,11 +1224,9 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# Try to load a material icon
+	# Try to load a material icon from all icon folders
 	var mat_hyphen = material.to_lower().replace(" ", "-")
-	var mat_tex = load("res://UI/Food Icons/" + mat_hyphen + ".png")
-	if mat_tex == null:
-		mat_tex = load("res://UI/Weapon Icons/" + mat_hyphen + ".png")
+	var mat_tex = _load_icon(mat_hyphen)
 	if mat_tex != null:
 		icon_rect.texture = mat_tex
 	hbox.add_child(icon_rect)
