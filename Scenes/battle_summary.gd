@@ -140,6 +140,41 @@ func show_summary(summary: Dictionary) -> void:
 	total_kills_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root_vbox.add_child(total_kills_label)
 
+	# ── Loot section ─────────────────────────────────────────────────────────
+	var player_loot: Dictionary = summary.get("player_loot", {})
+	if not player_loot.is_empty():
+		root_vbox.add_child(_separator())
+
+		var loot_tier_name: String = str(summary.get("loot_tier", ""))
+		var loot_header = _label("BATTLE LOOT" + ("  —  " + loot_tier_name if loot_tier_name != "" and loot_tier_name != "Nothing" else ""), 16, COL_ACCENT)
+		loot_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		root_vbox.add_child(loot_header)
+
+		# Show loot for current player only (each player sees their own)
+		var my_name: String = Global.ACTIVE_USER_NAME
+		var my_loot: Dictionary = player_loot.get(my_name, {})
+		if my_loot.is_empty():
+			var no_loot = _label("No loot earned", 14, COL_TEXT_MUTED)
+			no_loot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			root_vbox.add_child(no_loot)
+		else:
+			var loot_grid = GridContainer.new()
+			loot_grid.columns = 4
+			loot_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			loot_grid.add_theme_constant_override("h_separation", 16)
+			loot_grid.add_theme_constant_override("v_separation", 4)
+			root_vbox.add_child(loot_grid)
+
+			var sorted_mats = my_loot.keys()
+			sorted_mats.sort()
+			for mat_name in sorted_mats:
+				var qty: int = int(my_loot[mat_name])
+				var name_lbl = _label(mat_name, 14, COL_TEXT)
+				name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				loot_grid.add_child(name_lbl)
+				var qty_lbl = _label("x%d" % qty, 14, COL_GREEN)
+				loot_grid.add_child(qty_lbl)
+
 	root_vbox.add_child(_separator())
 
 	# ── Continue button ──────────────────────────────────────────────────────
