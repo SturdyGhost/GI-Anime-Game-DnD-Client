@@ -10,6 +10,6 @@ region = "Mondstadt"
 description = "Recovers 1 HP per turn over 10 turns."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0

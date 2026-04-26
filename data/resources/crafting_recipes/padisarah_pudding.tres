@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "+3 EM for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Padisarah\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sumeru Rose\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Padisarah\",\"quantity\":6}]},{\"options\":[{\"material\":\"Sumeru Rose\",\"quantity\":4}]},{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]},{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0

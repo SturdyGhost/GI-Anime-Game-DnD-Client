@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "\"2 ATT, 3 EM"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":15}]}]},{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":10}]}]},{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":10}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":15}]},{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":10}]},{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":10}]}]}]"
 material = ""
 quantity = 0

@@ -10,6 +10,6 @@ region = "Inazuma"
 description = "Increases Attack + Elemental Mastery by 3 for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cabbage\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Purple Shirakodai\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":8}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":4}]},{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":8}]},{\"options\":[{\"material\":\"Purple Shirakodai\",\"quantity\":8}]},{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":8}]}]}]"
 material = ""
 quantity = 0

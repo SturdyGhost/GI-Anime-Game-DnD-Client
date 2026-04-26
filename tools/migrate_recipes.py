@@ -111,8 +111,9 @@ def main():
         # Take metadata from first recipe
         first = recs[0]["data"]
 
-        # Each old recipe becomes a separate recipe with one slot
-        recipes = []
+        # All old variants for the same product become slots in ONE recipe
+        # (they were separate ingredients, all required)
+        slots = []
         for rec in recs:
             d = rec["data"]
             mat = d.get("material", "")
@@ -120,11 +121,8 @@ def main():
             if isinstance(qty, str):
                 qty = int(qty) if qty.isdigit() else 1
             if mat:
-                recipes.append({
-                    "slots": [
-                        {"options": [{"material": mat, "quantity": qty}]}
-                    ]
-                })
+                slots.append({"options": [{"material": mat, "quantity": qty}]})
+        recipes = [{"slots": slots}] if slots else []
 
         output_qty = first.get("output_quantity", 1)
         if isinstance(output_qty, str):

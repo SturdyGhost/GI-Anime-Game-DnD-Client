@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "Restores 1 D12 of Burst Charges."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Kalpalata Lotus\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Rukkhashava Mushrooms\",\"quantity\":6}]},{\"options\":[{\"material\":\"Kalpalata Lotus\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sea Ganoderma\",\"quantity\":4}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0

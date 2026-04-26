@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Used to craft a random Legendary weapon from Liyue."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Starconch\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Segment\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Silver Raven Insignia\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Liyue Legendary Weapon Billet\",\"quantity\":1}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Starconch\",\"quantity\":35}]},{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]},{\"options\":[{\"material\":\"Bamboo Segment\",\"quantity\":35}]},{\"options\":[{\"material\":\"Silver Raven Insignia\",\"quantity\":35}]},{\"options\":[{\"material\":\"Liyue Legendary Weapon Billet\",\"quantity\":1}]}]}]"
 material = ""
 quantity = 0

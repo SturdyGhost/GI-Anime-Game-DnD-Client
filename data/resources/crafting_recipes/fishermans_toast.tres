@@ -10,6 +10,6 @@ region = "Liyue"
 description = "When Attacking, Adds 2 to all party members roll for next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Wheat\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":8}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":2}]},{\"options\":[{\"material\":\"Wheat\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]},{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":8}]}]}]"
 material = ""
 quantity = 0

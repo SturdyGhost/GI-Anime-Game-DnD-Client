@@ -10,6 +10,6 @@ region = "Mondstadt"
 description = "Steel made using Iron and Refined Coal"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Clearwater Jade\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":1}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Clearwater Jade\",\"quantity\":1}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":1}]}]}]"
 material = ""
 quantity = 0

@@ -10,6 +10,6 @@ region = "Inazuma"
 description = "Increases all party members DEF by 4 for next 2 battles."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Fish\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":6}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":6}]},{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":6}]},{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]},{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]},{\"options\":[{\"material\":\"Fish\",\"quantity\":2}]},{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":6}]}]}]"
 material = ""
 quantity = 0

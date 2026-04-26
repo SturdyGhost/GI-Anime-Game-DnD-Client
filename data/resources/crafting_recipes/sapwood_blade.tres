@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "\"5 ATT"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Fungal Spores\",\"quantity\":15}]}]},{\"slots\":[{\"options\":[{\"material\":\"Padisarah\",\"quantity\":10}]}]},{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":10}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Fungal Spores\",\"quantity\":15}]},{\"options\":[{\"material\":\"Padisarah\",\"quantity\":10}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":10}]}]}]"
 material = ""
 quantity = 0

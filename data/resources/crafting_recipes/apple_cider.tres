@@ -10,6 +10,6 @@ region = "Inazuma"
 description = "Restores 10 HP."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Berry\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":4}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":2}]},{\"options\":[{\"material\":\"Berry\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":4}]}]}]"
 material = ""
 quantity = 0

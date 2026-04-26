@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Combines 3 matching 2-star elemental gems into a single 3-star Earth gem."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":3}]}]},{\"slots\":[{\"options\":[{\"material\":\"4-Star Gem\",\"quantity\":1}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":3}]},{\"options\":[{\"material\":\"4-Star Gem\",\"quantity\":1}]}]}]"
 material = ""
 quantity = 0

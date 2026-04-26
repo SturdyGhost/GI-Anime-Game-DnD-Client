@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Increases all party members ER by 0.75 for next 2 battles."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]}]},{\"slots\":[{\"options\":[{\"material\":\"Berry\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":3}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]},{\"options\":[{\"material\":\"Berry\",\"quantity\":6}]},{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":3}]}]}]"
 material = ""
 quantity = 0

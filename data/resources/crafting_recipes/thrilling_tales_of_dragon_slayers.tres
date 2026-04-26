@@ -10,6 +10,6 @@ region = "Mondstadt"
 description = "4 HP"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":5}]}]},{\"slots\":[{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":5}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glaze Lily\",\"quantity\":5}]},{\"options\":[{\"material\":\"Windwheel Aster\",\"quantity\":5}]}]}]"
 material = ""
 quantity = 0

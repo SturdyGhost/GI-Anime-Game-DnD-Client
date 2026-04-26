@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Anthracite made using Mithril and Crystal Marrow"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":1}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":1}]},{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":1}]}]}]"
 material = ""
 quantity = 0

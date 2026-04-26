@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Triples amount of materials a character gathers when they next go out to collect some."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]}]},{\"slots\":[{\"options\":[{\"material\":\"Lotus Head\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":3}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":3}]},{\"options\":[{\"material\":\"Lotus Head\",\"quantity\":6}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":6}]},{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":3}]}]}]"
 material = ""
 quantity = 0

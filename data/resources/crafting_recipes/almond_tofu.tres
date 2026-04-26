@@ -10,6 +10,6 @@ region = "Liyue"
 description = "Recovers 2 HP per turn over 10 turns."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Qingxin\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":8}]},{\"options\":[{\"material\":\"Qingxin\",\"quantity\":4}]},{\"options\":[{\"material\":\"Calla Lily\",\"quantity\":4}]},{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0

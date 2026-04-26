@@ -10,6 +10,6 @@ region = "Mondstadt"
 description = "4 ATT"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Wind Gem\",\"quantity\":1}]}]},{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Wind Gem\",\"quantity\":1}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]}]"
 material = ""
 quantity = 0

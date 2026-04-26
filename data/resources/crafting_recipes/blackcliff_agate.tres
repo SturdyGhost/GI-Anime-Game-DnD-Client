@@ -10,6 +10,6 @@ region = "Liyue"
 description = "\"3 EM, 0.75 CD"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Starconch\",\"quantity\":35}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"Silk Flower\",\"quantity\":35}]},{\"options\":[{\"material\":\"Starconch\",\"quantity\":35}]}]}]"
 material = ""
 quantity = 0

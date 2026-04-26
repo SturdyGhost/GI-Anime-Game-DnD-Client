@@ -10,6 +10,6 @@ region = "Inazuma"
 description = "\"1 ATT, 1 EM, 0.75 ER"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Sango Pearl\",\"quantity\":35}]}]},{\"slots\":[{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":35}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":35}]},{\"options\":[{\"material\":\"Sango Pearl\",\"quantity\":35}]},{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":35}]}]}]"
 material = ""
 quantity = 0

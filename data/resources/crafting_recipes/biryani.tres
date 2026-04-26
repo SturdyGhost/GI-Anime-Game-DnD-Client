@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "When dealing damage, add 2 damage to all attacks for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Mourning Flower\",\"quantity\":8}]}]},{\"slots\":[{\"options\":[{\"material\":\"Scarab\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Henna Berry\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Mourning Flower\",\"quantity\":8}]},{\"options\":[{\"material\":\"Scarab\",\"quantity\":6}]},{\"options\":[{\"material\":\"Henna Berry\",\"quantity\":4}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]}]}]"
 material = ""
 quantity = 0

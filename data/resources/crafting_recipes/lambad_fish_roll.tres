@@ -10,6 +10,6 @@ region = "Sumeru"
 description = "Recovers 2 HP per turn over 10 turns."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sand Grease Pupa\",\"quantity\":6}]}]},{\"slots\":[{\"options\":[{\"material\":\"Scarab\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sand Grease Pupa\",\"quantity\":6}]},{\"options\":[{\"material\":\"Scarab\",\"quantity\":4}]},{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":2}]},{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0

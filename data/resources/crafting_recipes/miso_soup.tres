@@ -10,6 +10,6 @@ region = "Inazuma"
 description = "Revives a character at half health and lets them regenerate 20% of their max health every turn for 4 turns."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Cabbage\",\"quantity\":2}]}]},{\"slots\":[{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":4}]}]},{\"slots\":[{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]}]}]"
+recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]},{\"options\":[{\"material\":\"Naku Weed\",\"quantity\":4}]},{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":2}]},{\"options\":[{\"material\":\"Dendrobium\",\"quantity\":4}]},{\"options\":[{\"material\":\"Glabrous Beans\",\"quantity\":2}]}]}]"
 material = ""
 quantity = 0
