@@ -174,6 +174,8 @@ func _try_initial_setup() -> void:
 	if Global.get("_returned_from_battle") == true:
 		Global._returned_from_battle = false
 		call_deferred("_deferred_market_refresh")
+		if NetworkManager.is_host:
+			_process_expedition_returns()
 	if Global.is_offline:
 		_show_offline_indicator()
 		# Replace combat button with a plain text button for inventory management
@@ -190,10 +192,14 @@ func _try_initial_setup() -> void:
 			inv_btn.pressed.connect(_open_offline_management)
 			parent.add_child(inv_btn)
 			parent.move_child(inv_btn, idx)
-	# Gathering replaced by combat loot — hide gather button
+	# Gathering replaced by Expeditions
 	var gather_btn = $"UI/BottomHotbar/HBoxContainer/Gather Button"
 	if gather_btn:
-		gather_btn.visible = false
+		gather_btn.text = "Expeditions"
+		if gather_btn.is_connected("pressed", _on_gather_button_pressed):
+			gather_btn.disconnect("pressed", _on_gather_button_pressed)
+		if not gather_btn.is_connected("pressed", _on_expeditions_button_pressed):
+			gather_btn.connect("pressed", _on_expeditions_button_pressed)
 	# Wire Practice button to Battle Simulator
 	var practice_btn = $"UI/BottomHotbar/HBoxContainer/Practice Button"
 	if practice_btn:
@@ -215,6 +221,66 @@ func _open_simulator() -> void:
 	add_child(win)
 
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+func _on_expeditions_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/UI/expedition_panel.tscn")
+	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+func _process_expedition_returns() -> void:
+	var assignments: Dictionary = Global.get("_expedition_assignments")
+	if not assignments is Dictionary or assignments.is_empty():
+		return
+	var pool: Array = Global.get("_expedition_pool")
+	if not pool is Array or pool.is_empty():
+		return
+	var results: Array = []
+	for idx_key in assignments:
+		var idx = int(idx_key)
+		if idx >= pool.size():
+			continue
+		var exp = ExpeditionData.from_dict(pool[idx])
+		var comp_name: String = str(assignments[idx_key])
+		var comp_data: Dictionary = {}
+		for comp in Global.COMPANIONS.values():
+			if str(comp.get("Name", "")) == comp_name:
+				comp_data = comp
+				break
+		if comp_data.is_empty():
+			continue
+		var loot = ExpeditionManager.process_results(exp, comp_data)
+		results.append({"expedition": exp.expedition_name, "companion": comp_name, "loot": loot})
+		for mat_name in loot:
+			_upsert_expedition_loot(comp_name, mat_name, loot[mat_name])
+	Global._expedition_results = results
+	Global._expedition_assignments = {}
+	Global._expedition_pool = []
+
+func _upsert_expedition_loot(owner_name: String, mat_name: String, qty: int) -> void:
+	for item in Global.CHARACTER_ITEMS.values():
+		if str(item.get("Character_Name", "")) == owner_name and str(item.get("Item", "")) == mat_name:
+			var old_qty = int(item.get("Quantity", 0))
+			Global.Update_Records([{"table": "Character_Items", "record_id": int(item.get("id", 0)), "field": "Quantity", "value": old_qty + qty}])
+			return
+	var item_def = GameDB.items_by_name.get(mat_name, null)
+	Global.Insert("Character_Items",
+		["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
+		[owner_name, mat_name, qty,
+		item_def.type if item_def else "Material",
+		item_def.rarity if item_def else "Common",
+		item_def.description if item_def else ""])
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()

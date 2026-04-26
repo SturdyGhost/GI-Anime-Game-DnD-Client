@@ -13,6 +13,9 @@ var Luck_Set: bool = false
 var Region_Changed: int = 1
 var _returned_from_battle: bool = false
 var active_challenge_quest: Dictionary = {}
+var _expedition_pool: Array = []
+var _expedition_assignments: Dictionary = {}
+var _expedition_results: Array = []
 
 ## Returns effective luck for a player, factoring in Bennett's party penalty.
 ## If Bennett is an active chosen companion, all luck is reduced by 25%.
