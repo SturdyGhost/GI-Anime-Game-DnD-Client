@@ -50,11 +50,14 @@ def escape_tres_string(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def write_tres(filepath, data, recipes_json_str):
-    """Write a new-format .tres file."""
-    escaped_json = escape_tres_string(recipes_json_str)
+def write_tres(filepath, data, recipe_lines):
+    """Write a new-format .tres file with recipe_lines."""
     escaped_desc = escape_tres_string(str(data['description']))
     escaped_product = escape_tres_string(str(data['product']))
+
+    # Format PackedStringArray for .tres
+    lines_str = ", ".join(f'"{escape_tres_string(line)}"' for line in recipe_lines)
+    packed_array = f"PackedStringArray({lines_str})"
 
     content = f'''[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
 
@@ -68,9 +71,7 @@ region = "{escape_tres_string(str(data['region']))}"
 description = "{escaped_desc}"
 role = "{escape_tres_string(str(data['role']))}"
 output_quantity = {data['output_quantity']}
-recipes_json = "{escaped_json}"
-material = ""
-quantity = 0
+recipe_lines = {packed_array}
 '''
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(content.strip() + "\n")
@@ -139,21 +140,30 @@ def main():
             "output_quantity": output_qty,
         }
 
-        recipes_json = json.dumps(recipes, separators=(",", ":"))
+        # Build recipe_lines: one line with all ingredients joined by " + "
+        ingredient_parts = []
+        for rec in recs:
+            d = rec["data"]
+            mat = d.get("material", "")
+            qty = d.get("quantity", 1)
+            if isinstance(qty, str):
+                qty = int(qty) if qty.isdigit() else 1
+            if mat:
+                ingredient_parts.append(f"{qty}x {mat}")
+        recipe_lines = [" + ".join(ingredient_parts)] if ingredient_parts else []
 
         # Generate filename from product name
         safe_name = product_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
         safe_name = re.sub(r'[^a-z0-9_]', '', safe_name)
         filename = f"{safe_name}.tres"
 
-        write_tres(os.path.join(RECIPE_DIR, filename), new_data, recipes_json)
+        write_tres(os.path.join(RECIPE_DIR, filename), new_data, recipe_lines)
         next_id += 1
 
     print(f"Created {next_id - 1} new recipe files")
     print("Migration complete! Old files backed up to _old_backup/")
-    print("NOTE: Each old variant is now a separate recipe with one slot.")
-    print("You'll want to manually restructure products that need multi-ingredient recipes")
-    print("(e.g., Sapwood Blade should be 1 recipe with 3 slots, not 3 recipes with 1 slot each)")
+    print("All old variants combined as ingredients in one recipe line.")
+    print("Gem upgrade/downgrade recipes may need manual fix — split into separate lines.")
 
 
 if __name__ == "__main__":

@@ -10,6 +10,4 @@ region = "Inazuma"
 description = "Restores 5 HP."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sugar\",\"quantity\":2}]},{\"options\":[{\"material\":\"Wolfhook\",\"quantity\":2}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("2x Sugar + 2x Wolfhook")

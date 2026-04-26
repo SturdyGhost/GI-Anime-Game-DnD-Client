@@ -10,6 +10,4 @@ region = "Mondstadt"
 description = "Steel made using Iron and Coal"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":1}]},{\"options\":[{\"material\":\"Noctilucous Jade\",\"quantity\":1}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("1x Iron Chunk + 1x Noctilucous Jade")

@@ -10,6 +10,4 @@ region = "Liyue"
 description = "Increase CD and ER by 0.75 for all party members for the next battle."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Onikabuto\",\"quantity\":8}]},{\"options\":[{\"material\":\"Sakura Bloom\",\"quantity\":8}]},{\"options\":[{\"material\":\"Shrimp Meat\",\"quantity\":2}]},{\"options\":[{\"material\":\"Raimei Angelfish\",\"quantity\":8}]},{\"options\":[{\"material\":\"Bamboo Shoot\",\"quantity\":2}]},{\"options\":[{\"material\":\"Crab\",\"quantity\":2}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("8x Onikabuto + 8x Sakura Bloom + 2x Shrimp Meat + 8x Raimei Angelfish + 2x Bamboo Shoot + 2x Crab")

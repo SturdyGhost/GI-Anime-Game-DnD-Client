@@ -10,6 +10,4 @@ region = "Liyue"
 description = "Increases all party members EM by 4 for next 2 battles."
 role = "Artisan"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Jueyun Chili\",\"quantity\":4}]},{\"options\":[{\"material\":\"Violetgrass\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cabbage\",\"quantity\":4}]},{\"options\":[{\"material\":\"Cecilia\",\"quantity\":2}]},{\"options\":[{\"material\":\"Radish\",\"quantity\":2}]},{\"options\":[{\"material\":\"Dandelion Seed\",\"quantity\":2}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("4x Jueyun Chili + 4x Violetgrass + 4x Cabbage + 2x Cecilia + 2x Radish + 2x Dandelion Seed")

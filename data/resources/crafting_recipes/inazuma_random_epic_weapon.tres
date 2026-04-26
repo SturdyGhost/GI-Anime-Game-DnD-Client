@@ -10,6 +10,4 @@ region = "Inazuma"
 description = "Used to craft a random Epic weapon from Inazuma."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Cor Lapis\",\"quantity\":20}]},{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":20}]},{\"options\":[{\"material\":\"Inazuma Epic Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Sango Pearl\",\"quantity\":20}]},{\"options\":[{\"material\":\"Amethyst Lump\",\"quantity\":20}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("20x Cor Lapis + 20x Otogi Wood + 1x Inazuma Epic Weapon Billet + 20x Sango Pearl + 20x Amethyst Lump")

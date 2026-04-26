@@ -10,6 +10,4 @@ region = "Sumeru"
 description = "\"3 ATT, 0.5 ER"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Nilotpala Lotus\",\"quantity\":15}]},{\"options\":[{\"material\":\"Henna Berry\",\"quantity\":10}]},{\"options\":[{\"material\":\"White Iron Chunk\",\"quantity\":10}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("15x Nilotpala Lotus + 10x Henna Berry + 10x White Iron Chunk")

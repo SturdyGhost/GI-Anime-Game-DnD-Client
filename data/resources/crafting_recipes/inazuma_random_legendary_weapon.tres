@@ -10,6 +10,4 @@ region = "Inazuma"
 description = "Used to craft a random Legendary weapon from Inazuma."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Crystal Marrow\",\"quantity\":35}]},{\"options\":[{\"material\":\"Otogi Wood\",\"quantity\":35}]},{\"options\":[{\"material\":\"Sharp Arrowhead\",\"quantity\":35}]},{\"options\":[{\"material\":\"Inazuma Legendary Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Famed Handguard\",\"quantity\":35}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("35x Crystal Marrow + 35x Otogi Wood + 35x Sharp Arrowhead + 1x Inazuma Legendary Weapon Billet + 35x Famed Handguard")

@@ -10,6 +10,4 @@ region = "Sumeru"
 description = "Used to craft a random Legendary weapon from Sumeru."
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Sumeru Legendary Weapon Billet\",\"quantity\":1}]},{\"options\":[{\"material\":\"Chaos Storage\",\"quantity\":35}]},{\"options\":[{\"material\":\"Fungal Spores\",\"quantity\":35}]},{\"options\":[{\"material\":\"Luminescent Pollen\",\"quantity\":35}]},{\"options\":[{\"material\":\"Faded Red Satin\",\"quantity\":35}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("1x Sumeru Legendary Weapon Billet + 35x Chaos Storage + 35x Fungal Spores + 35x Luminescent Pollen + 35x Faded Red Satin")

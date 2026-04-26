@@ -10,6 +10,4 @@ region = "Liyue"
 description = "\"3 ATT, 0.75 CD"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"Silver Raven Insignia\",\"quantity\":35}]},{\"options\":[{\"material\":\"2-Star Gem\",\"quantity\":2}]},{\"options\":[{\"material\":\"Treasure Hoarder Insignia\",\"quantity\":35}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("35x Silver Raven Insignia + 2x 2-Star Gem + 35x Treasure Hoarder Insignia")

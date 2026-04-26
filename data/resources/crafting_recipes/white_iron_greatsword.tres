@@ -10,6 +10,4 @@ region = "Mondstadt"
 description = "3 HP, 1 DEF"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"White Iron Chunk\",\"quantity\":5}]},{\"options\":[{\"material\":\"Iron Chunk\",\"quantity\":5}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("5x White Iron Chunk + 5x Iron Chunk")

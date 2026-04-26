@@ -10,6 +10,4 @@ region = "Mondstadt"
 description = "2 ATT, 2 EM"
 role = "Blacksmith"
 output_quantity = 1
-recipes_json = "[{\"slots\":[{\"options\":[{\"material\":\"1-Star Gem\",\"quantity\":1}]},{\"options\":[{\"material\":\"Noctilucous Jade\",\"quantity\":5}]},{\"options\":[{\"material\":\"Fir Wood\",\"quantity\":5}]}]}]"
-material = ""
-quantity = 0
+recipe_lines = PackedStringArray("1x 1-Star Gem + 5x Noctilucous Jade + 5x Fir Wood")
