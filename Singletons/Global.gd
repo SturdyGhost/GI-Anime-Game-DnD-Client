@@ -394,6 +394,18 @@ func start_battle_effects(battler_data: Dictionary) -> void:
 			for eff in AbilityEffects.get_effects(aid_int):
 				effect_processor.add_effect(battler_name, eff, "passive", ability_name)
 
+	# Register food buff effects
+	var food_buff_name = str(Current_Party.get("Active_Food_Buff", "None"))
+	if food_buff_name != "None" and food_buff_name != "":
+		var food_effects = FoodBuffEffects.get_effects(food_buff_name)
+		if food_effects.size() > 0:
+			for player_name in PartyCharacters:
+				for fe in food_effects:
+					effect_processor.add_effect(player_name, fe, "food", food_buff_name)
+			for comp_name in PartyCompanions:
+				for fe in food_effects:
+					effect_processor.add_effect(comp_name, fe, "food", food_buff_name)
+
 	# Process PASSIVE APPLY_STATUS effects (e.g. Bennett's Unlucky on all allies)
 	_apply_passive_statuses()
 
@@ -521,15 +533,27 @@ func _read_json_cached(filename: String) -> Array:
 # ── Stat calculation (delegates to CharacterManager) ─────────────────────────
 func calculate_all_stats() -> void:
 	CharacterManager.recalculate_all()
-	if SaveManager.get_player(ACTIVE_USER_NAME):
+	if is_offline:
+		# Offline mode: try synced party → synced character → SaveManager .tres
+		# Party is the authority for region (region changes update Party, not Characters)
+		var region_found := ""
+		if Current_Party != null:
+			var party_region = Current_Party.get("Current_Region")
+			if party_region != null and str(party_region) != "":
+				region_found = str(party_region)
+		if region_found == "":
+			var rid = CHARACTERS_NAME.get(ACTIVE_USER_NAME, "")
+			if rid != "" and _synced.has("Characters") and _synced["Characters"].has(str(rid)):
+				var char_data = _synced["Characters"][str(rid)]
+				if char_data.get("Current_Region") != null and str(char_data["Current_Region"]) != "":
+					region_found = str(char_data["Current_Region"])
+		if region_found == "" and SaveManager.get_player(ACTIVE_USER_NAME):
+			region_found = SaveManager.get_player(ACTIVE_USER_NAME).current_region
+		if region_found != "":
+			Current_Region = region_found
+	elif SaveManager.get_player(ACTIVE_USER_NAME):
 		var p = SaveManager.get_player(ACTIVE_USER_NAME)
 		Current_Region = p.current_region
-	elif is_offline:
-		# Offline mode: read region from _synced character data
-		var rid = CHARACTERS_NAME.get(ACTIVE_USER_NAME, "")
-		if rid != "" and _synced.has("Characters") and _synced["Characters"].has(str(rid)):
-			var char_data = _synced["Characters"][str(rid)]
-			Current_Region = str(char_data.get("Current_Region", "")) if char_data.get("Current_Region") != null else ""
 
 # ── Sync snapshot (offline mode support) ────────────────────────────────────
 func save_synced_snapshot() -> void:
