@@ -78,10 +78,18 @@ func role_check():
 	if Player_data == null or Player_data.is_empty():
 		return
 	var role = Player_data.get("Role")
-	if role == "Scribe":
-		$"UI/BottomHotbar/HBoxContainer/Crafting Button".disabled = true
-	else:
-		$"UI/BottomHotbar/HBoxContainer/Research Button".disabled = true
+	var crafting_btn = $"UI/BottomHotbar/HBoxContainer/Crafting Button"
+	var research_btn = $"UI/BottomHotbar/HBoxContainer/Research Button"
+	match role:
+		"Artisan", "Blacksmith":
+			crafting_btn.disabled = false
+			research_btn.disabled = true
+		"Scout":
+			crafting_btn.disabled = true
+			research_btn.disabled = true
+		_:
+			crafting_btn.disabled = true
+			research_btn.disabled = true
 
 
 func load_region_music(region: String) -> void:
@@ -182,6 +190,10 @@ func _try_initial_setup() -> void:
 			inv_btn.pressed.connect(_open_offline_management)
 			parent.add_child(inv_btn)
 			parent.move_child(inv_btn, idx)
+	# Gathering replaced by combat loot — hide gather button
+	var gather_btn = $"UI/BottomHotbar/HBoxContainer/Gather Button"
+	if gather_btn:
+		gather_btn.visible = false
 	# Wire Practice button to Battle Simulator
 	var practice_btn = $"UI/BottomHotbar/HBoxContainer/Practice Button"
 	if practice_btn:
@@ -216,19 +228,12 @@ func _show_offline_indicator() -> void:
 func _open_offline_management() -> void:
 	var s: PackedScene = preload("res://Scenes/UI/offline_management_panel.tscn")
 	var dlg = s.instantiate()
-
-	var win := Window.new()
-	win.exclusive = true
-	win.transparent = true
-	win.unresizable = true
-	win.size = get_viewport_rect().size
-	win.position = Vector2.ZERO
-
-	dlg.panel_closed.connect(func(): win.queue_free())
-	win.add_child(dlg)
-	add_child(win)
-
-	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var canvas = CanvasLayer.new()
+	canvas.layer = 101  # Above Toast (layer 100)
+	add_child(canvas)
+	dlg.size = get_viewport_rect().size
+	dlg.panel_closed.connect(func(): canvas.queue_free())
+	canvas.add_child(dlg)
 
 func _deferred_market_refresh() -> void:
 	Market.Refresh_Stock(Global.Current_Region)
@@ -258,6 +263,25 @@ func set_ui():
 		return
 	assign_party()
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
+	# Show current role badge
+	var role_label = $UI/TopHotbar.get_node_or_null("RoleLabel")
+	if role_label == null:
+		role_label = Label.new()
+		role_label.name = "RoleLabel"
+		role_label.add_theme_font_size_override("font_size", 16)
+		role_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		$UI/TopHotbar.add_child(role_label)
+	var role_text = str(Player_data.get("Role", ""))
+	role_label.text = role_text
+	match role_text:
+		"Artisan":
+			role_label.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
+		"Blacksmith":
+			role_label.add_theme_color_override("font_color", Color(0.6, 0.75, 0.9))
+		"Scout":
+			role_label.add_theme_color_override("font_color", Color(0.292, 0.855, 0.498))
+		_:
+			role_label.add_theme_color_override("font_color", Color(0.69, 0.722, 0.8))
 
 	match Global.ACTIVE_USER_NAME:
 		"Brian C.":

@@ -51,7 +51,7 @@ var _stun_title: Label
 var _stun_text: Label
 var _stun_btn: Button
 var _audio: AudioStreamPlayer
-var _ability_info_box: HBoxContainer
+var _ability_info_box: HFlowContainer
 var _attack_tab: VBoxContainer
 var _effects_tab: VBoxContainer
 var _stats_tab: VBoxContainer
@@ -118,6 +118,7 @@ func _ready():
 	if NetworkManager.is_host:
 		NetworkManager.combat_log_received.connect(_on_combat_log_received)
 	else:
+		NetworkManager.damage_breakdown_received.connect(_on_damage_breakdown_received)
 		NetworkManager.battle_summary_received.connect(_on_battle_summary_received)
 
 	# Connect split container dragged signals to save layout
@@ -150,6 +151,8 @@ func _disconnect_signals():
 		Global.disconnect("data_load_complete", h)
 	if NetworkManager.combat_log_received.is_connected(_on_combat_log_received):
 		NetworkManager.combat_log_received.disconnect(_on_combat_log_received)
+	if NetworkManager.damage_breakdown_received.is_connected(_on_damage_breakdown_received):
+		NetworkManager.damage_breakdown_received.disconnect(_on_damage_breakdown_received)
 	if NetworkManager.battle_summary_received.is_connected(_on_battle_summary_received):
 		NetworkManager.battle_summary_received.disconnect(_on_battle_summary_received)
 
@@ -496,8 +499,9 @@ func _build_ui():
 	ability_col.add_child(_attack_select)
 
 	# Element + stat chip row below dropdown
-	_ability_info_box = HBoxContainer.new()
-	_ability_info_box.add_theme_constant_override("separation", 6)
+	_ability_info_box = HFlowContainer.new()
+	_ability_info_box.add_theme_constant_override("h_separation", 6)
+	_ability_info_box.add_theme_constant_override("v_separation", 4)
 	_ability_info_box.visible = false
 	ability_col.add_child(_ability_info_box)
 
@@ -1059,8 +1063,8 @@ func _refresh_my_stats():
 	var atk = int(calc_stats.attack) if calc_stats else int(data.get("Attack", 0))
 	var def_val = int(calc_stats.defense) if calc_stats else int(data.get("Defense", 0))
 	var em = int(calc_stats.elemental_mastery) if calc_stats else int(data.get("Elemental_Mastery", 0))
-	var cd = int(calc_stats.critical_damage) if calc_stats else int(data.get("Critical_Damage", 0))
-	var er = int(calc_stats.energy_recharge) if calc_stats else int(data.get("Energy_Recharge", 0))
+	var cd = float(calc_stats.critical_damage) if calc_stats else float(data.get("Critical_Damage", 0))
+	var er = float(calc_stats.energy_recharge) if calc_stats else float(data.get("Energy_Recharge", 0))
 	var bc = int(data.get("Burst_Charges", 0))
 
 	var stats_to_show = [
@@ -1068,9 +1072,9 @@ func _refresh_my_stats():
 		["ATK", str(atk)],
 		["DEF", str(def_val)],
 		["EM", str(em)],
-		["Crit DMG", str(cd) + "%"],
-		["ER", str(er) + "%"],
-		["Burst", str(bc)],
+		["Crit DMG", str(cd)],
+		["ER", str(er)],
+		["Burst", "%d / %d" % [bc, _get_max_burst_cost(my_name)]],
 	]
 
 	for stat in stats_to_show:
@@ -1081,6 +1085,15 @@ func _refresh_my_stats():
 		row.add_child(name_lbl)
 		row.add_child(_lbl(stat[1], 13, TEXT_PRIMARY))
 		_my_stats_container.add_child(row)
+
+func _get_max_burst_cost(char_name: String) -> int:
+	var bd = Global.BattlerData.get(char_name, {})
+	var max_cost = 0
+	for ability in bd.get("entity_current_ability_data", {}).values():
+		var cost = ability.get("charge_cost", 0)
+		if cost > max_cost:
+			max_cost = cost
+	return max_cost
 
 
 # =============================================================================
@@ -1621,32 +1634,18 @@ func _on_end_turn_pressed():
 
 
 func _show_damage_breakdown(input: Dictionary) -> void:
-	# DM sees breakdown for enemy turns; in offline mode, DM sees all turns
-	var battler_name: String = str(input.get("battler_name", ""))
-	var bd = Global.BattlerData.get(battler_name, {})
-	var b_type: String = str(bd.get("type", ""))
-
-	# In online mode, DM only sees enemy turn breakdowns (players see their own via RPC)
-	# In offline mode, DM sees everything
-	if not Global.is_offline and b_type != "Enemy":
-		return
-
 	var targets: Array = input.get("targets", [])
 	if targets.is_empty():
 		return
 
 	var panel = preload("res://Scenes/UI/damage_breakdown_panel.tscn").instantiate()
-	var win := Window.new()
-	win.exclusive = true
-	win.transparent = true
-	win.unresizable = true
-	win.size = get_viewport_rect().size
-	win.position = Vector2.ZERO
-	panel.panel_closed.connect(func(): win.queue_free())
-	win.add_child(panel)
-	add_child(win)
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.panel_closed.connect(func(): panel.queue_free())
+	add_child(panel)
 	panel.setup(input)
+
+func _on_damage_breakdown_received(turn_input: Dictionary) -> void:
+	_show_damage_breakdown(turn_input)
 
 
 func _broadcast_damage_breakdown(input: Dictionary) -> void:
@@ -1946,9 +1945,30 @@ func _host_battle_cleanup() -> void:
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
+	_assign_random_roles()
+	NetworkManager.broadcast_table_update("Characters")
 	NetworkManager.broadcast_table_update("BattleEnemies")
 	Global.end_battle_effects()
 	# Don't call _go_to_hub() here — let the summary screen handle it
+
+
+func _assign_random_roles() -> void:
+	var roles = ["Artisan", "Blacksmith", "Scout"]
+	roles.shuffle()
+	var players = []
+	for char in Global.CHARACTERS.values():
+		if str(char.get("User_Type", "")) != "Dungeon Master":
+			players.append(char)
+	var updates = []
+	for i in range(mini(players.size(), roles.size())):
+		updates.append({
+			"table": "Characters",
+			"record_id": int(players[i].get("id", 0)),
+			"field": "Role",
+			"value": roles[i]
+		})
+	if updates.size() > 0:
+		Global.Update_Records(updates)
 
 
 func _on_battle_summary_received(summary: Dictionary) -> void:
