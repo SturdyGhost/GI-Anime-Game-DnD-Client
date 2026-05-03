@@ -707,6 +707,28 @@ func _build_ui():
 	stats_box.add_theme_constant_override("separation", 2)
 	_info_split.add_child(stats_box)
 
+	# Challenge quest tag (small, with tooltip for full text)
+	var quest = Global.active_challenge_quest
+	if not quest.is_empty():
+		var quest_text_raw = str(quest.get("challenge_text", ""))
+		# Strip BBCode for tooltip
+		var tooltip_text = quest_text_raw
+		var strip_regex = RegEx.new()
+		strip_regex.compile("\\[.*?\\]")
+		tooltip_text = strip_regex.sub(tooltip_text, "", true)
+		var giver = str(quest.get("quest_giver_name", ""))
+		var personality = str(quest.get("quest_giver_personality", ""))
+		if giver != "":
+			tooltip_text += "\n%s (%s)" % [giver, personality]
+
+		var quest_tag = Label.new()
+		quest_tag.text = "CHALLENGE QUEST"
+		quest_tag.add_theme_font_size_override("font_size", 11)
+		quest_tag.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
+		quest_tag.tooltip_text = tooltip_text
+		quest_tag.mouse_filter = Control.MOUSE_FILTER_STOP
+		stats_box.add_child(quest_tag)
+
 	var my_stats_title = _lbl("MY STATS", 13, TEXT_MUTED)
 	my_stats_title.uppercase = true
 	stats_box.add_child(my_stats_title)
@@ -1610,12 +1632,20 @@ func _on_end_turn_pressed():
 	for t in targets_input:
 		total_dmg += int(t.get("raw_damage", 0))
 	# Detect kills from updates: check both "Killed" field and HP dropping to 0
+	# Exclude enemies that had a phase transition (Phase field updated in same batch)
+	var phase_transitioned_ids = {}
+	for u in updates:
+		if u.get("table") == "BattleEnemies" and u.get("field") == "Phase":
+			phase_transitioned_ids[str(u.get("record_id", ""))] = true
 	var killed_ids = {}
 	for u in updates:
+		var rid = str(u.get("record_id", ""))
+		if rid in phase_transitioned_ids:
+			continue
 		if u.get("field") == "Killed" and u.get("value") == true:
-			killed_ids[str(u.get("record_id", ""))] = true
+			killed_ids[rid] = true
 		if u.get("table") == "BattleEnemies" and u.get("field") == "Current_Health" and int(u.get("value", 1)) == 0:
-			killed_ids[str(u.get("record_id", ""))] = true
+			killed_ids[rid] = true
 	for kid in killed_ids:
 		for e in Global.BATTLEENEMIES.values():
 			if str(e.get("id")) == kid:
@@ -1881,7 +1911,7 @@ func check_battle_end():
 	var all_players_down = true
 
 	for enemy in Global.BATTLEENEMIES.values():
-		if int(enemy.get("Current_Health", 1)) > 0:
+		if int(enemy.get("Current_Health", 1)) > 0 and not bool(enemy.get("Killed", false)):
 			all_enemies_dead = false
 			break
 
@@ -1905,24 +1935,27 @@ func check_battle_end():
 			# Snapshot enemies for loot calc before cleanup removes them
 			var enemy_snapshot: Array = []
 			for enemy in Global.BATTLEENEMIES.values():
-				var enemy_name = str(enemy.get("Enemy_Name", enemy.get("Name", "")))
+				var enemy_name = str(enemy.get("EnemyName", enemy.get("Enemy_Name", enemy.get("Name", ""))))
 				var enemy_def = GameDB.enemies_by_name.get(enemy_name, null)
 				if enemy_def:
 					enemy_snapshot.append({"tier": enemy_def.tier})
+					print("Loot: enemy '%s' tier=%s" % [enemy_name, enemy_def.tier])
 				else:
 					enemy_snapshot.append({"tier": "common"})
+					push_warning("Loot: enemy '%s' not found in GameDB — defaulting to common" % enemy_name)
 
 			_host_battle_cleanup()
 			_show_challenge_confirmation(summary, enemy_snapshot)
 		else:
-			# Wait for either the summary broadcast or data sync
-			# The summary RPC will arrive and show the overlay before we go to hub
-			await Global.data_load_complete
-			# If no summary arrived via RPC after a short wait, just go to hub
+			# Wait for the host to send the battle summary RPC.
+			# The DM may need time to confirm the challenge quest, so wait generously.
+			# The summary RPC handler (_on_battle_summary_received) sets _battle_ending_summary_shown.
+			for i in range(60):  # Up to 60 seconds
+				await get_tree().create_timer(1.0).timeout
+				if _battle_ending_summary_shown:
+					break
 			if not _battle_ending_summary_shown:
-				await get_tree().create_timer(2.0).timeout
-				if not _battle_ending_summary_shown:
-					_go_to_hub()
+				_go_to_hub()
 
 
 func _show_challenge_confirmation(summary: Dictionary, enemy_snapshot: Array) -> void:
@@ -1968,11 +2001,21 @@ func _finalize_battle_summary(summary: Dictionary, enemy_snapshot: Array, challe
 	var tier_data = LootGenerator.get_loot_tier(summary["difficulty_score"])
 	summary["loot_tier"] = tier_data["tier"] if tier_data else "Nothing"
 	summary["challenge_quest"] = Global.active_challenge_quest.get("challenge_text", "")
+	summary["challenge_quest_full"] = Global.active_challenge_quest.duplicate()
 
-	Global.active_challenge_quest = {}
+	# Clear current quest and generate a fresh one for next battle
+	var next_quest = ChallengeQuestGenerator.generate()
+	Global.active_challenge_quest = next_quest.to_dict()
+	NetworkManager.broadcast_table_update("Party")
 
 	# Process expedition returns so results show on summary screen
 	_process_expedition_returns()
+	# Include expedition results in the summary so all clients see them
+	if Global._expedition_results.size() > 0:
+		summary["expedition_results"] = Global._expedition_results
+
+	# Force full table sync for loot tables so all clients have the latest items
+	NetworkManager.broadcast_table_update("Character_Items")
 
 	if not summary.is_empty():
 		NetworkManager.broadcast_battle_summary(summary)
@@ -2007,19 +2050,61 @@ func _process_expedition_returns() -> void:
 		if idx >= pool.size():
 			continue
 		var exp = ExpeditionData.from_dict(pool[idx])
-		var comp_name: String = str(assignments[idx_key])
-		var comp_data: Dictionary = {}
-		for comp in Global.COMPANIONS.values():
-			if str(comp.get("Name", "")) == comp_name:
-				comp_data = comp
-				break
-		if comp_data.is_empty():
+		# Assignments can be a single string (old format) or an array (new format)
+		var assigned_val = assignments[idx_key]
+		var comp_names: Array = []
+		if assigned_val is Array:
+			comp_names = assigned_val
+		elif assigned_val is String and assigned_val != "":
+			comp_names = [assigned_val]
+		if comp_names.is_empty():
 			continue
-		var exp_loot = ExpeditionManager.process_results(exp, comp_data)
-		results.append({"expedition": exp.expedition_name, "companion": comp_name, "loot": exp_loot})
-		# Persist loot to inventory
-		for mat_name in exp_loot:
-			_persist_expedition_item(comp_name, mat_name, exp_loot[mat_name])
+
+		# Resolve companion data dicts
+		var comp_datas: Array = []
+		var companion_labels: Array = []
+		var owner_name: String = ""
+		for comp_name in comp_names:
+			for comp in Global.COMPANIONS.values():
+				if str(comp.get("Name", "")) == comp_name:
+					comp_datas.append(comp)
+					companion_labels.append(comp_name)
+					if owner_name == "":
+						var o = comp.get("Owner")
+						if o != null and str(o) != "" and str(o) != "null":
+							owner_name = str(o)
+					break
+		# Fallback: if no companion has an owner, use the first player in party
+		if owner_name == "" or owner_name == "null":
+			for ch in Global.CHARACTERS.values():
+				if str(ch.get("User_Type", ch.get("UserType", ""))) != "Dungeon Master":
+					owner_name = str(ch.get("Name", ""))
+					break
+		if comp_datas.is_empty():
+			continue
+
+		var exp_loot = ExpeditionManager.process_multi_results(exp, comp_datas)
+		var bonus_total: float = exp_loot.get("_bonus_total", 1.0)
+		var bonus_list: Array = exp_loot.get("_bonuses", [])
+		var failed: bool = exp_loot.get("_failed", false)
+		var clean_loot: Dictionary = {}
+		for k in exp_loot:
+			if not str(k).begins_with("_"):
+				clean_loot[k] = exp_loot[k]
+
+		var result_entry = {
+			"expedition": exp.expedition_name,
+			"companion": ", ".join(companion_labels),
+			"owner": owner_name,
+			"loot": clean_loot,
+			"failed": failed,
+			"bonus_total": bonus_total,
+			"bonuses": bonus_list,
+		}
+		results.append(result_entry)
+		if not failed:
+			for mat_name in clean_loot:
+				_persist_expedition_item(owner_name if owner_name != "" else companion_labels[0], mat_name, clean_loot[mat_name])
 	Global._expedition_results = results
 	Global._expedition_assignments = {}
 	Global._expedition_pool = []
@@ -2033,18 +2118,48 @@ func _process_expedition_returns() -> void:
 		])
 
 func _persist_expedition_item(owner_name: String, mat_name: String, qty: int) -> void:
-	for item in Global.CHARACTER_ITEMS.values():
-		if str(item.get("Character_Name", "")) == owner_name and str(item.get("Item", "")) == mat_name:
-			var old_qty = int(item.get("Quantity", 0))
-			Global.Update_Records([{"table": "Character_Items", "record_id": int(item.get("id", 0)), "field": "Quantity", "value": old_qty + qty}])
-			return
+	if owner_name == "" or owner_name == "null":
+		push_warning("Expedition: No owner for loot '%s' x%d — skipping" % [mat_name, qty])
+		return
+	if qty <= 0:
+		return
+	print("Expedition: Giving %s x%d to %s" % [mat_name, qty, owner_name])
+
+	# Match existing item — same pattern as DMHub._process_items
+	var found := false
+	for record_id in Global.CHARACTER_ITEMS.keys():
+		var rec: Dictionary = Global.CHARACTER_ITEMS[record_id]
+		var rec_owner = str(rec.get("Owner", ""))
+		var rec_name = str(rec.get("Name", ""))
+		if rec_owner == owner_name and rec_name == mat_name:
+			var old_qty: int = int(float(rec.get("Quantity", 0)))
+			print("Expedition: Found existing record id=%s, old_qty=%d, new_qty=%d" % [record_id, old_qty, old_qty + qty])
+			Global.Update_Records([{
+				"table": "Character_Items",
+				"record_id": int(record_id),
+				"field": "Quantity",
+				"value": old_qty + qty
+			}])
+			found = true
+			break
+
+	if found:
+		return
+
+	# New item — insert using same approach as DMHub
 	var item_def = GameDB.items_by_name.get(mat_name, null)
-	Global.Insert("Character_Items",
-		["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
-		[owner_name, mat_name, qty,
+	print("Expedition: No existing record, inserting new item (item_def found: %s)" % str(item_def != null))
+	var columns := ["Owner", "Name", "Quantity", "Type", "Description", "Rarity"]
+	var values := [
+		owner_name,
+		mat_name,
+		qty,
 		item_def.type if item_def else "Material",
+		item_def.description if item_def else "",
 		item_def.rarity if item_def else "Common",
-		item_def.description if item_def else ""])
+	]
+	print("Expedition: Insert columns=%s values=%s" % [str(columns), str(values)])
+	Global.Insert("Character_Items", columns, values)
 
 
 func _host_battle_cleanup() -> void:
@@ -2086,30 +2201,7 @@ func _persist_loot(loot: Dictionary) -> void:
 	for player_name in loot:
 		var player_loot: Dictionary = loot[player_name]
 		for mat_name in player_loot:
-			var qty: int = player_loot[mat_name]
-			if qty <= 0:
-				continue
-			var found_id: int = -1
-			for item in Global.CHARACTER_ITEMS.values():
-				if str(item.get("Character_Name", "")) == player_name and str(item.get("Item", "")) == mat_name:
-					found_id = int(item.get("id", -1))
-					break
-			if found_id > 0:
-				var old_qty = int(Global.CHARACTER_ITEMS[str(found_id)].get("Quantity", 0))
-				Global.Update_Records([{
-					"table": "Character_Items",
-					"record_id": found_id,
-					"field": "Quantity",
-					"value": old_qty + qty
-				}])
-			else:
-				var item_def = GameDB.items_by_name.get(mat_name, null)
-				var item_type = item_def.type if item_def else "Material"
-				var item_rarity = item_def.rarity if item_def else "Common"
-				var item_desc = item_def.description if item_def else ""
-				Global.Insert("Character_Items",
-					["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
-					[player_name, mat_name, qty, item_type, item_rarity, item_desc])
+			_persist_expedition_item(player_name, mat_name, int(player_loot[mat_name]))
 
 
 func _assign_random_roles() -> void:

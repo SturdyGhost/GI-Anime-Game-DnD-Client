@@ -83,21 +83,19 @@ func role_check():
 	var crafting_btn = hotbar.get_node_or_null("CraftingButton_Btn")
 	if crafting_btn == null:
 		crafting_btn = hotbar.get_node_or_null("Crafting Button")
-	var research_btn = hotbar.get_node_or_null("ResearchButton_Btn")
-	if research_btn == null:
-		research_btn = hotbar.get_node_or_null("Research Button")
-	if crafting_btn == null or research_btn == null:
+	var map_btn = hotbar.get_node_or_null("ResearchButton_Btn")
+	if map_btn == null:
+		map_btn = hotbar.get_node_or_null("Research Button")
+	if crafting_btn == null:
 		return
+	# Map button is always enabled for all roles
+	if map_btn:
+		map_btn.disabled = false
 	match role:
 		"Artisan", "Blacksmith":
 			crafting_btn.disabled = false
-			research_btn.disabled = true
-		"Scout":
-			crafting_btn.disabled = true
-			research_btn.disabled = true
 		_:
 			crafting_btn.disabled = true
-			research_btn.disabled = true
 
 
 func load_region_music(region: String) -> void:
@@ -198,7 +196,7 @@ func _convert_hotbar_buttons() -> void:
 		"Market Button": {"label": "Market", "handler": "_on_market_button_pressed"},
 		"Minigames Button": {"label": "Minigames", "handler": "_on_minigames_button_pressed"},
 		"Crafting Button": {"label": "Crafting", "handler": "_on_crafting_button_pressed"},
-		"Research Button": {"label": "Research", "handler": "_on_research_button_pressed"},
+		"Research Button": {"label": "Map", "handler": "_on_map_button_pressed"},
 		"Gather Button": {"label": "Expeditions", "handler": "_on_expeditions_button_pressed"},
 		"Combat Button": {"label": "Combat", "handler": "_on_combat_button_pressed"},
 		"Practice Button": {"label": "Practice", "handler": "_open_simulator"},
@@ -223,9 +221,9 @@ func _convert_hotbar_buttons() -> void:
 		var new_btn = Button.new()
 		new_btn.name = new_name
 		new_btn.text = config["label"]
-		new_btn.custom_minimum_size = btn_size
+		new_btn.custom_minimum_size = Vector2(btn_size.x - 5, btn_size.y)
 		new_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		new_btn.add_theme_font_size_override("font_size", 18)
+		new_btn.add_theme_font_size_override("font_size", 32)
 		new_btn.disabled = is_disabled
 		if has_method(config["handler"]):
 			new_btn.pressed.connect(Callable(self, config["handler"]))
@@ -306,18 +304,29 @@ func _process_expedition_returns() -> void:
 	Global._expedition_pool = []
 
 func _upsert_expedition_loot(owner_name: String, mat_name: String, qty: int) -> void:
-	for item in Global.CHARACTER_ITEMS.values():
-		if str(item.get("Character_Name", "")) == owner_name and str(item.get("Item", "")) == mat_name:
-			var old_qty = int(item.get("Quantity", 0))
-			Global.Update_Records([{"table": "Character_Items", "record_id": int(item.get("id", 0)), "field": "Quantity", "value": old_qty + qty}])
+	if owner_name == "" or owner_name == "null":
+		return
+	if qty <= 0:
+		return
+	# Match existing item — same pattern as DMHub._process_items
+	for record_id in Global.CHARACTER_ITEMS.keys():
+		var rec: Dictionary = Global.CHARACTER_ITEMS[record_id]
+		if str(rec.get("Owner", "")) == owner_name and str(rec.get("Name", "")) == mat_name:
+			var old_qty: int = int(float(rec.get("Quantity", 0)))
+			Global.Update_Records([{
+				"table": "Character_Items",
+				"record_id": str(int(record_id)),
+				"field": "Quantity",
+				"value": old_qty + qty
+			}])
 			return
 	var item_def = GameDB.items_by_name.get(mat_name, null)
 	Global.Insert("Character_Items",
-		["Character_Name", "Item", "Quantity", "Type", "Rarity", "Description"],
+		["Owner", "Name", "Quantity", "Type", "Description", "Rarity"],
 		[owner_name, mat_name, qty,
 		item_def.type if item_def else "Material",
-		item_def.rarity if item_def else "Common",
-		item_def.description if item_def else ""])
+		item_def.description if item_def else "",
+		item_def.rarity if item_def else "Common"])
 
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
@@ -1032,24 +1041,22 @@ func _on_market_button_pressed() -> void:
 	pass # Replace with function body.
 
 
-func _on_research_button_pressed() -> void:
-	var s: PackedScene = preload("res://Scenes/ResearchPanel.tscn")
+func _on_map_button_pressed() -> void:
+	var s: PackedScene = preload("res://Scenes/InteractiveMap.tscn")
 	var dlg = s.instantiate()
 
 	var win := Window.new()
-	win.exclusive = true               # makes it modal, blocks hover/clicks
-	win.transparent = true             # so only your dlg visuals show
+	win.exclusive = true
 	win.unresizable = true
-	win.size = get_viewport_rect().size
-	win.position = Vector2.ZERO
+	win.borderless = true
+	var vp_size = get_viewport_rect().size
+	win.size = Vector2i(int(vp_size.x), int(vp_size.y))
+	win.position = Vector2i.ZERO
 
 	win.add_child(dlg)
-	dlg.open_auto()
 	add_child(win)
 
-	# Optional: center or full-rect dlg inside window
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	pass # Replace with function body.
 
 
 func _on_combat_button_pressed() -> void:

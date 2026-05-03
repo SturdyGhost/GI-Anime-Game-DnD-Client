@@ -77,11 +77,19 @@ func refresh() -> void:
 	_tier_label.text = tier_name
 	_tier_label.add_theme_color_override("font_color", TIER_COLORS.get(tier_name, COLOR_TEXT_MUTED))
 
-	# Phase
-	var phase = e.get("Phase", 1)
-	var max_phase = e.get("Max_Phase", e.get("MaxPhase", 1))
-	if max_phase != null and int(max_phase) > 1:
-		_phase_label.text = "Phase %s / %s" % [str(phase), str(max_phase)]
+	# Phase — read phase_count from the enemy definition
+	var phase = int(e.get("Phase", 1))
+	var max_phase = 1
+	if edata:
+		max_phase = edata.phase_count if edata.phase_count > 0 else 1
+	if max_phase > 1:
+		var phase_name = ""
+		if edata:
+			phase_name = edata.get_phase_name(phase)
+		if phase_name != "":
+			_phase_label.text = "Phase %d / %d — %s" % [phase, max_phase, phase_name]
+		else:
+			_phase_label.text = "Phase %d / %d" % [phase, max_phase]
 		_phase_label.visible = true
 	else:
 		_phase_label.visible = false

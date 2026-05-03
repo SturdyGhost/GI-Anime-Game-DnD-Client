@@ -36,9 +36,11 @@ func show_summary(summary: Dictionary) -> void:
 	centre.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	add_child(centre)
 
-	# Main panel
+	# Main panel — fills most of the screen
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(900, 700)
+	panel.custom_minimum_size = Vector2(1100, 850)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var panel_sb = StyleBoxFlat.new()
 	panel_sb.bg_color = COL_PANEL
 	panel_sb.corner_radius_top_left = 8
@@ -75,9 +77,11 @@ func show_summary(summary: Dictionary) -> void:
 
 	root_vbox.add_child(_separator())
 
-	# ── Scrollable combatant cards ───────────────────────────────────────────
+	# ── Scrollable combatant cards (largest section) ────────────────────────
 	var scroll = ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_stretch_ratio = 3.0
+	scroll.custom_minimum_size.y = 300
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	root_vbox.add_child(scroll)
 
@@ -150,9 +154,22 @@ func show_summary(summary: Dictionary) -> void:
 		var status_label = _label(status_text, 16, status_color)
 		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		root_vbox.add_child(status_label)
-		var challenge_desc = _label(challenge_text, 14, COL_TEXT_MUTED)
-		challenge_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var challenge_desc = RichTextLabel.new()
+		challenge_desc.bbcode_enabled = true
+		challenge_desc.fit_content = true
+		challenge_desc.scroll_active = false
+		challenge_desc.text = "[center]%s[/center]" % challenge_text
+		challenge_desc.add_theme_font_size_override("normal_font_size", 14)
+		challenge_desc.add_theme_color_override("default_color", COL_TEXT)
 		root_vbox.add_child(challenge_desc)
+		var quest_full: Dictionary = summary.get("challenge_quest_full", {})
+		var giver = str(quest_full.get("quest_giver_name", ""))
+		var personality = str(quest_full.get("quest_giver_personality", ""))
+		var multiplier = float(quest_full.get("reward_multiplier", 1.0))
+		if giver != "":
+			var giver_desc = _label("%s (%s) — x%.0f%% bonus loot" % [giver, personality, multiplier * 100], 12, COL_TEXT_MUTED)
+			giver_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			root_vbox.add_child(giver_desc)
 
 	# ── Loot section ─────────────────────────────────────────────────────────
 	var player_loot: Dictionary = summary.get("player_loot", {})
@@ -190,27 +207,62 @@ func show_summary(summary: Dictionary) -> void:
 				loot_grid.add_child(qty_lbl)
 
 	# ── Expedition returns ───────────────────────────────────────────────────
-	var exp_results: Array = Global.get("_expedition_results") if Global.get("_expedition_results") is Array else []
+	# Read from summary dict (broadcast to all clients) with Global fallback for host
+	var exp_results: Array = summary.get("expedition_results", [])
+	if exp_results.is_empty():
+		var global_results = Global.get("_expedition_results")
+		if global_results is Array:
+			exp_results = global_results
 	if exp_results.size() > 0:
 		root_vbox.add_child(_separator())
 		var exp_header = _label("EXPEDITION RETURNS", 16, Color(0.6, 0.85, 0.5))
 		exp_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		root_vbox.add_child(exp_header)
 
+		var exp_scroll = ScrollContainer.new()
+		exp_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		exp_scroll.size_flags_stretch_ratio = 1.0
+		exp_scroll.custom_minimum_size.y = 100
+		exp_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		root_vbox.add_child(exp_scroll)
+
+		var exp_vbox = VBoxContainer.new()
+		exp_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		exp_vbox.add_theme_constant_override("separation", 4)
+		exp_scroll.add_child(exp_vbox)
+
 		for result in exp_results:
 			var comp_name: String = str(result.get("companion", ""))
+			var owner_name: String = str(result.get("owner", ""))
 			var exp_name: String = str(result.get("expedition", ""))
 			var loot: Dictionary = result.get("loot", {})
+			var failed: bool = result.get("failed", false)
+			var bonus_total: float = result.get("bonus_total", 1.0)
+			var bonus_list: Array = result.get("bonuses", [])
+
 			var result_lbl: Label
-			if loot.is_empty():
-				result_lbl = _label("%s returned empty-handed from %s" % [comp_name, exp_name], 13, COL_RED)
+			if failed or loot.is_empty():
+				result_lbl = _label("%s returned empty-handed from %s" % [comp_name, exp_name], 14, COL_RED)
 			else:
 				var items_arr: Array = []
 				for k in loot:
 					items_arr.append("%s x%d" % [k, loot[k]])
-				result_lbl = _label("%s from %s: %s" % [comp_name, exp_name, ", ".join(items_arr)], 13, COL_TEXT)
+				var loot_text = "%s from %s: %s" % [comp_name, exp_name, ", ".join(items_arr)]
+				if owner_name != "":
+					loot_text += "  ->  %s" % owner_name
+				result_lbl = _label(loot_text, 14, COL_TEXT)
 			result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			root_vbox.add_child(result_lbl)
+			exp_vbox.add_child(result_lbl)
+
+			# Bonus breakdown
+			if bonus_list.size() > 0:
+				var bonus_text = "  Bonus x%.0f%% — %s" % [bonus_total * 100, ", ".join(bonus_list)]
+				var bonus_lbl = _label(bonus_text, 11, COL_TEXT_MUTED)
+				bonus_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				exp_vbox.add_child(bonus_lbl)
+			elif bonus_total == 1.0:
+				var no_bonus_lbl = _label("  No bonuses (base rate)", 11, COL_TEXT_MUTED)
+				exp_vbox.add_child(no_bonus_lbl)
 
 	root_vbox.add_child(_separator())
 

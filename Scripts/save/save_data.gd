@@ -38,3 +38,7 @@ class_name SaveData extends Resource
 @export var artifact_overrides: Dictionary = {}
 @export var item_quantities: Dictionary = {}
 # e.g. { "dylan_iron_chunk": { "quantity": 15, "owner": "Dylan" } }
+
+# ── Map markers (player_name → Array of marker dicts) ─────────────────────
+@export var map_markers: Dictionary = {}
+# e.g. { "Dylan": [ { "id": "abc", "position_x": 100.0, "position_y": 200.0, "shape": "circle", "note": "..." }, ... ] }

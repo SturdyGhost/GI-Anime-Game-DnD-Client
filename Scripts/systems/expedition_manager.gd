@@ -12,66 +12,131 @@ const EXPEDITION_TEMPLATES := [
 ]
 
 const ELEMENT_REGION_AFFINITY := {
-	"Pyro": ["Sumeru", "Inazuma"],
-	"Hydro": ["Liyue", "Inazuma"],
-	"Electro": ["Inazuma", "Sumeru"],
-	"Cryo": ["Mondstadt", "Liyue"],
-	"Anemo": ["Mondstadt"],
-	"Geo": ["Liyue"],
-	"Dendro": ["Sumeru"],
+	"Fire": ["Sumeru", "Inazuma"],
+	"Water": ["Liyue", "Inazuma"],
+	"Electric": ["Inazuma", "Sumeru"],
+	"Ice": ["Mondstadt", "Liyue"],
+	"Wind": ["Mondstadt"],
+	"Earth": ["Liyue"],
+	"Nature": ["Sumeru"],
 }
+
+const ALL_REGIONS := ["Mondstadt", "Liyue", "Inazuma", "Sumeru"]
+
+## Returns all elements that have affinity with a region, shuffled.
+static func _elements_for_region(region: String) -> Array:
+	var elems: Array = []
+	for elem in ELEMENT_REGION_AFFINITY:
+		if region in ELEMENT_REGION_AFFINITY[elem]:
+			elems.append(elem)
+	elems.shuffle()
+	return elems
 
 static func generate_pool(region: String, pool_size: int = 5) -> Array:
 	var templates = EXPEDITION_TEMPLATES.duplicate()
 	templates.shuffle()
 	var pool: Array = []
-	var caches = LootGenerator.pick_caches(region, 4)
+
+	# Pick regions: mostly current, with a chance of other regions
+	var regions_for_pool: Array = []
+	var other_regions: Array = ALL_REGIONS.filter(func(r): return r != region)
+	other_regions.shuffle()
+	for i in range(pool_size):
+		if i < 3 or randf() > 0.4:
+			regions_for_pool.append(region)
+		else:
+			regions_for_pool.append(other_regions[i % other_regions.size()])
+
+	# Collect element pools per region so we rotate through them
+	var region_elem_pools: Dictionary = {}
+
 	for i in range(mini(pool_size, templates.size())):
 		var tmpl = templates[i]
+		var exp_region: String = regions_for_pool[i]
+		var caches = LootGenerator.pick_caches(exp_region, 4)
+		if caches.is_empty():
+			caches = LootGenerator.pick_caches(region, 4)
+			exp_region = region
 		var cache_idx = i % caches.size()
 		var cache = caches[cache_idx]
 		var cache_roll_val = cache.roll if cache is MaterialCacheData else int(cache.get("Roll", 1))
+
+		# Pick a bonus element, rotating through all matching elements for this region
+		if not region_elem_pools.has(exp_region):
+			region_elem_pools[exp_region] = _elements_for_region(exp_region)
+		var elem_list: Array = region_elem_pools[exp_region]
 		var bonus_elem = ""
-		for elem in ELEMENT_REGION_AFFINITY:
-			if region in ELEMENT_REGION_AFFINITY[elem]:
-				bonus_elem = elem
-				break
+		if elem_list.size() > 0:
+			bonus_elem = elem_list[i % elem_list.size()]
+
 		var data = {
-			"name": tmpl["name_pattern"] % region,
-			"region": region,
+			"name": tmpl["name_pattern"] % exp_region,
+			"region": exp_region,
 			"type": tmpl["type"],
 			"description": tmpl["description"],
 			"base_materials": tmpl["base_materials"],
 			"cache_roll": cache_roll_val,
 			"risk_level": tmpl["risk_level"],
-			"bonus_region": region,
+			"bonus_region": exp_region,
 			"bonus_weapon": tmpl["bonus_weapon"],
 			"bonus_element": bonus_elem,
 		}
 		pool.append(ExpeditionData.new(data))
 	return pool
 
-static func companion_bonus(companion: Dictionary, expedition: ExpeditionData) -> float:
-	var bonus := 1.0
+## Returns { "total": float, "bonuses": Array[String] } with breakdown of all bonuses.
+static func companion_bonus_detailed(companion: Dictionary, expedition: ExpeditionData) -> Dictionary:
+	var total := 1.0
+	var bonuses: Array = []
+
 	if str(companion.get("Region", "")) == expedition.bonus_region:
-		bonus += 0.25
+		total += 0.25
+		bonuses.append("Region match (%s) +25%%" % expedition.bonus_region)
 	if str(companion.get("Weapon", "")) == expedition.bonus_weapon:
-		bonus += 0.25
+		total += 0.25
+		bonuses.append("Weapon match (%s) +25%%" % expedition.bonus_weapon)
 	if str(companion.get("Element", "")) == expedition.bonus_element:
-		bonus += 0.2
+		total += 0.2
+		bonuses.append("Element match (%s) +20%%" % expedition.bonus_element)
+
 	var lore: String = str(companion.get("Lore", companion.get("lore", ""))).to_lower()
 	if expedition.expedition_type == "research" and ("scholar" in lore or "knowledge" in lore or "curious" in lore or "study" in lore):
-		bonus += 0.15
+		total += 0.15
+		bonuses.append("Scholarly trait +15%%")
 	if expedition.expedition_type == "trade" and ("merchant" in lore or "shrewd" in lore or "business" in lore or "mora" in lore):
-		bonus += 0.15
+		total += 0.15
+		bonuses.append("Merchant trait +15%%")
 	if "diligent" in lore or "enthusiastic" in lore or "determined" in lore or "hardworking" in lore:
-		bonus += 0.1
+		total += 0.1
+		bonuses.append("Diligent trait +10%%")
 	if "lazy" in lore or "sleepy" in lore or "carefree" in lore:
-		bonus -= 0.1
-	return maxf(bonus, 0.5)
+		total -= 0.1
+		bonuses.append("Lazy trait -10%%")
 
+	total = maxf(total, 0.5)
+	return { "total": total, "bonuses": bonuses }
+
+static func companion_bonus(companion: Dictionary, expedition: ExpeditionData) -> float:
+	return companion_bonus_detailed(companion, expedition)["total"]
+
+## Count how many category matches a companion has (region, weapon, element).
+static func _count_matches(companion: Dictionary, expedition: ExpeditionData) -> int:
+	var matches := 0
+	if str(companion.get("Region", "")) == expedition.bonus_region:
+		matches += 1
+	if str(companion.get("Weapon", "")) == expedition.bonus_weapon:
+		matches += 1
+	if str(companion.get("Element", "")) == expedition.bonus_element:
+		matches += 1
+	return matches
+
+## Process expedition with one companion (legacy, still used for single-companion).
 static func process_results(expedition: ExpeditionData, companion: Dictionary) -> Dictionary:
-	var bonus = companion_bonus(companion, expedition)
+	return process_multi_results(expedition, [companion])
+
+## Process expedition with multiple companions. Bonuses add, rewards stay at base amount.
+## Failure rate: safe=15%, moderate=60%, risky=90%, reduced by 5% per match across all companions.
+static func process_multi_results(expedition: ExpeditionData, companions: Array) -> Dictionary:
 	var region = expedition.region
 	var cache = null
 	for c in GameDB.material_caches.values():
@@ -81,18 +146,48 @@ static func process_results(expedition: ExpeditionData, companion: Dictionary) -
 			cache = c
 			break
 	if cache == null:
-		return {}
+		return {"_failed": true, "_bonus_total": 1.0, "_bonuses": []}
+
+	# Combine bonuses: one base of 1.0 + each companion's bonus portion added
+	var combined_bonus := 1.0  # single base
+	var all_bonuses: Array = []
+	var total_matches := 0
+	for comp in companions:
+		var info = companion_bonus_detailed(comp, expedition)
+		# Add only the bonus portion (total - 1.0 base) from each companion
+		combined_bonus += info["total"] - 1.0
+		var comp_name = str(comp.get("Name", ""))
+		for b in info["bonuses"]:
+			all_bonuses.append("%s: %s" % [comp_name, b])
+		total_matches += _count_matches(comp, expedition)
+
+	combined_bonus = maxf(combined_bonus, 0.5)
+
+	# Failure check — base rate reduced by 5% per match across all companions
+	var base_failure: float
+	match expedition.risk_level:
+		"risky":
+			base_failure = 0.90
+		"moderate":
+			base_failure = 0.60
+		_:
+			base_failure = 0.15
+	var failure_rate: float = maxf(base_failure - (total_matches * 0.05), 0.0)
+	var failed := randf() < failure_rate
+
+	if failed:
+		all_bonuses.append("Failure rate: %.0f%%" % (failure_rate * 100))
+		return {"_failed": true, "_bonus_total": combined_bonus, "_bonuses": all_bonuses, "_failure_rate": failure_rate}
+
+	# Base rewards * combined multiplier
 	var materials = LootGenerator.parse_materials(cache)
-	var loot: Dictionary = {}
 	var base_qty: int = expedition.base_materials
-	var final_qty: int = maxi(int(ceil(base_qty * bonus)), 1)
-	if expedition.risk_level == "moderate":
-		if randf() < 0.1:
-			return {}
-	elif expedition.risk_level == "risky":
-		if randf() < 0.3:
-			return {}
-		final_qty = int(ceil(final_qty * 1.5))
+	var final_qty: int = maxi(int(ceil(base_qty * combined_bonus)), 1)
+	var loot: Dictionary = {}
 	for mat_name in materials:
 		loot[mat_name] = final_qty
+	all_bonuses.append("Failure rate: %.0f%% (passed)" % (failure_rate * 100))
+	loot["_bonus_total"] = combined_bonus
+	loot["_bonuses"] = all_bonuses
+	loot["_failure_rate"] = failure_rate
 	return loot

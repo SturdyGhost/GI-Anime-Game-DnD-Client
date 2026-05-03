@@ -72,6 +72,12 @@ static func parse_materials(cache) -> Array:
 		mat_str = cache.materials
 	elif cache is Dictionary:
 		mat_str = str(cache.get("materials", cache.get("Materials", "")))
+	# Strip surrounding brackets (material lists stored as "[Item1,Item2]")
+	mat_str = mat_str.strip_edges()
+	if mat_str.begins_with("["):
+		mat_str = mat_str.substr(1)
+	if mat_str.ends_with("]"):
+		mat_str = mat_str.substr(0, mat_str.length() - 1)
 	var mats: Array = []
 	for m in mat_str.split(","):
 		var trimmed = m.strip_edges()

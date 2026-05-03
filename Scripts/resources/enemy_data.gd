@@ -57,6 +57,24 @@ static func from_dict(d: Dictionary) -> EnemyData:
 	r.notes = _s(d.get("notes"))
 	return r
 
+## Get HP for a specific phase (1-indexed). Falls back to hp_per_phase if no specific value.
+func get_phase_hp(phase: int) -> int:
+	match phase:
+		1: if phase1_hp > 0: return phase1_hp
+		2: if phase2_hp > 0: return phase2_hp
+		3: if phase3_hp > 0: return phase3_hp
+		4: if phase4_hp > 0: return phase4_hp
+	return hp_per_phase if hp_per_phase > 0 else 100
+
+## Get the display name for a specific phase, or "" if none.
+func get_phase_name(phase: int) -> String:
+	match phase:
+		1: return phase1_name
+		2: return phase2_name
+		3: return phase3_name
+		4: return phase4_name
+	return ""
+
 func to_dict() -> Dictionary:
 	return {
 		"id": id, "name": name, "tier": tier, "size_tiles": size_tiles,

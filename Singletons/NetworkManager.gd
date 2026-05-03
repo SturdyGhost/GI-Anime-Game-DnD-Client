@@ -11,6 +11,8 @@ signal host_ready         # fired on host after data loaded from disk
 signal combat_log_received(payload: Dictionary)  # fired on host when a combat log arrives
 signal battle_summary_received(summary: Dictionary)  # fired on clients when host sends summary
 signal notes_file_ack_received(success: bool)
+signal map_markers_updated(all_markers: Dictionary)
+signal map_ping_received(ping_json: String)
 
 const DEFAULT_PORT = 7777
 const DISCOVERY_PORT = 7778
@@ -27,8 +29,9 @@ var connected_players = {}
 # LAN discovery
 var _beacon_timer: Timer = null
 var _discovery_socket: PacketPeerUDP = null
-var _beacon_socket: PacketPeerUDP = null
+var _beacon_sockets: Array = []  # Array of PacketPeerUDP, one per broadcast address
 var discovered_hosts = []  # Array of { "ip": String, "port": int, "name": String, "players": int }
+var local_ip: String = ""  # LAN IP for display in waiting room
 
 # UPNP
 var upnp: UPNP = null
@@ -167,25 +170,45 @@ func disconnect_from_game() -> void:
 func start_discovery() -> void:
 	_stop_discovery()
 	discovered_hosts.clear()
+	_discovery_no_beacon_logged = false
+	_discovery_start_time = Time.get_ticks_msec()
 
 	_discovery_socket = PacketPeerUDP.new()
 	_discovery_socket.set_broadcast_enabled(true)
 	var err = _discovery_socket.bind(DISCOVERY_PORT)
 	if err != OK:
-		push_warning("NetworkManager: Could not bind discovery socket: %s" % error_string(err))
+		push_warning("NetworkManager: Could not bind discovery socket on port %d: %s — another app may be using this port" % [DISCOVERY_PORT, error_string(err)])
 		return
 
 	print("NetworkManager: Listening for LAN beacons on port %d" % DISCOVERY_PORT)
+	# Log local addresses so we can verify client is on the same subnet as host
+	var local_addrs = []
+	for addr in IP.get_local_addresses():
+		var s = str(addr)
+		if ":" not in s and not s.begins_with("127."):
+			local_addrs.append(s)
+	print("NetworkManager: Client local IPs: %s" % str(local_addrs))
+
+var _discovery_no_beacon_logged: bool = false
+var _discovery_start_time: int = 0
 
 func poll_discovery() -> void:
 	if _discovery_socket == null:
 		return
+
+	# Log a warning if no beacons received after 5 seconds
+	if not _discovery_no_beacon_logged and discovered_hosts.is_empty():
+		var elapsed = Time.get_ticks_msec() - _discovery_start_time
+		if elapsed > 5000:
+			_discovery_no_beacon_logged = true
+			push_warning("NetworkManager: No beacons received after 5s — host may be on a different subnet, or firewall is blocking UDP port %d" % DISCOVERY_PORT)
 
 	while _discovery_socket.get_available_packet_count() > 0:
 		var data = _discovery_socket.get_packet().get_string_from_utf8()
 		var ip = _discovery_socket.get_packet_ip()
 		var parsed = JSON.parse_string(data)
 		if parsed == null or typeof(parsed) != TYPE_DICTIONARY:
+			push_warning("NetworkManager: Received malformed beacon from %s" % ip)
 			continue
 		if not parsed.has("game") or parsed["game"] != "GenshinDnD":
 			continue
@@ -206,12 +229,14 @@ func poll_discovery() -> void:
 				found = true
 				break
 		if not found:
+			print("NetworkManager: Discovered host '%s' at %s:%d" % [entry["name"], ip, entry["port"]])
 			discovered_hosts.append(entry)
 
 	# Expire hosts that haven't sent a beacon in 3 seconds
 	var now = Time.get_ticks_msec()
 	for i in range(discovered_hosts.size() - 1, -1, -1):
 		if now - discovered_hosts[i].get("_last_seen", 0) > 3000:
+			print("NetworkManager: Host '%s' at %s timed out (no beacon for 3s)" % [discovered_hosts[i]["name"], discovered_hosts[i]["ip"]])
 			discovered_hosts.remove_at(i)
 
 func _stop_discovery() -> void:
@@ -220,9 +245,35 @@ func _stop_discovery() -> void:
 		_discovery_socket = null
 
 func _start_beacon(port: int) -> void:
-	_beacon_socket = PacketPeerUDP.new()
-	_beacon_socket.set_broadcast_enabled(true)
-	_beacon_socket.set_dest_address("255.255.255.255", DISCOVERY_PORT)
+	_stop_beacon()
+	_beacon_sockets.clear()
+
+	# Collect broadcast addresses from all local network interfaces
+	var broadcast_addresses: Array = ["255.255.255.255"]
+	var local_addresses = IP.get_local_addresses()
+	for addr in local_addresses:
+		var s = str(addr)
+		# Skip IPv6, loopback, and link-local
+		if ":" in s or s.begins_with("127.") or s.begins_with("169.254."):
+			continue
+		# Derive /24 subnet broadcast (e.g., 192.168.1.123 -> 192.168.1.255)
+		var parts = s.split(".")
+		if parts.size() == 4:
+			var subnet_broadcast = "%s.%s.%s.255" % [parts[0], parts[1], parts[2]]
+			if subnet_broadcast not in broadcast_addresses:
+				broadcast_addresses.append(subnet_broadcast)
+			# Track our LAN IP for display
+			if local_ip == "" or s.begins_with("192.168.") or s.begins_with("10."):
+				local_ip = s
+
+	# Create one socket per broadcast address
+	for bcast in broadcast_addresses:
+		var sock = PacketPeerUDP.new()
+		sock.set_broadcast_enabled(true)
+		sock.set_dest_address(bcast, DISCOVERY_PORT)
+		_beacon_sockets.append(sock)
+
+	print("NetworkManager: Broadcasting beacons to %s (local IP: %s)" % [str(broadcast_addresses), local_ip])
 
 	_beacon_timer = Timer.new()
 	add_child(_beacon_timer)
@@ -232,7 +283,7 @@ func _start_beacon(port: int) -> void:
 	_send_beacon(port)
 
 func _send_beacon(port: int) -> void:
-	if _beacon_socket == null:
+	if _beacon_sockets.is_empty():
 		return
 	var payload = JSON.stringify({
 		"game": "GenshinDnD",
@@ -240,16 +291,20 @@ func _send_beacon(port: int) -> void:
 		"host_name": Global.ACTIVE_USER_NAME,
 		"player_count": connected_players.size()
 	})
-	_beacon_socket.put_packet(payload.to_utf8_buffer())
+	var buf = payload.to_utf8_buffer()
+	for sock in _beacon_sockets:
+		var err = sock.put_packet(buf)
+		if err != OK:
+			push_warning("NetworkManager: Beacon send failed on %s: %s" % [sock.get_dest_address(), error_string(err)])
 
 func _stop_beacon() -> void:
 	if _beacon_timer:
 		_beacon_timer.stop()
 		_beacon_timer.queue_free()
 		_beacon_timer = null
-	if _beacon_socket:
-		_beacon_socket.close()
-		_beacon_socket = null
+	for sock in _beacon_sockets:
+		sock.close()
+	_beacon_sockets.clear()
 
 # ─── CONNECTION CALLBACKS ───
 
@@ -742,3 +797,49 @@ func send_notes_file(filename: String, file_bytes: PackedByteArray) -> void:
 func _notes_file_ack(success: bool) -> void:
 	# Received by the client — Global handles the response
 	notes_file_ack_received.emit(success)
+
+# ─── MAP MARKER SYNC ───
+
+## Client sends its markers to the host after placing/editing/deleting.
+func send_markers_to_host(player_name: String, markers: Array) -> void:
+	if is_host:
+		# Host updates directly
+		SaveManager.set_player_markers(player_name, markers)
+		_broadcast_all_markers()
+		return
+	var json = JSON.stringify(markers)
+	_sync_markers_to_host.rpc_id(1, player_name, json)
+
+@rpc("any_peer", "reliable")
+func _sync_markers_to_host(player_name: String, markers_json: String) -> void:
+	if not is_host:
+		return
+	var markers = JSON.parse_string(markers_json)
+	if markers == null or not markers is Array:
+		return
+	SaveManager.set_player_markers(player_name, markers)
+	_broadcast_all_markers()
+
+func _broadcast_all_markers() -> void:
+	var all = SaveManager.get_map_markers()
+	var json = JSON.stringify(all)
+	_receive_markers_sync.rpc(json)
+	# Also emit locally for the host
+	map_markers_updated.emit(all)
+
+@rpc("authority", "reliable")
+func _receive_markers_sync(all_markers_json: String) -> void:
+	var all = JSON.parse_string(all_markers_json)
+	if all == null or not all is Dictionary:
+		return
+	SaveManager.set_all_markers(all)
+	map_markers_updated.emit(all)
+
+# ─── MAP PING (temporary indicator visible to all) ───
+
+func broadcast_map_ping(ping_json: String) -> void:
+	_receive_map_ping.rpc(ping_json)
+
+@rpc("any_peer", "reliable", "call_remote")
+func _receive_map_ping(ping_json: String) -> void:
+	map_ping_received.emit(ping_json)

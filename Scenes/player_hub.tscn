@@ -737,7 +737,7 @@ bus = &"Music"
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Market Button" to="." method="_on_market_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Minigames Button" to="." method="_on_minigames_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Crafting Button" to="." method="_on_crafting_button_pressed"]
-[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Research Button" to="." method="_on_research_button_pressed"]
+[connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Research Button" to="." method="_on_map_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Gather Button" to="." method="_on_gather_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Combat Button" to="." method="_on_combat_button_pressed"]
 [connection signal="pressed" from="UI/BottomHotbar/HBoxContainer/Exit Button" to="." method="_on_exit_button_pressed"]

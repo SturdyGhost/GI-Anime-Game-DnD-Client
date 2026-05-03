@@ -71,6 +71,7 @@ func _ready() -> void:
 	_refresh_specifics_options()
 	_build_data_editor()
 	_build_artifact_panel()
+	_build_dm_challenge_section()
 	# Add Encounter Balancer button to the QuickBar
 	var quick_hbox = $Layout/QuickBar/QuickHBox
 	var bal_btn = Button.new()
@@ -635,6 +636,12 @@ func _make_enemy_card(name: String, hp: int) -> Control:
 
 
 func _on_situation_pressed() -> void:
+	# Generate challenge quest if none exists
+	if Global.active_challenge_quest.is_empty():
+		var quest = ChallengeQuestGenerator.generate()
+		Global.active_challenge_quest = quest.to_dict()
+		NetworkManager.broadcast_table_update("Party")
+
 	Global.Update_Records([{"table":"Characters","record_id": Global.ACTIVE_USER_RECORD_ID,"field":"Ready","value": true}])
 	var s = preload("res://Scenes/BattleScene.tscn")
 	var dlg = s.instantiate()
@@ -1253,6 +1260,147 @@ func _de_on_delete() -> void:
 	# Refresh table list
 	await get_tree().create_timer(0.3).timeout
 	_de_on_table_selected(_de_table_btn.selected)
+
+
+# ── Challenge Quest (DM controls) ──
+
+var _challenge_container: VBoxContainer = null
+
+func _build_dm_challenge_section() -> void:
+	# Add challenge quest controls to the BattlePrep tab, inside the encounter panel
+	var encounter_panel = EncounterVContainer.get_parent()
+	if encounter_panel == null:
+		return
+
+	_challenge_container = VBoxContainer.new()
+	_challenge_container.add_theme_constant_override("separation", 6)
+	# Insert at the top of the encounter panel's parent
+	encounter_panel.add_child(_challenge_container)
+	encounter_panel.move_child(_challenge_container, 0)
+	_refresh_dm_challenge_display()
+
+func _refresh_dm_challenge_display() -> void:
+	if _challenge_container == null:
+		return
+	for c in _challenge_container.get_children():
+		c.queue_free()
+
+	var quest = Global.active_challenge_quest
+
+	var header = Label.new()
+	header.text = "CHALLENGE QUEST"
+	header.add_theme_font_size_override("font_size", 16)
+	header.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
+	_challenge_container.add_child(header)
+
+	if quest.is_empty():
+		var empty_label = Label.new()
+		empty_label.text = "No challenge quest set. One will generate when battle starts."
+		empty_label.add_theme_font_size_override("font_size", 13)
+		empty_label.add_theme_color_override("font_color", Color(0.533, 0.573, 0.659))
+		_challenge_container.add_child(empty_label)
+
+		var gen_btn = Button.new()
+		gen_btn.text = "Generate Now"
+		gen_btn.custom_minimum_size = Vector2(0, 30)
+		gen_btn.pressed.connect(func():
+			var q = ChallengeQuestGenerator.generate()
+			Global.active_challenge_quest = q.to_dict()
+			NetworkManager.broadcast_table_update("Party")
+			_refresh_dm_challenge_display()
+		)
+		_challenge_container.add_child(gen_btn)
+	else:
+		var giver = str(quest.get("quest_giver_name", ""))
+		var personality = str(quest.get("quest_giver_personality", ""))
+		var multiplier = float(quest.get("reward_multiplier", 1.0))
+		var giver_label = Label.new()
+		giver_label.text = "%s (%s) — x%.0f%% reward" % [giver, personality, multiplier * 100]
+		giver_label.add_theme_font_size_override("font_size", 13)
+		giver_label.add_theme_color_override("font_color", Color(0.533, 0.573, 0.659))
+		_challenge_container.add_child(giver_label)
+
+		var challenge_label = RichTextLabel.new()
+		challenge_label.bbcode_enabled = true
+		challenge_label.fit_content = true
+		challenge_label.scroll_active = false
+		challenge_label.text = str(quest.get("challenge_text", ""))
+		challenge_label.add_theme_font_size_override("normal_font_size", 15)
+		challenge_label.add_theme_color_override("default_color", Color(0.941, 0.949, 0.973))
+		_challenge_container.add_child(challenge_label)
+
+		var btn_row = HBoxContainer.new()
+		btn_row.add_theme_constant_override("separation", 8)
+		_challenge_container.add_child(btn_row)
+
+		var reroll_btn = Button.new()
+		reroll_btn.text = "Reroll"
+		reroll_btn.custom_minimum_size = Vector2(0, 28)
+		reroll_btn.pressed.connect(func():
+			var q = ChallengeQuestGenerator.generate()
+			Global.active_challenge_quest = q.to_dict()
+			NetworkManager.broadcast_table_update("Party")
+			_refresh_dm_challenge_display()
+		)
+		btn_row.add_child(reroll_btn)
+
+		var edit_btn = Button.new()
+		edit_btn.text = "Edit"
+		edit_btn.custom_minimum_size = Vector2(0, 28)
+		edit_btn.pressed.connect(_dm_edit_challenge)
+		btn_row.add_child(edit_btn)
+
+		var clear_btn = Button.new()
+		clear_btn.text = "Clear"
+		clear_btn.custom_minimum_size = Vector2(0, 28)
+		clear_btn.pressed.connect(func():
+			Global.active_challenge_quest = {}
+			NetworkManager.broadcast_table_update("Party")
+			_refresh_dm_challenge_display()
+		)
+		btn_row.add_child(clear_btn)
+
+	var sep = HSeparator.new()
+	sep.add_theme_constant_override("separation", 8)
+	_challenge_container.add_child(sep)
+
+func _dm_edit_challenge() -> void:
+	var dialog = AcceptDialog.new()
+	dialog.title = "Edit Challenge"
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	dialog.add_child(vbox)
+
+	var text_input = LineEdit.new()
+	text_input.text = str(Global.active_challenge_quest.get("challenge_text", ""))
+	text_input.placeholder_text = "Challenge text..."
+	text_input.custom_minimum_size = Vector2(400, 36)
+	vbox.add_child(text_input)
+
+	var mult_row = HBoxContainer.new()
+	mult_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(mult_row)
+	var mult_label = Label.new()
+	mult_label.text = "Reward multiplier:"
+	mult_row.add_child(mult_label)
+	var mult_input = SpinBox.new()
+	mult_input.min_value = 0.25
+	mult_input.max_value = 3.0
+	mult_input.step = 0.25
+	mult_input.value = float(Global.active_challenge_quest.get("reward_multiplier", 1.0))
+	mult_row.add_child(mult_input)
+
+	dialog.confirmed.connect(func():
+		var q = Global.active_challenge_quest.duplicate()
+		q["challenge_text"] = text_input.text
+		q["reward_multiplier"] = mult_input.value
+		Global.active_challenge_quest = q
+		NetworkManager.broadcast_table_update("Party")
+		dialog.queue_free()
+		_refresh_dm_challenge_display()
+	)
+	add_child(dialog)
+	dialog.popup_centered(Vector2(500, 200))
 
 
 # ── Encounter Balancer ──

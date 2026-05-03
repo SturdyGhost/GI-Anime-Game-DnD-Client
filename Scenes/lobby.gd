@@ -6,6 +6,7 @@ extends Control
 @onready var join_button: Button = $VBoxContainer/JoinButton
 @onready var back_button: Button = $VBoxContainer/BackButton
 @onready var status_label: Label = $VBoxContainer/StatusLabel
+@onready var ip_info_label: Label = $VBoxContainer/IPInfoLabel
 @onready var character_list: ItemList = $VBoxContainer/CharacterList
 @onready var host_list: ItemList = $VBoxContainer/HostList
 @onready var ip_field: LineEdit = $VBoxContainer/IPField
@@ -64,6 +65,7 @@ func _hide_all() -> void:
 	host_button.visible = false
 	join_button.visible = false
 	back_button.visible = false
+	ip_info_label.visible = false
 	character_list.visible = false
 	host_list.visible = false
 	ip_field.visible = false
@@ -105,6 +107,9 @@ func _show_waiting_room() -> void:
 	if NetworkManager.is_host:
 		start_button.visible = true
 		status_label.text = "Waiting for players... Press Start when ready."
+		if NetworkManager.local_ip != "":
+			ip_info_label.text = "Players can connect to: %s" % NetworkManager.local_ip
+			ip_info_label.visible = true
 	else:
 		status_label.text = "Waiting for host to start the game..."
 	_refresh_player_list()

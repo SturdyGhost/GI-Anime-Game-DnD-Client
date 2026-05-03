@@ -1,17 +1,40 @@
 class_name ChallengeQuestGenerator
 extends RefCounted
 
-const CHALLENGES := [
-	{"text": "Trigger a Melt reaction", "category": "reaction"},
-	{"text": "Trigger a Vaporize reaction", "category": "reaction"},
-	{"text": "Trigger an Overloaded reaction", "category": "reaction"},
-	{"text": "Trigger a Superconduct reaction", "category": "reaction"},
-	{"text": "Trigger a Bloom reaction", "category": "reaction"},
-	{"text": "Trigger a Burning reaction", "category": "reaction"},
-	{"text": "Trigger an Electro-Charged reaction", "category": "reaction"},
-	{"text": "Trigger a Swirl reaction", "category": "reaction"},
-	{"text": "Trigger a Crystallize reaction", "category": "reaction"},
-	{"text": "Trigger a Freeze reaction", "category": "reaction"},
+## Element pairs for reaction challenges — ordered as "apply A then B"
+const REACTION_PAIRS := [
+	["Fire", "Ice"],       # Melt
+	["Ice", "Fire"],       # Reverse Melt
+	["Fire", "Water"],     # Vaporize
+	["Water", "Fire"],     # Reverse Vaporize
+	["Fire", "Electric"],  # Overloaded
+	["Ice", "Electric"],   # Superconduct
+	["Electric", "Water"], # Electro-Charged
+	["Nature", "Water"],   # Bloom
+	["Fire", "Nature"],    # Burning
+	["Wind", "Fire"],      # Swirl (Fire)
+	["Wind", "Ice"],       # Swirl (Ice)
+	["Wind", "Electric"],  # Swirl (Electro)
+	["Wind", "Water"],     # Swirl (Hydro)
+	["Earth", "Fire"],     # Crystallize (Fire)
+	["Earth", "Ice"],      # Crystallize (Ice)
+	["Earth", "Electric"], # Crystallize (Electro)
+	["Earth", "Water"],    # Crystallize (Hydro)
+	["Ice", "Water"],      # Freeze
+	["Nature", "Electric"],# Quicken
+]
+
+const ELEMENT_COLORS := {
+	"Fire": "ef4444",
+	"Water": "3b82f6",
+	"Ice": "67e8f9",
+	"Electric": "a78bfa",
+	"Nature": "4ade80",
+	"Wind": "6ee7b7",
+	"Earth": "d4a017",
+}
+
+const NON_REACTION_CHALLENGES := [
 	{"text": "Defeat an enemy with a charged attack", "category": "kill"},
 	{"text": "Defeat an enemy with an elemental skill", "category": "kill"},
 	{"text": "Defeat an enemy with an elemental burst", "category": "kill"},
@@ -27,6 +50,10 @@ const CHALLENGES := [
 	{"text": "Win without using any items", "category": "defense"},
 ]
 
+static func _color_element(element: String) -> String:
+	var hex = ELEMENT_COLORS.get(element, "ffffff")
+	return "[color=#%s]%s[/color]" % [hex, element]
+
 const QUEST_GIVERS := [
 	{"name": "Zhiqiong", "personality": "Generous", "multiplier": 1.5},
 	{"name": "Katheryne", "personality": "Fair", "multiplier": 1.0},
@@ -40,11 +67,23 @@ const QUEST_GIVERS := [
 ]
 
 static func generate() -> ChallengeQuest:
-	var challenge = CHALLENGES[randi() % CHALLENGES.size()]
 	var giver = QUEST_GIVERS[randi() % QUEST_GIVERS.size()]
+
+	# ~40% chance of a reaction challenge, ~60% other
+	var text: String
+	var category: String
+	if randf() < 0.4:
+		var pair = REACTION_PAIRS[randi() % REACTION_PAIRS.size()]
+		text = "Trigger a %s then %s reaction" % [_color_element(pair[0]), _color_element(pair[1])]
+		category = "reaction"
+	else:
+		var challenge = NON_REACTION_CHALLENGES[randi() % NON_REACTION_CHALLENGES.size()]
+		text = challenge["text"]
+		category = challenge["category"]
+
 	return ChallengeQuest.new(
-		challenge["text"],
-		challenge["category"],
+		text,
+		category,
 		giver["name"],
 		giver["personality"],
 		giver["multiplier"]

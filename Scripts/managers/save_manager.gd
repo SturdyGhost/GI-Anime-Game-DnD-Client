@@ -239,6 +239,8 @@ func _sync_to_save() -> void:
 		data.party_active_battle_id = party.active_battle_id
 		data.party_turn_order = party.turn_order.duplicate()
 
+	# Map markers (kept in data.map_markers directly, no separate runtime copy)
+
 func mark_dirty() -> void:
 	emit_signal("save_updated")
 	if _is_host:
@@ -333,6 +335,32 @@ func _load_folder(path: String) -> Array:
 		fname = dir.get_next()
 	dir.list_dir_end()
 	return results
+
+# ── Map Markers ──────────────────────────────────────────────────────────────
+
+func get_map_markers() -> Dictionary:
+	if data == null:
+		return {}
+	return data.map_markers
+
+func get_player_markers(player_name: String) -> Array:
+	if data == null:
+		return []
+	return data.map_markers.get(player_name, [])
+
+func set_player_markers(player_name: String, markers: Array) -> void:
+	if data == null:
+		data = SaveData.new()
+	data.map_markers[player_name] = markers
+	mark_dirty()
+
+func set_all_markers(all_markers: Dictionary) -> void:
+	if data == null:
+		data = SaveData.new()
+	data.map_markers = all_markers
+	mark_dirty()
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
 
 func _slugify(text: String) -> String:
 	var s = text.strip_edges().to_lower()

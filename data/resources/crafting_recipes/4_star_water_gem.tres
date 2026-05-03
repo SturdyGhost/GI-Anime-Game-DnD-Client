@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3 uid="uid://cf0n7acfor8vw"]
 
-[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dw7haxvslkdfq" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
@@ -11,3 +11,6 @@ description = "Combines 4 matching 3-star elemental gems into a single 4-star Wa
 role = "Artisan"
 output_quantity = 1
 recipe_text = "4x [3-Star Gem]"
+recipes_json = ""
+material = ""
+quantity = 0

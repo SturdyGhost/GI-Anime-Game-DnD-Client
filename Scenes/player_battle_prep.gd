@@ -79,6 +79,7 @@ func _ready() -> void:
 	if NetworkManager.is_host and Global.active_challenge_quest.is_empty():
 		var quest = ChallengeQuestGenerator.generate()
 		Global.active_challenge_quest = quest.to_dict()
+		NetworkManager.broadcast_table_update("Party")
 
 	_build_ui()
 	_populate_player_cards()
@@ -711,11 +712,13 @@ func _build_challenge_section(parent: VBoxContainer) -> void:
 	giver_label.add_theme_color_override("font_color", TEXT_DIM)
 	vbox.add_child(giver_label)
 
-	var challenge_label = Label.new()
+	var challenge_label = RichTextLabel.new()
+	challenge_label.bbcode_enabled = true
+	challenge_label.fit_content = true
+	challenge_label.scroll_active = false
 	challenge_label.text = str(quest.get("challenge_text", ""))
-	challenge_label.add_theme_font_size_override("font_size", 15)
-	challenge_label.add_theme_color_override("font_color", TEXT_COLOR)
-	challenge_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	challenge_label.add_theme_font_size_override("normal_font_size", 15)
+	challenge_label.add_theme_color_override("default_color", TEXT_COLOR)
 	vbox.add_child(challenge_label)
 
 	# DM override controls (Task 10)
@@ -738,7 +741,7 @@ func _build_challenge_section(parent: VBoxContainer) -> void:
 func _reroll_challenge() -> void:
 	var quest = ChallengeQuestGenerator.generate()
 	Global.active_challenge_quest = quest.to_dict()
-	# Rebuild the UI to show the new challenge
+	NetworkManager.broadcast_table_update("Party")
 	_build_ui()
 
 
@@ -751,7 +754,10 @@ func _edit_challenge() -> void:
 	input.custom_minimum_size = Vector2(400, 36)
 	dialog.add_child(input)
 	dialog.confirmed.connect(func():
-		Global.active_challenge_quest["challenge_text"] = input.text
+		var q = Global.active_challenge_quest.duplicate()
+		q["challenge_text"] = input.text
+		Global.active_challenge_quest = q
+		NetworkManager.broadcast_table_update("Party")
 		dialog.queue_free()
 		_build_ui()
 	)

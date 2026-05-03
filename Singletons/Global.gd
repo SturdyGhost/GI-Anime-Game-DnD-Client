@@ -12,10 +12,30 @@ var PublicIP = ""
 var Luck_Set: bool = false
 var Region_Changed: int = 1
 var _returned_from_battle: bool = false
-var active_challenge_quest: Dictionary = {}
 var _expedition_pool: Array = []
 var _expedition_assignments: Dictionary = {}
 var _expedition_results: Array = []
+
+## Challenge quest — stored in Party record as JSON, synced to all clients.
+var active_challenge_quest: Dictionary:
+	get:
+		var party = Current_Party
+		if party == null:
+			return {}
+		var json_str = str(party.get("Challenge_Quest", ""))
+		if json_str == "" or json_str == "null":
+			return {}
+		var parsed = JSON.parse_string(json_str)
+		if parsed is Dictionary:
+			return parsed
+		return {}
+	set(value):
+		var party = Current_Party
+		if party == null or party.get("id") == null:
+			return
+		var party_id = int(party.get("id"))
+		var json_str = JSON.stringify(value) if not value.is_empty() else ""
+		Update_Records([{"table": "Party", "record_id": party_id, "field": "Challenge_Quest", "value": json_str}])
 
 ## Returns effective luck for a player, factoring in Bennett's party penalty.
 ## If Bennett is an active chosen companion, all luck is reduced by 25%.
@@ -713,6 +733,8 @@ func _apply_update_to_save(u: Dictionary) -> void:
 		_synced[table][str(rid)][field] = value
 		if field == "Name" and _synced_name.has(table):
 			_synced_name[table][str(value)] = str(rid)
+	elif table != "ActiveEffects":
+		push_warning("Global: field update for %s record %d dropped — record not in _synced" % [table, rid])
 
 	# Sync local state for party-wide values regardless of SaveManager
 	if table == "Party" and field == "Current_Region":
@@ -848,6 +870,11 @@ func _process_table(table_name: String, records: Array) -> void:
 			continue
 		var rid = int(record["id"]) if record["id"] != null else 0
 		record["id"] = rid
+		# Clean up bracketed item/material names from old loot bug
+		if table_name == "Character_Items" and record.has("Name"):
+			var n = str(record["Name"])
+			if n.begins_with("[") or n.ends_with("]"):
+				record["Name"] = n.trim_prefix("[").trim_suffix("]")
 		_synced[table_name][str(rid)] = record
 		if record.has("Name"):
 			_synced_name[table_name][str(record["Name"])] = str(rid)

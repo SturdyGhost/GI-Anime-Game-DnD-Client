@@ -756,25 +756,47 @@ func _resolve_damage(row_data: Dictionary, t_table: String, t_id, t_type: String
 	})
 	row_data["Current_Health"] = new_hp
 
-	# If HP hit 0 from damage, mark as Skipped (and Killed for enemies)
+	# If HP hit 0 from damage, check for phase transition or kill
 	var t_type_lower := t_type.to_lower()
 	if new_hp == 0 and t_type_lower in ["damage", "true damage"]:
-		updates.append({
-			"table": t_table,
-			"record_id": record_id,
-			"field": "Skipped",
-			"value": true
-		})
-		row_data["Skipped"] = true
+		var phase_advanced := false
 
+		# Multi-phase enemy check
 		if t_table == "BattleEnemies":
+			var enemy_name = str(row_data.get("EnemyName", ""))
+			var enemy_def = GameDB.enemies_by_name.get(enemy_name, null)
+			var current_phase = int(row_data.get("Phase", 1))
+			if enemy_def and enemy_def.phase_count > 1 and current_phase < enemy_def.phase_count:
+				# Advance to next phase
+				var next_phase = current_phase + 1
+				var next_hp = enemy_def.get_phase_hp(next_phase)
+				print("Phase transition: %s phase %d -> %d (HP: %d)" % [enemy_name, current_phase, next_phase, next_hp])
+				updates.append({"table": t_table, "record_id": record_id, "field": "Phase", "value": next_phase})
+				updates.append({"table": t_table, "record_id": record_id, "field": "Current_Health", "value": next_hp})
+				updates.append({"table": t_table, "record_id": record_id, "field": "Max_Health", "value": next_hp})
+				row_data["Phase"] = next_phase
+				row_data["Current_Health"] = next_hp
+				row_data["Max_Health"] = next_hp
+				phase_advanced = true
+				Toast.notify("%s enters Phase %d!" % [enemy_name, next_phase], Toast.WARNING)
+
+		if not phase_advanced:
 			updates.append({
 				"table": t_table,
 				"record_id": record_id,
-				"field": "Killed",
+				"field": "Skipped",
 				"value": true
 			})
-			row_data["Killed"] = true
+			row_data["Skipped"] = true
+
+			if t_table == "BattleEnemies":
+				updates.append({
+					"table": t_table,
+					"record_id": record_id,
+					"field": "Killed",
+					"value": true
+				})
+				row_data["Killed"] = true
 
 
 # =============================================================================

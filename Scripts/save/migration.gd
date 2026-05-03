@@ -6,6 +6,9 @@ class_name SaveMigration extends RefCounted
 const DATA_DIR = "res://data/"
 const RES_DIR = "res://data/resources/"
 
+static func _in_editor() -> bool:
+	return OS.has_feature("editor")
+
 static func migrate() -> SaveData:
 	var save = SaveData.new()
 	print("Migration: starting JSON → .tres resource conversion...")
@@ -28,7 +31,8 @@ static func migrate() -> SaveData:
 
 static func _migrate_players(save: SaveData) -> void:
 	var dir_path = RES_DIR + "players/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 	var count = 0
 
 	for d in _read_json("Characters.json"):
@@ -74,9 +78,9 @@ static func _migrate_players(save: SaveData) -> void:
 		p.skip_duration = _i(d.get("Skip_Duration"))
 		p.ready = _b(d.get("Ready"))
 
-		# Save the base player resource
 		var slug = _slugify(p.name)
-		ResourceSaver.save(p, dir_path + slug + ".tres")
+		if _in_editor():
+			ResourceSaver.save(p, dir_path + slug + ".tres")
 
 		# Store mutable state in save file
 		save.player_state[p.name] = {
@@ -97,7 +101,8 @@ static func _migrate_players(save: SaveData) -> void:
 
 static func _migrate_companions(save: SaveData) -> void:
 	var dir_path = RES_DIR + "companions/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 	var count = 0
 
 	for d in _read_json("Companions.json"):
@@ -124,7 +129,8 @@ static func _migrate_companions(save: SaveData) -> void:
 		c.skip_duration = _i(d.get("Skipped_Duration", d.get("Skip_Duration")))
 
 		var slug = _slugify(c.name)
-		ResourceSaver.save(c, dir_path + slug + ".tres")
+		if _in_editor():
+			ResourceSaver.save(c, dir_path + slug + ".tres")
 
 		save.companion_state[c.name] = {
 			"current_health": c.current_health,
@@ -144,7 +150,8 @@ static func _migrate_companions(save: SaveData) -> void:
 
 static func _migrate_weapons(save: SaveData) -> void:
 	var dir_path = RES_DIR + "inventory/weapons/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 	var count = 0
 
 	for d in _read_json("Character_Weapons.json"):
@@ -170,7 +177,8 @@ static func _migrate_weapons(save: SaveData) -> void:
 			w.weapon_id = wdef.id
 
 		var slug = _slugify(w.owner + " " + w.weapon_name)
-		ResourceSaver.save(w, dir_path + slug + ".tres")
+		if _in_editor():
+			ResourceSaver.save(w, dir_path + slug + ".tres")
 
 		save.weapon_overrides[slug] = {
 			"equipped": w.equipped,
@@ -183,7 +191,8 @@ static func _migrate_weapons(save: SaveData) -> void:
 
 static func _migrate_artifacts(save: SaveData) -> void:
 	var dir_path = RES_DIR + "inventory/artifacts/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 	var count = 0
 
 	for d in _read_json("Character_Artifacts.json"):
@@ -201,7 +210,8 @@ static func _migrate_artifacts(save: SaveData) -> void:
 
 		var type_short = a.type.split(" ")[0] if a.type != "" else "unknown"
 		var slug = _slugify(a.owner + " " + a.artifact_set + " " + type_short)
-		ResourceSaver.save(a, dir_path + slug + ".tres")
+		if _in_editor():
+			ResourceSaver.save(a, dir_path + slug + ".tres")
 
 		save.artifact_overrides[slug] = {
 			"equipped": a.equipped,
@@ -214,7 +224,8 @@ static func _migrate_artifacts(save: SaveData) -> void:
 
 static func _migrate_items(save: SaveData) -> void:
 	var dir_path = RES_DIR + "inventory/items/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 	var count = 0
 
 	for d in _read_json("Character_Items.json"):
@@ -227,7 +238,8 @@ static func _migrate_items(save: SaveData) -> void:
 		item.type = _s(d.get("Type"))
 
 		var slug = _slugify(item.owner + " " + item.item_name)
-		ResourceSaver.save(item, dir_path + slug + ".tres")
+		if _in_editor():
+			ResourceSaver.save(item, dir_path + slug + ".tres")
 
 		save.item_quantities[slug] = {
 			"quantity": item.quantity,
@@ -240,7 +252,8 @@ static func _migrate_items(save: SaveData) -> void:
 
 static func _migrate_party(save: SaveData) -> void:
 	var dir_path = RES_DIR + "party/"
-	DirAccess.make_dir_recursive_absolute(dir_path)
+	if _in_editor():
+		DirAccess.make_dir_recursive_absolute(dir_path)
 
 	var parties = _read_json("Party.json")
 	if parties.is_empty():
@@ -262,8 +275,8 @@ static func _migrate_party(save: SaveData) -> void:
 	if to is Array:
 		party.turn_order = to
 
-	# Save base party resource
-	ResourceSaver.save(party, dir_path + "party.tres")
+	if _in_editor():
+		ResourceSaver.save(party, dir_path + "party.tres")
 
 	# Mutable state → save file
 	save.party_mora = _i(d.get("Mora"))

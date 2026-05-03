@@ -67,11 +67,11 @@ func _load_state() -> void:
 		if comp.get("Unlocked", false) and not comp.get("Active", false):
 			_available_companions.append(comp)
 
-	_max_slots = 1
+	_max_slots = 2
 	for char in Global.CHARACTERS.values():
 		if str(char.get("User_Type", "")) != "Dungeon Master":
-			_max_slots = maxi(_max_slots, int(char.get("Ascension_Rank", 0)))
-	_max_slots = maxi(_max_slots, 1)
+			_max_slots = maxi(_max_slots, int(char.get("Ascension_Rank", 0)) * 2)
+	_max_slots = maxi(_max_slots, 2)
 
 func _build_ui() -> void:
 	for child in get_children():
@@ -107,10 +107,16 @@ func _build_ui() -> void:
 	header_row.add_child(title)
 
 	var slots_label = Label.new()
-	slots_label.text = "Slots: %d / %d" % [_assignments.size(), _max_slots]
+	slots_label.text = "Companions: %d / %d" % [_total_deployed(), _max_slots]
 	slots_label.add_theme_font_size_override("font_size", 16)
 	slots_label.add_theme_color_override("font_color", SEC)
 	header_row.add_child(slots_label)
+
+	var refresh_btn = Button.new()
+	refresh_btn.text = "Refresh"
+	refresh_btn.custom_minimum_size = Vector2(80, 40)
+	refresh_btn.pressed.connect(_refresh_pool)
+	header_row.add_child(refresh_btn)
 
 	var close_btn = Button.new()
 	close_btn.text = "X"
@@ -164,20 +170,34 @@ func _build_results_section(parent: VBoxContainer) -> void:
 	for result in _pending_results:
 		var loot: Dictionary = result.get("loot", {})
 		var comp_name: String = str(result.get("companion", ""))
+		var owner_name: String = str(result.get("owner", ""))
 		var exp_name: String = str(result.get("expedition", ""))
+		var failed: bool = result.get("failed", false)
+		var bonus_list: Array = result.get("bonuses", [])
+		var bonus_total: float = result.get("bonus_total", 1.0)
+
+		var owner_text = " for %s" % owner_name if owner_name != "" else ""
 		var result_label = Label.new()
-		if loot.is_empty():
-			result_label.text = "%s returned empty-handed from %s" % [comp_name, exp_name]
+		if failed or loot.is_empty():
+			result_label.text = "%s returned empty-handed from %s%s" % [comp_name, exp_name, owner_text]
 			result_label.add_theme_color_override("font_color", RED)
 		else:
 			var items_arr: Array = []
 			for k in loot:
 				items_arr.append("%s x%d" % [k, loot[k]])
-			result_label.text = "%s from %s: %s" % [comp_name, exp_name, ", ".join(items_arr)]
+			result_label.text = "%s from %s%s: %s" % [comp_name, exp_name, owner_text, ", ".join(items_arr)]
 			result_label.add_theme_color_override("font_color", TEXT)
 		result_label.add_theme_font_size_override("font_size", 13)
 		result_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(result_label)
+
+		if bonus_list.size() > 0:
+			var bonus_label = Label.new()
+			bonus_label.text = "  Bonus x%.0f%% — %s" % [bonus_total * 100, ", ".join(bonus_list)]
+			bonus_label.add_theme_font_size_override("font_size", 11)
+			bonus_label.add_theme_color_override("font_color", MUTED)
+			bonus_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			vbox.add_child(bonus_label)
 
 	var collect_btn = Button.new()
 	collect_btn.text = "Dismiss Results"
@@ -219,18 +239,36 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	var sb = StyleBoxFlat.new()
 	sb.bg_color = CARD
 	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 14
+	sb.content_margin_bottom = 14
 
-	var assigned_name = _assignments.get(index, _assignments.get(str(index), ""))
-	if assigned_name != "":
+	var assigned_name = _get_assigned_names(index)
+	if assigned_name.size() > 0:
 		sb.border_color = GREEN
 		sb.border_width_left = 3
 	elif _selected_companion != "":
-		sb.border_color = ACCENT
-		sb.border_width_left = 1
+		# Check if selected companion has any match with this expedition
+		var match_count := 0
+		for comp in Global.COMPANIONS.values():
+			if str(comp.get("Name", "")) == _selected_companion:
+				if str(comp.get("Region", "")) == exp.bonus_region:
+					match_count += 1
+				if str(comp.get("Weapon", "")) == exp.bonus_weapon:
+					match_count += 1
+				if str(comp.get("Element", "")) == exp.bonus_element:
+					match_count += 1
+				break
+		if match_count >= 2:
+			sb.border_color = GREEN
+			sb.set_border_width_all(2)
+		elif match_count == 1:
+			sb.border_color = ACCENT
+			sb.set_border_width_all(2)
+		else:
+			sb.border_color = MUTED
+			sb.border_width_left = 1
 
 	card.add_theme_stylebox_override("panel", sb)
 	parent.add_child(card)
@@ -241,7 +279,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 
 	var name_label = Label.new()
 	name_label.text = exp.expedition_name
-	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_font_size_override("font_size", 18)
 	name_label.add_theme_color_override("font_color", TEXT)
 	vbox.add_child(name_label)
 
@@ -254,7 +292,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	var risk_text = "High" if exp.risk_level == "risky" else exp.risk_level.capitalize()
 	var desc = Label.new()
 	desc.text = "%s | %s risk | Best: %s, %s" % [exp.description, risk_text, exp.bonus_weapon, exp.bonus_element]
-	desc.add_theme_font_size_override("font_size", 13)
+	desc.add_theme_font_size_override("font_size", 15)
 	desc.add_theme_color_override("font_color", risk_color)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)
@@ -264,30 +302,71 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	if cache_materials.size() > 0:
 		var mats_label = Label.new()
 		mats_label.text = "Rewards: %s" % ", ".join(cache_materials)
-		mats_label.add_theme_font_size_override("font_size", 12)
+		mats_label.add_theme_font_size_override("font_size", 14)
 		mats_label.add_theme_color_override("font_color", SEC)
 		mats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(mats_label)
 
-	if assigned_name != "":
+	# Risk indicator
+	var failure_rate = _calc_failure_rate(exp, index)
+	var chance_label = Label.new()
+	chance_label.text = "Success Chance"
+	chance_label.add_theme_font_size_override("font_size", 11)
+	chance_label.add_theme_color_override("font_color", MUTED)
+	vbox.add_child(chance_label)
+	var risk_bar_bg = ColorRect.new()
+	risk_bar_bg.custom_minimum_size = Vector2(0, 6)
+	risk_bar_bg.color = Color(0.15, 0.15, 0.15)
+	vbox.add_child(risk_bar_bg)
+	var risk_bar = ColorRect.new()
+	var safety = 1.0 - failure_rate  # 0 = dangerous, 1 = safe
+	risk_bar.custom_minimum_size = Vector2(0, 6)
+	risk_bar.size_flags_horizontal = SIZE_EXPAND_FILL
+	risk_bar.color = Color(RED).lerp(GREEN, safety)
+	# Use a container to clip the bar width
+	var risk_clip = Control.new()
+	risk_clip.custom_minimum_size = Vector2(0, 6)
+	risk_clip.size_flags_horizontal = SIZE_EXPAND_FILL
+	risk_clip.clip_contents = true
+	risk_bar_bg.add_child(risk_clip)
+	risk_clip.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	risk_bar.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	risk_bar.anchor_right = safety
+	risk_clip.add_child(risk_bar)
+
+	if assigned_name.size() > 0:
 		var assigned_label = Label.new()
-		assigned_label.text = "Assigned: %s" % assigned_name
-		assigned_label.add_theme_font_size_override("font_size", 13)
+		assigned_label.text = "Assigned: %s" % ", ".join(assigned_name)
+		assigned_label.add_theme_font_size_override("font_size", 14)
 		assigned_label.add_theme_color_override("font_color", GREEN)
+		assigned_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(assigned_label)
 
+		var btn_row = HBoxContainer.new()
+		btn_row.add_theme_constant_override("separation", 8)
+		vbox.add_child(btn_row)
+
 		var unassign_btn = Button.new()
-		unassign_btn.text = "Unassign"
-		unassign_btn.custom_minimum_size = Vector2(0, 28)
-		unassign_btn.add_theme_font_size_override("font_size", 12)
+		unassign_btn.text = "Unassign Last"
+		unassign_btn.custom_minimum_size = Vector2(0, 30)
+		unassign_btn.add_theme_font_size_override("font_size", 13)
 		var idx = index
 		unassign_btn.pressed.connect(func(): _unassign_expedition(idx))
-		vbox.add_child(unassign_btn)
+		btn_row.add_child(unassign_btn)
+
+		# Allow adding more companions to the same expedition
+		if _selected_companion != "" and _selected_companion not in assigned_name:
+			var add_btn = Button.new()
+			add_btn.text = "Add %s" % _selected_companion
+			add_btn.custom_minimum_size = Vector2(0, 30)
+			add_btn.add_theme_font_size_override("font_size", 13)
+			add_btn.pressed.connect(func(): _assign_to_expedition(idx))
+			btn_row.add_child(add_btn)
 	else:
 		var assign_btn = Button.new()
 		assign_btn.text = "Assign Companion" if _selected_companion == "" else "Assign %s" % _selected_companion
-		assign_btn.custom_minimum_size = Vector2(0, 28)
-		assign_btn.add_theme_font_size_override("font_size", 12)
+		assign_btn.custom_minimum_size = Vector2(0, 30)
+		assign_btn.add_theme_font_size_override("font_size", 13)
 		assign_btn.disabled = _selected_companion == ""
 		var idx = index
 		assign_btn.pressed.connect(func(): _assign_to_expedition(idx))
@@ -315,9 +394,7 @@ func _build_companion_list(parent: HBoxContainer) -> void:
 	scroll.add_child(list)
 
 	# Already assigned companions
-	var assigned_names: Array = []
-	for v in _assignments.values():
-		assigned_names.append(str(v))
+	var assigned_names: Array = _all_assigned_names()
 
 	for comp in _available_companions:
 		var comp_name = str(comp.get("Name", ""))
@@ -356,17 +433,91 @@ func _select_companion(comp_name: String) -> void:
 func _assign_to_expedition(index: int) -> void:
 	if _selected_companion == "":
 		return
-	if _assignments.size() >= _max_slots and not _assignments.has(index) and not _assignments.has(str(index)):
-		Toast.notify("All expedition slots full (max %d)" % _max_slots, Toast.WARNING)
+	if _total_deployed() >= _max_slots:
+		Toast.notify("All companion slots full (%d/%d)" % [_total_deployed(), _max_slots], Toast.WARNING)
 		return
-	_assignments[index] = _selected_companion
+	# Don't allow the same companion assigned twice
+	if _selected_companion in _all_assigned_names():
+		Toast.notify("%s is already on an expedition" % _selected_companion, Toast.WARNING)
+		return
+	var current = _get_assigned_names(index)
+	current.append(_selected_companion)
+	_assignments[index] = current
 	_selected_companion = ""
 	_save_state()
 	_build_ui()
 
 func _unassign_expedition(index: int) -> void:
-	_assignments.erase(index)
-	_assignments.erase(str(index))
+	var current = _get_assigned_names(index)
+	if current.size() > 0:
+		current.pop_back()
+	if current.is_empty():
+		_assignments.erase(index)
+		_assignments.erase(str(index))
+	else:
+		_assignments[index] = current
+	_save_state()
+	_build_ui()
+
+## Get list of companion names assigned to a given expedition index.
+## Supports both old format (string) and new format (array).
+func _get_assigned_names(index: int) -> Array:
+	var val = _assignments.get(index, _assignments.get(str(index), null))
+	if val == null:
+		return []
+	if val is Array:
+		return val
+	if val is String and val != "":
+		return [val]
+	return []
+
+## Total number of companions deployed across all expeditions.
+func _total_deployed() -> int:
+	var count := 0
+	for v in _assignments.values():
+		if v is Array:
+			count += v.size()
+		elif v is String and v != "":
+			count += 1
+	return count
+
+## All companion names currently assigned anywhere.
+func _all_assigned_names() -> Array:
+	var names: Array = []
+	for v in _assignments.values():
+		if v is Array:
+			names.append_array(v)
+		elif v is String and v != "":
+			names.append(v)
+	return names
+
+## Calculate current failure rate for an expedition given assigned companions.
+func _calc_failure_rate(exp: ExpeditionData, index: int) -> float:
+	var base_failure: float
+	match exp.risk_level:
+		"risky":
+			base_failure = 0.90
+		"moderate":
+			base_failure = 0.60
+		_:
+			base_failure = 0.15
+	var total_matches := 0
+	for comp_name in _get_assigned_names(index):
+		for comp in Global.COMPANIONS.values():
+			if str(comp.get("Name", "")) == comp_name:
+				if str(comp.get("Region", "")) == exp.bonus_region:
+					total_matches += 1
+				if str(comp.get("Weapon", "")) == exp.bonus_weapon:
+					total_matches += 1
+				if str(comp.get("Element", "")) == exp.bonus_element:
+					total_matches += 1
+				break
+	return maxf(base_failure - (total_matches * 0.05), 0.0)
+
+func _refresh_pool() -> void:
+	_expedition_pool = ExpeditionManager.generate_pool(Global.Current_Region)
+	_assignments.clear()
+	_selected_companion = ""
 	_save_state()
 	_build_ui()
 

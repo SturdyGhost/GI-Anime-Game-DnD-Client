@@ -288,7 +288,8 @@ func _load_abilities() -> void:
 		print("GameDB: no ability data")
 		return
 
-	DirAccess.make_dir_recursive_absolute(folder_path)
+	if OS.has_feature("editor"):
+		DirAccess.make_dir_recursive_absolute(folder_path)
 
 	var used_names = {}
 	var all_resources = []
@@ -319,6 +320,8 @@ func _load_abilities() -> void:
 					atype = parts[1].strip_edges()
 				break
 
+		var _can_save = OS.has_feature("editor")
+
 		if mappings.is_empty():
 			# Orphaned ability — save once
 			var res = AbilityData.from_dict(d)
@@ -329,12 +332,15 @@ func _load_abilities() -> void:
 			if used_names.has(slug):
 				slug = slug + "_" + str(ability_id)
 			used_names[slug] = true
-			var err = ResourceSaver.save(res, folder_path + slug + ".tres")
-			if err == OK:
-				saved_count += 1
+			if _can_save:
+				var err = ResourceSaver.save(res, folder_path + slug + ".tres")
+				if err == OK:
+					saved_count += 1
+				else:
+					error_count += 1
+					push_warning("GameDB: failed to save ability %d (%s) slug=%s err=%d" % [ability_id, ability_name, slug, err])
 			else:
-				error_count += 1
-				push_warning("GameDB: failed to save ability %d (%s) slug=%s err=%d" % [ability_id, ability_name, slug, err])
+				saved_count += 1
 		else:
 			# One .tres per entity that uses this ability
 			for mapping in mappings:
@@ -362,12 +368,15 @@ func _load_abilities() -> void:
 					slug = slug + "_" + str(ability_id)
 				used_names[slug] = true
 
-				var err = ResourceSaver.save(res, folder_path + slug + ".tres")
-				if err == OK:
-					saved_count += 1
+				if _can_save:
+					var err = ResourceSaver.save(res, folder_path + slug + ".tres")
+					if err == OK:
+						saved_count += 1
+					else:
+						error_count += 1
+						push_warning("GameDB: failed to save ability %d (%s) slug=%s err=%d" % [ability_id, ability_name, slug, err])
 				else:
-					error_count += 1
-					push_warning("GameDB: failed to save ability %d (%s) slug=%s err=%d" % [ability_id, ability_name, slug, err])
+					saved_count += 1
 
 	print("GameDB: abilities → %d saved, %d errors, %d total resources" % [saved_count, error_count, all_resources.size()])
 	_register("abilities", all_resources)
@@ -378,7 +387,8 @@ func _convert_and_save(json_path: String, folder_path: String, converter: Callab
 	if records.is_empty():
 		return []
 
-	DirAccess.make_dir_recursive_absolute(folder_path)
+	if OS.has_feature("editor"):
+		DirAccess.make_dir_recursive_absolute(folder_path)
 
 	var used_names = {}
 	var resources = []
@@ -400,6 +410,9 @@ func _convert_and_save(json_path: String, folder_path: String, converter: Callab
 		if used_names.has(base_name):
 			base_name = base_name + "_" + str(record_id)
 		used_names[base_name] = true
+
+		if not OS.has_feature("editor"):
+			continue  # Skip saving .tres in exported builds — res:// is read-only
 
 		var file_path: String = folder_path + base_name + ".tres"
 		var err = ResourceSaver.save(res, file_path)

@@ -343,12 +343,20 @@ func _build_companion_card(comp_id: Variant, name_str: String, comp: Dictionary,
 	lbl_name.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	info_vbox.add_child(lbl_name)
 
-	# Element / Weapon line
+	# Element / Weapon / Owner line
 	var detail_lbl = Label.new()
 	if met:
 		var elem = str(comp.get("Element", ""))
 		var weap = str(comp.get("Weapon", ""))
-		detail_lbl.text = "%s  |  %s" % [elem, weap] if elem != "" else weap
+		var owner = str(comp.get("Owner", ""))
+		var detail_parts = []
+		if elem != "":
+			detail_parts.append(elem)
+		if weap != "":
+			detail_parts.append(weap)
+		if owner != "":
+			detail_parts.append(owner)
+		detail_lbl.text = "  |  ".join(detail_parts)
 	else:
 		detail_lbl.text = "???  |  ???"
 	detail_lbl.add_theme_font_size_override("font_size", FONT_SIZE_SMALL)
@@ -554,12 +562,15 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 	var elem = str(comp.get("Element", ""))
 	var weap = str(comp.get("Weapon", ""))
 	var region = str(comp.get("Region", ""))
+	var owner = str(comp.get("Owner", ""))
 	if elem != "":
 		name_row.add_child(_make_badge(elem, _element_color(elem)))
 	if weap != "":
 		name_row.add_child(_make_badge(weap, COLOR_BADGE_GRAY))
 	if region != "":
 		name_row.add_child(_make_badge(region, COLOR_BADGE_GRAY))
+	if owner != "":
+		name_row.add_child(_make_badge(owner, Color(0.25, 0.45, 0.35)))
 
 	# Status + HP row
 	var status_row = HBoxContainer.new()

@@ -100,6 +100,94 @@
   <li><b>Status effects:</b> Stun, root, slow, and other status effects applied from abilities.</li>
 </ul>
 
+<h2>Resource &amp; Role Rework</h2>
+
+<p>The entire resource gathering loop has been redesigned. Standalone gathering is gone — materials now come from combat, expeditions, and challenge quests. Roles rotate randomly each session instead of being permanently assigned.</p>
+
+<h3>Automated Combat Loot</h3>
+
+<p>After every battle, each player receives <b>individual loot</b> based on the encounter difficulty and the region it took place in.</p>
+
+<ul>
+  <li><b>Difficulty scoring:</b> Each enemy contributes a score based on tier (Common=1, Uncommon=2, Rare=5, Epic=8, Boss=25, Legendary=40). The total score determines your loot tier.</li>
+  <li><b>Loot tiers:</b> Range from Scraps (score 3-5, 2-3 per material, 1 cache) up to Abundant (score 40+, 16-20 per material, 2 caches). Each cache contains 4 material types pulled from the battle's region.</li>
+  <li><b>Luck modifier:</b> Your daily luck stat adjusts quantities — high luck (85+) gives bonus materials, low luck (below 25) reduces them.</li>
+  <li><b>Loot display:</b> A new section on the battle summary screen shows each player's individual loot after every fight.</li>
+</ul>
+
+<h3>Challenge Quests</h3>
+
+<p>System-generated optional objectives that give battles a secondary goal beyond winning. Completing the challenge earns bonus loot for the entire party.</p>
+
+<ul>
+  <li><b>Auto-generated:</b> Before each battle, the system creates a random challenge — trigger a specific reaction, defeat an enemy with a charged attack, win within a turn limit, avoid taking crits, apply multiple status effects, etc.</li>
+  <li><b>Quest givers:</b> Each challenge comes from a named NPC with a personality trait (generous, fair, stingy) that affects reward quality. Players see the quest giver and personality but not the actual reward values.</li>
+  <li><b>DM confirmation:</b> After the battle, the DM gets a popup showing the challenge and Yes/No buttons to confirm whether the party completed it.</li>
+  <li><b>Visible in battle prep:</b> The active challenge is displayed on the battle preparation screen so players can plan around it.</li>
+  <li><b>DM override:</b> The DM can modify any aspect of the generated challenge before battle.</li>
+</ul>
+
+<h3>Role Rotation</h3>
+
+<p>Roles are no longer permanently assigned. After each battle scenario, the client randomly assigns one role to each player.</p>
+
+<ul>
+  <li><b>Three roles:</b> Artisan (crafts food/consumables + artifact forge), Blacksmith (crafts weapons), and Scout (receives intel from the DM about upcoming threats and enemy weaknesses).</li>
+  <li><b>Scout replaces Scribe:</b> The timed memorization/research mechanic is removed. The Scout role is about receiving verbal intel from the DM at the table — the client simply shows who has the Scout role.</li>
+  <li><b>Random each rotation:</b> With 3 players and 3 roles, each player gets exactly one role per rotation. Displayed in the hub.</li>
+  <li><b>Crafting recipes unchanged:</b> All 362 recipes remain. Role-gating still applies — which player is gated to which role just changes each rotation.</li>
+</ul>
+
+<h3>Companion Expeditions</h3>
+
+<p>Inactive companions can now be sent on expeditions between sessions to gather materials and resources.</p>
+
+<ul>
+  <li><b>Expedition slots:</b> Number of slots equals <b>twice the party's highest ascension level</b>. Scales with progression.</li>
+  <li><b>Random expedition pool:</b> Each time the party enters town, a pool of available expeditions is generated. Different missions, different optimal companions each visit.</li>
+  <li><b>Companion traits affect results:</b>
+    <ul>
+      <li>Region affinity — bonuses in their home region</li>
+      <li>Weapon type — claymore for mining/ore, bow for hunting/foraging, catalyst for research</li>
+      <li>Element — Pyro bonus in volcanic/desert, Hydro in coastal, Dendro in forests</li>
+      <li>Personality — enthusiastic/diligent = more materials, lazy = less but occasional rares, scholarly = research bonuses</li>
+    </ul>
+  </li>
+  <li><b>Results:</b> Delivered next session. Primarily materials with occasional rare finds. Trait bonuses increase quantity and quality.</li>
+  <li><b>Expedition panel:</b> New UI in the player hub for assigning companions to expeditions and viewing results from previous sessions.</li>
+</ul>
+
+<h3>Food Buffs Wired Into Combat</h3>
+
+<p>Active food buffs now actually work in battle. When a food buff is active, its GameEffect is registered in the EffectProcessor at battle start, applying stat bonuses and other effects during combat.</p>
+
+<h2>Interactive Teyvat Map</h2>
+
+<p>The Research button has been replaced with a <b>Map</b> button that opens a full interactive map of Teyvat. Available to all players regardless of role.</p>
+
+<ul>
+  <li><b>Auto-updating map image:</b> Downloads the latest hi-res Teyvat map from the Genshin Impact Wiki (~25MB). Cached locally and re-checked every 7 days so you always have the most current version. Progress bar shown during download.</li>
+  <li><b>Pan &amp; zoom:</b> Right-click or middle-mouse drag to pan. Scroll wheel zooms centered on your cursor position. Zoom buttons (+/-/Reset) in the bottom-right corner.</li>
+  <li><b>Official POI markers:</b> Domain locations, Statue of The Seven markers, and world boss locations are fetched from the official HoYoLAB API with their actual game icons. All 170+ markers manually calibrated to the wiki map.</li>
+  <li><b>Domain artifact info:</b> Click any artifact domain to see which sets drop there. Domains with defined sets show the full 2-piece and 4-piece effects from the DnD adaptation. Undefined sets show "Set effects not yet defined." Artifact info also appears in hover tooltips.</li>
+  <li><b>Player markers:</b> Each player has their own color and can place markers in 6 shapes (circle, diamond, star, triangle, square, cross). Click to add a note, edit, or delete. Anti-aliased rendering with drop shadows for clean visuals.</li>
+  <li><b>Marker sync:</b> When online, markers sync through the host to all players. Each player owns their markers in their color. Offline players use local save and merge on reconnect.</li>
+  <li><b>Ctrl+click ping:</b> Hold Ctrl and click anywhere to ping a location. A pulsing ring in your player color appears with your name for 4 seconds, visible to all connected players. Great for pointing out destinations during group planning.</li>
+  <li><b>City labels:</b> Major cities labeled on the map — Mondstadt, Liyue Harbor, Inazuma City, Sumeru City, Court of Fontaine, Natlan, and Nod Krai.</li>
+  <li><b>Draggable detail panel:</b> The marker/POI info panel can be repositioned by dragging its title bar.</li>
+</ul>
+
+<h2>Crafting Recipe Overhaul</h2>
+
+<p>Crafting recipes have been reworked from the ground up with a new data format and improved UI.</p>
+
+<ul>
+  <li><b>Multi-ingredient recipes:</b> Recipes now support multiple ingredient slots, each with multiple valid options. For example, a weapon recipe might need "Any Mondstadt Billet" in one slot and "Crystal Chunk x5" in another.</li>
+  <li><b>Flat recipe format:</b> Replaced nested Resource references with flat <code>recipe_text</code> strings for clean inspector editing. Each line is an ingredient slot, bracket-tagged by type.</li>
+  <li><b>Gem recipes:</b> Elemental gem crafting recipes now show as separate alternative lines for clarity.</li>
+  <li><b>Improved crafting UI:</b> Larger recipe cards, click anywhere on a card to select it, icons pulled from all resource folders for better coverage.</li>
+</ul>
+
 <h2>Balance Adjustment</h2>
 
 <p><b>Brian F. Nature Charged Attack</b> — Attack within 12 tiles. Nature damage. Add damage equal to the tiles travelled. If target Rooted, +5 damage (prev. +3) OR 2x damage (whichever is higher) and gain ½ usual amount of burst charges. Move no tiles. Gain no burst charges if not-rooted.</p>
@@ -125,6 +213,10 @@
   <li><b>Battle screen — attack info tags:</b> Tags for dice, element, and status effects now wrap within the panel instead of expanding the panel width. The panel stays at whatever size you've set it to.</li>
   <li><b>Battle screen — My Stats panel:</b> Crit DMG and ER now display their actual float values instead of being truncated to integers with a misleading % suffix.</li>
   <li><b>Battle screen — Burst display:</b> Now shows current charges over max (e.g. "0 / 12") where max is the cost of your most expensive burst ability.</li>
+  <li><b>Hotbar buttons:</b> All bottom hotbar TextureButtons replaced with regular themed Buttons for a cleaner, more consistent look.</li>
+  <li><b>Market preview:</b> Improved item preview display in the market panel.</li>
+  <li><b>Gather → Expeditions:</b> The Gather button now shows as "Expeditions" for the Scout role. Hidden for non-Scout players since standalone gathering is removed.</li>
+  <li><b>Map button:</b> The former Research button is now "Map" and is available to all roles.</li>
 </ul>
 
 <h2>Bug Fixes</h2>
@@ -139,6 +231,9 @@
   <li><b>Fixed offline region defaulting to Inazuma for Brian C.</b> Region changes update the Party table, but the offline loader was reading from the Character table (which was stale). Now reads from the Party record first, which is the actual source of truth for region.</li>
   <li><b>Fixed offline region selector using wrong field name.</b> The Manage Inventory region dropdown was writing to "Region" instead of "Current_Region", so changes weren't being saved.</li>
   <li><b>Added artifact detail fields to Manage Inventory.</b> When adding artifacts in offline mode, you can now set the slot type (Flower, Feather, etc.) and both stat lines before adding.</li>
+  <li>Fixed crafting migration combining all recipe variants as required slots incorrectly — now produces proper slot-based recipes.</li>
+  <li>Fixed recipe type matching not recognizing bracket-tagged ingredient types.</li>
+  <li>Fixed empty recipe lines appearing in the crafting UI for recipes with no ingredients defined.</li>
 </ul>
 
 <h2>Data Updates</h2>
