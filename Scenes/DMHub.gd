@@ -76,7 +76,7 @@ func _ready() -> void:
 	var quick_hbox = $Layout/QuickBar/QuickHBox
 	var bal_btn = Button.new()
 	bal_btn.text = "Encounter Balancer"
-	bal_btn.add_theme_font_size_override("font_size", 16)
+	bal_btn.add_theme_font_size_override("font_size", 29)
 	bal_btn.pressed.connect(_open_encounter_balancer)
 	quick_hbox.add_child(bal_btn)
 	if Global.is_offline:
@@ -93,7 +93,7 @@ func _show_offline_indicator() -> void:
 	indicator.name = "OfflineIndicator"
 	indicator.text = "OFFLINE"
 	indicator.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
-	indicator.add_theme_font_size_override("font_size", 18)
+	indicator.add_theme_font_size_override("font_size", 32)
 	indicator.position = Vector2(20, 20)
 	add_child(indicator)
 
@@ -103,7 +103,13 @@ func _process(delta: float) -> void:
 
 func _on_data_load_complete():
 	print("✅ Global data has finished loading!")
+	# Rebuild data-dependent UI in case _ready() fired before data was synced.
+	# (_ready connects this signal then immediately populates; if data wasn't
+	# ready yet, those calls return empty and never refresh without this.)
+	_populate_owners()
+	_build_lookup_maps()
 	get_party()
+	_refresh_specifics_options()
 
 func _build_lookup_maps() -> void:
 	_items_by_name.clear()
@@ -1289,14 +1295,14 @@ func _refresh_dm_challenge_display() -> void:
 
 	var header = Label.new()
 	header.text = "CHALLENGE QUEST"
-	header.add_theme_font_size_override("font_size", 16)
+	header.add_theme_font_size_override("font_size", 29)
 	header.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 	_challenge_container.add_child(header)
 
 	if quest.is_empty():
 		var empty_label = Label.new()
 		empty_label.text = "No challenge quest set. One will generate when battle starts."
-		empty_label.add_theme_font_size_override("font_size", 13)
+		empty_label.add_theme_font_size_override("font_size", 23)
 		empty_label.add_theme_color_override("font_color", Color(0.533, 0.573, 0.659))
 		_challenge_container.add_child(empty_label)
 
@@ -1316,7 +1322,7 @@ func _refresh_dm_challenge_display() -> void:
 		var multiplier = float(quest.get("reward_multiplier", 1.0))
 		var giver_label = Label.new()
 		giver_label.text = "%s (%s) — x%.0f%% reward" % [giver, personality, multiplier * 100]
-		giver_label.add_theme_font_size_override("font_size", 13)
+		giver_label.add_theme_font_size_override("font_size", 23)
 		giver_label.add_theme_color_override("font_color", Color(0.533, 0.573, 0.659))
 		_challenge_container.add_child(giver_label)
 

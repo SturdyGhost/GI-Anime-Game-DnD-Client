@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3 uid="uid://bpvs0a8fbywls"]
+
+[ext_resource type="Script" uid="uid://dw7haxvslkdfq" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_0l2g3"]
+
+[resource]
+script = ExtResource("1_0l2g3")
+id = 290
+product = "2-Star Wind Gem"
+region = "Liyue"
+description = "Exchanges 2 matching 1-star elemental gems for a 2-star version of the same type."
+role = "Artisan"
+material = "1-Star Gem"
+quantity = 2
+output_quantity = 1

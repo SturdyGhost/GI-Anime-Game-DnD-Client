@@ -51,7 +51,17 @@ func get_effective_luck(player_name: String) -> int:
 	return luck
 
 # ── Synced table data (populated by host on both host+client via _process_table)
-var _synced: Dictionary = {}          # { "TableName": { "rid": {record}, ... } }
+## Synced dynamic state. The actual storage is owned by the CanonicalSave
+## singleton; this is a delegating property so all the existing code that
+## reads/writes Global._synced["Characters"]["1"] keeps working unchanged.
+## Mutations are persisted to disk via DataStore.persist_table → CanonicalSave.save_to_disk.
+var _synced: Dictionary:
+	get: return CanonicalSave.tables
+	set(value):
+		# Assignments to Global._synced = {...} (rare, mostly tests) reset the
+		# canonical tables dict. Direct mutations to keys go through the dict
+		# reference returned by the getter and don't hit this setter.
+		CanonicalSave.tables = value
 var _synced_name: Dictionary = {}     # { "TableName": { "Name": "rid", ... } }  (only for tables with Name field)
 var is_offline: bool = false
 
@@ -303,7 +313,12 @@ var MINIGAMES_RESULTS: Dictionary:
 # ── Battle state shims (delegate to BattleManager) ──────────────────────────
 var BATTLEENEMIES: Dictionary:
 	get:
-		if BattleManager.active:
+		# Only trust BattleManager once it has populated enemies. A "active but
+		# empty" state during initialization or after cleanup used to return an
+		# empty dict, which made check_battle_end falsely conclude all enemies
+		# were dead. Fall back to _synced (the host-authoritative table) when
+		# BattleManager isn't fully ready.
+		if BattleManager.active and not BattleManager.enemies.is_empty():
 			var d = {}
 			for e in BattleManager.enemies.values():
 				d[str(e.id)] = e.to_dict()
@@ -329,14 +344,18 @@ var ACTIVE_STATUS_EFFECTS: Dictionary:
 		return _synced.get("Active_Status_Effects", {})
 
 var BattlerData: Dictionary:
-	get: return BattleManager.battler_data if BattleManager.active else _battler_data_fallback
+	get:
+		# See BATTLEENEMIES note: only trust BattleManager when populated.
+		if BattleManager.active and not BattleManager.battler_data.is_empty():
+			return BattleManager.battler_data
+		return _battler_data_fallback
 	set(value): _battler_data_fallback = value
 var _battler_data_fallback: Dictionary = {}
 
 var Current_Battler_Data:
 	get:
-		if BattleManager.active:
-			return BattleManager.battler_data.get(BattleManager.current_turn, null)
+		if BattleManager.active and not BattleManager.battler_data.is_empty():
+			return BattleManager.battler_data.get(BattleManager.current_turn, _current_battler_fallback)
 		return _current_battler_fallback
 	set(value): _current_battler_fallback = value
 var _current_battler_fallback = null
@@ -534,8 +553,33 @@ func set_next_correlation_id(id_value: String) -> void:
 # ── Lifecycle ────────────────────────────────────────────────────────────────
 var _json_cache: Dictionary = {}
 
+## Debounce timer: every incoming table sync mirrors _synced to the offline
+## snapshot at user://last_sync.json. Restarting the timer on each _process_table
+## call coalesces the initial-sync flood (12+ tables) into a single write.
+const SNAPSHOT_DEBOUNCE_SEC: float = 0.5
+var _snapshot_debounce_timer: Timer
+
 func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)
+	_snapshot_debounce_timer = Timer.new()
+	_snapshot_debounce_timer.one_shot = true
+	_snapshot_debounce_timer.wait_time = SNAPSHOT_DEBOUNCE_SEC
+	_snapshot_debounce_timer.timeout.connect(_on_snapshot_debounce_timeout)
+	add_child(_snapshot_debounce_timer)
+
+func _on_snapshot_debounce_timeout() -> void:
+	# Don't mirror during offline mode itself — the snapshot IS our source of truth there.
+	if is_offline:
+		return
+	save_synced_snapshot()
+
+func _queue_offline_snapshot_save() -> void:
+	# Skip in offline mode: we're already reading from the snapshot, no need to mirror.
+	if is_offline:
+		return
+	# Restart the debounce countdown — coalesces bursts of sync calls into one write.
+	if _snapshot_debounce_timer != null:
+		_snapshot_debounce_timer.start()
 
 func _read_json_cached(filename: String) -> Array:
 	if _json_cache.has(filename):
@@ -597,6 +641,15 @@ func save_synced_snapshot() -> void:
 	print("Global: Saved sync snapshot to user://last_sync.json")
 
 func load_synced_snapshot() -> bool:
+	# Preference order:
+	#   1) canonical_save_backup.json (Phase 4 backup format — single full save,
+	#      pushed periodically by host; same shape as CanonicalSave on disk)
+	#   2) last_sync.json (legacy debounce snapshot — flat {table: [records]})
+	#   3) default_sync.json (bundled defaults — same legacy shape)
+	var canonical_backup := "user://canonical_save_backup.json"
+	if FileAccess.file_exists(canonical_backup):
+		return _load_canonical_backup(canonical_backup)
+
 	var path := "user://last_sync.json"
 	if not FileAccess.file_exists(path):
 		path = "res://data/default_sync.json"
@@ -627,6 +680,29 @@ func load_synced_snapshot() -> bool:
 	print("Global: Loaded sync snapshot from %s" % path)
 	return true
 
+## Load the Phase 4 canonical backup format (same shape CanonicalSave writes
+## to disk: {schema_version, last_saved_ms, tables: {name: {id: record}}}).
+func _load_canonical_backup(path: String) -> bool:
+	var file = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("Global: Failed to open canonical backup at %s" % path)
+		return false
+	var text = file.get_as_text()
+	file.close()
+	var payload = JSON.parse_string(text)
+	if payload == null or typeof(payload) != TYPE_DICTIONARY:
+		push_error("Global: Invalid canonical backup JSON")
+		return false
+	var bk_tables = payload.get("tables", {})
+	if typeof(bk_tables) != TYPE_DICTIONARY:
+		push_error("Global: canonical backup missing 'tables'")
+		return false
+	# Replace _synced/CanonicalSave wholesale with the backup snapshot.
+	CanonicalSave.tables = bk_tables
+	_rebuild_synced_name_index()
+	print("Global: Loaded canonical backup from %s (%d tables)" % [path, bk_tables.size()])
+	return true
+
 func export_synced_to_file(path: String) -> void:
 	var snapshot: Dictionary = {}
 	for table_name in _synced.keys():
@@ -643,7 +719,13 @@ func export_synced_to_file(path: String) -> void:
 	file.close()
 	print("Global: Exported synced data to %s" % path)
 
-# ── Network-aware write operations (kept for compat) ────────────────────────
+# ── Network-aware write operations ──────────────────────────────────────────
+## Strict shell mode for clients:
+##  - Host: applies + persists + broadcasts (host_update_records does it all).
+##  - Offline: writes to local synced state + appends to OfflineChanges log
+##    for later reconciliation (with per-mutation timestamps).
+##  - Online client: sends RPC ONLY. No predictive local apply. UI updates
+##    when the host's _receive_field_updates broadcast arrives.
 func Update_Records(updates: Array) -> void:
 	print("Global.Update_Records: %d updates, is_host=%s, is_offline=%s" % [updates.size(), str(NetworkManager.is_host), str(is_offline)])
 	if is_offline:
@@ -660,13 +742,14 @@ func Update_Records(updates: Array) -> void:
 		return
 	if NetworkManager.is_host:
 		NetworkManager.host_update_records(updates)
-	else:
-		var json_str = JSON.stringify(updates)
-		NetworkManager.request_update.rpc_id(1, json_str)
-	# Apply to save data
-	for u in updates:
-		_apply_update_to_save(u)
-	SaveManager.mark_dirty()
+		# Host runs CharacterManager.recalculate_all inside host_update_records.
+		# Host also flushes the save via DataStore.persist_table.
+		return
+	# Online client — pure shell. No predictive local apply, no SaveManager
+	# bookkeeping. The host will echo back via _receive_field_updates and the
+	# client's _synced will update from there.
+	var json_str = JSON.stringify(updates)
+	NetworkManager.request_update.rpc_id(1, json_str)
 
 func Insert(table: String, columns: Array, values: Array) -> void:
 	if table.strip_edges() == "" or columns.is_empty():
@@ -879,7 +962,27 @@ func _process_table(table_name: String, records: Array) -> void:
 		if record.has("Name"):
 			_synced_name[table_name][str(record["Name"])] = str(rid)
 
+	# Mirror to offline snapshot so a mid-session drop -> offline mode loads
+	# the latest known state instead of stale pre-session data.
+	_queue_offline_snapshot_save()
 	emit_signal("table_loaded", table_name, records.size())
+
+## Walk every table in _synced and rebuild the Name->id index so name-keyed
+## lookups (CHARACTERS_NAME, COMPANIONS_NAME, etc.) keep working after a load
+## that bypassed _process_table (e.g., CanonicalSave.load_from_disk).
+func _rebuild_synced_name_index() -> void:
+	_synced_name.clear()
+	for table_name in _synced.keys():
+		var t = _synced[table_name]
+		if typeof(t) != TYPE_DICTIONARY:
+			continue
+		_synced_name[table_name] = {}
+		for rid in t.keys():
+			var rec = t[rid]
+			if typeof(rec) != TYPE_DICTIONARY:
+				continue
+			if rec.has("Name"):
+				_synced_name[table_name][str(rec["Name"])] = str(rid)
 
 func Refresh_Data(table_list: Array) -> void:
 	if NetworkManager.is_host:
@@ -1069,12 +1172,17 @@ func _party_to_dict(p: PartySaveData) -> Dictionary:
 var _notes_popup_active: bool = false
 var _notes_ack_received: bool = false
 var _notes_ack_success: bool = false
+var _host_confirm_popup_active: bool = false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if ACTIVE_USER_NAME == "Brian F.":
 			if not _notes_popup_active:
 				_show_notes_backup_popup()
+			return
+		if NetworkManager.is_host:
+			if not _host_confirm_popup_active:
+				_show_host_exit_confirm_popup()
 			return
 		get_tree().quit()
 
@@ -1260,3 +1368,76 @@ func _wait_for_notes_ack(timeout: float) -> bool:
 func _on_notes_ack(success: bool) -> void:
 	_notes_ack_success = success
 	_notes_ack_received = true
+
+# ─── HOST EXIT CONFIRM (DM safety against early close) ──────────────────────
+
+## Mirrors the Brian F. notes-backup popup's blocking behavior but without
+## any file picker — the DM just needs a deliberate confirmation so the host
+## process doesn't quit before players (e.g., Brian F.) have finished sending
+## their notes files. Triggered from _notification on NOTIFICATION_WM_CLOSE_REQUEST
+## when NetworkManager.is_host is true.
+func _show_host_exit_confirm_popup() -> void:
+	_host_confirm_popup_active = true
+
+	# Full-screen semi-transparent overlay
+	var overlay = ColorRect.new()
+	overlay.name = "HostExitConfirmOverlay"
+	overlay.color = Color(0, 0, 0, 0.6)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 100
+
+	# Centered panel
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(720, 280)
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0.12, 0.12, 0.15, 1.0)
+	sb.border_color = Color(0.4, 0.4, 0.5, 1.0)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(32)
+	panel.add_theme_stylebox_override("panel", sb)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 24)
+
+	var header = Label.new()
+	header.text = "Close the campaign?"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(header)
+
+	var subheader = Label.new()
+	subheader.text = "Make sure every player has finished sending their notes and files before exiting."
+	subheader.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subheader.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subheader.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	vbox.add_child(subheader)
+
+	var hbox_btns = HBoxContainer.new()
+	hbox_btns.alignment = BoxContainer.ALIGNMENT_END
+	hbox_btns.add_theme_constant_override("separation", 12)
+
+	var cancel_btn = Button.new()
+	cancel_btn.text = "Cancel"
+	hbox_btns.add_child(cancel_btn)
+
+	var confirm_btn = Button.new()
+	confirm_btn.text = "Confirm and exit"
+	hbox_btns.add_child(confirm_btn)
+
+	vbox.add_child(hbox_btns)
+	panel.add_child(vbox)
+	overlay.add_child(panel)
+
+	cancel_btn.pressed.connect(func():
+		overlay.queue_free()
+		_host_confirm_popup_active = false
+	)
+	confirm_btn.pressed.connect(func():
+		get_tree().quit()
+	)
+
+	get_tree().root.add_child(overlay)

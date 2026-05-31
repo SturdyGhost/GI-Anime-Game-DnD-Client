@@ -105,7 +105,7 @@ func _ready() -> void:
 	_tab_recipes.toggle_mode = true
 	_tab_recipes.button_pressed = true
 	_tab_recipes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tab_recipes.add_theme_font_size_override("font_size", 14)
+	_tab_recipes.add_theme_font_size_override("font_size", 40)
 	_style_tab_btn(_tab_recipes, true)
 	_tab_recipes.pressed.connect(func(): _switch_crafting_tab("recipes"))
 	tab_row.add_child(_tab_recipes)
@@ -115,7 +115,7 @@ func _ready() -> void:
 	_tab_artifact.toggle_mode = true
 	_tab_artifact.button_pressed = false
 	_tab_artifact.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tab_artifact.add_theme_font_size_override("font_size", 14)
+	_tab_artifact.add_theme_font_size_override("font_size", 40)
 	_style_tab_btn(_tab_artifact, false)
 	_tab_artifact.pressed.connect(func(): _switch_crafting_tab("artifact"))
 	tab_row.add_child(_tab_artifact)
@@ -169,7 +169,7 @@ func _build_header() -> HBoxContainer:
 	# Title
 	var title = Label.new()
 	title.text = "CRAFTING"
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", 60)
 	title.add_theme_color_override("font_color", TEXT)
 	hbox.add_child(title)
 
@@ -177,7 +177,7 @@ func _build_header() -> HBoxContainer:
 	var badge = Label.new()
 	var role = _get_active_role()
 	badge.text = role if role != "" else "No Role"
-	badge.add_theme_font_size_override("font_size", 14)
+	badge.add_theme_font_size_override("font_size", 40)
 	badge.add_theme_color_override("font_color", ACCENT)
 	var badge_sb = StyleBoxFlat.new()
 	badge_sb.bg_color = CARD
@@ -207,7 +207,7 @@ func _build_header() -> HBoxContainer:
 	# Exit button
 	var exit_btn = Button.new()
 	exit_btn.text = "X"
-	exit_btn.add_theme_font_size_override("font_size", 18)
+	exit_btn.add_theme_font_size_override("font_size", 50)
 	exit_btn.custom_minimum_size = Vector2(40, 40)
 	var exit_sb = StyleBoxFlat.new()
 	exit_sb.bg_color = CARD
@@ -251,7 +251,7 @@ func _build_left_panel() -> PanelContainer:
 	# Search
 	search_input = LineEdit.new()
 	search_input.placeholder_text = "Search recipes..."
-	search_input.add_theme_font_size_override("font_size", 14)
+	search_input.add_theme_font_size_override("font_size", 40)
 	search_input.add_theme_color_override("font_color", TEXT)
 	search_input.add_theme_color_override("font_placeholder_color", MUTED)
 	var search_sb = StyleBoxFlat.new()
@@ -375,13 +375,13 @@ func _build_preview_card() -> PanelContainer:
 
 	product_name_label = Label.new()
 	product_name_label.text = "Select a recipe"
-	product_name_label.add_theme_font_size_override("font_size", 22)
+	product_name_label.add_theme_font_size_override("font_size", 40)
 	product_name_label.add_theme_color_override("font_color", TEXT)
 	meta_vbox.add_child(product_name_label)
 
 	product_meta_label = Label.new()
 	product_meta_label.text = ""
-	product_meta_label.add_theme_font_size_override("font_size", 14)
+	product_meta_label.add_theme_font_size_override("font_size", 40)
 	product_meta_label.add_theme_color_override("font_color", SEC)
 	meta_vbox.add_child(product_meta_label)
 
@@ -416,7 +416,7 @@ func _build_ingredients_card() -> PanelContainer:
 
 	ingredients_title_label = Label.new()
 	ingredients_title_label.text = "INGREDIENTS"
-	ingredients_title_label.add_theme_font_size_override("font_size", 16)
+	ingredients_title_label.add_theme_font_size_override("font_size", 29)
 	ingredients_title_label.add_theme_color_override("font_color", SEC)
 	vbox.add_child(ingredients_title_label)
 
@@ -452,7 +452,7 @@ func _build_controls_card() -> PanelContainer:
 	# Quantity
 	var qty_label = Label.new()
 	qty_label.text = "Qty:"
-	qty_label.add_theme_font_size_override("font_size", 15)
+	qty_label.add_theme_font_size_override("font_size", 27)
 	qty_label.add_theme_color_override("font_color", SEC)
 	hbox.add_child(qty_label)
 
@@ -461,19 +461,19 @@ func _build_controls_card() -> PanelContainer:
 	qty_spin.max_value = 999
 	qty_spin.value = 1
 	qty_spin.custom_minimum_size.x = 80
-	qty_spin.add_theme_font_size_override("font_size", 14)
+	qty_spin.add_theme_font_size_override("font_size", 40)
 	hbox.add_child(qty_spin)
 
 	# Target player
 	var target_label = Label.new()
 	target_label.text = "Craft for:"
-	target_label.add_theme_font_size_override("font_size", 15)
+	target_label.add_theme_font_size_override("font_size", 27)
 	target_label.add_theme_color_override("font_color", SEC)
 	hbox.add_child(target_label)
 
 	target_select = OptionButton.new()
 	target_select.custom_minimum_size.x = 160
-	target_select.add_theme_font_size_override("font_size", 14)
+	target_select.add_theme_font_size_override("font_size", 40)
 	hbox.add_child(target_select)
 
 	# Spacer
@@ -486,7 +486,7 @@ func _build_controls_card() -> PanelContainer:
 	craft_button.text = "Craft"
 	craft_button.disabled = true
 	craft_button.custom_minimum_size = Vector2(140, 44)
-	craft_button.add_theme_font_size_override("font_size", 18)
+	craft_button.add_theme_font_size_override("font_size", 50)
 	# Outline style matching weapon scene buttons
 	var craft_sb = StyleBoxFlat.new()
 	craft_sb.bg_color = Color(GREEN.r, GREEN.g, GREEN.b, 0.1)
@@ -547,7 +547,7 @@ func _make_chip(text: String, active: bool) -> Button:
 	var btn = Button.new()
 	btn.text = text
 	btn.custom_minimum_size = Vector2(0, 28)
-	btn.add_theme_font_size_override("font_size", 13)
+	btn.add_theme_font_size_override("font_size", 23)
 	_style_chip(btn, active)
 	return btn
 
@@ -596,7 +596,16 @@ func _build_product_groups() -> void:
 	_grouped_recipes.clear()
 	var active_role = _get_active_role()
 
-	# Read directly from GameDB for accurate typed resource access
+	# Read directly from GameDB for accurate typed resource access.
+	# IMPORTANT: legacy data stores each ingredient as its own JSON row sharing
+	# the same Product (e.g., Bamboo Shoot Soup -> 6 rows, one per ingredient).
+	# When GameDB falls back to JSON (e.g., on a build without baked .tres
+	# files), iterating values() yields multiple CraftingRecipeData entries for
+	# the same product, each with one slot. Don't blindly overwrite — when a
+	# product's first row was a single-slot legacy entry, treat subsequent
+	# single-slot rows for the same product as additional ingredients of the
+	# same recipe, not as alternative variants.
+	var single_slot_legacy_products: Dictionary = {}
 	for recipe_res in GameDB.crafting_recipes.values():
 		if recipe_res.role != active_role:
 			continue
@@ -607,17 +616,39 @@ func _build_product_groups() -> void:
 		if recipes.is_empty():
 			continue
 
-		_grouped_recipes[recipe_res.product] = {
-			"meta": {
-				"Product": recipe_res.product,
-				"Region": recipe_res.region,
-				"Description": recipe_res.description,
-				"Icon": null,
-				"output_quantity": recipe_res.output_quantity,
-			},
-			"recipes": recipes,
-			"_resource": recipe_res,
-		}
+		var incoming_is_single_slot: bool = (
+			recipes.size() == 1
+			and recipes[0].get("slots", []).size() == 1
+		)
+
+		if not _grouped_recipes.has(recipe_res.product):
+			_grouped_recipes[recipe_res.product] = {
+				"meta": {
+					"Product": recipe_res.product,
+					"Region": recipe_res.region,
+					"Description": recipe_res.description,
+					"Icon": null,
+					"output_quantity": recipe_res.output_quantity,
+				},
+				"recipes": recipes,
+				"_resource": recipe_res,
+			}
+			single_slot_legacy_products[recipe_res.product] = incoming_is_single_slot
+			continue
+
+		var existing = _grouped_recipes[recipe_res.product]
+		var existing_recipes: Array = existing["recipes"]
+		var first_row_was_legacy: bool = single_slot_legacy_products.get(recipe_res.product, false)
+
+		if first_row_was_legacy and incoming_is_single_slot:
+			# Accumulating legacy single-ingredient rows — fold this slot into
+			# the first recipe so all ingredients render together.
+			existing_recipes[0]["slots"].append_array(recipes[0]["slots"])
+		else:
+			# Real alternative recipe (or first row wasn't legacy) — append.
+			existing_recipes.append_array(recipes)
+			# Mark as no-longer-pure-legacy so further rows don't merge into it.
+			single_slot_legacy_products[recipe_res.product] = false
 
 
 # ============================================================
@@ -726,7 +757,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	# Product name
 	var name_label = Label.new()
 	name_label.text = product
-	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_font_size_override("font_size", 29)
 	name_label.add_theme_color_override("font_color", TEXT if can_craft else MUTED)
 	name_label.clip_text = true
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -743,7 +774,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	if region_text != "":
 		var region_lbl = Label.new()
 		region_lbl.text = region_text
-		region_lbl.add_theme_font_size_override("font_size", 14)
+		region_lbl.add_theme_font_size_override("font_size", 40)
 		region_lbl.add_theme_color_override("font_color", MUTED)
 		region_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bottom_hbox.add_child(region_lbl)
@@ -760,7 +791,7 @@ func _create_recipe_card(product: String) -> PanelContainer:
 	else:
 		status_lbl.text = "Missing materials"
 		status_lbl.add_theme_color_override("font_color", RED)
-	status_lbl.add_theme_font_size_override("font_size", 14)
+	status_lbl.add_theme_font_size_override("font_size", 40)
 	status_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom_hbox.add_child(status_lbl)
 
@@ -1085,13 +1116,13 @@ func _build_ingredient_rows(product: String) -> void:
 
 		var variant_label = Label.new()
 		variant_label.text = "Recipe:"
-		variant_label.add_theme_font_size_override("font_size", 14)
+		variant_label.add_theme_font_size_override("font_size", 40)
 		variant_label.add_theme_color_override("font_color", ACCENT)
 		variant_row.add_child(variant_label)
 
 		var variant_dropdown = OptionButton.new()
 		variant_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		variant_dropdown.add_theme_font_size_override("font_size", 14)
+		variant_dropdown.add_theme_font_size_override("font_size", 40)
 		for vi in recipes.size():
 			var recipe = recipes[vi]
 			var slots = recipe.get("slots", [])
@@ -1237,7 +1268,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 		var opt_select = OptionButton.new()
 		opt_select.name = "OptSelect_%d" % slot_idx
 		opt_select.custom_minimum_size.x = 200
-		opt_select.add_theme_font_size_override("font_size", 14)
+		opt_select.add_theme_font_size_override("font_size", 40)
 		for oi in options.size():
 			var o = options[oi]
 			opt_select.add_item("%dx %s" % [int(o.get("quantity", 1)), str(o.get("material", "?"))], oi)
@@ -1254,7 +1285,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	else:
 		var name_label = Label.new()
 		name_label.text = ("Any %s" % material) if is_type else material
-		name_label.add_theme_font_size_override("font_size", 15)
+		name_label.add_theme_font_size_override("font_size", 27)
 		name_label.add_theme_color_override("font_color", TEXT)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.clip_text = true
@@ -1264,7 +1295,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	var opt = OptionButton.new()
 	opt.name = "Opt_%d" % slot_idx
 	opt.custom_minimum_size.x = 220
-	opt.add_theme_font_size_override("font_size", 14)
+	opt.add_theme_font_size_override("font_size", 40)
 	opt.clip_text = true
 	hbox.add_child(opt)
 
@@ -1274,7 +1305,7 @@ func _create_ingredient_slot(slot_idx: int, req: Dictionary) -> PanelContainer:
 	# Have/Need label
 	var hn_label = Label.new()
 	hn_label.name = "HaveNeed_%d" % slot_idx
-	hn_label.add_theme_font_size_override("font_size", 14)
+	hn_label.add_theme_font_size_override("font_size", 40)
 	hn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hn_label.custom_minimum_size.x = 70
 
@@ -1737,7 +1768,7 @@ func _show_toast(msg: String) -> void:
 	var l = Label.new()
 	l.text = msg
 	l.add_theme_color_override("font_color", GREEN)
-	l.add_theme_font_size_override("font_size", 18)
+	l.add_theme_font_size_override("font_size", 50)
 	l.modulate = Color(1, 1, 1, 0)
 	add_child(l)
 	l.global_position = Vector2(40, 40)
@@ -1829,9 +1860,9 @@ func _switch_crafting_tab(tab: String) -> void:
 
 
 func _build_artifact_forge() -> VBoxContainer:
-	var FS = 18  # base font size for this panel (larger than normal)
-	var FS_SM = 15
-	var FS_LBL = 13
+	var FS = 50  # base font size for this panel (larger than normal)
+	var FS_SM = 40
+	var FS_LBL = 45
 	var root = VBoxContainer.new()
 	_artifact_forge_panel = root  # assign early so helpers can access metas
 	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2119,7 +2150,7 @@ func _af_spin_field(parent: Node, hint: String, min_val: int, max_val: int, fs: 
 	parent.add_child(vb)
 	var l = Label.new()
 	l.text = hint
-	l.add_theme_font_size_override("font_size", 13)
+	l.add_theme_font_size_override("font_size", 23)
 	l.add_theme_color_override("font_color", MUTED)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	l.custom_minimum_size.x = 140
@@ -2222,7 +2253,7 @@ func _af_update_set_bonus_display() -> void:
 	if two_pc != "":
 		var l2 = Label.new()
 		l2.text = "2pc: " + two_pc
-		l2.add_theme_font_size_override("font_size", 15)
+		l2.add_theme_font_size_override("font_size", 27)
 		l2.add_theme_color_override("font_color", GREEN)
 		l2.autowrap_mode = TextServer.AUTOWRAP_WORD
 		l2.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -2230,7 +2261,7 @@ func _af_update_set_bonus_display() -> void:
 	if four_pc != "":
 		var l4 = Label.new()
 		l4.text = "4pc: " + four_pc
-		l4.add_theme_font_size_override("font_size", 15)
+		l4.add_theme_font_size_override("font_size", 27)
 		l4.add_theme_color_override("font_color", SEC)
 		l4.autowrap_mode = TextServer.AUTOWRAP_WORD
 		l4.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -2262,7 +2293,7 @@ func _af_refresh_artifact_list() -> void:
 		_af_artifact_list.add_child(row)
 
 		var check = CheckBox.new()
-		check.add_theme_font_size_override("font_size", 16)
+		check.add_theme_font_size_override("font_size", 29)
 		check.toggled.connect(func(pressed):
 			if pressed:
 				_af_selected_artifacts.append(art_id)
@@ -2279,7 +2310,7 @@ func _af_refresh_artifact_list() -> void:
 
 		var stat_lbl = Label.new()
 		stat_lbl.text = stat_text
-		stat_lbl.add_theme_font_size_override("font_size", 16)
+		stat_lbl.add_theme_font_size_override("font_size", 29)
 		# Color: green if both positive, red if both negative, default otherwise
 		if s1v > 0 and (s2v > 0 or s2t == ""):
 			stat_lbl.add_theme_color_override("font_color", GREEN)
@@ -2355,7 +2386,7 @@ func _af_show_confirm(message: String, on_confirm: Callable) -> void:
 
 	var title = Label.new()
 	title.text = "Confirm Artifact Forge"
-	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", RED)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
@@ -2377,7 +2408,7 @@ func _af_show_confirm(message: String, on_confirm: Callable) -> void:
 	var cancel = Button.new()
 	cancel.text = "Cancel"
 	cancel.custom_minimum_size.x = 130
-	cancel.add_theme_font_size_override("font_size", 16)
+	cancel.add_theme_font_size_override("font_size", 29)
 	_style_chip(cancel, false)
 	cancel.pressed.connect(func(): overlay.queue_free())
 	btn_row.add_child(cancel)
@@ -2385,7 +2416,7 @@ func _af_show_confirm(message: String, on_confirm: Callable) -> void:
 	var confirm = Button.new()
 	confirm.text = "FORGE"
 	confirm.custom_minimum_size.x = 130
-	confirm.add_theme_font_size_override("font_size", 16)
+	confirm.add_theme_font_size_override("font_size", 29)
 	var csb = StyleBoxFlat.new()
 	csb.bg_color = Color(RED.r, RED.g, RED.b, 0.15)
 	csb.border_color = RED

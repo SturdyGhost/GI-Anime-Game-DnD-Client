@@ -50,7 +50,7 @@ func _build_breakdown() -> void:
 	_vbox.add_child(top_bar)
 	var title = Label.new()
 	title.text = "Turn Results — %s" % battler_name
-	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_bar.add_child(title)
@@ -66,7 +66,7 @@ func _build_breakdown() -> void:
 		attack_roll,
 		"CRIT!" if critical_hit else "%d Hit(s)" % (int(targets[0].get("hits", 1)) if targets.size() > 0 else 1)
 	]
-	subtitle.add_theme_font_size_override("font_size", 14)
+	subtitle.add_theme_font_size_override("font_size", 25)
 	subtitle.add_theme_color_override("font_color", Color(0.545, 0.576, 0.690))
 	_vbox.add_child(subtitle)
 
@@ -88,7 +88,7 @@ func _build_breakdown() -> void:
 	# Footer disclaimer
 	var footer = Label.new()
 	footer.text = "Showing calculated possible outcomes — actual damage dealt is what was entered"
-	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_font_size_override("font_size", 20)
 	footer.add_theme_color_override("font_color", Color(0.478, 0.514, 0.627))
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_vbox.add_child(footer)
@@ -116,7 +116,7 @@ func _add_target_breakdown(target: Dictionary, attack_roll: int, flat_mod: float
 	# Target name
 	var name_label = Label.new()
 	name_label.text = target_name
-	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_font_size_override("font_size", 32)
 	name_label.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_vbox.add_child(name_label)
@@ -133,7 +133,7 @@ func _add_target_breakdown(target: Dictionary, attack_roll: int, flat_mod: float
 
 	var roll_info = Label.new()
 	roll_info.text = "Defense Roll: %d  |  Difference: %d  |  %s" % [defense_roll, diff, dice_str]
-	roll_info.add_theme_font_size_override("font_size", 12)
+	roll_info.add_theme_font_size_override("font_size", 22)
 	roll_info.add_theme_color_override("font_color", Color(0.478, 0.514, 0.627))
 	roll_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_vbox.add_child(roll_info)
@@ -146,13 +146,13 @@ func _add_target_breakdown(target: Dictionary, attack_roll: int, flat_mod: float
 	else:
 		dmg_label.text = str(actual_damage)
 		dmg_label.add_theme_color_override("font_color", Color(0.937, 0.267, 0.267))
-	dmg_label.add_theme_font_size_override("font_size", 48)
+	dmg_label.add_theme_font_size_override("font_size", 86)
 	dmg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_vbox.add_child(dmg_label)
 
 	var type_label = Label.new()
 	type_label.text = attack_type.to_upper() + " DEALT"
-	type_label.add_theme_font_size_override("font_size", 12)
+	type_label.add_theme_font_size_override("font_size", 22)
 	type_label.add_theme_color_override("font_color", Color(0.545, 0.576, 0.690))
 	type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_vbox.add_child(type_label)
@@ -221,13 +221,13 @@ func _add_mod_item(parent: Control, value_text: String, label_text: String) -> v
 	parent.add_child(vb)
 	var val = Label.new()
 	val.text = value_text
-	val.add_theme_font_size_override("font_size", 14)
+	val.add_theme_font_size_override("font_size", 25)
 	val.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
 	val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(val)
 	var lbl = Label.new()
 	lbl.text = label_text
-	lbl.add_theme_font_size_override("font_size", 10)
+	lbl.add_theme_font_size_override("font_size", 18)
 	lbl.add_theme_color_override("font_color", Color(0.478, 0.514, 0.627))
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(lbl)
@@ -242,13 +242,13 @@ func _make_table_row(cells: Array, is_header: bool, is_highlighted: bool = false
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		if is_header:
-			cell.add_theme_font_size_override("font_size", 11)
+			cell.add_theme_font_size_override("font_size", 20)
 			cell.add_theme_color_override("font_color", Color(0.545, 0.576, 0.690))
 		elif is_highlighted:
-			cell.add_theme_font_size_override("font_size", 14)
+			cell.add_theme_font_size_override("font_size", 25)
 			cell.add_theme_color_override("font_color", Color(0.292, 0.855, 0.498))
 		else:
-			cell.add_theme_font_size_override("font_size", 13)
+			cell.add_theme_font_size_override("font_size", 23)
 			cell.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
 		row.add_child(cell)
 	return row

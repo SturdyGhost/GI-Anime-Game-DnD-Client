@@ -488,7 +488,7 @@ func _show_not_met_detail(name_str: String) -> void:
 
 	var icon_lbl = Label.new()
 	icon_lbl.text = "?"
-	icon_lbl.add_theme_font_size_override("font_size", 48)
+	icon_lbl.add_theme_font_size_override("font_size", 86)
 	icon_lbl.add_theme_color_override("font_color", COLOR_TEXT_DIM)
 	icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(icon_lbl)
@@ -555,7 +555,7 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 
 	var lbl_name = Label.new()
 	lbl_name.text = name_str
-	lbl_name.add_theme_font_size_override("font_size", 26)
+	lbl_name.add_theme_font_size_override("font_size", 47)
 	lbl_name.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	name_row.add_child(lbl_name)
 

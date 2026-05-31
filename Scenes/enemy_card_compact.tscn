@@ -69,7 +69,7 @@ offset_top = 99.0
 offset_right = 573.0
 offset_bottom = 205.0
 scale = Vector2(0.5, 0.5)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 text = "Applied 
 Element:"
 horizontal_alignment = 1
@@ -86,7 +86,7 @@ element or the element of the region you are in this can be done
 anytime here with no cost. If it is another element that you'd have 
 to visit a regional \"shrin\" to, please consult with Paimon regarding 
 the offering you are making to switch."
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 alignment = 1
 expand_icon = true
 selected = 2
@@ -120,7 +120,7 @@ offset_top = 153.0
 offset_right = 573.0
 offset_bottom = 259.0
 scale = Vector2(0.5, 0.5)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 text = "Status 
 Effect:"
 horizontal_alignment = 1
@@ -132,7 +132,7 @@ offset_top = 207.0
 offset_right = 504.0
 offset_bottom = 313.0
 scale = Vector2(0.5, 0.5)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 text = "Dead?"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -149,7 +149,7 @@ element or the element of the region you are in this can be done
 anytime here with no cost. If it is another element that you'd have 
 to visit a regional \"shrin\" to, please consult with Paimon regarding 
 the offering you are making to switch."
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 alignment = 1
 expand_icon = true
 selected = 8

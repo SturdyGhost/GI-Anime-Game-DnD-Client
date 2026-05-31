@@ -954,7 +954,7 @@ func _show_skip_turn_popup() -> void:
 	var lbl = Label.new()
 	lbl.text = "%s's turn is skipped! (Stunned)" % str(Current_Turn)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 20)
+	lbl.add_theme_font_size_override("font_size", 36)
 	vbox.add_child(lbl)
 
 	var btn = Button.new()

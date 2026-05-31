@@ -2841,6 +2841,28 @@
 			"Rarity": "Uncommon",
 			"Quantity": 10,
 			"Description": " "
+		},
+		{
+			"id": 337,
+			"created_at": null,
+			"updated_at": "2026-05-09T00:00:00.000000-07:00",
+			"Owner": "Brian C.",
+			"Name": "Spike of Champions",
+			"Type": "Special",
+			"Rarity": "Epic",
+			"Quantity": 1,
+			"Description": "Once per Battle, while both bearers stand within 6 tiles of each other, when one of them strikes, they may call upon their partner for a Coordinated Spike \u2014 once per turn, before damage resolves. The partner leaps to follow up against the same target, dealing damage equal to the triggering attack and ignoring all damage reduction. The Spike applies the partner's element rather than the attacker's, and when both hits would trigger an elemental reaction, they resolve in whichever order is most beneficial to the bearers.If either bearer falls, the spike falls silent until both are conscious again."
+		},
+		{
+			"id": 338,
+			"created_at": null,
+			"updated_at": "2026-05-09T00:00:00.000000-07:00",
+			"Owner": "Brian F.",
+			"Name": "Spike of Champions",
+			"Type": "Special",
+			"Rarity": "Epic",
+			"Quantity": 1,
+			"Description": "Once per Battle, while both bearers stand within 6 tiles of each other, when one of them strikes, they may call upon their partner for a Coordinated Spike \u2014 once per turn, before damage resolves. The partner leaps to follow up against the same target, dealing damage equal to the triggering attack and ignoring all damage reduction. The Spike applies the partner's element rather than the attacker's, and when both hits would trigger an elemental reaction, they resolve in whichever order is most beneficial to the bearers.If either bearer falls, the spike falls silent until both are conscious again."
 		}
 	],
 	"Character_Weapons": [

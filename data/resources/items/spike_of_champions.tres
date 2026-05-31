@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3 uid="uid://dcq7c08gdhfmo"]
+
+[ext_resource type="Script" uid="uid://b5140ktt18cjs" path="res://Scripts/resources/item_data.gd" id="1_dv75s"]
+
+[resource]
+script = ExtResource("1_dv75s")
+id = 2
+item_name = "Spike of Champions"
+type = "Special"
+rarity = "Epic"
+region = "Sumeru"
+description = "Once per Battle, while both bearers stand within 6 tiles of each other, when one of them strikes, they may call upon their partner for a Coordinated Spike — once per turn, before damage resolves. The partner leaps to follow up against the same target, dealing damage equal to the triggering attack and ignoring all damage reduction. The Spike applies the partner's element rather than the attacker's, and when both hits would trigger an elemental reaction, they resolve in whichever order is most beneficial to the bearers.If either bearer falls, the spike falls silent until both are conscious again."
+value = 4
+buff_duration = 0

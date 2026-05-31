@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_r"]
+
+[resource]
+script = ExtResource("1_r")
+id = 330
+product = "1-Star Earth Gem"
+region = "Liyue"
+description = "Breaks down any 2-star elemental gem into 2 individual 1-star Earth gems."
+role = "Artisan"
+material = "2-Star Gem"
+quantity = 1
+output_quantity = 2

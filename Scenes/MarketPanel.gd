@@ -153,7 +153,7 @@ func _build_header() -> PanelContainer:
 	var title = Label.new()
 	title.text = "MARKET"
 	title.add_theme_color_override("font_color", ACCENT)
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", 38)
 	hbox.add_child(title)
 
 	var spacer = Control.new()
@@ -168,20 +168,20 @@ func _build_header() -> PanelContainer:
 	var mora_icon_lbl = Label.new()
 	mora_icon_lbl.text = "Mora:"
 	mora_icon_lbl.add_theme_color_override("font_color", GOLD)
-	mora_icon_lbl.add_theme_font_size_override("font_size", 20)
+	mora_icon_lbl.add_theme_font_size_override("font_size", 36)
 	mora_hbox.add_child(mora_icon_lbl)
 
 	_mora_label = Label.new()
 	_mora_label.text = "0"
 	_mora_label.add_theme_color_override("font_color", GOLD)
-	_mora_label.add_theme_font_size_override("font_size", 20)
+	_mora_label.add_theme_font_size_override("font_size", 36)
 	mora_hbox.add_child(_mora_label)
 
 	# Exit button
 	var exit_btn = Button.new()
 	exit_btn.text = "X"
 	exit_btn.custom_minimum_size = Vector2(40, 40)
-	exit_btn.add_theme_font_size_override("font_size", 18)
+	exit_btn.add_theme_font_size_override("font_size", 32)
 	exit_btn.add_theme_color_override("font_color", TEXT)
 	var exit_sb_n = _flat(Color(0.6, 0.2, 0.2))
 	exit_sb_n.set_corner_radius_all(6)
@@ -226,7 +226,7 @@ func _make_tab_button(label_text: String) -> Button:
 	var btn = Button.new()
 	btn.text = label_text
 	btn.custom_minimum_size = Vector2(100, 36)
-	btn.add_theme_font_size_override("font_size", 16)
+	btn.add_theme_font_size_override("font_size", 29)
 	btn.add_theme_color_override("font_color", TEXT)
 	var sb_n = _flat(BG_CARD)
 	sb_n.set_corner_radius_all(6)
@@ -265,13 +265,13 @@ func _build_body() -> HSplitContainer:
 	var side_title = Label.new()
 	side_title.text = "Categories"
 	side_title.add_theme_color_override("font_color", TEXT_SEC)
-	side_title.add_theme_font_size_override("font_size", 14)
+	side_title.add_theme_font_size_override("font_size", 25)
 	_sidebar.add_child(side_title)
 
 	for cat in SHOP_CATEGORIES:
 		var btn = Button.new()
 		btn.text = SHOP_DISPLAY_NAMES.get(cat["name"], cat["name"].replace("_", " "))
-		btn.add_theme_font_size_override("font_size", 14)
+		btn.add_theme_font_size_override("font_size", 25)
 		btn.add_theme_color_override("font_color", TEXT)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(0, 36)
@@ -319,7 +319,7 @@ func _build_body() -> HSplitContainer:
 	_search_bar = LineEdit.new()
 	_search_bar.placeholder_text = "Search items..."
 	_search_bar.custom_minimum_size = Vector2(0, 36)
-	_search_bar.add_theme_font_size_override("font_size", 14)
+	_search_bar.add_theme_font_size_override("font_size", 25)
 	_search_bar.add_theme_color_override("font_color", TEXT)
 	_search_bar.add_theme_color_override("font_placeholder_color", TEXT_MUT)
 	var search_sb = _flat(BG_CARD)
@@ -387,7 +387,7 @@ func _build_preview_contents() -> void:
 	_preview_name = Label.new()
 	_preview_name.text = "Select an item"
 	_preview_name.add_theme_color_override("font_color", TEXT)
-	_preview_name.add_theme_font_size_override("font_size", 24)
+	_preview_name.add_theme_font_size_override("font_size", 43)
 	_preview_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_vbox.add_child(_preview_name)
@@ -407,7 +407,7 @@ func _build_preview_contents() -> void:
 	# Effect
 	_preview_effect = Label.new()
 	_preview_effect.add_theme_color_override("font_color", TEXT_SEC)
-	_preview_effect.add_theme_font_size_override("font_size", 16)
+	_preview_effect.add_theme_font_size_override("font_size", 29)
 	_preview_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_effect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_effect.custom_minimum_size = Vector2(0, 40)
@@ -416,7 +416,7 @@ func _build_preview_contents() -> void:
 
 	# Luck note
 	_preview_luck_note = Label.new()
-	_preview_luck_note.add_theme_font_size_override("font_size", 14)
+	_preview_luck_note.add_theme_font_size_override("font_size", 25)
 	_preview_luck_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_luck_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_luck_note.visible = false
@@ -435,7 +435,7 @@ func _build_preview_contents() -> void:
 	var qty_label = Label.new()
 	qty_label.text = "Qty:"
 	qty_label.add_theme_color_override("font_color", TEXT_SEC)
-	qty_label.add_theme_font_size_override("font_size", 16)
+	qty_label.add_theme_font_size_override("font_size", 29)
 	qty_hbox.add_child(qty_label)
 
 	_preview_qty_spin = SpinBox.new()
@@ -443,7 +443,7 @@ func _build_preview_contents() -> void:
 	_preview_qty_spin.max_value = 0
 	_preview_qty_spin.value = 0
 	_preview_qty_spin.custom_minimum_size = Vector2(80, 0)
-	_preview_qty_spin.add_theme_font_size_override("font_size", 16)
+	_preview_qty_spin.add_theme_font_size_override("font_size", 29)
 	_preview_qty_spin.value_changed.connect(_on_quantity_changed)
 	qty_hbox.add_child(_preview_qty_spin)
 
@@ -455,7 +455,7 @@ func _build_preview_contents() -> void:
 	_preview_total_label = Label.new()
 	_preview_total_label.text = ""
 	_preview_total_label.add_theme_color_override("font_color", GOLD)
-	_preview_total_label.add_theme_font_size_override("font_size", 18)
+	_preview_total_label.add_theme_font_size_override("font_size", 32)
 	_preview_total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_preview_vbox.add_child(_preview_total_label)
 
@@ -463,7 +463,7 @@ func _build_preview_contents() -> void:
 	_preview_confirm_btn = Button.new()
 	_preview_confirm_btn.text = "Select an item first"
 	_preview_confirm_btn.custom_minimum_size = Vector2(0, 44)
-	_preview_confirm_btn.add_theme_font_size_override("font_size", 16)
+	_preview_confirm_btn.add_theme_font_size_override("font_size", 29)
 	_preview_confirm_btn.add_theme_color_override("font_color", TEXT)
 	_preview_confirm_btn.disabled = true
 	var btn_sb_n = _flat(ACCENT)
@@ -592,7 +592,7 @@ func _refresh_item_list() -> void:
 		var empty_lbl = Label.new()
 		empty_lbl.text = "No items available"
 		empty_lbl.add_theme_color_override("font_color", TEXT_MUT)
-		empty_lbl.add_theme_font_size_override("font_size", 16)
+		empty_lbl.add_theme_font_size_override("font_size", 29)
 		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_item_list_vbox.add_child(empty_lbl)
@@ -640,14 +640,14 @@ func _build_item_row(r: Dictionary, idx: int) -> PanelContainer:
 	var name_lbl = Label.new()
 	name_lbl.text = _get_row_display_name(r)
 	name_lbl.add_theme_color_override("font_color", TEXT)
-	name_lbl.add_theme_font_size_override("font_size", 15)
+	name_lbl.add_theme_font_size_override("font_size", 27)
 	name_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	info_vbox.add_child(name_lbl)
 
 	var sub_lbl = Label.new()
 	sub_lbl.text = _get_row_subtitle(r)
 	sub_lbl.add_theme_color_override("font_color", TEXT_MUT)
-	sub_lbl.add_theme_font_size_override("font_size", 14)
+	sub_lbl.add_theme_font_size_override("font_size", 25)
 	info_vbox.add_child(sub_lbl)
 
 	# Price
@@ -658,7 +658,7 @@ func _build_item_row(r: Dictionary, idx: int) -> PanelContainer:
 		var eff_price = Market._buy_price_with_luck(base_val, luck)
 		price_lbl.text = str(eff_price) + " Mora"
 		price_lbl.add_theme_color_override("font_color", ACCENT)
-		price_lbl.add_theme_font_size_override("font_size", 14)
+		price_lbl.add_theme_font_size_override("font_size", 25)
 		price_lbl.custom_minimum_size = Vector2(90, 0)
 		price_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		hbox.add_child(price_lbl)
@@ -672,7 +672,7 @@ func _build_item_row(r: Dictionary, idx: int) -> PanelContainer:
 		var qty = int(r.get("Quantity", 0))
 		qty_lbl.text = "Own: x" + str(qty)
 	qty_lbl.add_theme_color_override("font_color", TEXT_SEC)
-	qty_lbl.add_theme_font_size_override("font_size", 14)
+	qty_lbl.add_theme_font_size_override("font_size", 25)
 	qty_lbl.custom_minimum_size = Vector2(60, 0)
 	qty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(qty_lbl)
@@ -841,7 +841,7 @@ func _make_badge(text: String, color: Color) -> PanelContainer:
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", color)
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 25)
 	panel.add_child(lbl)
 	return panel
 
@@ -884,7 +884,7 @@ func _add_stat_row(stat_name: String, stat_val: String) -> void:
 	var lbl = Label.new()
 	lbl.text = stat_name.replace("_", " ") + ": " + stat_val
 	lbl.add_theme_color_override("font_color", TEXT)
-	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_font_size_override("font_size", 29)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_preview_stats_grid.add_child(lbl)
@@ -1032,14 +1032,14 @@ func _show_error(msg: String) -> void:
 	var lbl = Label.new()
 	lbl.text = msg
 	lbl.add_theme_color_override("font_color", RED)
-	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_font_size_override("font_size", 29)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(lbl)
 
 	var ok_btn = Button.new()
 	ok_btn.text = "OK"
 	ok_btn.custom_minimum_size = Vector2(0, 36)
-	ok_btn.add_theme_font_size_override("font_size", 14)
+	ok_btn.add_theme_font_size_override("font_size", 25)
 	var ok_sb = _flat(BG_CARD)
 	ok_sb.set_corner_radius_all(6)
 	ok_btn.add_theme_stylebox_override("normal", ok_sb)
@@ -1081,13 +1081,13 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 	var title_lbl = Label.new()
 	title_lbl.text = title
 	title_lbl.add_theme_color_override("font_color", ACCENT)
-	title_lbl.add_theme_font_size_override("font_size", 20)
+	title_lbl.add_theme_font_size_override("font_size", 36)
 	vbox.add_child(title_lbl)
 
 	var msg_lbl = Label.new()
 	msg_lbl.text = message
 	msg_lbl.add_theme_color_override("font_color", TEXT)
-	msg_lbl.add_theme_font_size_override("font_size", 16)
+	msg_lbl.add_theme_font_size_override("font_size", 29)
 	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(msg_lbl)
 
@@ -1099,7 +1099,7 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 	var cancel_btn = Button.new()
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size = Vector2(100, 36)
-	cancel_btn.add_theme_font_size_override("font_size", 14)
+	cancel_btn.add_theme_font_size_override("font_size", 25)
 	var cancel_sb = _flat(BG_CARD)
 	cancel_sb.set_corner_radius_all(6)
 	cancel_btn.add_theme_stylebox_override("normal", cancel_sb)
@@ -1109,7 +1109,7 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 	var confirm_btn = Button.new()
 	confirm_btn.text = "Confirm"
 	confirm_btn.custom_minimum_size = Vector2(100, 36)
-	confirm_btn.add_theme_font_size_override("font_size", 14)
+	confirm_btn.add_theme_font_size_override("font_size", 25)
 	confirm_btn.add_theme_color_override("font_color", TEXT)
 	var confirm_sb = _flat(ACCENT)
 	confirm_sb.set_corner_radius_all(6)

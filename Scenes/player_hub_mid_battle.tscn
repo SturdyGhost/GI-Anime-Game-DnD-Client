@@ -165,7 +165,7 @@ offset_top = 173.0
 offset_right = 590.0
 offset_bottom = 224.0
 theme_override_fonts/font = SubResource("FontVariation_84ies")
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 45
 disabled = true
 text = "1000"
 

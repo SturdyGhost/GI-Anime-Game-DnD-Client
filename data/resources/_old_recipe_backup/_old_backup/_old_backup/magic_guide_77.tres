@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_fuixv"]
+
+[resource]
+script = ExtResource("1_fuixv")
+id = 77
+product = "Magic Guide"
+region = "Mondstadt"
+description = "2 EM"
+role = "Blacksmith"
+material = "Windwheel Aster"
+quantity = 5

@@ -14,7 +14,7 @@ script = ExtResource("1")
 layout_mode = 0
 offset_left = 12.0
 offset_top = 12.0
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 32
 text = "Set Turn Order (use arrows) - NOTE - Do not start modifying turn order until after every player is in the lobby. Turn order resets whenever a player joins."
 
 [node name="OrderList" type="GridContainer" parent="."]

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_f6cuh"]
+
+[resource]
+script = ExtResource("1_f6cuh")
+id = 22
+product = "Hamayumi"
+region = "Inazuma"
+description = "5 ATT
+Increase normal + charged attack damage by 15%, while at full burst charges this effect is doubled."
+role = "Blacksmith"
+material = "Otogi Wood"
+quantity = 35

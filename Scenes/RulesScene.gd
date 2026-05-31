@@ -322,7 +322,7 @@ func _build_ui():
 	# Close button — anchored top-right, always on top
 	var close_btn = Button.new()
 	close_btn.text = "X"
-	close_btn.add_theme_font_size_override("font_size", 18)
+	close_btn.add_theme_font_size_override("font_size", 32)
 	var csb = StyleBoxFlat.new()
 	csb.bg_color = PANEL
 	csb.border_color = BORDER
@@ -375,13 +375,13 @@ func _build_sidebar_header(parent: VBoxContainer):
 
 	var title = Label.new()
 	title.text = "Rules & Reference"
-	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_font_size_override("font_size", 32)
 	title.add_theme_color_override("font_color", ACCENT)
 	header.add_child(title)
 
 	_search_input = LineEdit.new()
 	_search_input.placeholder_text = "Search rules, terms, mechanics..."
-	_search_input.add_theme_font_size_override("font_size", 13)
+	_search_input.add_theme_font_size_override("font_size", 23)
 	var si_sb = StyleBoxFlat.new()
 	si_sb.bg_color = INSET
 	si_sb.border_color = BORDER
@@ -443,7 +443,7 @@ func _build_toc(parent: VBoxContainer):
 		# Chapter button
 		var ch_btn = Button.new()
 		ch_btn.text = "  %s.  %s" % [ch_data["ch"], ch_data["title"]]
-		ch_btn.add_theme_font_size_override("font_size", 14)
+		ch_btn.add_theme_font_size_override("font_size", 25)
 		ch_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		var btn_sb = StyleBoxFlat.new()
 		btn_sb.bg_color = Color(0, 0, 0, 0)
@@ -548,7 +548,7 @@ func _on_search_changed(query: String):
 	if matches.is_empty():
 		var no_lbl = Label.new()
 		no_lbl.text = "  No results"
-		no_lbl.add_theme_font_size_override("font_size", 13)
+		no_lbl.add_theme_font_size_override("font_size", 23)
 		no_lbl.add_theme_color_override("font_color", MUTED)
 		_search_results_container.add_child(no_lbl)
 		return
@@ -560,7 +560,7 @@ func _on_search_changed(query: String):
 	for m in matches:
 		var btn = Button.new()
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", 22)
 		var bsb = StyleBoxFlat.new()
 		bsb.bg_color = CARD
 		bsb.border_color = BORDER
@@ -649,21 +649,21 @@ func _sec(id: String) -> MarginContainer:
 func _h2(text: String) -> Label:
 	var l = Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", 26)
+	l.add_theme_font_size_override("font_size", 47)
 	l.add_theme_color_override("font_color", ACCENT)
 	return l
 
 func _h3(text: String) -> Label:
 	var l = Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", 20)
+	l.add_theme_font_size_override("font_size", 36)
 	l.add_theme_color_override("font_color", TEXT)
 	return l
 
 func _h4(text: String) -> Label:
 	var l = Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", 16)
+	l.add_theme_font_size_override("font_size", 29)
 	l.add_theme_color_override("font_color", SEC)
 	return l
 
@@ -706,7 +706,7 @@ func _info_card(title: String, body_bb: String, type: String = "default") -> Pan
 	pc.add_child(vb)
 	var t = Label.new()
 	t.text = title
-	t.add_theme_font_size_override("font_size", 14)
+	t.add_theme_font_size_override("font_size", 25)
 	t.add_theme_color_override("font_color", TEXT)
 	vb.add_child(t)
 	var b = _p(body_bb, 13)
@@ -739,7 +739,7 @@ func _table(headers: Array, rows: Array) -> PanelContainer:
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var l = Label.new()
 		l.text = h
-		l.add_theme_font_size_override("font_size", 13)
+		l.add_theme_font_size_override("font_size", 23)
 		l.add_theme_color_override("font_color", ACCENT)
 		cell.add_child(l)
 		grid.add_child(cell)
@@ -760,7 +760,7 @@ func _table(headers: Array, rows: Array) -> PanelContainer:
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			var l = Label.new()
 			l.text = str(row[i])
-			l.add_theme_font_size_override("font_size", 13)
+			l.add_theme_font_size_override("font_size", 23)
 			l.add_theme_color_override("font_color", TEXT if i == 0 else SEC)
 			l.autowrap_mode = TextServer.AUTOWRAP_WORD
 			cell.add_child(l)
@@ -776,7 +776,7 @@ func _bullet_list(items: Array) -> VBoxContainer:
 		vb.add_child(hb)
 		var arrow = Label.new()
 		arrow.text = ">"
-		arrow.add_theme_font_size_override("font_size", 13)
+		arrow.add_theme_font_size_override("font_size", 23)
 		arrow.add_theme_color_override("font_color", ACCENT)
 		arrow.custom_minimum_size.x = 14
 		hb.add_child(arrow)
@@ -801,7 +801,7 @@ func _status_item(sname: String, desc: String, color: Color) -> PanelContainer:
 	pc.add_child(hb)
 	var nl = Label.new()
 	nl.text = sname
-	nl.add_theme_font_size_override("font_size", 14)
+	nl.add_theme_font_size_override("font_size", 25)
 	nl.add_theme_color_override("font_color", color)
 	nl.custom_minimum_size.x = 140
 	hb.add_child(nl)
@@ -841,7 +841,7 @@ func _reaction_card(elem1: String, elem2: String, outcome: String, desc: String)
 	el_hb.add_child(_elem_badge(elem1))
 	var plus = Label.new()
 	plus.text = "+"
-	plus.add_theme_font_size_override("font_size", 14)
+	plus.add_theme_font_size_override("font_size", 25)
 	plus.add_theme_color_override("font_color", MUTED)
 	el_hb.add_child(plus)
 	el_hb.add_child(_elem_badge(elem2))
@@ -849,7 +849,7 @@ func _reaction_card(elem1: String, elem2: String, outcome: String, desc: String)
 	# Outcome
 	var ol = Label.new()
 	ol.text = outcome.to_upper()
-	ol.add_theme_font_size_override("font_size", 11)
+	ol.add_theme_font_size_override("font_size", 20)
 	ol.add_theme_color_override("font_color", ocolor)
 	vb.add_child(ol)
 
@@ -873,7 +873,7 @@ func _elem_badge(elem: String) -> PanelContainer:
 	pc.add_theme_stylebox_override("panel", sb)
 	var l = Label.new()
 	l.text = elem
-	l.add_theme_font_size_override("font_size", 12)
+	l.add_theme_font_size_override("font_size", 22)
 	l.add_theme_color_override("font_color", color)
 	pc.add_child(l)
 	return pc
@@ -1123,7 +1123,7 @@ func _ch3_elements():
 		# Make it bigger
 		var bl = badge_pc.get_child(0) as Label
 		bl.text = "%s (%s)" % [elem, ELEM_ICONS[elem]]
-		bl.add_theme_font_size_override("font_size", 14)
+		bl.add_theme_font_size_override("font_size", 25)
 		badge_flow.add_child(badge_pc)
 	v1.add_child(badge_flow)
 	_content_vbox.add_child(s1)

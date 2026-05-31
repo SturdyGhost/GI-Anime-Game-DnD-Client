@@ -111,7 +111,7 @@ func _build_ui() -> void:
 	var title_lbl = Label.new()
 	title_lbl.text = "Inventory"
 	title_lbl.add_theme_color_override("font_color", TEXT)
-	title_lbl.add_theme_font_size_override("font_size", 22)
+	title_lbl.add_theme_font_size_override("font_size", 60)
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title_lbl)
 
@@ -213,7 +213,7 @@ func _build_ui() -> void:
 	_detail_placeholder = Label.new()
 	_detail_placeholder.text = "Select an item to view details"
 	_detail_placeholder.add_theme_color_override("font_color", MUTED)
-	_detail_placeholder.add_theme_font_size_override("font_size", 16)
+	_detail_placeholder.add_theme_font_size_override("font_size", 48)
 	_detail_placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_detail_placeholder.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_detail_placeholder.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -233,7 +233,7 @@ func _build_ui() -> void:
 	icon_name_hbox.add_child(icon_bg)
 
 	_detail_icon = TextureRect.new()
-	_detail_icon.custom_minimum_size = Vector2(64, 64)
+	_detail_icon.custom_minimum_size = Vector2(256, 256)
 	_detail_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	_detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_bg.add_child(_detail_icon)
@@ -245,7 +245,7 @@ func _build_ui() -> void:
 
 	_detail_name = Label.new()
 	_detail_name.add_theme_color_override("font_color", TEXT)
-	_detail_name.add_theme_font_size_override("font_size", 18)
+	_detail_name.add_theme_font_size_override("font_size", 52)
 	name_col.add_child(_detail_name)
 
 	_detail_badges_hbox = HBoxContainer.new()
@@ -255,7 +255,7 @@ func _build_ui() -> void:
 	# quantity
 	_detail_qty_label = Label.new()
 	_detail_qty_label.add_theme_color_override("font_color", ACCENT)
-	_detail_qty_label.add_theme_font_size_override("font_size", 24)
+	_detail_qty_label.add_theme_font_size_override("font_size", 63)
 	detail_vbox.add_child(_detail_qty_label)
 
 	# separator 1
@@ -268,7 +268,7 @@ func _build_ui() -> void:
 	_detail_desc.scroll_active = false
 	_detail_desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail_desc.add_theme_color_override("default_color", SEC)
-	_detail_desc.add_theme_font_size_override("normal_font_size", 14)
+	_detail_desc.add_theme_font_size_override("normal_font_size", 50)
 	detail_vbox.add_child(_detail_desc)
 
 	# separator 2
@@ -420,7 +420,7 @@ func _style_chip(btn: Button, active: bool, accent_color: Color = ACCENT) -> voi
 	btn.add_theme_color_override("font_color", TEXT if active else SEC)
 	btn.add_theme_color_override("font_hover_color", TEXT)
 	btn.add_theme_color_override("font_pressed_color", TEXT)
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 48)
 
 func _style_button(btn: Button, bg_color: Color, text_color: Color) -> void:
 	var sb = StyleBoxFlat.new()
@@ -442,7 +442,7 @@ func _style_button(btn: Button, bg_color: Color, text_color: Color) -> void:
 	btn.add_theme_color_override("font_color", text_color)
 	btn.add_theme_color_override("font_hover_color", text_color)
 	btn.add_theme_color_override("font_pressed_color", text_color)
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 48)
 
 func _style_line_edit(le: LineEdit) -> void:
 	var sb = StyleBoxFlat.new()
@@ -457,7 +457,7 @@ func _style_line_edit(le: LineEdit) -> void:
 	le.add_theme_stylebox_override("focus", focus_sb)
 	le.add_theme_color_override("font_color", TEXT)
 	le.add_theme_color_override("font_placeholder_color", MUTED)
-	le.add_theme_font_size_override("font_size", 14)
+	le.add_theme_font_size_override("font_size", 48)
 
 func _style_option_button(ob: OptionButton) -> void:
 	var sb = StyleBoxFlat.new()
@@ -468,13 +468,13 @@ func _style_option_button(ob: OptionButton) -> void:
 	sb.set_border_width_all(1)
 	ob.add_theme_stylebox_override("normal", sb)
 	ob.add_theme_color_override("font_color", TEXT)
-	ob.add_theme_font_size_override("font_size", 14)
+	ob.add_theme_font_size_override("font_size", 48)
 
 func _make_section_label(text: String) -> Label:
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", MUTED)
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 48)
 	return lbl
 
 func _make_separator() -> HSeparator:
@@ -500,7 +500,7 @@ func _make_badge(text: String, color: Color) -> PanelContainer:
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", color)
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 48)
 	pc.add_child(lbl)
 	return pc
 
@@ -677,13 +677,13 @@ func _add_item_row(it: Dictionary) -> void:
 	var name_lbl = Label.new()
 	name_lbl.text = str(it["name"])
 	name_lbl.add_theme_color_override("font_color", TEXT)
-	name_lbl.add_theme_font_size_override("font_size", 15)
+	name_lbl.add_theme_font_size_override("font_size", 52)
 	text_col.add_child(name_lbl)
 
 	var type_lbl = Label.new()
 	type_lbl.text = str(it["type"])
 	type_lbl.add_theme_color_override("font_color", MUTED)
-	type_lbl.add_theme_font_size_override("font_size", 14)
+	type_lbl.add_theme_font_size_override("font_size", 48)
 	text_col.add_child(type_lbl)
 
 	# quantity badge
@@ -701,7 +701,7 @@ func _add_item_row(it: Dictionary) -> void:
 	var qty_lbl = Label.new()
 	qty_lbl.text = "x" + str(it["qty"])
 	qty_lbl.add_theme_color_override("font_color", SEC)
-	qty_lbl.add_theme_font_size_override("font_size", 14)
+	qty_lbl.add_theme_font_size_override("font_size", 48)
 	qty_badge.add_child(qty_lbl)
 
 	# click handling via gui_input
@@ -883,79 +883,57 @@ func _on_give_button_pressed() -> void:
 	popup.popup_centered()
 
 func transfer_item(giver, receiver, item_name, quantity):
+	# All real work happens host-side via NetworkManager.request_item_transfer,
+	# which validates, stages the receiver-side addition, awaits the receiver's
+	# ack, then subtracts from the giver. This way the giver only loses items
+	# after the receiver confirms receipt (or the host commits because the
+	# receiver is offline — host holds them until reconnect).
+	#
+	# Client-side checks here are pure UX hints so obvious failures don't even
+	# round-trip to the host. The host re-validates authoritatively.
+
+	if str(giver).strip_edges() == "" or str(receiver).strip_edges() == "" or str(item_name).strip_edges() == "":
+		Toast.notify("Invalid transfer", Toast.ERROR)
+		return
+	var qty: int = int(quantity)
+	if qty <= 0:
+		Toast.notify("Quantity must be at least 1", Toast.ERROR)
+		return
+	if str(giver) == str(receiver):
+		Toast.notify("Cannot give to yourself", Toast.ERROR)
+		return
+
 	var sending_record = null
-	var receiving_record = null
 	for item in Global.CHARACTER_ITEMS.values():
 		if item.get("Owner") == giver and item.get("Name") == item_name:
 			sending_record = item
-		if item.get("Owner") == receiver and item.get("Name") == item_name:
-			receiving_record = item
-	var updates = []
-	var sender_old_qty = int(sending_record.get("Quantity"))
-	var sender_new_qty = max(0, sender_old_qty - quantity)
-	var receiver_item_id = ""
-	var receiver_had_item = false
-	updates.append({
-		"table": "Character_Items",
-		"record_id": int(sending_record.get("id")),
-		"field": "Quantity",
-		"value": int(sending_record.get("Quantity")) - quantity
-	})
-	var receiver_old_qty = 0
-	var receiver_new_qty = quantity
-	if receiving_record != null:
-		receiver_old_qty = int(receiving_record.get("Quantity"))
-		receiver_new_qty = receiver_old_qty + quantity
-		receiver_item_id = str(int(receiving_record.get("id")))
-		receiver_had_item = true
-		updates.append({
-			"table": "Character_Items",
-			"record_id": int(receiving_record.get("id")),
-			"field": "Quantity",
-			"value": int(receiving_record.get("Quantity")) + quantity
-		})
-	else:
-		var cols = ["Owner", "Name", "Type", "Rarity", "Quantity", "Description"]
-		var item_data
-		for i in Global.ITEMS.values():
-			if i.get("Item") == item_name:
-				item_data = i
-		var i_description = item_data.get("Description")
-		var i_type = item_data.get("Type")
-		var i_rarity = item_data.get("Rarity")
-		var vals = [receiver, item_name, i_type, i_rarity, quantity, i_description]
-		Global.Insert("Character_Items", cols, vals)
-	Global.Update_Records(updates)
-	Toast.notify("Gave %d %s to %s" % [quantity, item_name, receiver])
+			break
+	if sending_record == null:
+		Toast.notify("You don't have %s" % item_name, Toast.ERROR)
+		return
+	var sender_qty: int = int(sending_record.get("Quantity", 0))
+	if sender_qty < qty:
+		Toast.notify("You only have %d %s" % [sender_qty, item_name], Toast.WARNING)
+		return
+
+	# Unique correlation ID — peer_id + monotonic ms timestamp.
+	var my_peer: int = multiplayer.get_unique_id() if multiplayer.multiplayer_peer != null else 0
+	var corr_id: String = "%d-%d" % [my_peer, Time.get_ticks_msec()]
+
+	# Log the attempt audit-style (success/fail Toast comes from NetworkManager).
 	Global.Log(
 		"inventory",
-		"transfer_item",
+		"transfer_item_request",
 		"Character_Items",
-		"",
-		{
-			"giver": giver,
-			"receiver": receiver,
-			"item": item_name,
-			"giver_quantity_before": sender_old_qty,
-			"receiver_quantity_before": receiver_old_qty
-		},
-		{
-			"giver": giver,
-			"receiver": receiver,
-			"item": item_name,
-			"giver_quantity_after": sender_new_qty,
-			"receiver_quantity_after": receiver_new_qty
-		},
-		{
-			"entity": "item",
-			"transfer_qty": int(quantity),
-			"giver_item_id": str(int(sending_record.get("id"))),
-			"receiver_item_id": receiver_item_id,
-			"receiver_had_item": receiver_had_item
-		},
-		"success",
+		corr_id,
+		{ "giver": giver, "receiver": receiver, "item": item_name, "giver_qty_before": sender_qty },
+		{ "giver": giver, "receiver": receiver, "item": item_name, "qty_attempted": qty },
+		{ "entity": "item", "giver_item_id": str(int(sending_record.get("id", 0))) },
+		"requested",
 		"audit"
 	)
+
+	NetworkManager.request_item_transfer(corr_id, receiver, item_name, qty)
 
 # ============================================================
 #  CLOSE

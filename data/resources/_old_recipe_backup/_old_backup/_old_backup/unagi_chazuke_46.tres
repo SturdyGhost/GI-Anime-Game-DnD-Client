@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_ufqy5"]
+
+[resource]
+script = ExtResource("1_ufqy5")
+id = 46
+product = "Unagi Chazuke"
+region = "Liyue"
+description = "Restores 1 D12 of Burst Charges."
+role = "Artisan"
+material = "Fluorescent Fungus"
+quantity = 6

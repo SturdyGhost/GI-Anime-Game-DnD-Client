@@ -14,10 +14,10 @@ const ACCENT    = Color(0.788, 0.659, 0.298)
 const GREEN     = Color(0.292, 0.855, 0.498)
 
 const SIDEBAR_W = 260
-const FONT_SM   = 13
-const FONT_MD   = 15
-const FONT_LG   = 18
-const FONT_XL   = 22
+const FONT_SM   = 40
+const FONT_MD   = 48
+const FONT_LG   = 56
+const FONT_XL   = 64
 
 const ELEMENT_COLORS = {
 	"Wind": Color("b4fcd4"),
@@ -100,7 +100,7 @@ func _build_ui() -> void:
 	exit_btn.offset_bottom = 44
 	exit_btn.z_index = 10
 	_style_button(exit_btn, Color(0.6, 0.2, 0.2))
-	exit_btn.add_theme_font_size_override("font_size", 14)
+	exit_btn.add_theme_font_size_override("font_size", 25)
 	exit_btn.add_theme_color_override("font_color", Color(0.95, 0.6, 0.6))
 	exit_btn.pressed.connect(_close)
 	add_child(exit_btn)

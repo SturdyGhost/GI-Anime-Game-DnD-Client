@@ -56,7 +56,7 @@ func _build_ui() -> void:
 	vbox.add_child(top_bar)
 	var title = Label.new()
 	title.text = "Offline Inventory Management"
-	title.add_theme_font_size_override("font_size", 20)
+	title.add_theme_font_size_override("font_size", 36)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_bar.add_child(title)
 	_close_btn = Button.new()
@@ -126,7 +126,7 @@ func _build_ui() -> void:
 	vbox.add_child(_artifact_fields)
 	var af_label = Label.new()
 	af_label.text = "Artifact Details"
-	af_label.add_theme_font_size_override("font_size", 16)
+	af_label.add_theme_font_size_override("font_size", 29)
 	_artifact_fields.add_child(af_label)
 
 	var type_row = HBoxContainer.new()

@@ -197,6 +197,10 @@ func get_stats(player_name: String) -> CalculatedStats:
 
 ## Recalculate all players.
 func recalculate_all() -> void:
+	# Stat values are pure derivations from already-synced data (base stats +
+	# weapon/artifact bonuses + active effects). Clients run this only for
+	# display purposes — the host is still the source of truth for the input
+	# values. Never used to make authoritative state decisions on the client.
 	if SaveManager.data != null:
 		for player in SaveManager.get_all_players():
 			calculate_stats(player.name)

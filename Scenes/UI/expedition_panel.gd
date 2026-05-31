@@ -101,14 +101,14 @@ func _build_ui() -> void:
 
 	var title = Label.new()
 	title.text = "EXPEDITIONS"
-	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", ACCENT)
 	title.size_flags_horizontal = SIZE_EXPAND_FILL
 	header_row.add_child(title)
 
 	var slots_label = Label.new()
 	slots_label.text = "Companions: %d / %d" % [_total_deployed(), _max_slots]
-	slots_label.add_theme_font_size_override("font_size", 16)
+	slots_label.add_theme_font_size_override("font_size", 29)
 	slots_label.add_theme_color_override("font_color", SEC)
 	header_row.add_child(slots_label)
 
@@ -116,6 +116,7 @@ func _build_ui() -> void:
 	refresh_btn.text = "Refresh"
 	refresh_btn.custom_minimum_size = Vector2(80, 40)
 	refresh_btn.pressed.connect(_refresh_pool)
+	refresh_btn.visible = false
 	header_row.add_child(refresh_btn)
 
 	var close_btn = Button.new()
@@ -126,7 +127,7 @@ func _build_ui() -> void:
 
 	var info_label = Label.new()
 	info_label.text = "Assign idle companions to expeditions. Results are collected after your next battle."
-	info_label.add_theme_font_size_override("font_size", 13)
+	info_label.add_theme_font_size_override("font_size", 23)
 	info_label.add_theme_color_override("font_color", MUTED)
 	root.add_child(info_label)
 
@@ -163,7 +164,7 @@ func _build_results_section(parent: VBoxContainer) -> void:
 
 	var header = Label.new()
 	header.text = "EXPEDITION RESULTS"
-	header.add_theme_font_size_override("font_size", 16)
+	header.add_theme_font_size_override("font_size", 29)
 	header.add_theme_color_override("font_color", GREEN)
 	vbox.add_child(header)
 
@@ -187,14 +188,14 @@ func _build_results_section(parent: VBoxContainer) -> void:
 				items_arr.append("%s x%d" % [k, loot[k]])
 			result_label.text = "%s from %s%s: %s" % [comp_name, exp_name, owner_text, ", ".join(items_arr)]
 			result_label.add_theme_color_override("font_color", TEXT)
-		result_label.add_theme_font_size_override("font_size", 13)
+		result_label.add_theme_font_size_override("font_size", 23)
 		result_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(result_label)
 
 		if bonus_list.size() > 0:
 			var bonus_label = Label.new()
 			bonus_label.text = "  Bonus x%.0f%% — %s" % [bonus_total * 100, ", ".join(bonus_list)]
-			bonus_label.add_theme_font_size_override("font_size", 11)
+			bonus_label.add_theme_font_size_override("font_size", 20)
 			bonus_label.add_theme_color_override("font_color", MUTED)
 			bonus_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			vbox.add_child(bonus_label)
@@ -217,7 +218,7 @@ func _build_expedition_list(parent: HBoxContainer) -> void:
 
 	var header = Label.new()
 	header.text = "Available Expeditions"
-	header.add_theme_font_size_override("font_size", 16)
+	header.add_theme_font_size_override("font_size", 29)
 	header.add_theme_color_override("font_color", TEXT)
 	left.add_child(header)
 
@@ -279,7 +280,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 
 	var name_label = Label.new()
 	name_label.text = exp.expedition_name
-	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_font_size_override("font_size", 32)
 	name_label.add_theme_color_override("font_color", TEXT)
 	vbox.add_child(name_label)
 
@@ -292,7 +293,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	var risk_text = "High" if exp.risk_level == "risky" else exp.risk_level.capitalize()
 	var desc = Label.new()
 	desc.text = "%s | %s risk | Best: %s, %s" % [exp.description, risk_text, exp.bonus_weapon, exp.bonus_element]
-	desc.add_theme_font_size_override("font_size", 15)
+	desc.add_theme_font_size_override("font_size", 27)
 	desc.add_theme_color_override("font_color", risk_color)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)
@@ -302,7 +303,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	if cache_materials.size() > 0:
 		var mats_label = Label.new()
 		mats_label.text = "Rewards: %s" % ", ".join(cache_materials)
-		mats_label.add_theme_font_size_override("font_size", 14)
+		mats_label.add_theme_font_size_override("font_size", 25)
 		mats_label.add_theme_color_override("font_color", SEC)
 		mats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(mats_label)
@@ -311,7 +312,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	var failure_rate = _calc_failure_rate(exp, index)
 	var chance_label = Label.new()
 	chance_label.text = "Success Chance"
-	chance_label.add_theme_font_size_override("font_size", 11)
+	chance_label.add_theme_font_size_override("font_size", 20)
 	chance_label.add_theme_color_override("font_color", MUTED)
 	vbox.add_child(chance_label)
 	var risk_bar_bg = ColorRect.new()
@@ -337,7 +338,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 	if assigned_name.size() > 0:
 		var assigned_label = Label.new()
 		assigned_label.text = "Assigned: %s" % ", ".join(assigned_name)
-		assigned_label.add_theme_font_size_override("font_size", 14)
+		assigned_label.add_theme_font_size_override("font_size", 25)
 		assigned_label.add_theme_color_override("font_color", GREEN)
 		assigned_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(assigned_label)
@@ -349,7 +350,7 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 		var unassign_btn = Button.new()
 		unassign_btn.text = "Unassign Last"
 		unassign_btn.custom_minimum_size = Vector2(0, 30)
-		unassign_btn.add_theme_font_size_override("font_size", 13)
+		unassign_btn.add_theme_font_size_override("font_size", 23)
 		var idx = index
 		unassign_btn.pressed.connect(func(): _unassign_expedition(idx))
 		btn_row.add_child(unassign_btn)
@@ -359,14 +360,14 @@ func _build_expedition_card(parent: VBoxContainer, exp: ExpeditionData, index: i
 			var add_btn = Button.new()
 			add_btn.text = "Add %s" % _selected_companion
 			add_btn.custom_minimum_size = Vector2(0, 30)
-			add_btn.add_theme_font_size_override("font_size", 13)
+			add_btn.add_theme_font_size_override("font_size", 23)
 			add_btn.pressed.connect(func(): _assign_to_expedition(idx))
 			btn_row.add_child(add_btn)
 	else:
 		var assign_btn = Button.new()
 		assign_btn.text = "Assign Companion" if _selected_companion == "" else "Assign %s" % _selected_companion
 		assign_btn.custom_minimum_size = Vector2(0, 30)
-		assign_btn.add_theme_font_size_override("font_size", 13)
+		assign_btn.add_theme_font_size_override("font_size", 23)
 		assign_btn.disabled = _selected_companion == ""
 		var idx = index
 		assign_btn.pressed.connect(func(): _assign_to_expedition(idx))
@@ -380,7 +381,7 @@ func _build_companion_list(parent: HBoxContainer) -> void:
 
 	var header = Label.new()
 	header.text = "Idle Companions (%d)" % _available_companions.size()
-	header.add_theme_font_size_override("font_size", 16)
+	header.add_theme_font_size_override("font_size", 29)
 	header.add_theme_color_override("font_color", TEXT)
 	right.add_child(header)
 
@@ -408,7 +409,7 @@ func _build_companion_list(parent: HBoxContainer) -> void:
 			str(comp.get("Weapon", "")),
 			str(comp.get("Region", "")),
 		]
-		btn.add_theme_font_size_override("font_size", 13)
+		btn.add_theme_font_size_override("font_size", 23)
 		btn.custom_minimum_size = Vector2(0, 36)
 
 		if _selected_companion == comp_name:

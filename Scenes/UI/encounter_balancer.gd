@@ -903,4 +903,4 @@ func _style_button(btn: Button, bg_color: Color) -> void:
 	btn.add_theme_stylebox_override("hover", hover)
 
 	btn.add_theme_color_override("font_color", TEXT_COLOR)
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 25)

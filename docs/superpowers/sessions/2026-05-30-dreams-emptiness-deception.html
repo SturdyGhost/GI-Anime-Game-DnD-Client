@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Session Guide — Dreams, Emptiness, Deception</title>
+<style>
+  @page { size: letter; margin: 0.6in; }
+  * { box-sizing: border-box; }
+  html, body { background: #fdfcf7; color: #1a1a1a; }
+  body { font-family: "Georgia", "Palatino Linotype", serif; font-size: 11pt; line-height: 1.45; max-width: 7.3in; margin: 0 auto; padding: 0.4in 0.3in; }
+  h1 { font-size: 22pt; color: #2d5e3e; border-bottom: 2px solid #2d5e3e; padding-bottom: 4pt; margin: 0 0 4pt 0; }
+  h2 { font-size: 15pt; color: #2d5e3e; border-bottom: 1px solid #c7c2b4; padding-bottom: 2pt; margin: 18pt 0 4pt 0; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; color: #8a6d1f; margin: 10pt 0 3pt 0; page-break-after: avoid; }
+  h4 { font-size: 11pt; margin: 8pt 0 2pt 0; page-break-after: avoid; }
+  .subtitle { color: #555; font-style: italic; margin-bottom: 12pt; }
+  .meta { background: #e8f1ea; border-left: 3px solid #2d5e3e; padding: 8pt 10pt; margin: 8pt 0 14pt 0; font-size: 10pt; }
+  .meta p { margin: 3pt 0; }
+  .callout { border: 1px solid #c7c2b4; background: #fff; padding: 8pt 10pt; margin: 8pt 0; border-radius: 3px; page-break-inside: avoid; }
+  .callout p { margin: 4pt 0; }
+  .callout.read { background: #f5f0e1; border-left: 4px solid #8a6d1f; font-style: italic; }
+  .callout.read::before { content: "READ ALOUD"; display: block; font-family: sans-serif; font-style: normal; font-size: 8.5pt; letter-spacing: 1pt; color: #8a6d1f; margin-bottom: 4pt; }
+  .callout.dm { background: #fff6f1; border-left: 4px solid #b05a2c; }
+  .callout.dm::before { content: "DM NOTE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #b05a2c; margin-bottom: 4pt; }
+  .callout.combat { background: #fbeaea; border-left: 4px solid #a33; }
+  .callout.combat::before { content: "COMBAT"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #a33; margin-bottom: 4pt; }
+  .callout.lore { background: #eef0f8; border-left: 4px solid #3a4a8a; }
+  .callout.lore::before { content: "LORE — DM ONLY"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #3a4a8a; margin-bottom: 4pt; }
+  .callout.puzzle { background: #fdf6e3; border-left: 4px solid #b58900; }
+  .callout.puzzle::before { content: "PUZZLE / PROP"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #b58900; margin-bottom: 4pt; }
+  .callout.choice { background: #f0e6f8; border-left: 4px solid #6b3fa0; }
+  .callout.choice::before { content: "PLAYER CHOICE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #6b3fa0; margin-bottom: 4pt; }
+  .callout.dot { background: #f3e6e6; border-left: 4px solid #8a1f1f; }
+  .callout.dot::before { content: "IL DOTTORE — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #8a1f1f; margin-bottom: 4pt; }
+  .callout.nah { background: #e6f0ea; border-left: 4px solid #2d5e3e; }
+  .callout.nah::before { content: "NAHIDA — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #2d5e3e; margin-bottom: 4pt; }
+  .callout.alh { background: #eaf2ef; border-left: 4px solid #2d5e3e; }
+  .callout.alh::before { content: "ALHAITHAM — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #2d5e3e; margin-bottom: 4pt; }
+  .callout.cyno { background: #e6e6f0; border-left: 4px solid #2c2c8a; }
+  .callout.cyno::before { content: "CYNO — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #2c2c8a; margin-bottom: 4pt; }
+  .callout.deathroll { background: #1a1a1a; color: #f5f0e1; border-left: 4px solid #8a1f1f; }
+  .callout.deathroll::before { content: "DEATH ROLL — DYLAN ROLLS D20"; display: block; font-family: sans-serif; font-size: 9pt; letter-spacing: 1pt; color: #d49b9b; margin-bottom: 4pt; }
+  .callout.deathroll a, .callout.deathroll code { color: #f5f0e1; }
+  .callout.deathroll table th { background: #2a2a2a; color: #f5f0e1; }
+  .callout.deathroll table td { border-color: #444; }
+  .callout.break { background: #fffae6; border: 2px dashed #8a6d1f; padding: 10pt 12pt; margin: 14pt 0; text-align: center; font-family: sans-serif; font-size: 10pt; letter-spacing: 0.5pt; color: #5d4a2c; }
+  .callout.break strong { font-size: 11pt; color: #8a6d1f; }
+  .tag { display: inline-block; font-family: sans-serif; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; padding: 1pt 5pt; border-radius: 2px; margin-right: 4pt; }
+  .tag.time { background: #2d5e3e; color: #fff; }
+  .tag.rp { background: #6b3fa0; color: #fff; }
+  .tag.combat { background: #a33; color: #fff; }
+  .tag.puzzle { background: #b58900; color: #fff; }
+  .tag.lore { background: #3a4a8a; color: #fff; }
+  .tag.choice { background: #6b3fa0; color: #fff; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt 0; font-size: 10pt; }
+  th, td { border: 1px solid #c7c2b4; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #e8f1ea; }
+  ul, ol { margin: 4pt 0 8pt 18pt; padding: 0; }
+  li { margin: 2pt 0; }
+  code { background: #f0eee6; padding: 1pt 4pt; border-radius: 2px; font-family: "Consolas", monospace; font-size: 10pt; }
+  hr { border: none; border-top: 1px dashed #c7c2b4; margin: 14pt 0; }
+  .mini { font-size: 9pt; color: #555; }
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>Dreams, Emptiness, Deception</h1>
+<p class="subtitle">Sumeru Archon Quest — Chapter III, Act III. The party meets a Harbinger they cannot fight, watch Nahida choose them over herself, and limp into the desert with three of the most dangerous people in Sumeru as their only escort. By the time they reach Aaru Village, four people who do not trust each other have to sit in one room and tell the truth.</p>
+
+<div class="meta">
+  <p><strong>Players:</strong> Brian F. (archer), Brian C. (fighter), Dylan (Kamisato Ayaka).</p>
+  <p><strong>Runtime:</strong> ~4 hours total, designed in <strong>three breakable parts</strong> &mdash; can be run as a single sitting or split across 2&ndash;3 sessions.</p>
+  <p><strong>Scenes:</strong> 14 across 3 parts | <strong>Combats:</strong> 2 (+ 1 dramatic non-combat parry) | <strong>Player choices:</strong> 6 | <strong>Death roll:</strong> 1 (Ayaka)</p>
+  <p><strong>Source:</strong> <em>Like a Triumphant Hero</em> (Act III, Quest 1) &rarr; <em>The Gaze From a Certain God</em> (Quest 2 &mdash; <em>heavily cut</em>) &rarr; <em>The Four at Loggerheads</em> (Quest 3).</p>
+  <p><strong>Tone:</strong> Optimism &rarr; betrayal &rarr; choking dread &rarr; (potentially) grief &rarr; uneasy alliance under a sandstorm roof &rarr; cliffhanger.</p>
+  <p><strong>Load&#8209;bearing beats (do not cut):</strong> (1) Setaria flips to their side and is then captured offstage. (2) The crowd at the Akademiya gate cheers and forces the party back &mdash; no combat, only pressure. (3) Dottore introduces himself and says <em>"do not underestimate me."</em> (4) The PLAYER CHOICE on whether to heed him. (5) If they fight: Dylan rolls a single d20 for Ayaka's life. (6) Either way: Nahida steps between them and Dottore and is taken. (7) Tighnari, Dehya, and Alhaitham intercept the fleeing party and escort them to Caravan Ribat. (8) The four&#8209;way standoff at Aaru: Cyno strikes, Alhaitham parries, Dehya mediates, Candace closes the door. (9) Each of the three (Cyno, Alhaitham, Dehya) tells their truth in the hut. (10) Isak asks them to find his grandfather.</p>
+  <p class="mini"><strong>Custom branches from canon:</strong> The Gandharva Ville / Collei / Pardis Dhyai / Haypasia / Scaramouche&#8209;vision arc is <strong>cut entirely</strong>. The party never meets Tighnari at home; instead, Tighnari, Dehya, and Alhaitham spot them fleeing Sumeru City and intercept them on the road. Dottore's "do not underestimate me" line is non&#8209;canon &mdash; it exists to gate the player choice. Ayaka's death roll is non&#8209;canon &mdash; canon Ayaka is not in this scene at all.</p>
+</div>
+
+<h2>Prep Checklist (Before the Session)</h2>
+<ul>
+  <li>&#9744; Print this guide double&#8209;sided. Color printing helps the callout boxes pop.</li>
+  <li>&#9744; <strong>DM Hub Battle Prep &mdash; Encounter A (Eremite road ambush):</strong> 1&times; <code>Eremite Scorching Loremaster</code> [Rare] + 2&times; <code>Eremite Stone Enchanter</code> [Uncommon] + 1&times; <code>Eremite Sunfrost</code> [Uncommon]. Tighnari, Dehya, and Alhaitham fight alongside the party as DM&#8209;run allies.</li>
+  <li>&#9744; <strong>DM Hub Battle Prep &mdash; Encounter B (Sandstorm creatures at Aaru):</strong> two waves. Wave 1: 2&times; <code>Hillichurl Fighter</code> [Common] + 1&times; <code>Earth Mitachurl</code> [Uncommon]. Wave 2: 1&times; <code>Ruin Drake</code> [Rare] + 2&times; <code>Hillichurl Shooter</code> [Common]. <em>Canon uses Rifthounds; the project doesn't have them &mdash; reskin the Mitachurl/Drake as "sand&#8209;crusted creatures of the dune."</em></li>
+  <li>&#9744; <strong>The Documents Envelope (PROP).</strong> Take a small plain envelope and write <em>"For the Mercenary"</em> on it in pen. Inside, place 3 small slips of paper with the following text (printed or handwritten):
+    <ul>
+      <li class="mini">Slip 1: <em>"Mass Dream Harvest &mdash; Phase 2 outline. Vector: Akasha Terminal v3.2. Sample size: all of Sumeru City. Lead: Grand Sage Azar. Co&#8209;lead: redacted (External, &dagger;)."</em> The dagger symbol is just a dagger; the party never gets to ask what it means.</li>
+      <li class="mini">Slip 2: <em>"Sanctuary of Surasthana &mdash; access protocols updated. The Lesser Lord remains under observation. Forbidden Knowledge Capsule inventory unchanged: 6 of 6 sealed."</em></li>
+      <li class="mini">Slip 3: <em>"Pardis Dhyai &mdash; resource diversion approved. Subject H. progressing. Connection has been... unstable. Sign of breakthrough or sign of contamination?"</em></li>
+    </ul>
+    Hand the envelope to whichever PC takes the lead at the Akademiya gate, <em>seconds</em> before Dottore appears. Let them open it and read aloud. The mob descends before they finish slip 3. <strong>The slips never see the light again.</strong> They are evidence the party physically held and then never got to use.</li>
+  <li>&#9744; <strong>The Death Roll d20 (PROP).</strong> Set a separate, distinct d20 aside <em>at the start of the session</em> on the DM's side of the table. Black, red, or otherwise visually different from the players' dice. <strong>Do not explain what it's for.</strong> If a player asks, smile and don't answer. When Dottore says <em>"do not underestimate me,"</em> slide it across the table to Dylan and say nothing. The silence is the entire effect.</li>
+  <li>&#9744; <strong>The Trust Slips (PROP).</strong> Five small blank slips of paper + three pencils, set aside at session start. Used in Scene 12 (the hut). Each PC writes one name (Alhaitham / Cyno / Dehya / Candace / no one) for who they trust most after the hut conversation. DM gathers and reads silently. Result affects future NPC attitudes &mdash; see Scene 12.</li>
+  <li>&#9744; Re&#8209;read the Cast section &mdash; <strong>Cyno's voice</strong> and <strong>Dottore's voice</strong> are doing most of the heavy lifting in their respective scenes. Dottore is friendly, conversational, and not at all theatrical &mdash; that is what makes him terrifying.</li>
+  <li>&#9744; <strong>Remember:</strong> The party walked out of last session having broken the Sabzeruz Samsara and saved Dunyarzad. They think they've already paid for the right to win. Tonight, the rules change.</li>
+  <li>&#9744; <strong>Remember:</strong> The party will end tonight knowing that the Akademiya, the Fatui, and at least one Harbinger are aligned against them; that Nahida is captured (and likely Ayaka with her, on a bad roll); that Alhaitham was originally tasked by the sages to investigate them; that Cyno is exiled by choice; that Dehya is now between jobs. What they will <em>not</em> learn tonight: where Nahida is actually being held; what the Sanctuary of Surasthana contains; what the "external co&#8209;lead" on the Mass Dream Harvest is; who Scaramouche is; why the Pardis Dhyai entry mentions "contamination." Keep those sealed.</li>
+</ul>
+
+<h2>Cast</h2>
+<table>
+  <tr><th>NPC</th><th>Role</th><th>Voice / Personality</th></tr>
+  <tr><td><strong>Nahida</strong> (in Katheryne's body)</td><td>Their friend. Their guide. Their target. Tonight she gets captured.</td><td>Soft, curious, sincere. Now layered with something quieter &mdash; she has decided, before this session begins, that she will let herself be taken to keep them alive. She does not tell them this. She <em>does</em> get less playful as the night goes on, and her sentences get shorter. When she finally tells them to run, she says it as gently as ordering food.</td></tr>
+  <tr><td><strong>Setaria</strong></td><td>Grand Sage Azar's secretary. Mole&#8209;in&#8209;the&#8209;making. Captured offstage between Scene 2 and Scene 3.</td><td>Genius from the desert who has spent her whole career trying not to think about the desert. Polished Sumeran City accent. The longer she talks tonight, the more her vowels round down toward the desert ones she grew up with &mdash; she does not notice. When she finally agrees to help, her voice is steady. She is <em>relieved</em> to be done lying.</td></tr>
+  <tr><td><strong>Akim, Qishan, Rima</strong></td><td>Setaria's acquaintances. Tonight, the Traveler wears their faces.</td><td>Each gets exactly one scene. <strong>Akim</strong> &mdash; a Port Ormos mason's son who has "found faith in King Deshret." Slightly embarrassed about it. <strong>Qishan</strong> &mdash; a Vahumana scholar who studies in the attic of a tavern that does not actually have an attic. Smug. <strong>Rima</strong> &mdash; a Corps of Thirty mercenary who Setaria flags down for help. Speaks in clipped sentences. All three are puppets &mdash; the players see Setaria's face, Setaria's reactions, but speak <em>through</em> the puppet's mouth.</td></tr>
+  <tr><td><strong>Il Dottore</strong> ("The Doctor")</td><td>The Second of the Eleven Fatui Harbingers. Tonight's tier&#8209;skip villain. They do not fight him &mdash; or if they do, they lose.</td><td><strong>NOT theatrical. NOT loud.</strong> Friendly. Conversational. The cadence of a polite scholar who is also, casually, in a tier of his own. He treats the party the way a tenured researcher treats an undergraduate who has wandered into the wrong seminar. The single line "<em>do not underestimate me</em>" is delivered with no emphasis at all, the same way you would tell someone the soup is hot. He laughs once, softly, when his experiment succeeds. He never raises his voice. He is the second&#8209;most dangerous person they will see all year, and he <em>knows</em>.</td></tr>
+  <tr><td><strong>The Sumeru City Crowd</strong></td><td>Hundreds &mdash; thousands &mdash; of ordinary people, mind&#8209;hacked into adoring the party.</td><td>Not enemies. Not props. <strong>Civilians.</strong> Faces the party have seen at Lambad's, at the Bazaar, at the Sabzeruz Festival. They are smiling. They are crying. They are reaching out. They are blocking every escape route. They are children. The horror is not violence &mdash; the horror is that the party <em>cannot</em> meet violence with violence here.</td></tr>
+  <tr><td><strong>Tighnari</strong></td><td>Forest Watcher of Avidya. Rescuer. Then he leaves them at Caravan Ribat to monitor a different problem.</td><td>Compact, businesslike, dry sense of humor that he keeps in a drawer. Refers to the party affectionately as "you three again." Does not lecture. When he disagrees with a plan, he says so once, then helps anyway. Leaves at Caravan Ribat with a single sentence of farewell and a small pouch of healing salts.</td></tr>
+  <tr><td><strong>Dehya</strong></td><td>Eremite mercenary, between jobs. Now their travel companion through the desert.</td><td>Same as last session &mdash; brash, loud, protective &mdash; but tonight she is also <em>between contracts</em>, which means she gets to make her own calls. Visibly delighted to be off Homayani payroll for a week. Calls Alhaitham "Scribe" with a smile that suggests she will keep doing it until he twitches. Calls Cyno "Mahamatra" with no smile at all.</td></tr>
+  <tr><td><strong>Alhaitham</strong></td><td>Akademiya Scribe. Their second rescuer. Has been keeping a secret since Port Ormos.</td><td>Same as Port Ormos &mdash; low, even, never hurried. Tonight he is also <em>quietly guilty</em>, in the small precise way Alhaitham gets guilty: he kept the Divine Knowledge Capsule from them, and he kept his original Akademiya assignment from them, and tonight Cyno is going to drag both into the light. He will not lie about either, and he will not over&#8209;apologize. He will simply state what is true when asked.</td></tr>
+  <tr><td><strong>Cyno</strong></td><td>General Mahamatra (self&#8209;exiled). The hardest of the new four to read.</td><td>Direct. Plain. No warmth in the voice and no malice either. He arrives by stabbing at Alhaitham, and within two sentences he is explaining himself with a clarity that makes Alhaitham look ornate. Treats every conversation as a sworn statement. Does not joke &mdash; not because he can't, but because he has decided this is not the room for it. The party should leave Aaru not knowing whether they like him.</td></tr>
+  <tr><td><strong>Candace</strong></td><td>Protector of Aaru Village. The fourth voice in the hut.</td><td>Calm. Gentle. Threatening exactly once, very precisely, when she explains what happens to anyone who starts a fight under her roof. Speaks formal classical Sumeran &mdash; longer sentences than the desert dialect. Does not lecture about hospitality; she <em>is</em> hospitality, and the party realizes that's what they're looking at after about two minutes.</td></tr>
+  <tr><td><strong>Uncle Anpu</strong></td><td>Aaru Village chief. Arrives after the sandstorm combat. Gentle, tired.</td><td>Soft&#8209;spoken, takes a long breath before each sentence. Calls everyone "young one" even Cyno. Mentions the missing Village Keepers without dramatizing it &mdash; he assumes the party will care because they're standing in his village. He's not wrong.</td></tr>
+  <tr><td><strong>Isak</strong></td><td>A small boy who appears at the end of the session to ask for help finding his grandfather.</td><td>Six or seven years old. Not crying. Holding it together. Knows the names of every adult in the village. Tells the party what his grandfather looks like by miming the way the man walks. Hands the lead PC a small carved stone &mdash; "Grandpa carved this for me. So you know who he is." <strong>The cliffhanger of the session.</strong></td></tr>
+</table>
+
+<div class="pagebreak"></div>
+<h2>PART ONE &mdash; TRIUMPHANT</h2>
+<p class="mini">Target runtime: 80&ndash;90 min. Six scenes. No combat. One device&#8209;driven set piece. One death roll. One sacrifice. <strong>This part is the emotional spine of the night.</strong> A natural pause point sits after Scene 6.</p>
+
+<h3>Scene 1 &mdash; Dawn (the morning after)</h3>
+<p><span class="tag time">0:00&ndash;0:08</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>Sumeru City the morning after the dream broke is, somehow, exactly the city you walked into the first time. The students are arguing about which staircase is shortest. The bazaar smells of cardamom and warm flatbread. Lambad is shouting at a delivery boy about the freshness of the river fish. The sun comes up over the Akademiya the way the sun has been coming up over the Akademiya for nine hundred and forty&#8209;eight years.</p>
+<p>You find Dunyarzad sitting on a bench in front of the Adventurers' Guild, in a clean blue robe, with her hair tied up. She is eating a piece of fruit. She looks at you and her face does the thing faces do when someone is trying not to cry from relief.</p>
+<p>"You're back," she says. "Hehe. Sorry, was I asleep that long? I have such a headache."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Pace:</strong> 4&ndash;6 minutes max. This scene exists to give the players the <em>feeling</em> of victory before tonight ruins it. Let them banter. Let them be smug. Let them buy candy. Do not let them shop for more than two minutes.</p>
+<p>If a player wants to tell Dunyarzad what really happened &mdash; the loops, the dream, Nilou, Nahida &mdash; she does not understand most of it. She laughs in the right places, which is worse than if she had understood, because she trusts them. Do not over&#8209;explain. Move on.</p>
+<p>If they ask after Nilou: Nilou is still asleep. The Zubayr Theater is closed for one day in her honor. She is fine.</p>
+</div>
+
+<div class="callout nah">
+<p>(Katheryne walks over with a wooden tray of pastries and sits down across from the party. Her smile is unmistakably Nahida's.)</p>
+<p>"Good morning. I needed two days to recover, and I needed to talk to you somewhere the sages aren't watching. The Akademiya is not finished with us. Now that they can't run the Sabzeruz scheme again, they will try something else, and we need a mole inside before they do."</p>
+<p>"There's a woman named Setaria. Grand Sage Azar's secretary. She's a genius. She's from the desert. She hates herself a little, every day, for working here. If we can make her stop pretending that doesn't matter, she'll help us."</p>
+<p>"I've borrowed three minds she knows. People she trusts. Today, you're going to wear their faces, and you're going to push her until she breaks. Don't be cruel. Be honest. The truth is what she's running from."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>The setup for Scene 2:</strong> The party will inhabit three of Setaria's acquaintances. Nahida supplies the names and the connections. The party rolls Persuasion/Insight/Deception as they like &mdash; whatever they roll, Setaria's wall cracks a little more each conversation. There is no "fail" outcome here. She breaks by the end of the third conversation. The scenes vary in <em>how</em> she breaks.</p>
+</div>
+
+<h3>Scene 2 &mdash; Wearing Other People's Faces</h3>
+<p><span class="tag time">0:08&ndash;0:30</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>Nahida hands you three small wooden tokens, each carved with a different sigil. "When you hold one of these and look at Setaria, she sees the face I've borrowed. She doesn't see you. She hears your voice as theirs. You have one conversation per token. After that, the spell collapses."</p>
+<p>"Akim is at the Port Ormos pier in fifteen minutes. Qishan is in the attic of Lambad's tavern &mdash; though the tavern does not, technically, have an attic. Rima is on patrol at the lower terrace of the Akademiya road."</p>
+<p>"Push her. Don't break her. There is a difference."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Run this as three short vignettes, ~5&ndash;7 minutes each.</strong> Each player can take the lead on one if they want, or rotate. Each conversation is a wedge:</p>
+<ul>
+  <li><strong>As Akim (the Port Ormos friend) &mdash;</strong> push the "you grew up with us in the desert; why are you ashamed of King Deshret now?" angle. Setaria deflects. She tries to change the subject to Akim's father's health. Let the party twist the knife by getting one detail wrong about the father (his arm vs. his leg) &mdash; Setaria notices and her composure slips for the first time.</li>
+  <li><strong>As Qishan (the Vahumana scholar) &mdash;</strong> reveal that "you" have been celebrating the Sabzeruz Festival "so many times you lost count." Setaria stops cold. "That should be impossible. Nothing in the report indicated anything like that..." She has just confirmed there <em>is</em> a report. Don't lampshade this; let the players notice.</li>
+  <li><strong>As Rima (the Corps of Thirty mercenary) &mdash;</strong> this is where she finally cracks. Speak quietly. Tell her that the desert that belongs to her lies elsewhere. Tell her it's not too late. Don't push, don't shout &mdash; let her hear it.</li>
+</ul>
+<p><strong>End of Scene 2:</strong> Setaria, voice steady for the first time all morning, agrees to steal the project documents and meet the party at the Akademiya gate <em>tomorrow evening</em>. She insists on the gate &mdash; she says she can distract the guards more easily on her own ground. She does not know this is a trap. <em>Neither does the party.</em></p>
+</div>
+
+<div class="callout choice">
+<p><strong>How does the party push Setaria?</strong></p>
+<ul>
+  <li><strong>Cruel and effective.</strong> They use the worst details Nahida supplied &mdash; her father's illness, her abandoned letters home, her shame. She agrees, but visibly hates them a little. Future encounters: <em>cooperative, but cold.</em></li>
+  <li><strong>Honest and slow.</strong> They tell her the truth about Sumeru, the Akademiya, the harvested dreams. She breaks more gently. Future encounters: <em>trusts the party, will pass them small risks.</em></li>
+  <li><strong>Use Rima to threaten her.</strong> They imply King Deshret followers are watching her. She agrees out of fear. Future encounters: <em>scared of the party, unreliable under pressure.</em></li>
+</ul>
+<p><strong>Persistent impact:</strong> Setaria is captured offstage tonight &mdash; she won't be on the page again for a while. But her future cooperation is set now, and the version of her the party gets back depends on how they wore the masks.</p>
+</div>
+
+<h3>Scene 3 &mdash; The Quiet Streets</h3>
+<p><span class="tag time">0:30&ndash;0:38</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>The next night. The streets of Sumeru City are wrong.</p>
+<p>You've been here long enough now to know what an evening looks like &mdash; the bazaar lanterns coming up one by one, the students arguing across staircases, the smell of grilled fish from Lambad's. Tonight, the lanterns are lit but no one is under them. The bazaar stalls are open but unmanned. A single cat picks its way across a rooftop and stops to look at you.</p>
+<p>Katheryne &mdash; Nahida &mdash; walks beside you. She is, you notice, holding her hands a little too still.</p>
+</div>
+
+<div class="callout nah">
+<p>"Where is everyone? It's not late enough for this. Something is..." (she trails off, looking up the slope toward the Akademiya gate) "... wrong."</p>
+<p>"Let's keep going. Setaria will be at the meeting point. If something has happened to her, we need to know. But &mdash;" (she looks at you, very seriously, and her voice goes very quiet) "&mdash; if I tell you to run, you run. You don't ask why. Understood?"</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Pace:</strong> 5&ndash;8 minutes. Build pressure with absence. Every detail the players ask about &mdash; the shops, the guards, the cat &mdash; comes back as "empty," "empty," "watching."</p>
+<p>If they want to abort and turn back: Nahida agrees this is suspicious but says the documents are worth the risk. If <em>any</em> player makes a Perception or Insight check (DC 13), they notice the faint sound of cheering, very far away, coming from <em>up the slope</em> toward the Akademiya. They do not yet know it is for them.</p>
+</div>
+
+<h3>Scene 4 &mdash; The Hero's Welcome</h3>
+<p><span class="tag time">0:38&ndash;0:55</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>You climb the last turn of the road toward the Akademiya gate. The cheering stops being faint.</p>
+<p>The plaza in front of the gate &mdash; usually empty at night, with two bored guards leaning on their halberds &mdash; is full.</p>
+<p>Not <em>full</em> in the way a market is full. Full in the way a riot is full. Hundreds of faces. Maybe thousands. The plaza, the staircases up to it, the side streets, the rooftops &mdash; people are leaning over balcony railings to <em>see</em> you. As the front of the crowd realizes you've arrived, a roar goes up. Not anger. <em>Adoration.</em></p>
+<p>You see faces you know in there. The flatbread vendor from the bazaar. The boy who delivers fish to Lambad. A student you sat next to during the festival. The dockworker who pointed you at Alhaitham on the day you first walked into Sumeru. They are all looking at you with the kind of love people usually reserve for someone they have lost and gotten back.</p>
+<p>And they are walking toward you.</p>
+</div>
+
+<div class="callout puzzle">
+<p><strong>Set the Documents Envelope on the table now.</strong> Slide it in front of whichever PC took point in Scene 2. Say only: "Setaria left this at the meeting point. She is not here. The crowd is between you and the gate. The envelope is in your hand."</p>
+<p>Let them open it. Let them read all three slips aloud. The pace of their reading is the pace of the crowd closing. They will not finish slip 3 before someone in the front row tries to <em>touch</em> the lead PC's face.</p>
+<p>When slip 3 is read &mdash; <em>"Pardis Dhyai &mdash; resource diversion approved. Subject H. progressing. Connection has been... unstable. Sign of breakthrough or sign of contamination?"</em> &mdash; that is when the voice comes from behind the crowd.</p>
+</div>
+
+<div class="callout read">
+<p>The crowd parts.</p>
+<p>A man walks down the ramp from the gate. He is taller than you expected, in a long, layered coat the color of dried blood, with a half&#8209;mask of fine porcelain covering everything above his nose. The mask is smiling. He is, apparently, also smiling underneath it &mdash; you can hear it in his voice before you can see his face.</p>
+<p>"Ah," he says, as if welcoming you to a dinner party. "The triumphant hero returns at last. And to a rather spectacular welcome, even if I do say so myself."</p>
+<p>Nahida, beside you, goes very still.</p>
+<p>"You're..." she says, slowly. "The outcast. Expelled from the Akademiya. The one even the sages were afraid of."</p>
+<p>"Indeed, I am," the man agrees, pleasantly. "Although these days they tend to call me &mdash;"</p>
+</div>
+
+<div class="callout dot">
+<p>(Pause. Let the silence sit. Then, with no theatricality at all:)</p>
+<p>"The Doctor."</p>
+<p>(Beat. Then, conversationally:)</p>
+<p>"<strong>Il Dottore. Omega Build. The Second of the Eleven Fatui Harbingers.</strong>"</p>
+<p>"Oh &mdash; and if you're looking for your researcher friend, she has already been taken into confinement. With some basic caution, she could have discovered the listening device on her person. Clearly, she lacks the degree of rigor expected of a true scholar. A shame. I was rather looking forward to meeting her."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Voice direction for Dottore:</strong> friendly. Conversational. Slightly amused. The voice of a man explaining a chemistry demonstration to a class he likes. NOT theatrical. NOT raised. NOT smug. He never sneers. He <em>chuckles</em> &mdash; once &mdash; when he explains the trick. That's it.</p>
+<p>If a player tries to ask Dottore a question, he answers. Plainly. Briefly. He is enjoying this and sees no reason to hide it. If they accuse him of anything, he agrees: <em>"Yes, that's correct."</em> He doesn't argue.</p>
+</div>
+
+<div class="callout nah">
+<p>"The people of Sumeru City... what have you done to them?"</p>
+</div>
+
+<div class="callout dot">
+<p>"Oh, this? A small thing. I simply made some minor adjustments to their Akasha Terminals. They can now deposit information directly into the subconscious. As you can see, all these lovely people now believe..." (he gestures, almost shyly, at the crowd) "...that this Traveler is a hero who has just saved the world."</p>
+<p>(small laugh)</p>
+<p>"Hehe. My experiment is a success."</p>
+<p>"And now &mdash; it seems they can no longer hold back their sheer adoration."</p>
+</div>
+
+<div class="callout read">
+<p>The crowd is on you. Not yet violent &mdash; not yet anything that could be called violent. But there are too many of them. They are reaching for your clothes. The flatbread vendor's daughter, the one Brian C. once tipped, is trying to hold his hand and is crushing his fingers without realizing it. Someone behind Brian F. is sobbing and pulling at his quiver strap. A man in front of Dylan, weeping, kneels and presses his forehead against her boot. Three more press in behind him.</p>
+<p>You cannot draw weapons here. These are not enemies. The plaza behind you is already filling with more. There is no way out that does not go <em>through</em> someone.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>The Crowd Pressure beat &mdash; run as theatre, not combat.</strong></p>
+<ul>
+  <li>Each PC describes one thing they try to do to not hurt anyone. (Examples: shoving gently, climbing a stall, going low and crawling, telling the crowd to back off, freezing in place.)</li>
+  <li>Each PC rolls a single d20 + their best non&#8209;combat skill (Athletics, Acrobatics, Persuasion, etc.). DC 14.</li>
+  <li><strong>Success:</strong> the PC opens a small bubble of space around themselves. Long enough to breathe. Not long enough to get out.</li>
+  <li><strong>Failure:</strong> they are being moved by the crowd. Backward, toward Dottore. Carried.</li>
+  <li><strong>This is the moment.</strong> Dottore is now ten feet from them, hands behind his back, watching. Set the death roll d20 in front of him on the table. Do not explain it.</li>
+</ul>
+<p><strong>If a PC tries to draw a weapon:</strong> Nahida grabs their wrist. <em>"No. They're civilians. We cannot."</em> She says it quietly.</p>
+</div>
+
+<h3>Scene 5 &mdash; "Do Not Underestimate Me"</h3>
+<p><span class="tag time">0:55&ndash;1:25</span> <span class="tag choice">CHOICE</span></p>
+
+<div class="callout dot">
+<p>(Dottore walks forward through the crowd, who part for him as if he is the air and they are the wind. He stops six feet from the party. He bows, slightly &mdash; just at the neck.)</p>
+<p>"I will spare you the introductions you have already heard. We may end this two ways. Either you come with me to the Akademiya quietly, and I make sure none of these dear people are hurt during the transport. Or you resist, and I make a different demonstration."</p>
+<p>(He pauses. He looks at each of them in turn.)</p>
+<p>"<strong>Do not underestimate me.</strong>"</p>
+<p>(He says it the way someone tells you the soup is hot. Then he waits.)</p>
+</div>
+
+<div class="callout dm">
+<p><strong>This is the gate.</strong> Stop. Look at the players. Do not hurry them. Let the table go silent for as long as it needs to.</p>
+<p>If they ask Nahida what to do, she does not answer &mdash; she is watching Dottore. She does not know yet what she will do; she's waiting on them.</p>
+<p>If they ask each other what to do, let them argue in&#8209;character.</p>
+<p>When they decide, present the choice formally:</p>
+</div>
+
+<div class="callout choice">
+<p><strong>The party's response to Dottore.</strong></p>
+<ul>
+  <li><strong>A &mdash; Heed the warning.</strong> They tell Dottore they understand. They lower their hands. They stand still. <strong>&rarr; Branch H (Heed).</strong> Nahida acts.</li>
+  <li><strong>B &mdash; Fight him.</strong> Any aggressive action &mdash; bow drawn, knuckles up, Ayaka's blade out of the sheath. <strong>&rarr; Branch F (Fight).</strong> Dylan rolls.</li>
+  <li><strong>C &mdash; Stall.</strong> They keep him talking. (Subskill: any check, DC 15, to buy time.) <strong>&rarr;</strong> On success, Nahida gets one extra heartbeat to act, and they roll into Branch H slightly cleaner &mdash; the party knows Nahida is about to do something before she does it. On failure, Dottore loses patience and they roll into Branch F.</li>
+</ul>
+<p><strong>Persistent impact &mdash; this is the most important choice of the night.</strong> Branch H means Nahida's sacrifice is clean and the party walks out grieving but whole. Branch F means Dylan picks up the d20 and rolls for Ayaka's life, and the party walks out (probably) with a body or a wound that does not heal in one rest.</p>
+</div>
+
+<h4>Branch H &mdash; They Heed the Warning</h4>
+
+<div class="callout read">
+<p>You lower your hands. Slowly. The crowd around you keeps pressing &mdash; they don't know about the conversation that just happened; they're still in their own loop, still adoring you.</p>
+<p>Dottore tilts his head. "Wise. I had hoped for that. Now &mdash;"</p>
+<p>"&mdash; no."</p>
+<p>(That was Nahida's voice. Quietly. From between you and him.)</p>
+<p>(Katheryne &mdash; <em>Nahida</em> &mdash; has stepped forward. She is, you notice, smaller than the smallest of you. She is also standing directly between the four of you and the Second of the Fatui Harbingers, and she has not turned around to look at you yet.)</p>
+</div>
+
+<div class="callout nah">
+<p>(Without turning around.)</p>
+<p>"Leave now. You need to get out of here. I will hold them &mdash; <em>all</em> of them &mdash; and I will deal with him as long as I can. The road south is clear behind you. Don't argue with me. Don't look back."</p>
+<p>(A beat. Quieter.)</p>
+<p>"Nor can I abandon... the people of Sumeru."</p>
+<p>(Another beat. The faintest smile, audible in her voice.)</p>
+<p>"Don't worry. We'll meet again outside of the city."</p>
+</div>
+
+<div class="callout read">
+<p>The crowd freezes. Hundreds of them, all at once, like someone has muted the world. The flatbread vendor's daughter loosens her grip on Brian C.'s fingers. The man weeping at Dylan's boot blinks once, twice, and his shoulders relax.</p>
+<p>Behind you, the road opens. The press is gone. You can <em>run</em>.</p>
+<p>You see, for a second, Dottore looking past Nahida at you with a sudden, sharpened interest &mdash; not at you, you realize. At <em>her</em>.</p>
+<p>"I see," he says, conversational again, but quieter. "You appear to have overridden their mental faculties with your own consciousness. To possess such a powerful mind, you must be... the God of Wisdom."</p>
+<p>Nahida does not answer him.</p>
+<p>"<strong>Run,</strong>" she says, again. To you.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Run the escape as cinematic:</strong> the party turns and goes. They do not get to roll for it. They do not get to attack Dottore. They do not get to wait. As they run, the last thing they hear is Dottore's voice &mdash; not angry, not raised &mdash; saying, distantly, <em>"How fascinating. I think we will keep you."</em></p>
+<p>Skip to <strong>Scene 6 &mdash; Aftermath</strong>.</p>
+</div>
+
+<h4>Branch F &mdash; They Fight</h4>
+
+<div class="callout read">
+<p>Three things happen almost at the same time.</p>
+<p>Brian F.'s arrow leaves the bow. Brian C. takes one step forward, into a stance that has won him every fight he has ever started. Ayaka &mdash; Dylan &mdash; draws the Kamisato blade in the long clean line she has drawn it in for sixty&#8209;four years. The crowd around you ripples backwards in confusion, still mind&#8209;hacked into worshipping you, suddenly seeing weapons in their heroes' hands.</p>
+<p>Dottore does not move.</p>
+<p>He sighs &mdash; politely &mdash; and lifts a finger.</p>
+<p>The arrow that Brian F. fired never hits him. You don't see what happens to it; it's just <em>gone</em>, mid&#8209;air, six feet in front of the half&#8209;mask. Brian C.'s next step doesn't connect with anything either &mdash; the ground in front of him is suddenly not where he expected it to be, and he stumbles. And Ayaka &mdash;</p>
+<p>(Pause. Look at Dylan.)</p>
+<p>(Slide the black d20 across the table.)</p>
+</div>
+
+<div class="callout deathroll">
+<p><strong>Dylan &mdash; roll the d20 in front of you.</strong></p>
+<p>This is a death roll. There is no modifier. There is no bonus. Ayaka has committed to a strike against the second&#8209;most dangerous person in this nation, and the only thing between her sword and his neck is the number on the die.</p>
+<table>
+  <tr><th>Roll</th><th>What happens to Ayaka</th></tr>
+  <tr><td><strong>Nat 1</strong></td><td>Ayaka's strike is intercepted with a casual flick of Dottore's wrist. Her blade is taken from her hand and reversed against her chest in the same motion. She is on her knees before she registers the wound. <em>Ayaka dies in front of the party.</em> Brian F. and Brian C. cannot reach her in time. Dottore is, when she falls, already looking past her at the next thing.</td></tr>
+  <tr><td><strong>2&ndash;15</strong></td><td>Dottore catches her blade between his palms. He looks at her face for a long moment &mdash; an actual moment of curiosity, not theater. Then he closes his hands. The blade snaps. The fragment goes through her, low, where it cannot be patched in the field. <em>Ayaka dies in front of the party,</em> over the next thirty seconds, while Brian F. and Brian C. cannot get to her through the crowd that has surged back in.</td></tr>
+  <tr><td><strong>16&ndash;18</strong></td><td>Ayaka is fast enough &mdash; just &mdash; to twist away from the killing line. Dottore's counter still lands. She takes a wound across the ribs that she will carry for a long time. She is on her feet but unconscious within ten seconds. Nahida, two beats later, intervenes. <em>Ayaka survives but is critically injured; she does not act again this session. She wakes up at Caravan Ribat with a scar and a debuff (DM choice &mdash; recommended: &minus;1 to Cryo damage rolls for the next session, "Dottore's mark").</em></td></tr>
+  <tr><td><strong>19</strong></td><td>Ayaka's blade kisses the porcelain mask. A thin scratch across the smile. Dottore's reaction is &mdash; <em>delight</em>. He laughs, once, with actual pleasure. Her counter&#8209;swing does not connect, but his next move does not kill her either &mdash; he wants to study her. He grabs her left wrist. Nahida intervenes before the next motion. <em>Ayaka is shaken but alive; no permanent injury; Dottore now has a personal interest in her.</em> (This is its own problem for later.)</td></tr>
+  <tr><td><strong>Nat 20</strong></td><td>The blade goes <em>through</em> the half&#8209;mask. Porcelain shatters. For one second, Dylan sees Dottore's actual face. He stops &mdash; not bleeding, not hurt, just stopped. He looks at her with an expression of pure, focused interest, as if she has solved a problem he has been working on for weeks. "<em>How interesting,</em>" he says, quietly. Then Nahida intervenes. <em>Ayaka is unhurt. Dottore is unhurt. He saw her, and she saw him, and neither of them will forget.</em></td></tr>
+</table>
+</div>
+
+<div class="callout read">
+<p>(Once the d20 is read and the consequence is described &mdash; whichever line lands &mdash; Nahida moves.)</p>
+</div>
+
+<div class="callout nah">
+<p>(The voice is quieter than before, and steadier than it has ever been.)</p>
+<p>"Stop."</p>
+<p>(The crowd, all of them, every single person in the plaza, freezes. The screaming stops. The reaching stops. The weeping at Dylan's boot stops. Hundreds of faces go slack at once.)</p>
+<p>"I can't risk losing you too."</p>
+<p>(She walks forward, between the party and Dottore, until she is closer to him than to you. She doesn't turn around.)</p>
+<p>"You need to get out of here. The road south is clear. Take Ayaka. Don't argue with me. Don't look back."</p>
+<p>(A beat. Then, very softly:)</p>
+<p>"Don't worry. We'll meet again outside of the city."</p>
+</div>
+
+<div class="callout dot">
+<p>(Watching Nahida. With more interest now than before, but no less politeness.)</p>
+<p>"I see... You appear to have overridden their mental faculties with your own consciousness. To possess such a powerful mind, you must be..." (he tilts his head)</p>
+<p>"...The God of Wisdom."</p>
+<p>"How utterly delightful."</p>
+</div>
+
+<h3>Scene 6 &mdash; Aftermath</h3>
+<p><span class="tag time">1:25&ndash;1:35</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>You run.</p>
+<p>The road south out of Sumeru City is empty &mdash; Nahida has cleared every conscious mind in the plaza behind you, and there's no one on this road. You run for ten minutes. Then five more. Then you stop, because Brian F. is bleeding from his palm, and Brian C. has somehow lost a tooth, and &mdash; (depending on the branch) &mdash; you are carrying Ayaka, or Ayaka is walking with a hand pressed to her side, or Ayaka is not with you at all.</p>
+<p>You stop in the shadow of a rock outcrop a kilometer outside the city. You can still see the gate from here. There is no one moving in it.</p>
+<p>Paimon, who has not spoken in twenty minutes, sits down on a rock and says, very quietly, "She'll come back. Right? She said we'd meet again outside the city."</p>
+<p>(No one answers her. The wind off the desert moves through the dry grass.)</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Hold this beat for 60 seconds.</strong> Don't fill the silence. If a player wants to speak, let them &mdash; whatever they say, this is the line that closes Part One. Pause for water. Pause for stretch.</p>
+<p><strong>If Ayaka died (Branch F, low roll):</strong> Brian F. and Brian C. carried her body out. They are sitting next to it now. Do not narrate Dylan out of the room. Dylan still has Ayaka's signet, her sheathed broken blade, her last words from before Sabzeruz. Dylan rolls a new character only if Dylan wants to &mdash; otherwise, treat the broken blade as the seventh PC at the table.</p>
+</div>
+
+<div class="callout break">
+<p><strong>&#9888; SUGGESTED BREAK 1 &#9888;</strong><br>
+<span class="mini">If you are running this as multiple sessions, end here. Players have just lost Nahida (and possibly Ayaka). Let it sit for a week.</span></p>
+</div>
+
+<div class="pagebreak"></div>
+<h2>PART TWO &mdash; THREE RESCUERS, ONE ROAD</h2>
+<p class="mini">Target runtime: 50&ndash;60 min. Three scenes. One combat. A pause point sits after Scene 9.</p>
+
+<h3>Scene 7 &mdash; Three Familiar Faces on the Road</h3>
+<p><span class="tag time">1:35&ndash;1:50</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>The first one of them you hear is the fox &mdash; ears flattened back, low to the ground, sniffing the air. Then the voice that goes with the ears.</p>
+<p>"You three again. Of course."</p>
+<p>Tighnari steps out of the brush at the side of the road. The bow already strung. Behind him, a step further back &mdash; Dehya, the new greatsword propped on her shoulder like she's been waiting for permission to swing it. And behind <em>her</em>, leaning against an outcropping with his arms folded and the slightly tired expression of a man who has been waiting at this particular bend in the road for forty minutes &mdash;</p>
+<p>Alhaitham.</p>
+<p>None of them look surprised to see you.</p>
+</div>
+
+<div class="callout alh">
+<p>"You were careless. You should have noticed the patrol following you out of the city gate. There were six of them. There would have been ten by the time you reached the next ridge."</p>
+<p>(He does not move from his outcropping.)</p>
+<p>"We have moved them off the road. The road south, however, is no longer safe for you on foot. Caravan Ribat is closer than you think, and there's a wall you can sit behind there while we work out the next problem."</p>
+<p>(He looks at Nahida's absence in your formation. He does not comment on it. He does not need to.)</p>
+<p>"...Yes. We know. Tighnari was already on his way to find you when we crossed paths in the foothills. I was on my way to <em>be</em> found by you, in Caravan Ribat, but that was when you were going to walk out of Sumeru City under your own power. The plan has changed."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Tighnari speaks plainly, then leaves.</strong> He explains in one sentence why he's not staying: there is a researcher named Haypasia at Pardis Dhyai whose consciousness has been doing something he doesn't have a word for, and he needs to be the one watching it. He hands the party a small pouch of healing salts. He tells Dylan, if Dylan is carrying Ayaka or her body, <em>"There is nothing I can do for this here. Caravan Ribat has a healer. Move."</em> Then he turns north, and goes.</p>
+<p><strong>Dehya is delighted to be on the road.</strong> She slaps Brian C. on the shoulder hard enough to almost knock him over. She greets Alhaitham as "Scribe" with a grin. She calls Ayaka "kid" if Ayaka is conscious, and "the kid" if Ayaka is not. She does not ask what happened. She has worked enough mercenary jobs to know when not to ask. She will protect them now.</p>
+<p><strong>Alhaitham gives directions, not orders.</strong> Caravan Ribat is half a day's hard travel. They will not make it there before sunset. They need to move.</p>
+</div>
+
+<h3>Scene 8 &mdash; The Eremite Ambush</h3>
+<p><span class="tag time">1:50&ndash;2:20</span> <span class="tag combat">COMBAT</span></p>
+
+<div class="callout read">
+<p>You are an hour out from the rock outcrop when the road folds in on itself, between two ridges of rust&#8209;colored stone, and the ambush comes from above.</p>
+<p>A loose stone clatters &mdash; that's the only warning. Then a man in a heavy red&#8209;and&#8209;black mantle steps out at the top of the ridge, hands clasped politely behind his back, and addresses the road below as if he is teaching a lecture.</p>
+<p>"A blond&#8209;haired traveler. A fairy &mdash; ah, no fairy today. A pity. The contract specified the fairy."</p>
+<p>(He inclines his head, slightly.)</p>
+<p>"My contract is with The Outcast. My instructions are to retrieve the traveler alive. The rest of you &mdash; my instructions are silent on. Please consider what that means for the next few minutes of your lives."</p>
+</div>
+
+<div class="callout combat">
+<p><strong>Encounter A &mdash; The Scorching Loremaster's Ambush</strong></p>
+<p><strong>Setup:</strong> Two&#8209;ridge canyon, late afternoon, deep shadow on one side and full sun on the other. The ridges are 15 feet up &mdash; the Eremites are on top until they engage; the party and their allies are at the bottom.</p>
+<p><strong>Enemies:</strong> 1&times; <code>Eremite Scorching Loremaster</code> [Rare] (the speaker, atop the higher ridge) + 2&times; <code>Eremite Stone Enchanter</code> [Uncommon] (one per ridge, providing cover and lobbing rocks) + 1&times; <code>Eremite Sunfrost</code> [Uncommon] (drops down at the start of round 2 from behind the party).</p>
+<p><strong>Allies (DM&#8209;run):</strong> Dehya runs full aggression on the Scorching Loremaster &mdash; she's been wanting this fight since Port Ormos. Alhaitham flanks the Stone Enchanters, calmly. Tighnari is <em>not here</em> &mdash; he left for Pardis Dhyai already; the road is the party + Dehya + Alhaitham.</p>
+<p><strong>Goal:</strong> Defeat all enemies, or get the Loremaster to retreat. Either route ends the fight.</p>
+<p><strong>Twist 1 &mdash; Terrain:</strong> The canyon is mostly shadow. PCs in shadow get +1 to AC against ranged attacks (cover). PCs in sun take +1 fire damage from any Pyro source (heat).</p>
+<p><strong>Twist 2 &mdash; The Sunfrost ambush:</strong> At the top of round 2, the Sunfrost drops from a ledge <em>behind</em> the party. Any PC who passed Perception DC 15 at the start of combat hears the loose stone and gets a free reaction; otherwise the Sunfrost gets a free first strike (cone of cryo) against the back rank.</p>
+<p><strong>Twist 3 &mdash; Surrender option:</strong> If the Scorching Loremaster's HP drops below 25%, he raises one hand and steps back. <em>"My contract did not specify dying for it."</em> He retreats. Survivors flee with him. <em>This is canon Eremite behavior &mdash; they are mercenaries, not zealots.</em> The party can pursue, but Dehya will roll her eyes and say <em>"let 'em go, they'll go bother someone richer next."</em></p>
+<p><strong>Reward:</strong> The Loremaster drops his contract scroll. The contract is sealed with a wax mark the party will not recognize tonight but which Alhaitham, looking at it, says quietly: <em>"That mark is not Akademiya. That mark is not Sumeran. That mark is from elsewhere."</em> Then he pockets it. (DM: this is foreshadowing for the Fatui co&#8209;ordination &mdash; do not explain further.)</p>
+</div>
+
+<div class="callout dm">
+<p><strong>If Ayaka died or is unconscious:</strong> she is not in this fight. Dylan plays as a designated "supporter" &mdash; describes carrying Ayaka, watching the road, calling out enemy positions for free Perception checks. If Dylan wants to step away from the table for ten minutes during this combat to grab water, this is the right place; combat is fully runnable with Brian F., Brian C., Dehya, and Alhaitham.</p>
+<p><strong>If Ayaka survived:</strong> she fights but takes &minus;1 to Cryo damage rolls if you applied the Dottore's mark debuff. Dylan will be visibly relieved to swing a blade after the last hour of helplessness. Let her get a kill.</p>
+</div>
+
+<h3>Scene 9 &mdash; Caravan Ribat</h3>
+<p><span class="tag time">2:20&ndash;2:40</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>You see the wall of Caravan Ribat before you see anything else.</p>
+<p>It rises out of the dunes the way ribs rise out of dry earth &mdash; a long curved spine of weathered sandstone, two stories high, with watchtowers at each end and a single, tall gate in the middle. Lanterns are already lit along its length, even though there is still half an hour of daylight left. Lanterns at Caravan Ribat are lit for the people coming in from the desert, not from the city. They are landmarks.</p>
+<p>The guard at the gate &mdash; an older woman with a long spear and a face like a dried apricot &mdash; takes one look at the four of you, the ally beside you, and the body or wound you're carrying, and waves you in without a word.</p>
+<p>Inside the wall, the caravan square is full of cooking smoke and goats and stacked merchandise and three different languages being argued in three different corners. It smells of cumin and saddle leather and something the desert calls bread. Someone is playing a stringed instrument off&#8209;key, near the well.</p>
+<p>A healer in Aaru&#8209;style robes meets you at the inner gate and asks no questions before helping you with whoever needs helping.</p>
+</div>
+
+<div class="callout alh">
+<p>(After the party has had ten minutes to sit, eat something, drink water. He sits on a low wall across from them and crosses his ankles.)</p>
+<p>"You'll want to know what I want, and I would prefer to tell you before Cyno does."</p>
+<p>"I am still studying the Divine Knowledge Capsule we recovered at Port Ormos. I have not given it back to the Akademiya. I have not handed it to the matra. It is on my person right now."</p>
+<p>(He produces it &mdash; the same small dark&#8209;glass bead, in a small wooden case &mdash; and sets it on the wall.)</p>
+<p>"I have been investigating it on my own time. I am not making progress. There are things you saw and heard the day Mizri opened the first one that I did not see and did not hear. You have been &mdash; deliberately, I think &mdash; not telling me what those things were."</p>
+<p>(He looks at the party levelly.)</p>
+<p>"I think you should keep not telling me, for now. I am not going to ask. I would like, however, to keep traveling with you into the desert. Aaru Village is the largest desert settlement; it will have the resources we need. If you'll have me, I'll come."</p>
+</div>
+
+<div class="callout choice">
+<p><strong>Do they let Alhaitham keep traveling with them?</strong></p>
+<ul>
+  <li><strong>Yes, openly &mdash; "you saved us, and we trust you."</strong> Alhaitham nods once. Does not thank them. From this point, he treats the party as colleagues, not as a puzzle. Future encounters: <em>cooperative, occasionally volunteers information he wouldn't otherwise.</em></li>
+  <li><strong>Yes, conditionally &mdash; "you can come, but we need answers about the capsule eventually."</strong> Alhaitham agrees, immediately and without protest. He notes that he expects to give those answers in exchange for the party's answers. Future encounters: <em>even exchange &mdash; he tells them what he knows when they tell him what they know.</em></li>
+  <li><strong>No &mdash; "we'll go alone."</strong> Alhaitham nods. <em>"That is also a wise choice."</em> He stays at Caravan Ribat. Future encounters: <em>the party gets to Aaru Village without him &mdash; meaning Cyno's strike in Scene 10 lands on them, not him.</em> (Be ready &mdash; this is a real branch, not a fake choice. See DM note below.)</li>
+</ul>
+<p><strong>Persistent impact:</strong> Branch "No" reroutes Scene 10 &mdash; Cyno strikes at the lead PC instead of Alhaitham, and the party will have to talk him down without an Akademiya scribe in the room to back them. Cyno is harder to convince, and Dehya does not arrive until the sandstorm. <strong>This branch is harder, not impossible.</strong></p>
+</div>
+
+<div class="callout break">
+<p><strong>&#9888; SUGGESTED BREAK 2 &#9888;</strong><br>
+<span class="mini">If you are splitting across sessions, end here. The party has a wall around them, water, food, and a decision about Alhaitham. The desert can wait one week.</span></p>
+</div>
+
+<div class="pagebreak"></div>
+<h2>PART THREE &mdash; THE FOUR AT LOGGERHEADS</h2>
+<p class="mini">Target runtime: 80&ndash;90 min. Five scenes. One staged parry. One sandstorm combat. One cliffhanger.</p>
+
+<h3>Scene 10 &mdash; The Strike at Aaru Village</h3>
+<p><span class="tag time">2:40&ndash;3:00</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>The walk from Caravan Ribat to Aaru is half a day across the high dunes. Alhaitham, if he is with you, walks at his usual pace and does not comment on the heat. Dehya, beside you, narrates the desert as you walk &mdash; <em>"that ridge is where I broke my arm at fourteen, that crag has a spring under it but the spring is bitter, that dune moves a hundred meters a year, you'll meet a man at Aaru who lost a goat to it,"</em> &mdash; the entire monologue of someone who is home for the first time in a year.</p>
+<p>You crest the last ridge an hour before sunset, and Aaru Village opens up below you. A green stripe of palm and date trees winding through a canyon, two dozen low mud&#8209;brick houses, a goat pen, a well, three children chasing each other up a roof. The smell of cardamom and something else &mdash; the desert version of bread, but different from the Caravan Ribat version. Aaru smells like itself.</p>
+<p>You start down the path.</p>
+</div>
+
+<div class="callout read">
+<p>The first thing you see of him is the spear.</p>
+<p>It comes out of nowhere &mdash; a thrust at chest height, aimed at the front of your formation, with no warning and no wind&#8209;up. A man in a long, dark, hooded cloak, masked from the nose down, has appeared from behind an outcrop and is, with no preamble, trying to kill someone.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>This is the parry beat. Run it like a cinematic.</strong></p>
+<p><strong>If Alhaitham is with the party (Branch Yes from Scene 9):</strong> Alhaitham parries the spear with his blade in one motion. He does not draw &mdash; the blade is already out. The clash is loud enough that the children on the rooftop stop chasing each other and turn to look. Then Alhaitham steps back, slowly, and says, quietly: <em>"...Cyno."</em></p>
+<p><strong>If Alhaitham is NOT with the party (Branch No from Scene 9):</strong> The strike is aimed at the lead PC. Roll <em>their</em> reaction &mdash; Dexterity save, DC 16, or take the strike full force. On a save, they parry by inches; on a miss, the spearpoint scores them across the chest (1d6 physical, no element). Then the man steps back, registers that they are not Alhaitham, and his face goes very still under the hood. <em>"...You are not who I was hunting."</em></p>
+</div>
+
+<div class="callout cyno">
+<p>(He lowers the spear by an inch. Does not put it away. Speaks without raising his voice.)</p>
+<p>"I am Cyno. General Mahamatra of the Akademiya."</p>
+<p>(A beat.)</p>
+<p>"Or I was. The title is not currently in use. The hunt is mine, however."</p>
+<p>(He looks at Alhaitham, if present, and then at the rest of the party. His eyes are completely flat. Not hostile. <em>Flat.</em>)</p>
+<p>"Alhaitham. Take it out. The Divine Knowledge Capsule you are hiding on your person. Unless you would prefer I retrieve it for myself."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Pace the standoff slow.</strong> Let Cyno explain why he's hunting Alhaitham. Let Alhaitham deny none of it. The party will want to intervene &mdash; let them. Dehya, watching with her greatsword still on her shoulder, will let the conversation breathe for about ninety seconds before she gets bored and steps in.</p>
+</div>
+
+<div class="callout read">
+<p>"Ahem," says Dehya, from your left.</p>
+<p>"Well look at you two, acting all tough and self&#8209;righteous over there. Listen &mdash; I know you academic types love to fill up your big brains with self&#8209;righteous morality, and lord your empty rules and virtues over each other &mdash;"</p>
+<p>"&mdash; but how dare you bring your petty disputes into the safe haven of Aaru Village?"</p>
+<p>"It seems like someone's gonna have to beat some sense into your thick skulls until you finally learn to respect these grounds!"</p>
+<p>(Cyno does not move. Alhaitham does not move. The wind picks up, suddenly and without warning, and a tongue of red dust skids across the path between them.)</p>
+<p>"Tch," says Dehya, looking up. "Another sandstorm? What's up with these recently?"</p>
+<p>"<em>Hey!</em>" calls a voice from the village below. A woman with a long ribbon&#8209;like spear, standing in front of a mud&#8209;brick door. "All of you, over here, quickly! We have to take cover!"</p>
+</div>
+
+<div class="callout choice">
+<p><strong>How does the party handle the standoff before Candace arrives?</strong></p>
+<ul>
+  <li><strong>Block Cyno physically.</strong> A PC steps between Cyno and Alhaitham. Cyno will not strike a non&#8209;combatant; he steps back. Future Cyno interactions: <em>respects the party, treats them as honorable.</em></li>
+  <li><strong>Defuse with words.</strong> Persuasion DC 15 to get Cyno to lower the spear. On success, Cyno acknowledges the room is not his to control. Future Cyno interactions: <em>treats the party as fellow investigators.</em></li>
+  <li><strong>Side with Cyno against Alhaitham.</strong> A PC says, openly, "the scribe has been hiding things from us; we want to hear it too." Cyno does not lower the spear yet, but he nods, slightly, at the PC. Future Cyno interactions: <em>trusts the PC's judgment specifically.</em> Future Alhaitham interactions: <em>cooler, takes longer to volunteer information.</em></li>
+  <li><strong>Wait it out.</strong> Let Dehya and the sandstorm resolve it. Future Dehya interactions: <em>"you owe me one, kid."</em> She'll cash it in next session.</li>
+</ul>
+<p><strong>Persistent impact:</strong> Whichever route, no one draws blood. The sandstorm forces all four parties under one roof. The choice colors who trusts whom in Scene 12.</p>
+</div>
+
+<h3>Scene 11 &mdash; The Sandstorm Closes the Door</h3>
+<p><span class="tag time">3:00&ndash;3:10</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>The wind is on you before you've covered ten paces toward the door. Hot air. Sand in your eyes, in your teeth, between your shoulder blades. The visibility drops to four feet. Dehya knows the path; she shoulders one of the slower walkers along. Alhaitham has his cloak over his head and does not stagger. Cyno walks the same straight line as before, spear still on his shoulder, as if the wind cannot tell him what to do.</p>
+<p>The door closes behind you. The world outside goes muffled. Inside the chief's house: a low room, packed earth floor, three windows shuttered from the inside, a hanging brass lamp, a rolled rug by the wall, four cushions, the smell of cardamom and goat&#8209;hair felt. The woman who called you in pulls the last shutter closed and turns to face you with her ribbon&#8209;spear set across her knees.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Candace introduces herself.</strong> Plainly. Formally. Classical Sumeran phrasing. <em>"I am Candace, protector of Aaru Village."</em> She invites them to sit. She does not offer food until they have done so.</p>
+<p>Then, as soon as everyone is seated, she lays out the rule:</p>
+</div>
+
+<div class="callout read">
+<p>"I was observing your conflict from afar," Candace says, "even before the sandstorm started."</p>
+<p>"And now that you have set foot within Aaru Village itself, it is all the more my responsibility to make absolutely sure that you pose no threat whatsoever to us."</p>
+<p>"So please, have an honest and sincere conversation with one another, and put your hostile feelings to rest."</p>
+<p>(She looks at Cyno, then at Alhaitham, then at Dehya.)</p>
+<p>"If anyone dares to start anything again while they are under this roof &mdash;"</p>
+<p>(A small, kind smile.)</p>
+<p>"&mdash; I will not hesitate to send them out for some quality time with the creatures of the sandstorm."</p>
+</div>
+
+<h3>Scene 12 &mdash; The Hut</h3>
+<p><span class="tag time">3:10&ndash;3:35</span> <span class="tag rp">RP</span></p>
+
+<div class="callout dm">
+<p><strong>This is the longest pure RP scene of the night.</strong> Three NPCs each tell one short truth. Run them in this order: Cyno, Alhaitham, Dehya. After all three have spoken, the party gets the Trust Vote (see prop).</p>
+</div>
+
+<div class="callout cyno">
+<p>(Cyno speaks first. He sets the spear flat across his lap. He does not hide anything; he does not embellish either.)</p>
+<p>"I have nothing to hide, so there is no shame in explaining myself. I have not been assigned a morally dubious mission. Rather... I have chosen to exile myself."</p>
+<p>"A little while ago I discovered there was data missing from the Akademiya's project planning files. The data that <em>was</em> reported did not match the project's actual progress."</p>
+<p>"As General Mahamatra, I had the authority to request an audit. I submitted that request to the Grand Sage himself. The Grand Sage rejected it. He told me, and I will quote him exactly:"</p>
+<p>(A beat.)</p>
+<p>"<em>The power of the General Mahamatra is granted by the sages. You have no right to judge us.</em>"</p>
+<p>"I realized then that the matra were tools for the sages to assert and maintain their control over knowledge. The vows we took, the principles we strive to uphold &mdash; they are meaningless to the Akademiya of today."</p>
+<p>"So I fled. Before they could move against me. I will never give up on this investigation, but I do not need their permission to pursue it. Once I find the truth, I will administer judgment by my own name."</p>
+<p>(He looks at the party. Specifically, at whichever PC has been doing the most talking.)</p>
+<p>"As for why I attacked Alhaitham: when I was investigating the Akademiya, I overheard a conversation between him and a sage. The sages asked him to investigate a blond&#8209;haired traveler. Throw in his suspicious behavior with the Divine Knowledge Capsule, and I believe an explanation is owed."</p>
+</div>
+
+<div class="callout alh">
+<p>(Alhaitham answers without hesitation. He does not look at Cyno; he looks at the party.)</p>
+<p>"Yes. I was indeed tasked with investigating the Traveler."</p>
+<p>"The promised reward was so great that hardly any scholar could have refused. The sage told me, <em>'Once you've completed this assignment, I can give you a glimpse of divine knowledge.'</em>"</p>
+<p>"Unfortunately, those academics don't know me at all. Their words contained one key piece of information &mdash; that 'Divine Knowledge' indeed exists. That gave me all I needed to know."</p>
+<p>"From my perspective, the sages are far from trustworthy. Isn't it a little strange that they're so willing to share Divine Knowledge with anyone, even as a reward?"</p>
+<p>"So I began my own investigation following the lead of the Divine Knowledge Capsule. In the end, I realized my wisdom in committing to this rather than collaborating with the sages. Had I been less guarded, I probably would have ended up like that Ayn Al&#8209;Ahmar mercenary &mdash; incapable of remaining sane for long enough to hold a conversation."</p>
+<p>(He pauses. Looks, briefly, at whichever PC pushed back hardest on him in Scene 9.)</p>
+<p>"I'd already given up on the assignment by the time I met you. I only told the Akademiya I was waiting in Port Ormos so they wouldn't suspect anything. It came as quite a surprise when I encountered my erstwhile target while investigating the capsule. You were the ones who decided to follow me and strike up a conversation after I left that tavern."</p>
+<p>"I took the capsule behind your back because I judged its existence to be a significant risk. I felt it would be best if no one interacted with it before it had been properly studied. After all, curiosity often proves to be the most dangerous thing in this land."</p>
+<p>"I'm willing to apologize, if that's worth anything to you."</p>
+</div>
+
+<div class="callout read">
+<p>(Dehya snorts.)</p>
+<p>"My situation is pretty straightforward. My employer Dunyarzad, of the Homayani family &mdash; you know her &mdash; is friends with the Traveler and is currently recovering at home. I had nothing going on, so I decided to come back to Aaru for a visit. I was actually looking forward to a pretty exciting time getting back together with everyone here."</p>
+<p>(She shrugs.)</p>
+<p>"Then I saw these two random guys in the middle of a pointless argument outside the village wall. It ticked me off. Things went downhill from there."</p>
+<p>"That's it. That's the whole story."</p>
+</div>
+
+<div class="callout puzzle">
+<p><strong>The Trust Vote &mdash; running the prop.</strong></p>
+<p><strong>Setup:</strong> Pause the scene. Hand each PC one of the prepared blank slips and a pencil. Tell them: <em>"Each of you, write down ONE name &mdash; the person in this room you trust most. The options are Alhaitham, Cyno, Dehya, Candace, or 'no one yet.' Do not show each other. Fold the slip and hand it back to me."</em></p>
+<p><strong>Resolution:</strong> Collect all three slips. Read them silently. Do not announce the results to the players. The vote affects how the named NPC responds to the party for the rest of the campaign:</p>
+<table>
+  <tr><th>Result</th><th>How it lands</th></tr>
+  <tr><td>All three pick the same person</td><td>That NPC notices something in the air &mdash; the party's body language shifted. From this point forward, treat that NPC as a <em>trusted ally</em>: gives unprompted intel, will travel with the party as a default option, calls on them for favors (a sign of friendship in Sumeran custom).</td></tr>
+  <tr><td>Two pick same / one picks differently</td><td>The majority pick becomes a <em>working ally</em>; the minority pick notices the wariness but accepts it. They'll be cordial and useful, not warm.</td></tr>
+  <tr><td>All three pick different people</td><td>The party is splintered &mdash; each PC has bonded with a different NPC. Encourage cross&#8209;wiring in future scenes: Brian F. defers to Cyno's call, Brian C. trusts Dehya's gut, Dylan listens to Alhaitham, etc. This is <em>the most interesting</em> outcome, mechanically. Lean into it.</td></tr>
+  <tr><td>All three pick "no one yet"</td><td>The party is, collectively, still suspicious. All three NPCs will travel with the party but each will hold back one piece of useful intel for at least one more session. The party has earned wariness.</td></tr>
+</table>
+<p><strong>DO NOT TELL THE PLAYERS THIS MATTERS.</strong> Just collect, read, write it on the back of the guide, and use it.</p>
+</div>
+
+<h3>Scene 13 &mdash; The Sandstorm's Children</h3>
+<p><span class="tag time">3:35&ndash;3:55</span> <span class="tag combat">COMBAT</span></p>
+
+<div class="callout read">
+<p>The wind outside drops. The shutters stop rattling. The brass lamp swings on its chain once and stills.</p>
+<p>Candace stands. "The storm has passed. I will check on the villagers and clear any creatures that came in with it. Please, make yourselves at home."</p>
+<p>"Whoa," says Paimon, "creatures? In the sandstorm? Are you sure you don't want some backup?"</p>
+<p>"Fighting in a sandstorm is not for the fainthearted," Candace replies. "Anyone without extensive training in these conditions is at a disadvantage. You needn't worry."</p>
+<p>(She leaves. The door closes. For about three minutes, nothing happens.)</p>
+<p>Then Paimon, looking up: "It's been a while, hasn't it? Maybe we should..."</p>
+<p>(That's when you hear the first <em>growl</em> from outside the shutters.)</p>
+</div>
+
+<div class="callout combat">
+<p><strong>Encounter B &mdash; The Sandstorm's Children</strong> (two waves)</p>
+<p><strong>Setup:</strong> Just outside Candace's hut. Sand still drifting on the wind. Candace is already fighting in the central path of the village &mdash; the party arrives to back her up just in time for wave 2.</p>
+<p><strong>Substitution note &mdash; canon uses Thundercraven and Rockfond Rifthound Whelps. The project does not have Rifthounds. Reskin Hilichurls and a Ruin Drake as "sand&#8209;crusted creatures of the dune" &mdash; described as half&#8209;buried, lurching, eye&#8209;sockets glowing faintly. Mechanically they are the listed enemies.</strong></p>
+<p><strong>Wave 1:</strong> 2&times; <code>Hillichurl Fighter</code> [Common] + 1&times; <code>Earth Mitachurl</code> [Uncommon]. Candace is fighting two more off&#8209;screen; the party gets one wave to themselves while she finishes hers.</p>
+<p><strong>Wave 2:</strong> 1&times; <code>Ruin Drake</code> [Rare] + 2&times; <code>Hillichurl Shooter</code> [Common]. Dehya joins the party for this wave with the line: <em>"Leave this round to us! I got interrupted earlier, but now I have something to take my anger out on!"</em></p>
+<p><strong>Goal:</strong> Defeat all enemies in both waves. Optional: protect a clay water cistern at the village edge (it has 20 HP and gives the village a survival debuff if destroyed &mdash; this hooks into next session's main quest).</p>
+<p><strong>Twist &mdash; The dunes shift:</strong> At the top of each round, roll a d6. On a 1, a half&#8209;buried enemy "emerges" from the sand at a random unoccupied tile within 30 feet of the party &mdash; treat as gaining one free turn of movement. The desert is alive tonight.</p>
+<p><strong>Reward:</strong> Uncle Anpu arrives between the two waves (DM: this is a story beat &mdash; he is checking on Candace and the children). After wave 2, he formally welcomes the party to Aaru.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Pacing note:</strong> If the party is tired (this is now 3.5 hours in), <em>cut wave 1</em> and run only wave 2 with Dehya. The fight is still meaningful &mdash; the desert <em>announces itself</em> with one combat &mdash; and you preserve time for the cliffhanger.</p>
+</div>
+
+<h3>Scene 14 &mdash; Uncle Anpu and Isak (The Cliffhanger)</h3>
+<p><span class="tag time">3:55&ndash;4:10</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>The last of the sand creatures collapses. Candace, breathing only slightly hard, sheathes the ribbon&#8209;spear. An older man in pale linen robes, supported on a tall walking staff, picks his way down the central path with the careful steps of someone who knows exactly where every stone is.</p>
+<p>"Well fought, everyone," he says, in a voice as worn as desert leather. "No injuries, I hope?"</p>
+<p>"Huh? Who are you?" says Paimon.</p>
+<p>"Ah, my apologies, I haven't had a chance to greet you yet. I had my hands full taking care of the village's elderly and children." He smiles, small and tired. "I am the chief of Aaru Village. Everyone usually calls me Uncle Anpu."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Uncle Anpu speaks slowly.</strong> He thanks the party for protecting his village. He invites them to stay the night. He gestures around the village &mdash; the well, the children, the unfinished date harvest. Then, as if it has been on his mind all afternoon and he is finally getting to ask, he says, almost apologetically:</p>
+</div>
+
+<div class="callout read">
+<p>"...I do not wish to trouble you on the night you have arrived. But I am, in truth, a little worried."</p>
+<p>"The Village Keepers &mdash; the older folk who watch over the village's outer paths &mdash; have been disappearing one by one. We can find no trace of them. No struggle, no possessions left behind. Just... gone, in the night."</p>
+<p>"I do not know if this is connected to the sandstorms, or to the creatures that came with the wind, or to something else entirely. But it has been getting worse. And tonight, while you were inside the chief's house, another one..."</p>
+<p>(He trails off and looks past you. A small boy is approaching from the well. Maybe seven years old. Bare feet, a faded green sash, his hair in a single braid. He is holding something small and carved in both hands. He is not crying. He is, very clearly, trying not to.)</p>
+<p>"...Isak. Come here, young one. These are the people I told you about."</p>
+</div>
+
+<div class="callout read">
+<p>(The boy walks up to the lead PC. He looks at them for a long moment. Then he opens his hands, and shows them what he is holding: a small carved stone, the shape of a desert fox in mid&#8209;leap, the kind of small object an old man might whittle in the evenings for a grandchild.)</p>
+<p>"Grandpa carved this for me," Isak says. His voice is steady. "Last week."</p>
+<p>(A pause.)</p>
+<p>"He didn't come home tonight. So you'll know who he is, when you find him."</p>
+<p>(He holds the carving up to the PC. Waiting.)</p>
+</div>
+
+<div class="callout choice">
+<p><strong>Does the party take the stone?</strong></p>
+<ul>
+  <li><strong>Take it, promise to find him.</strong> Isak does not smile &mdash; he is too tired &mdash; but his shoulders drop, slightly, with relief. He tells them his grandfather's name (DM: <em>name him at the table, ideally something with desert flavor &mdash; "Khaled," "Mehrdad," "Yaqub"</em>) and walks back to the well. Future quest: <strong>find the grandfather</strong> &mdash; this is the hook into <em>The Missing Village Keepers</em>, the next quest.</li>
+  <li><strong>Take it, but make no promise.</strong> The boy nods, accepts the silence, walks back to the well. The party still has the stone &mdash; the quest hook is still active &mdash; but Isak does not trust them yet. Future Isak interactions will be cooler until the grandfather is found.</li>
+  <li><strong>Refuse to take it &mdash; "we're not the right people for this."</strong> Uncle Anpu stops them with a hand on the shoulder. <em>"Then who? Tonight, there is no one else."</em> Lean on this &mdash; the party should take it. If they continue to refuse, Candace will quietly take the stone from Isak and put it in a small wooden box behind her, and the cliffhanger shifts: Aaru's protectors will go alone, and the party will hear about it secondhand later.</li>
+</ul>
+<p><strong>Persistent impact:</strong> Whichever way they go, the missing Village Keepers are next session's main quest. The boy and the stone are the hook.</p>
+</div>
+
+<div class="callout read">
+<p>(Whatever they choose, the scene ends here. Lights low. Uncle Anpu thanks them again. Candace shows them to the guest rooms. Dehya cheers and goes to find an old friend at the well. Alhaitham, if he is with them, settles by a window with the Divine Knowledge Capsule in his palm and turns it slowly, in the lamplight. Cyno does not go to a guest room &mdash; he sits cross&#8209;legged in the corner of the main room, spear across his knees, and does not move all night.)</p>
+<p>(Outside, the desert is quiet. The wind has stopped completely.)</p>
+<p>(Somewhere very far away, in a place none of you can see, Nahida opens her eyes inside a glass tank, looks up at a ceiling she does not recognize, and quietly recites the first three lines of a Sumeran poem about a moonless night.)</p>
+<p>(End session.)</p>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2>If You Run Short</h2>
+<p class="mini">Recommended cut order, from least to most painful:</p>
+<ul>
+  <li><strong>Cut Scene 8 wave 1 (the Stone Enchanters).</strong> Run only the Loremaster and the Sunfrost. Saves ~10 min, still keeps the surprise drop and Dehya's revenge beat.</li>
+  <li><strong>Cut Scene 13 wave 1.</strong> Run only wave 2 with Dehya alongside. Saves ~10 min, still gets the desert/Ruin Drake moment.</li>
+  <li><strong>Compress Scene 2 to two acquaintances</strong> &mdash; skip Akim, run Qishan and Rima. Saves ~5 min, still gets the "report" reveal and the Rima break.</li>
+  <li><strong>Cut Alhaitham's Caravan Ribat speech (Scene 9) to one line:</strong> <em>"I'm still studying the capsule. I want to come with you to Aaru."</em> Saves ~5 min. Roll the choice immediately.</li>
+  <li><strong>(Last resort) Skip Scene 1 (Dawn debrief)</strong> &mdash; open the session cold on Nahida's pitch about Setaria. Saves ~5 min but loses the Dunyarzad&#8209;alive contrast that makes the rest of the night ache.</li>
+</ul>
+
+<h2>If You Have Extra Time</h2>
+<ul>
+  <li><strong>Expand Scene 2 with a fourth acquaintance.</strong> Nabiya the bookseller &mdash; an old friend Setaria left a letter unanswered with. Use her to plant the "letters from the children of my homeland" grief beat that makes Rima's appeal land harder.</li>
+  <li><strong>Have Dottore taunt them through the mob in Scene 5.</strong> If the party tries to stall, let Dottore answer one of their questions politely &mdash; what is in the Divine Knowledge Capsule, who the "external co&#8209;lead" of Mass Dream Harvest is, why Scaramouche is in Sumeru. <em>Pick one, give one truth.</em> They will remember.</li>
+  <li><strong>Insert a small road encounter in Scene 7</strong> &mdash; one Eremite scout the party catches before Tighnari does, allowing one of them to do something heroic between the Sumeru gate and the canyon ambush.</li>
+  <li><strong>Run the Aaru date harvest mini&#8209;game.</strong> A child invites the party to help pick dates from the high trees the morning after the cliffhanger. Use this as a slow scene &mdash; let them talk to Dehya, ask Candace about her ribbon&#8209;spear, watch Alhaitham try to read a book under a tree while two children climb on him. <strong>This is one of the most beloved scenes in the game when DMs run it gently.</strong></li>
+  <li><strong>Give Cyno a TCG hand.</strong> If Brian C. or Dylan plays the Genius Invokation TCG, Cyno will accept a single match in the corner of the chief's house during downtime. He plays the same five&#8209;card deck every time. He never loses, except by deliberately throwing.</li>
+</ul>
+
+<h2>Lead&#8209;In to Next Session</h2>
+<div class="callout read">
+<p>(End&#8209;of&#8209;session voice&#8209;over, optional, to read after the lights come back up:)</p>
+<p>"The Sabzeruz Festival ended in a samsara. The night after the dream broke ended in a mob. The morning after the mob ended in a desert. And tonight you sleep in Aaru Village, with three of the most dangerous people in Sumeru in the rooms next to yours, and a small boy's carved stone in your hand."</p>
+<p>"Somewhere in Sumeru City, behind a glass wall, the God of Wisdom is awake. She is reciting a poem about a moonless night, and she is waiting for the shower of starlight she promised you. She does not know yet how many of you are still alive."</p>
+<p>"Tomorrow, you go looking for an old man."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Prep for next session:</strong></p>
+<ul>
+  <li><strong>Next quest hook:</strong> <em>The Missing Village Keepers.</em> Isak's grandfather is the first specific Village Keeper the party will hunt for. The Village Keepers are, secretly, the exiled "mad" scholars of the Akademiya &mdash; this is a Cyno reveal in the next session.</li>
+  <li><strong>If Ayaka died:</strong> Dylan rolls a new character (or, if Dylan prefers, plays Ayaka's broken blade as a guiding voice &mdash; her wife's clan's spirit, her promise to keep the cold). Plan the funeral scene at the start of next session: at Aaru, the desert way. Candace will officiate.</li>
+  <li><strong>If Ayaka survived but is wounded:</strong> Dottore's mark debuff persists for one session, then it can be removed by interacting with a specific desert shrine the party will encounter naturally.</li>
+  <li><strong>Track the Trust Vote outcome.</strong> Write it on the back of this guide. It tunes NPC attitudes for the next 4&ndash;6 sessions.</li>
+  <li><strong>Read up:</strong> the Wiki page for <em>The Missing Village Keepers</em>, and the Wiki page for the Eremite&#8209;tied "Akademiya scholar exile" lore. The next session's emotional core is the desert's view of the Akademiya from the outside.</li>
+</ul>
+</div>
+
+<hr>
+<p class="mini">Session guide v1 &mdash; written 2026&#8209;05&#8209;30. Source quests: <em>Like a Triumphant Hero</em> (xmaq101), <em>The Gaze From a Certain God</em> (xmaq102, heavily cut), <em>The Four at Loggerheads</em> (xmaq103). Custom branches: opening mob crowd&#8209;pressure beat, Dottore's "do not underestimate me" warning, Ayaka death roll, Gandharva Ville arc skipped, Tighnari/Dehya/Alhaitham rescue intercept. For DM use only.</p>
+
+</body>
+</html>

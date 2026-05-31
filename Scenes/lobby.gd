@@ -240,27 +240,35 @@ func _enter_offline_mode() -> void:
 		_replay_offline_changes()
 
 	Global.calculate_all_stats()
+	# Fire data_load_complete so anything that listens for sync events (UI lists,
+	# CharacterManager, etc.) rebuilds against the freshly-loaded snapshot.
+	Global.emit_signal("data_load_complete")
 	_go_to_game()
 
 func _replay_offline_changes() -> void:
+	# Replay locally-logged offline changes on top of the just-loaded backup
+	# snapshot. Tolerates both the new (op/value) and legacy (action/data) key
+	# names so existing offline_changes.json files from before the refactor
+	# still replay correctly.
 	var changes = JSON.parse_string(OfflineChanges.get_changes_json())
 	if changes == null or not changes is Array:
 		return
+	changes.sort_custom(func(a, b): return int(a.get("ts", 0)) < int(b.get("ts", 0)))
 	for change in changes:
-		var action = str(change.get("action", ""))
+		var op = str(change.get("op", change.get("action", "")))
 		var table = str(change.get("table", ""))
-		match action:
+		match op:
 			"update":
 				var record_id = str(int(change.get("record_id", 0)))
 				var field = str(change.get("field", ""))
 				var value = change.get("value")
 				Global._apply_local_update(table, record_id, field, value)
 			"insert":
-				var data = change.get("data", {})
+				var data = change.get("value", change.get("data", {}))
 				var rid = int(data.get("id", Global._next_offline_id(table)))
 				data["id"] = rid
 				Global._insert_record(table, str(rid), data)
-			"delete":
+			"remove", "delete":
 				var record_id = str(int(change.get("record_id", 0)))
 				Global._remove_record(table, record_id)
 

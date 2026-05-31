@@ -19,12 +19,12 @@ const ACCENT    = Color(0.788, 0.659, 0.298)
 const GREEN     = Color(0.292, 0.855, 0.498)
 const RED       = Color(0.937, 0.267, 0.267)
 
-const FONT_BODY   = 15
-const FONT_HEADER = 18
-const FONT_TITLE  = 20
-const FONT_MIN    = 14
-const ROW_H       = 34
-const MARGIN      = 40
+const FONT_BODY   = 30
+const FONT_HEADER = 36
+const FONT_TITLE  = 48
+const FONT_MIN    = 30
+const ROW_H       = 48
+const MARGIN      = 60
 
 # ---- Column definitions ----
 const COLUMNS = [
@@ -1042,14 +1042,14 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 
 	var title_lbl = Label.new()
 	title_lbl.text = title
-	title_lbl.add_theme_font_size_override("font_size", 18)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.add_theme_color_override("font_color", ACCENT)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title_lbl)
 
 	var msg_lbl = Label.new()
 	msg_lbl.text = message
-	msg_lbl.add_theme_font_size_override("font_size", 15)
+	msg_lbl.add_theme_font_size_override("font_size", 27)
 	msg_lbl.add_theme_color_override("font_color", TEXT)
 	msg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD

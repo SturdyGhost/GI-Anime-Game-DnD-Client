@@ -295,7 +295,7 @@ func show_summary(summary: Dictionary) -> void:
 	btn.add_theme_color_override("font_color", COL_ACCENT)
 	btn.add_theme_color_override("font_hover_color", COL_ACCENT)
 	btn.add_theme_color_override("font_pressed_color", COL_ACCENT)
-	btn.add_theme_font_size_override("font_size", 15)
+	btn.add_theme_font_size_override("font_size", 27)
 	btn.pressed.connect(_on_continue)
 	btn_row.add_child(btn)
 

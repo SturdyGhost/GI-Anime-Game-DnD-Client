@@ -44,13 +44,13 @@ func _build_ui():
 
 	var title = Label.new()
 	title.text = "INTEGRATION TEST SUITE"
-	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_font_size_override("font_size", 43)
 	title.add_theme_color_override("font_color", ACCENT)
 	vbox.add_child(title)
 
 	_status_label = Label.new()
 	_status_label.text = "Running tests..."
-	_status_label.add_theme_font_size_override("font_size", 16)
+	_status_label.add_theme_font_size_override("font_size", 29)
 	_status_label.add_theme_color_override("font_color", MUTED)
 	vbox.add_child(_status_label)
 
@@ -1037,7 +1037,7 @@ func _assert(test_name: String, condition: bool, detail: String = ""):
 func _log_pass(test_name: String, detail: String):
 	var lbl = Label.new()
 	lbl.text = "  PASS  %s%s" % [test_name, (" — " + detail if detail != "" else "")]
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 25)
 	lbl.add_theme_color_override("font_color", GREEN)
 	_log_container.add_child(lbl)
 	print("[PASS] %s %s" % [test_name, detail])
@@ -1045,7 +1045,7 @@ func _log_pass(test_name: String, detail: String):
 func _log_fail(test_name: String, detail: String):
 	var lbl = Label.new()
 	lbl.text = "  FAIL  %s%s" % [test_name, (" — " + detail if detail != "" else "")]
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 25)
 	lbl.add_theme_color_override("font_color", RED)
 	_log_container.add_child(lbl)
 	print("[FAIL] %s %s" % [test_name, detail])
@@ -1053,7 +1053,7 @@ func _log_fail(test_name: String, detail: String):
 func _log_info(msg: String):
 	var lbl = Label.new()
 	lbl.text = "  INFO  %s" % msg
-	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_font_size_override("font_size", 23)
 	lbl.add_theme_color_override("font_color", MUTED)
 	_log_container.add_child(lbl)
 	print("[INFO] %s" % msg)
@@ -1061,7 +1061,7 @@ func _log_info(msg: String):
 func _log_warn(msg: String):
 	var lbl = Label.new()
 	lbl.text = "  WARN  %s" % msg
-	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_font_size_override("font_size", 23)
 	lbl.add_theme_color_override("font_color", ACCENT)
 	_log_container.add_child(lbl)
 	print("[WARN] %s" % msg)
@@ -1071,7 +1071,7 @@ func _log_header(text: String):
 	_log_container.add_child(sep)
 	var lbl = Label.new()
 	lbl.text = text
-	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_font_size_override("font_size", 29)
 	lbl.add_theme_color_override("font_color", ACCENT)
 	_log_container.add_child(lbl)
 	print("\n=== %s ===" % text)
@@ -1088,7 +1088,7 @@ func _finalize():
 
 	var summary = Label.new()
 	summary.text = result_text
-	summary.add_theme_font_size_override("font_size", 20)
+	summary.add_theme_font_size_override("font_size", 36)
 	summary.add_theme_color_override("font_color", result_color)
 	_log_container.add_child(summary)
 

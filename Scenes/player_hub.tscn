@@ -150,27 +150,27 @@ theme_override_styles/panel = ExtResource("5_qvs07")
 
 [node name="RegionLabel" type="Label" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 1030.0
-offset_top = 196.0
-offset_right = 1273.0
-offset_bottom = 225.0
+offset_left = 1054.0
+offset_top = 188.0
+offset_right = 1363.0
+offset_bottom = 232.0
 theme_override_constants/outline_size = 10
 theme_override_fonts/font = SubResource("FontVariation_mj37b")
-theme_override_font_sizes/font_size = 20
-text = "Current Region:"
+theme_override_font_sizes/font_size = 36
+text = "Region:"
 vertical_alignment = 1
 
 [node name="RegionButton" type="OptionButton" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 1211.0
-offset_top = 192.0
-offset_right = 1539.0
-offset_bottom = 262.0
-scale = Vector2(0.5, 0.5)
+offset_left = 1206.0
+offset_top = 184.0
+offset_right = 1681.0
+offset_bottom = 292.0
+scale = Vector2(0.4, 0.4)
 tooltip_text = "Change the party's current region from what is selected to the new 
 option. This is only able to be done once per session unless otherwise 
 specified by Paimon."
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 alignment = 1
 expand_icon = true
 selected = 2
@@ -221,29 +221,30 @@ theme_override_styles/panel = ExtResource("5_qvs07")
 
 [node name="ElementLabel" type="Label" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 1398.0
-offset_top = 196.0
-offset_right = 1641.0
-offset_bottom = 225.0
+offset_left = 1413.0
+offset_top = 163.0
+offset_right = 1600.0
+offset_bottom = 257.0
 theme_override_constants/outline_size = 10
 theme_override_fonts/font = SubResource("FontVariation_mj37b")
-theme_override_font_sizes/font_size = 20
-text = "Current Element:"
+theme_override_font_sizes/font_size = 36
+text = "Element:"
 vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="ElementButton" type="OptionButton" parent="UI/TopHotbar"]
 layout_mode = 0
-offset_left = 1591.0
-offset_top = 192.0
-offset_right = 1919.0
-offset_bottom = 262.0
-scale = Vector2(0.5, 0.5)
+offset_left = 1590.0
+offset_top = 182.0
+offset_right = 1958.0
+offset_bottom = 290.0
+scale = Vector2(0.45, 0.45)
 tooltip_text = "Change the element you currently have active. If it is your base 
 element or the element of the region you are in this can be done 
 anytime here with no cost. If it is another element that you'd have 
 to visit a regional \"shrin\" to, please consult with Paimon regarding 
 the offering you are making to switch."
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 72
 alignment = 1
 expand_icon = true
 selected = 2
@@ -345,31 +346,35 @@ texture_hover = ExtResource("24_7y6pu")
 [node name="MoraButton" type="Button" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 324.0
-offset_top = 173.0
+offset_top = 169.0
 offset_right = 590.0
-offset_bottom = 224.0
+offset_bottom = 245.0
+scale = Vector2(1, 0.75)
 theme_override_fonts/font = SubResource("FontVariation_84ies")
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 45
 disabled = true
 text = "1000"
 
 [node name="MoraIcon" type="TextureRect" parent="UI/TopHotbar/MoraButton"]
-layout_mode = 0
-offset_left = -21.0
-offset_top = -7.0
-offset_right = 55.0
-offset_bottom = 57.0
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.068
+offset_left = -22.0
+offset_top = 2.66666
+offset_right = 35.912
+offset_bottom = 66.6667
 texture = ExtResource("28_glsvh")
 expand_mode = 1
 
 [node name="LvlButton" type="Button" parent="UI/TopHotbar"]
 layout_mode = 0
 offset_left = 31.0
-offset_top = 173.0
-offset_right = 302.0
-offset_bottom = 224.0
+offset_top = 169.0
+offset_right = 402.0
+offset_bottom = 245.0
+scale = Vector2(0.73, 0.75)
 theme_override_fonts/font = SubResource("FontVariation_84ies")
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 45
 disabled = true
 text = "Level: 45/35"
 
@@ -377,8 +382,9 @@ text = "Level: 45/35"
 layout_mode = 0
 offset_left = 1511.0
 offset_top = 18.0
-offset_right = 1743.0
+offset_right = 1796.0
 offset_bottom = 171.0
+scale = Vector2(0.8, 1)
 text = "Companions"
 
 [node name="BottomHotbar" type="Panel" parent="UI"]

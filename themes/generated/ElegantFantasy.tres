@@ -499,7 +499,7 @@ corner_radius_bottom_left = 10
 
 [resource]
 default_font = ExtResource("1_dt1gu")
-default_font_size = 32
+default_font_size = 40
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/colors/font_disabled_color = Color(0.541176, 0.564706, 0.654902, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)
@@ -557,11 +557,11 @@ RichTextLabel/colors/default_color = Color(1, 1, 1, 1)
 TabBar/styles/tab_selected = SubResource("StyleBoxFlat_yj28w")
 TabBar/styles/tab_unselected = SubResource("StyleBoxFlat_cbvww")
 Title/base_type = &"Label"
-Title/font_sizes/font_size = 40
+Title/font_sizes/font_size = 50
 TooltipLabel/colors/font_color = Color(1, 1, 1, 1)
 TooltipLabel/colors/font_outline_color = Color(0, 0, 0, 1)
 TooltipLabel/constants/outline_size = 8
-TooltipLabel/font_sizes/font_size = 28
+TooltipLabel/font_sizes/font_size = 36
 TooltipPanel/styles/panel = SubResource("StyleBoxFlat_fb62j")
 Tree/colors/font_color = Color(1, 1, 1, 1)
 Tree/colors/font_outline_color = Color(0, 0, 0, 1)

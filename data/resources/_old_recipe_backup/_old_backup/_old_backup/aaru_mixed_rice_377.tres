@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_ty2tr"]
+
+[resource]
+script = ExtResource("1_ty2tr")
+id = 377
+product = "Aaru Mixed Rice"
+region = "Sumeru"
+description = "+2 to all party members' attack rolls for the next battle."
+role = "Artisan"
+material = "Mourning Flower"
+quantity = 4

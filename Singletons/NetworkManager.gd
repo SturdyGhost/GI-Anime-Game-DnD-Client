@@ -19,6 +19,54 @@ const DISCOVERY_PORT = 7778
 const MAX_CLIENTS = 8
 const BEACON_INTERVAL = 0.5
 
+# ─── ENet connection hardening ──────────────────────────────────────────────
+# 3 channels: 0=state sync (Updates/Tables/Inserts), 1=logs/UI (combat log,
+# damage breakdown, heartbeat), 2=one-shot end-of-battle summary. Separating
+# logs from state sync prevents a chatty log RPC from head-of-line-blocking a
+# critical state update during packet loss.
+const ENET_CHANNELS = 3
+# Lenient peer timeouts so brief drops don't disconnect everyone.
+# Defaults: limit=32, min=5000ms, max=30000ms (very aggressive for flaky home wifi).
+const ENET_TIMEOUT_LIMIT = 64
+const ENET_TIMEOUT_MIN_MS = 10000
+const ENET_TIMEOUT_MAX_MS = 60000
+# LAN bandwidth caps. Setting explicit non-zero values signals ENet to use
+# throughput-friendly pacing instead of its conservative defaults. 100 MB/s
+# is well within any LAN. 0 would be "unlimited" but in practice non-zero
+# values give better congestion behavior.
+const ENET_IN_BANDWIDTH = 104857600   # 100 MB/s
+const ENET_OUT_BANDWIDTH = 104857600  # 100 MB/s
+
+# ─── Heartbeat (app-level liveness) ─────────────────────────────────────────
+# Host pings every HEARTBEAT_INTERVAL. Clients ack. If no ack for STALE_MS,
+# log a warning so we know which peer is silently stalling — ENet's own
+# timeout (up to 60s) still owns actual disconnect.
+const HEARTBEAT_INTERVAL_SEC: float = 3.0
+const HEARTBEAT_STALE_MS: int = 9000
+var _heartbeat_timer: Timer = null
+var _last_pong_ms: Dictionary = {}  # peer_id -> Time.get_ticks_msec() of last pong
+
+# ─── Reconnect (LAN-aggressive) ─────────────────────────────────────────────
+const RECONNECT_FAST_INTERVAL_SEC: float = 1.0
+const RECONNECT_FAST_ATTEMPTS: int = 30      # ~30s of rapid retries
+const RECONNECT_SLOW_INTERVAL_SEC: float = 5.0
+const RECONNECT_TOTAL_DURATION_SEC: float = 300.0  # cap at 5 min
+const RECONNECT_HANDSHAKE_WAIT_SEC: float = 3.0
+var _reconnecting: bool = false
+
+# ─── Backup distribution (Phase 4) ─────────────────────────────────────────
+# Host broadcasts the full canonical save to every connected client every N
+# seconds on channel 1 (bulk channel). Clients persist it to disk passively as
+# canonical_save_backup.json — only used if they later enter offline mode.
+const BACKUP_BROADCAST_INTERVAL_SEC: float = 300.0
+const CLIENT_BACKUP_PATH: String = "user://canonical_save_backup.json"
+const CLIENT_BACKUP_TMP: String = "user://canonical_save_backup.json.tmp"
+var _backup_timer: Timer = null
+# Client-side: fingerprint of the most recent canonical save we received from
+# the host. Compared against incoming hash pings to decide whether to request
+# a full payload. Empty string = no backup received yet (always treat as stale).
+var _last_received_backup_hash: String = ""
+
 var is_host = false
 var is_connected_to_host = false
 var peer: ENetMultiplayerPeer = null
@@ -67,23 +115,44 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 	_setup_upnp(port)
 
 	peer = ENetMultiplayerPeer.new()
-	var err = peer.create_server(port, MAX_CLIENTS)
+	var err = peer.create_server(port, MAX_CLIENTS, ENET_CHANNELS, ENET_IN_BANDWIDTH, ENET_OUT_BANDWIDTH)
 	if err != OK:
 		push_error("NetworkManager: Failed to create server on port %d: %s" % [port, error_string(err)])
 		return err
 
 	multiplayer.multiplayer_peer = peer
-	print("NetworkManager: Hosting on port %d" % port)
+	print("NetworkManager: Hosting on port %d (channels=%d, bw=%d/%d)" % [port, ENET_CHANNELS, ENET_IN_BANDWIDTH, ENET_OUT_BANDWIDTH])
+	_start_heartbeat()
 
 	# Start LAN beacon
 	_start_beacon(port)
 
-	# Load data from disk (legacy tables + new save system)
-	var all_data = DataStore.load_all_tables()
-	for table_name in all_data.keys():
-		Global._process_table(table_name, all_data[table_name])
+	# Load the canonical save (one consolidated JSON file). Three paths:
+	#   1) canonical_save.json exists -> load it directly.
+	#   2) Legacy user://data/*.json files existed -> migration above already
+	#      consolidated them and wrote canonical_save.json -> path (1) applies.
+	#   3) Fresh install, no legacy data -> fall through to bundled defaults
+	#      in res://data/, populate CanonicalSave.tables, then flush to disk
+	#      so subsequent launches use path (1) instead of re-bootstrapping.
+	if FileAccess.file_exists(CanonicalSave.SAVE_PATH):
+		CanonicalSave.load_from_disk()
+	else:
+		var all_data = DataStore.load_all_tables()
+		for table_name in all_data.keys():
+			Global._process_table(table_name, all_data[table_name])
+		# Persist the bundled-default state immediately so a host restart
+		# before any mutation doesn't re-run the bootstrap.
+		CanonicalSave.save_to_disk()
 
-	# Load or migrate the save file
+	# Rebuild the _synced_name lookup index from whatever CanonicalSave loaded.
+	Global._rebuild_synced_name_index()
+
+	# Load the audit/change log so per-field LWW reconciliation has the host's
+	# history available for incoming offline-change merges.
+	ChangeLog.load_from_disk()
+
+	# Load or migrate the save file (typed-resource view; reads through
+	# CanonicalSave for state now, base resources are still loaded from res://).
 	SaveManager.set_host(true)
 	SaveManager.load_save()
 
@@ -91,6 +160,17 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 		Global.calculate_all_stats()
 
 	Global.Current_Region = Global.Current_Party.get("Current_Region", "Mondstadt")
+
+	# Flush the offline snapshot directly (bypass the debounce timer) so that
+	# if the host's own session glitches and re-reads from disk, the snapshot
+	# already reflects what was loaded. The debounce is for the steady-state
+	# sync stream — host startup is a single deterministic event.
+	Global.save_synced_snapshot()
+
+	# Start periodic backup distribution (broadcast full canonical save to all
+	# clients every minute so they have an up-to-date snapshot for offline use).
+	_start_backup_broadcast()
+
 	emit_signal("host_ready")
 	Global.emit_signal("data_load_complete")
 	return OK
@@ -134,13 +214,13 @@ func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
 	_last_host_port = port
 
 	peer = ENetMultiplayerPeer.new()
-	var err = peer.create_client(ip, port)
+	var err = peer.create_client(ip, port, ENET_CHANNELS, ENET_IN_BANDWIDTH, ENET_OUT_BANDWIDTH)
 	if err != OK:
 		push_error("NetworkManager: Failed to connect to %s:%d: %s" % [ip, port, error_string(err)])
 		return err
 
 	multiplayer.multiplayer_peer = peer
-	print("NetworkManager: Connecting to %s:%d" % [ip, port])
+	print("NetworkManager: Connecting to %s:%d (channels=%d, bw=%d/%d)" % [ip, port, ENET_CHANNELS, ENET_IN_BANDWIDTH, ENET_OUT_BANDWIDTH])
 	return OK
 
 # ─── DISCONNECT ───
@@ -148,6 +228,9 @@ func join_game(ip: String, port: int = DEFAULT_PORT) -> Error:
 func disconnect_from_game() -> void:
 	_stop_beacon()
 	_stop_discovery()
+	_stop_heartbeat()
+	_stop_backup_broadcast()
+	_reconnecting = false  # Cancel any in-flight reconnect loop
 
 	if _upnp_mapped and upnp and upnp.get_device_count() > 0:
 		var dev = upnp.get_device(0)
@@ -164,6 +247,149 @@ func disconnect_from_game() -> void:
 	is_connected_to_host = false
 	connected_players.clear()
 	discovered_hosts.clear()
+	_last_pong_ms.clear()
+
+# ─── HEARTBEAT (app-level liveness) ──────────────────────────────────────
+# Host pings every HEARTBEAT_INTERVAL_SEC; clients pong back. The reliable
+# RPC traffic itself keeps NAT/router state warm AND lets us proactively
+# detect a peer that's silently stalling (no pong for HEARTBEAT_STALE_MS)
+# well before ENet's longer timeout would notice.
+
+func _start_heartbeat() -> void:
+	if _heartbeat_timer != null:
+		return  # Already running
+	_heartbeat_timer = Timer.new()
+	_heartbeat_timer.wait_time = HEARTBEAT_INTERVAL_SEC
+	_heartbeat_timer.timeout.connect(_on_heartbeat_tick)
+	add_child(_heartbeat_timer)
+	_heartbeat_timer.start()
+
+func _stop_heartbeat() -> void:
+	if _heartbeat_timer != null:
+		_heartbeat_timer.stop()
+		_heartbeat_timer.queue_free()
+		_heartbeat_timer = null
+
+func _on_heartbeat_tick() -> void:
+	if not is_host:
+		return
+	if connected_players.is_empty():
+		return
+	var now_ms: int = Time.get_ticks_msec()
+	# Broadcast ping (clients all respond).
+	_heartbeat_ping.rpc(now_ms)
+	# Check pong freshness; log (don't disconnect — ENet's longer timeout owns
+	# real disconnection so a brief network blip doesn't kick someone).
+	for peer_id in connected_players.keys():
+		var last: int = int(_last_pong_ms.get(peer_id, now_ms))
+		var age_ms: int = now_ms - last
+		if age_ms > HEARTBEAT_STALE_MS:
+			var pname: String = connected_players.get(peer_id, {}).get("name", "peer %d" % peer_id)
+			print("NetworkManager: heartbeat stale for %s (no pong in %dms)" % [pname, age_ms])
+
+@rpc("authority", "reliable", "call_remote", 1)
+func _heartbeat_ping(host_ms: int) -> void:
+	if is_host:
+		return
+	# Client echoes the host's timestamp back so host can measure roundtrip
+	# AND confirm peer liveness (the reliable ACK alone proves we're alive).
+	_heartbeat_pong.rpc_id(1, host_ms)
+
+@rpc("any_peer", "reliable", "call_remote", 1)
+func _heartbeat_pong(_host_ms: int) -> void:
+	if not is_host:
+		return
+	var sender: int = multiplayer.get_remote_sender_id()
+	_last_pong_ms[sender] = Time.get_ticks_msec()
+
+# ─── Periodic backup distribution (Phase 4) ──────────────────────────────
+# Host broadcasts the entire canonical save to all clients every
+# BACKUP_BROADCAST_INTERVAL_SEC. Clients receive and write to disk passively;
+# they never read from this file during normal online play — it's only loaded
+# if they later go into offline mode.
+
+func _start_backup_broadcast() -> void:
+	if _backup_timer != null:
+		return
+	_backup_timer = Timer.new()
+	_backup_timer.wait_time = BACKUP_BROADCAST_INTERVAL_SEC
+	_backup_timer.timeout.connect(_on_backup_broadcast_tick)
+	add_child(_backup_timer)
+	_backup_timer.start()
+
+func _stop_backup_broadcast() -> void:
+	if _backup_timer != null:
+		_backup_timer.stop()
+		_backup_timer.queue_free()
+		_backup_timer = null
+
+func _on_backup_broadcast_tick() -> void:
+	if not is_host:
+		return
+	if connected_players.is_empty():
+		return  # No one to send to
+	# Ping the canonical content hash to every client. Clients whose stored
+	# backup hash matches will silently skip; clients that are out of date
+	# will call back via _request_canonical_backup and receive the full
+	# payload individually. Avoids broadcasting megabytes of JSON when the
+	# delta-update path has already kept everyone in sync.
+	_ping_canonical_hash.rpc(CanonicalSave.get_content_hash())
+
+## Serialize CanonicalSave and broadcast to every connected client on channel 1.
+## Kept for explicit "force-sync everyone now" use cases; the periodic tick
+## uses the hash-ping path instead.
+func _broadcast_canonical_save_to_all() -> void:
+	if not is_host:
+		return
+	var payload: Dictionary = CanonicalSave.snapshot()
+	var json_str: String = JSON.stringify(payload)
+	var content_hash: String = CanonicalSave.get_content_hash()
+	_receive_canonical_backup.rpc(json_str, content_hash)
+
+## Send the canonical save to a specific peer (used right after they connect
+## so they have a backup immediately without waiting for the next tick).
+func _send_canonical_backup_to_peer(peer_id: int) -> void:
+	if not is_host:
+		return
+	var payload: Dictionary = CanonicalSave.snapshot()
+	var json_str: String = JSON.stringify(payload)
+	var content_hash: String = CanonicalSave.get_content_hash()
+	_receive_canonical_backup.rpc_id(peer_id, json_str, content_hash)
+
+@rpc("authority", "reliable", "call_remote", 1)
+func _receive_canonical_backup(json_str: String, content_hash: String = "") -> void:
+	# Atomic write: tmp + rename so a crash mid-write doesn't corrupt the
+	# backup. We never read this during normal play — only on offline-mode
+	# entry — so it can be overwritten freely each tick.
+	var tmp = FileAccess.open(CLIENT_BACKUP_TMP, FileAccess.WRITE)
+	if tmp == null:
+		push_error("NetworkManager: cannot write canonical backup tmp file")
+		return
+	tmp.store_string(json_str)
+	tmp.close()
+	var err = DirAccess.copy_absolute(CLIENT_BACKUP_TMP, CLIENT_BACKUP_PATH)
+	if err != OK:
+		push_error("NetworkManager: failed to promote canonical backup (error %d)" % err)
+		return
+	DirAccess.remove_absolute(CLIENT_BACKUP_TMP)
+	_last_received_backup_hash = content_hash
+
+## Host pings every client with the current canonical content hash. Clients
+## compare locally and only request a full payload if it differs.
+@rpc("authority", "reliable", "call_remote", 1)
+func _ping_canonical_hash(host_hash: String) -> void:
+	if host_hash == _last_received_backup_hash:
+		return  # Already up to date — skip the full transfer.
+	_request_canonical_backup.rpc_id(1)
+
+## Client → host: "my backup is stale, please send the full canonical save."
+## Sent in response to a hash-ping mismatch.
+@rpc("any_peer", "reliable", "call_remote", 1)
+func _request_canonical_backup() -> void:
+	if not is_host:
+		return
+	var sender_peer: int = multiplayer.get_remote_sender_id()
+	_send_canonical_backup_to_peer(sender_peer)
 
 # ─── LAN DISCOVERY ───
 
@@ -308,15 +534,37 @@ func _stop_beacon() -> void:
 
 # ─── CONNECTION CALLBACKS ───
 
+## Apply lenient ENet timeouts to a connected peer so brief packet loss or
+## stalled wifi doesn't trigger an immediate disconnect.
+func _harden_peer_timeouts(peer_id: int) -> void:
+	if peer == null:
+		return
+	var enet_host = peer.host
+	if enet_host == null:
+		return
+	if not enet_host.has_method("get_peer"):
+		return
+	var pp = enet_host.get_peer(peer_id)
+	if pp != null and pp.has_method("set_timeout"):
+		pp.set_timeout(ENET_TIMEOUT_LIMIT, ENET_TIMEOUT_MIN_MS, ENET_TIMEOUT_MAX_MS)
+		print("NetworkManager: Hardened timeouts for peer %d (limit=%d, min=%dms, max=%dms)" % [
+			peer_id, ENET_TIMEOUT_LIMIT, ENET_TIMEOUT_MIN_MS, ENET_TIMEOUT_MAX_MS
+		])
+
 func _on_peer_connected(id: int) -> void:
 	print("NetworkManager: Peer connected: %d" % id)
+	_harden_peer_timeouts(id)
 	if is_host:
 		# Send full data sync to the new peer, table by table
 		_send_full_sync_to_peer(id)
+		# Also send a canonical-save backup so they have one immediately for
+		# offline mode without waiting up to BACKUP_BROADCAST_INTERVAL_SEC.
+		_send_canonical_backup_to_peer(id)
 	emit_signal("player_connected", id)
 
 func _on_peer_disconnected(id: int) -> void:
 	print("NetworkManager: Peer disconnected: %d" % id)
+	_last_pong_ms.erase(id)  # Drop heartbeat tracking for the gone peer
 	if is_host:
 		var player_name = connected_players.get(id, {}).get("name", "Peer %d" % id)
 		connected_players.erase(id)
@@ -328,6 +576,12 @@ func _on_peer_disconnected(id: int) -> void:
 func _on_connected_to_server() -> void:
 	print("NetworkManager: Connected to host!")
 	is_connected_to_host = true
+	# Harden the server peer (always peer_id 1 from a client's perspective).
+	_harden_peer_timeouts(1)
+	# Clients also start the heartbeat timer — they're a no-op as host (return
+	# early in _on_heartbeat_tick) but it means clients are ready to respond to
+	# pings without needing a separate state machine.
+	_start_heartbeat()
 	# Submit offline changes before registration if they exist
 	if OfflineChanges.has_changes():
 		print("NetworkManager: Submitting offline changes to host")
@@ -345,26 +599,52 @@ func _on_connection_failed() -> void:
 func _on_server_disconnected() -> void:
 	print("NetworkManager: Lost connection to host — attempting reconnect to %s:%d" % [_last_host_ip, _last_host_port])
 	is_connected_to_host = false
+	# Stop pinging into the void; reconnect will restart it on success.
+	_stop_heartbeat()
 	Toast.notify("Lost connection to host — reconnecting...", Toast.WARNING, 5.0)
 	if _last_host_ip != "":
 		_attempt_reconnect()
 
+## LAN-aggressive reconnect: fast retries for the first 30s, then slow retries
+## for up to 5 minutes total. Cancellable by setting _reconnecting = false from
+## a UI action (lobby return, etc.).
 func _attempt_reconnect() -> void:
-	for attempt in range(5):
-		print("NetworkManager: Reconnect attempt %d/5" % (attempt + 1))
+	if _reconnecting:
+		return  # Already in progress
+	_reconnecting = true
+	var start_ms: int = Time.get_ticks_msec()
+	var attempt: int = 0
+	while _reconnecting:
+		attempt += 1
+		var elapsed_ms: int = Time.get_ticks_msec() - start_ms
+		if elapsed_ms > int(RECONNECT_TOTAL_DURATION_SEC * 1000):
+			break
+		print("NetworkManager: Reconnect attempt %d (elapsed=%ds)" % [attempt, elapsed_ms / 1000])
+
+		# Build a fresh peer for each attempt — reusing a failed peer can stick.
 		peer = ENetMultiplayerPeer.new()
-		var err = peer.create_client(_last_host_ip, _last_host_port)
-		if err != OK:
-			await get_tree().create_timer(1.0).timeout
-			continue
-		multiplayer.multiplayer_peer = peer
-		# Wait up to 3 seconds for connection
-		await get_tree().create_timer(3.0).timeout
-		if is_connected_to_host:
-			print("NetworkManager: Reconnected successfully!")
-			Toast.notify("Reconnected to host", Toast.SUCCESS)
-			return
-	Toast.notify("Failed to reconnect — returning to lobby", Toast.ERROR, 5.0)
+		var err = peer.create_client(_last_host_ip, _last_host_port, ENET_CHANNELS, ENET_IN_BANDWIDTH, ENET_OUT_BANDWIDTH)
+		if err == OK:
+			multiplayer.multiplayer_peer = peer
+			# Wait up to RECONNECT_HANDSHAKE_WAIT_SEC for the connection event.
+			var deadline_ms: int = Time.get_ticks_msec() + int(RECONNECT_HANDSHAKE_WAIT_SEC * 1000)
+			while Time.get_ticks_msec() < deadline_ms and _reconnecting:
+				await get_tree().process_frame
+				if is_connected_to_host:
+					_reconnecting = false
+					print("NetworkManager: Reconnected after %d attempts (%ds)" % [attempt, (Time.get_ticks_msec() - start_ms) / 1000])
+					Toast.notify("Reconnected to host", Toast.SUCCESS)
+					return
+
+		# Failed this attempt — pick delay based on phase.
+		var delay: float = RECONNECT_FAST_INTERVAL_SEC if attempt <= RECONNECT_FAST_ATTEMPTS else RECONNECT_SLOW_INTERVAL_SEC
+		if attempt == RECONNECT_FAST_ATTEMPTS + 1:
+			Toast.notify("Still trying to reach host... (will keep retrying)", Toast.WARNING, 3.0)
+		await get_tree().create_timer(delay).timeout
+
+	_reconnecting = false
+	if not is_connected_to_host:
+		Toast.notify("Could not reconnect after 5 minutes — returning to lobby", Toast.ERROR, 5.0)
 	push_warning("NetworkManager: Failed to reconnect after 5 attempts — returning to lobby")
 	_return_to_lobby()
 
@@ -503,11 +783,16 @@ func _receive_field_updates(json_str: String) -> void:
 	for u in updates:
 		Global._apply_update_to_save(u)
 	CharacterManager.recalculate_all()
+	# Mirror to offline snapshot so a mid-session drop preserves online progress.
+	Global._queue_offline_snapshot_save()
 	Global.emit_signal("data_load_complete")
 
 # ─── CLIENT -> HOST REQUESTS ───
 
-## Client submits offline changes to host on reconnect. Host applies them before full sync.
+## Client submits offline changes to host on reconnect. Host reconciles each
+## entry against its ChangeLog using per-field last-write-wins by timestamp.
+## An offline change at ts T wins over the host's value only if T is newer
+## than the host's latest entry for that same (table, record, field).
 @rpc("any_peer", "reliable")
 func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 	if not is_host:
@@ -519,48 +804,87 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 		_ack_offline_changes.rpc_id(sender, true)
 		return
 
-	print("NetworkManager: Applying %d offline changes from %s (peer %d)" % [changes.size(), player_name, sender])
+	print("NetworkManager: Reconciling %d offline changes from %s (peer %d)" % [changes.size(), player_name, sender])
 
-	# Track offline→host ID remapping so deletes/updates on locally-inserted
-	# records target the correct host-assigned ID
-	var id_remap: Dictionary = {}  # "table:offline_id" → host_id
+	# Sort by timestamp so insert-then-update on the same record applies in
+	# the right order (insert assigns the new host ID; the update then targets it).
+	changes.sort_custom(func(a, b): return int(a.get("ts", 0)) < int(b.get("ts", 0)))
+
+	# Track offline→host ID remapping for records created offline. The client's
+	# id (assigned locally while offline) won't match the host's next free id.
+	var id_remap: Dictionary = {}  # "table:offline_id" -> host_id
+	var changed_tables: Dictionary = {}
+	var applied: int = 0
+	var discarded: int = 0
 
 	for change in changes:
-		var action = str(change.get("action", ""))
-		var table = str(change.get("table", ""))
-		match action:
+		# Tolerate either the new (op/ts/value) or legacy (action/timestamp/data) keys.
+		var op: String = str(change.get("op", change.get("action", "")))
+		var table: String = str(change.get("table", ""))
+		var ts: int = int(change.get("ts", 0))
+		var actor: String = str(change.get("actor", player_name))
+
+		match op:
 			"update":
-				var record_id = str(int(change.get("record_id", 0)))
-				var remap_key = "%s:%s" % [table, record_id]
+				var record_id_int: int = int(change.get("record_id", 0))
+				var remap_key = "%s:%d" % [table, record_id_int]
 				if id_remap.has(remap_key):
-					record_id = str(id_remap[remap_key])
-				var field = str(change.get("field", ""))
+					record_id_int = int(id_remap[remap_key])
+				var record_id: String = str(record_id_int)
+				var field: String = str(change.get("field", ""))
 				var value = change.get("value")
-				# Mora conflict resolution: highest value wins
-				if table == "Party" and field == "Mora":
-					var current_mora = 0
-					if Global._synced.has("Party") and Global._synced["Party"].has(record_id):
-						current_mora = int(Global._synced["Party"][record_id].get("Mora", 0))
-					if int(value) <= current_mora:
-						continue  # Keep the higher value
+
+				# Per-field LWW: discard if host's latest entry beats us.
+				var latest = ChangeLog.latest_for(table, record_id_int, field)
+				if latest != null and int(latest.get("ts", 0)) >= ts:
+					discarded += 1
+					continue
+
+				# Discard if the record was removed on the host while offline.
+				if not Global._synced.get(table, {}).has(record_id):
+					discarded += 1
+					continue
+
+				var old_value = Global._synced.get(table, {}).get(record_id, {}).get(field, null)
 				Global._apply_local_update(table, record_id, field, value)
-				DataStore.persist_table(table)
+				ChangeLog.append_update(actor, table, record_id_int, field, value, old_value)
+				changed_tables[table] = true
+				applied += 1
 			"insert":
-				var data = change.get("data", {})
-				var offline_id = int(data.get("id", 0))
-				var new_id = _next_id_for_table(table)
-				var remap_key = "%s:%d" % [table, offline_id]
-				id_remap[remap_key] = new_id
+				var data = change.get("value", change.get("data", {}))
+				if typeof(data) != TYPE_DICTIONARY:
+					discarded += 1
+					continue
+				var offline_id: int = int(data.get("id", change.get("record_id", 0)))
+				var new_id: int = _next_id_for_table(table)
+				id_remap["%s:%d" % [table, offline_id]] = new_id
 				data["id"] = new_id
 				Global._insert_record(table, str(new_id), data)
-				DataStore.persist_table(table)
-			"delete":
-				var record_id = str(int(change.get("record_id", 0)))
-				var remap_key = "%s:%s" % [table, record_id]
+				ChangeLog.append_insert(actor, table, new_id, data)
+				changed_tables[table] = true
+				applied += 1
+			"remove", "delete":
+				var record_id_int: int = int(change.get("record_id", 0))
+				var remap_key = "%s:%d" % [table, record_id_int]
 				if id_remap.has(remap_key):
-					record_id = str(id_remap[remap_key])
+					record_id_int = int(id_remap[remap_key])
+				var record_id: String = str(record_id_int)
+				if not Global._synced.get(table, {}).has(record_id):
+					discarded += 1
+					continue
 				Global._remove_record(table, record_id)
-				DataStore.persist_table(table)
+				ChangeLog.append_remove(actor, table, record_id_int)
+				changed_tables[table] = true
+				applied += 1
+
+	# Persist + broadcast tables that changed during reconciliation.
+	for table_name in changed_tables.keys():
+		DataStore.persist_table(table_name)
+		broadcast_table_update(table_name)
+
+	print("NetworkManager: Reconciliation done — %d applied, %d discarded" % [applied, discarded])
+	Toast.notify("Merged %d offline changes from %s (%d discarded)" % [applied, player_name, discarded], Toast.SUCCESS)
+	_ack_offline_changes.rpc_id(sender, true)
 
 	Toast.notify("Applied offline changes from %s" % player_name, Toast.SUCCESS)
 	_ack_offline_changes.rpc_id(sender, true)
@@ -577,7 +901,8 @@ func _ack_offline_changes(success: bool) -> void:
 ## Damage breakdown sent from host to acting player after a turn.
 signal damage_breakdown_received(turn_input: Dictionary)
 
-@rpc("authority", "reliable")
+# Channel 1: independent UI/log RPC, won't block state sync on channel 0.
+@rpc("authority", "reliable", "call_remote", 1)
 func _send_damage_breakdown(json_str: String) -> void:
 	var input = JSON.parse_string(json_str)
 	if input != null and input is Dictionary:
@@ -588,7 +913,9 @@ func _send_damage_breakdown(json_str: String) -> void:
 func request_update(updates_json: String) -> void:
 	if not is_host:
 		return
-	print("NetworkManager: host received request_update from peer %d" % multiplayer.get_remote_sender_id())
+	var sender_peer: int = multiplayer.get_remote_sender_id()
+	var actor: String = _actor_for_peer(sender_peer)
+	print("NetworkManager: host received request_update from %s (peer %d)" % [actor, sender_peer])
 	var updates = JSON.parse_string(updates_json)
 	if updates == null or typeof(updates) != TYPE_ARRAY:
 		push_error("NetworkManager: failed to parse request_update")
@@ -601,7 +928,9 @@ func request_update(updates_json: String) -> void:
 		var field: String = str(u.get("field", ""))
 		var value = u.get("value")
 
+		var old_value = Global._synced.get(table, {}).get(record_id, {}).get(field, null)
 		Global._apply_local_update(table, record_id, field, value)
+		ChangeLog.append_update(actor, table, int(record_id), field, value, old_value)
 		changed_tables[table] = true
 
 	for table_name in changed_tables.keys():
@@ -616,6 +945,17 @@ func request_update(updates_json: String) -> void:
 			break
 	Global.emit_signal("data_load_complete")
 
+## Resolve a peer_id to an actor string for ChangeLog auditing.
+##   1 (host) -> "host"
+##   any other -> the player's name as registered in connected_players, or "peer N"
+func _actor_for_peer(peer_id: int) -> String:
+	if peer_id == 1:
+		return "host"
+	var pname: String = connected_players.get(peer_id, {}).get("name", "")
+	if pname != "":
+		return pname
+	return "peer %d" % peer_id
+
 ## Client requests a record insertion.
 @rpc("any_peer", "reliable")
 func request_insert(table: String, record_json: String, correlation_id: String) -> void:
@@ -625,19 +965,22 @@ func request_insert(table: String, record_json: String, correlation_id: String) 
 	if record == null:
 		return
 
+	var sender = multiplayer.get_remote_sender_id()
+	var actor: String = _actor_for_peer(sender)
+
 	# Generate a new ID
 	var new_id = _next_id_for_table(table)
 	record["id"] = new_id
 
 	# Insert into Global dict
 	Global._insert_record(table, str(new_id), record)
+	ChangeLog.append_insert(actor, table, new_id, record)
 
 	# Save and broadcast
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
 
 	# Notify the requesting peer
-	var sender = multiplayer.get_remote_sender_id()
 	_receive_insert_result.rpc_id(sender, correlation_id, table, new_id, record_json, true)
 
 @rpc("authority", "reliable")
@@ -653,7 +996,11 @@ func request_remove(table: String, record_id: int) -> void:
 	if not is_host:
 		return
 
+	var sender = multiplayer.get_remote_sender_id()
+	var actor: String = _actor_for_peer(sender)
+
 	Global._remove_record(table, str(record_id))
+	ChangeLog.append_remove(actor, table, record_id)
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
 
@@ -677,7 +1024,9 @@ func host_update_records(updates: Array) -> void:
 		var field: String = str(u.get("field", ""))
 		var value = u.get("value")
 
+		var old_value = Global._synced.get(table, {}).get(record_id, {}).get(field, null)
 		Global._apply_local_update(table, record_id, field, value)
+		ChangeLog.append_update("host", table, int(record_id), field, value, old_value)
 		changed_tables[table] = true
 
 	for table_name in changed_tables.keys():
@@ -700,6 +1049,7 @@ func host_insert(table: String, columns: Array, values: Array) -> int:
 		record[columns[i]] = values[i]
 
 	Global._insert_record(table, str(new_id), record)
+	ChangeLog.append_insert("host", table, new_id, record)
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
 	Global.emit_signal("data_load_complete")
@@ -708,9 +1058,245 @@ func host_insert(table: String, columns: Array, values: Array) -> int:
 ## Host removes a record locally, saves, and broadcasts.
 func host_remove(table: String, record_id: int) -> void:
 	Global._remove_record(table, str(record_id))
+	ChangeLog.append_remove("host", table, record_id)
 	DataStore.persist_table(table)
 	broadcast_table_update(table)
 	Global.emit_signal("data_load_complete")
+
+# ─── TRANSACTIONAL ITEM TRANSFER (2PC) ─────────────────────────────────────
+# Flow: giver -> host. Host validates, stages add on receiver, broadcasts table
+# sync, notifies receiver and waits for ack. On ack, host subtracts from giver
+# and broadcasts. On timeout, host rolls back receiver's addition. The giver
+# never loses items unless the receiver visibly acknowledged receipt.
+#
+# Edge cases:
+#  - Receiver offline: commit immediately (host has the data; receiver syncs on
+#    reconnect). The giver gets confirmation right away.
+#  - Receiver is host (giver is client giving to DM): no RPC roundtrip; commit
+#    immediately. rpc_id(1) to self is silently dropped.
+#  - Giver is host: skip RPC by calling _handle_transfer_request directly.
+
+signal transfer_result(corr_id: String, success: bool, message: String)
+
+# corr_id -> { giver_name, giver_peer, receiver_name, item_name, qty,
+#              giver_record_id, receiver_record_id, receiver_had_existing,
+#              started_at_ms }
+var _pending_transfers: Dictionary = {}
+const TRANSFER_TIMEOUT_SEC: float = 15.0
+
+## Public entry: giver calls this to start a transfer. Routes correctly whether
+## giver is host or client.
+func request_item_transfer(corr_id: String, receiver_name: String, item_name: String, qty: int) -> void:
+	if is_host:
+		_handle_transfer_request(1, corr_id, receiver_name, item_name, qty)
+	else:
+		_rpc_request_item_transfer.rpc_id(1, corr_id, receiver_name, item_name, qty)
+
+@rpc("any_peer", "reliable")
+func _rpc_request_item_transfer(corr_id: String, receiver_name: String, item_name: String, qty: int) -> void:
+	if not is_host:
+		return
+	var sender_peer: int = multiplayer.get_remote_sender_id()
+	_handle_transfer_request(sender_peer, corr_id, receiver_name, item_name, qty)
+
+## Host-side: validate, stage on receiver, expect ack (or skip ack if offline/self).
+func _handle_transfer_request(giver_peer: int, corr_id: String, receiver_name: String, item_name: String, qty: int) -> void:
+	# Resolve giver name from peer_id (defends against spoofed sender name).
+	var giver_name: String = ""
+	if giver_peer == 1:
+		giver_name = Global.ACTIVE_USER_NAME
+	else:
+		giver_name = connected_players.get(giver_peer, {}).get("name", "")
+
+	# ── Validate ────────────────────────────────────────────────────────
+	if giver_name == "" or str(receiver_name).strip_edges() == "" or str(item_name).strip_edges() == "":
+		_send_transfer_result(giver_peer, corr_id, false, "Invalid transfer arguments")
+		return
+	if qty <= 0:
+		_send_transfer_result(giver_peer, corr_id, false, "Quantity must be at least 1")
+		return
+	if giver_name == receiver_name:
+		_send_transfer_result(giver_peer, corr_id, false, "Cannot give to yourself")
+		return
+
+	var giver_record = _find_item_record(giver_name, item_name)
+	if giver_record == null:
+		_send_transfer_result(giver_peer, corr_id, false, "You don't have %s" % item_name)
+		return
+	var giver_qty: int = int(giver_record.get("Quantity", 0))
+	if giver_qty < qty:
+		_send_transfer_result(giver_peer, corr_id, false, "You only have %d %s" % [giver_qty, item_name])
+		return
+
+	var actor_for_log: String = _actor_for_peer(giver_peer)
+
+	# ── Phase 1: stage addition on receiver (don't touch giver yet) ────
+	var receiver_record = _find_item_record(receiver_name, item_name)
+	var receiver_record_id: int = -1
+	var receiver_had_existing: bool = (receiver_record != null)
+	if receiver_had_existing:
+		receiver_record_id = int(receiver_record.get("id"))
+		var old_qty: int = int(receiver_record.get("Quantity", 0))
+		var new_qty: int = old_qty + qty
+		Global._apply_local_update("Character_Items", str(receiver_record_id), "Quantity", new_qty)
+		ChangeLog.append_update(actor_for_log, "Character_Items", receiver_record_id, "Quantity", new_qty, old_qty)
+	else:
+		var item_def = _find_master_item_def(item_name)
+		if item_def == null:
+			_send_transfer_result(giver_peer, corr_id, false, "Item definition missing for %s" % item_name)
+			return
+		receiver_record_id = _next_id_for_table("Character_Items")
+		var new_record := {
+			"id": receiver_record_id,
+			"Owner": receiver_name,
+			"Name": item_name,
+			"Quantity": qty,
+			"Type": item_def.get("Type", ""),
+			"Rarity": item_def.get("Rarity", ""),
+			"Description": item_def.get("Description", ""),
+		}
+		Global._insert_record("Character_Items", str(receiver_record_id), new_record)
+		ChangeLog.append_insert(actor_for_log, "Character_Items", receiver_record_id, new_record)
+	DataStore.persist_table("Character_Items")
+	broadcast_table_update("Character_Items")
+
+	# Track pending. Even if we commit immediately below, _commit_transfer expects this.
+	_pending_transfers[corr_id] = {
+		"giver_name": giver_name,
+		"giver_peer": giver_peer,
+		"receiver_name": receiver_name,
+		"item_name": item_name,
+		"qty": qty,
+		"giver_record_id": int(giver_record.get("id")),
+		"receiver_record_id": receiver_record_id,
+		"receiver_had_existing": receiver_had_existing,
+		"started_at_ms": Time.get_ticks_msec(),
+	}
+
+	var receiver_peer: int = _peer_id_for_player(receiver_name)
+	if receiver_peer == -1:
+		# Receiver offline — items held by host, will sync on their reconnect.
+		_commit_transfer(corr_id, "%s offline — items will sync when they reconnect" % receiver_name)
+		return
+	if receiver_peer == 1:
+		# Receiver is host (giver is a client giving to DM). No RPC roundtrip needed.
+		_commit_transfer(corr_id, "Transfer complete")
+		return
+
+	# ── Phase 2: notify receiver, await ack with timeout ───────────────
+	_notify_received_transfer.rpc_id(receiver_peer, corr_id, item_name, qty, giver_name)
+	var timer := get_tree().create_timer(TRANSFER_TIMEOUT_SEC)
+	timer.timeout.connect(_on_transfer_timeout.bind(corr_id))
+
+## Receiver's client: show feedback and ack the host.
+@rpc("authority", "reliable")
+func _notify_received_transfer(corr_id: String, item_name: String, qty: int, giver_name: String) -> void:
+	Toast.notify("Received %d %s from %s" % [qty, item_name, giver_name], Toast.SUCCESS)
+	_ack_received_transfer.rpc_id(1, corr_id)
+
+@rpc("any_peer", "reliable")
+func _ack_received_transfer(corr_id: String) -> void:
+	if not is_host:
+		return
+	_commit_transfer(corr_id, "Transfer complete")
+
+## Host: subtract from giver, broadcast, clean up.
+func _commit_transfer(corr_id: String, message: String) -> void:
+	if not _pending_transfers.has(corr_id):
+		return  # Already committed or rolled back
+	var pending: Dictionary = _pending_transfers[corr_id]
+	_pending_transfers.erase(corr_id)
+
+	var giver_record_id: int = int(pending.get("giver_record_id", -1))
+	var qty: int = int(pending.get("qty", 0))
+	var actor_for_log: String = _actor_for_peer(int(pending.get("giver_peer", 0)))
+	var items_dict: Dictionary = Global._synced.get("Character_Items", {})
+	var giver_record = items_dict.get(str(giver_record_id), null)
+	if giver_record == null:
+		_send_transfer_result(pending.get("giver_peer", 0), corr_id, false, "Giver record disappeared during transfer")
+		return
+	var old_giver_qty: int = int(giver_record.get("Quantity", 0))
+	var new_giver_qty: int = max(0, old_giver_qty - qty)
+	Global._apply_local_update("Character_Items", str(giver_record_id), "Quantity", new_giver_qty)
+	ChangeLog.append_update(actor_for_log, "Character_Items", giver_record_id, "Quantity", new_giver_qty, old_giver_qty)
+	DataStore.persist_table("Character_Items")
+	broadcast_field_updates([{
+		"table": "Character_Items",
+		"record_id": giver_record_id,
+		"field": "Quantity",
+		"value": new_giver_qty,
+	}])
+
+	_send_transfer_result(pending.get("giver_peer", 0), corr_id, true, message)
+
+## Host: receiver never acked. Undo the receiver-side stage, notify giver.
+func _on_transfer_timeout(corr_id: String) -> void:
+	if not _pending_transfers.has(corr_id):
+		return  # Already committed
+	var pending: Dictionary = _pending_transfers[corr_id]
+	_pending_transfers.erase(corr_id)
+
+	var receiver_record_id: int = int(pending.get("receiver_record_id", -1))
+	var qty: int = int(pending.get("qty", 0))
+	if pending.get("receiver_had_existing", false):
+		var items_dict: Dictionary = Global._synced.get("Character_Items", {})
+		var rec = items_dict.get(str(receiver_record_id), null)
+		if rec != null:
+			var current: int = int(rec.get("Quantity", 0))
+			Global._apply_local_update("Character_Items", str(receiver_record_id), "Quantity", max(0, current - qty))
+	else:
+		Global._remove_record("Character_Items", str(receiver_record_id))
+	DataStore.persist_table("Character_Items")
+	broadcast_table_update("Character_Items")
+
+	_send_transfer_result(
+		pending.get("giver_peer", 0),
+		corr_id,
+		false,
+		"%s didn't confirm receipt — transfer cancelled" % str(pending.get("receiver_name", "Receiver"))
+	)
+
+func _send_transfer_result(giver_peer: int, corr_id: String, success: bool, message: String) -> void:
+	if giver_peer == 1:
+		_show_transfer_result(corr_id, success, message)
+	else:
+		_rpc_transfer_result.rpc_id(giver_peer, corr_id, success, message)
+
+@rpc("authority", "reliable")
+func _rpc_transfer_result(corr_id: String, success: bool, message: String) -> void:
+	_show_transfer_result(corr_id, success, message)
+
+## Universal giver feedback. Toast survives scene refresh (PlayerInventory
+## auto-rebuilds on data_load_complete, so its own signal handlers can vanish
+## between staging and ack — Toast is on a singleton and persists).
+func _show_transfer_result(corr_id: String, success: bool, message: String) -> void:
+	transfer_result.emit(corr_id, success, message)
+	Toast.notify(message, Toast.SUCCESS if success else Toast.ERROR)
+
+## Find peer_id by player name. Returns 1 for host's own player, -1 if unknown.
+func _peer_id_for_player(player_name: String) -> int:
+	for peer_id in connected_players:
+		if connected_players[peer_id].get("name", "") == player_name:
+			return peer_id
+	if is_host and Global.ACTIVE_USER_NAME == player_name:
+		return 1
+	return -1
+
+## Find a Character_Items record by owner+item name. Returns null if absent.
+func _find_item_record(owner_name: String, item_name: String) -> Variant:
+	var items: Dictionary = Global._synced.get("Character_Items", {})
+	for rid in items:
+		var rec = items[rid]
+		if rec.get("Owner") == owner_name and rec.get("Name") == item_name:
+			return rec
+	return null
+
+## Find a master item definition in Global.ITEMS (catalog uses "Item" as name field).
+func _find_master_item_def(item_name: String) -> Variant:
+	for i in Global.ITEMS.values():
+		if i.get("Item") == item_name or i.get("Name") == item_name:
+			return i
+	return null
 
 # ─── LOG OPERATIONS (host-only, saved to JSON) ───
 
@@ -754,7 +1340,8 @@ func _receive_battle_summary(summary_json: String) -> void:
 	if summary and summary is Dictionary:
 		battle_summary_received.emit(summary)
 
-@rpc("any_peer", "reliable")
+# Channel 1: chatty client→host logs, won't block state sync on channel 0.
+@rpc("any_peer", "reliable", "call_remote", 1)
 func _request_log(payload_json: String) -> void:
 	if not is_host:
 		return
@@ -762,7 +1349,7 @@ func _request_log(payload_json: String) -> void:
 	if payload:
 		host_log(payload)
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "reliable", "call_remote", 1)
 func _request_combat_log(payload_json: String) -> void:
 	if not is_host:
 		return

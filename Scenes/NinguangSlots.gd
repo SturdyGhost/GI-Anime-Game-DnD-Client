@@ -135,7 +135,7 @@ func _build_ui() -> void:
 	var title = Label.new()
 	title.text = "Ninguang's Golden Parlor"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_font_size_override("font_size", 72)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
 	main_vbox.add_child(title)
 
@@ -143,14 +143,14 @@ func _build_ui() -> void:
 	var subtitle = Label.new()
 	subtitle.text = "\"Every Mora counts... especially mine.\""
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 18)
+	subtitle.add_theme_font_size_override("font_size", 32)
 	subtitle.add_theme_color_override("font_color", Color(0.7, 0.6, 0.35))
 	main_vbox.add_child(subtitle)
 
 	# Mora display
 	_mora_label = Label.new()
 	_mora_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_mora_label.add_theme_font_size_override("font_size", 24)
+	_mora_label.add_theme_font_size_override("font_size", 43)
 	_mora_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
 	_update_mora_display()
 	main_vbox.add_child(_mora_label)
@@ -177,7 +177,7 @@ func _build_ui() -> void:
 
 	var bet_label = Label.new()
 	bet_label.text = "Bet:"
-	bet_label.add_theme_font_size_override("font_size", 20)
+	bet_label.add_theme_font_size_override("font_size", 36)
 	bet_label.add_theme_color_override("font_color", Color(0.8, 0.75, 0.5))
 	bet_hbox.add_child(bet_label)
 
@@ -201,14 +201,14 @@ func _build_ui() -> void:
 	_spin_btn = Button.new()
 	_spin_btn.text = "SPIN"
 	_spin_btn.custom_minimum_size = Vector2(300, 60)
-	_spin_btn.add_theme_font_size_override("font_size", 28)
+	_spin_btn.add_theme_font_size_override("font_size", 38)
 	_spin_btn.pressed.connect(_on_spin)
 	main_vbox.add_child(_spin_btn)
 
 	# Result label
 	_result_label = Label.new()
 	_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_result_label.add_theme_font_size_override("font_size", 26)
+	_result_label.add_theme_font_size_override("font_size", 47)
 	_result_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
 	_result_label.text = ""
 	main_vbox.add_child(_result_label)
@@ -220,7 +220,7 @@ func _build_ui() -> void:
 
 	_payout_label = Label.new()
 	_payout_label.text = "Session: 0 Mora"
-	_payout_label.add_theme_font_size_override("font_size", 18)
+	_payout_label.add_theme_font_size_override("font_size", 32)
 	_payout_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	bottom_hbox.add_child(_payout_label)
 
@@ -239,7 +239,7 @@ func _build_payout_table() -> VBoxContainer:
 
 	var header = Label.new()
 	header.text = "Payouts"
-	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_font_size_override("font_size", 36)
 	header.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(header)
@@ -255,7 +255,7 @@ func _build_payout_table() -> VBoxContainer:
 		var lbl = Label.new()
 		lbl.text = "%s x3" % elem_name
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		lbl.add_theme_font_size_override("font_size", 15)
+		lbl.add_theme_font_size_override("font_size", 27)
 		var base_payout = PAYOUTS_3[elem_name]
 		var color = Color(0.7, 0.7, 0.7)
 		if base_payout >= 2000:
@@ -268,7 +268,7 @@ func _build_payout_table() -> VBoxContainer:
 		row.add_child(lbl)
 		var val = Label.new()
 		val.text = "%d" % int(round(base_payout * TIER_MULTIPLIERS[_bet_tier]))
-		val.add_theme_font_size_override("font_size", 15)
+		val.add_theme_font_size_override("font_size", 27)
 		val.add_theme_color_override("font_color", color)
 		_payout_value_labels[elem_name] = val
 		row.add_child(val)
@@ -279,7 +279,7 @@ func _build_payout_table() -> VBoxContainer:
 
 	_payout_2_label = Label.new()
 	_payout_2_label.text = "Any x2 = %d" % int(round(PAYOUT_2 * TIER_MULTIPLIERS[_bet_tier]))
-	_payout_2_label.add_theme_font_size_override("font_size", 14)
+	_payout_2_label.add_theme_font_size_override("font_size", 25)
 	_payout_2_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	_payout_2_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_payout_2_label)
@@ -340,7 +340,7 @@ func _build_info_panel() -> VBoxContainer:
 
 	var header = Label.new()
 	header.text = "Bet Tiers"
-	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_font_size_override("font_size", 36)
 	header.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(header)
@@ -356,7 +356,7 @@ func _build_info_panel() -> VBoxContainer:
 	for info in tiers_info:
 		var lbl = Label.new()
 		lbl.text = info
-		lbl.add_theme_font_size_override("font_size", 15)
+		lbl.add_theme_font_size_override("font_size", 27)
 		lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(lbl)

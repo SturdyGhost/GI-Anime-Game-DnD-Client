@@ -106,7 +106,7 @@ func _build_header() -> PanelContainer:
 	var region_text = str(Global.Current_Region) if Global.Current_Region else "Unknown"
 	var title = Label.new()
 	title.text = "GATHERING  —  %s" % region_text
-	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", TEXT)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(title)
@@ -130,7 +130,7 @@ func _build_left_card() -> PanelContainer:
 	# Section title
 	var section_title = Label.new()
 	section_title.text = "Roll Your Dice"
-	section_title.add_theme_font_size_override("font_size", 20)
+	section_title.add_theme_font_size_override("font_size", 36)
 	section_title.add_theme_color_override("font_color", TEXT)
 	vbox.add_child(section_title)
 
@@ -200,7 +200,7 @@ func _build_dice_group(dice_name: String, label_text: String, subtitle_text: Str
 	focus_sb.border_color = ACCENT
 	input.add_theme_stylebox_override("focus", focus_sb)
 
-	input.add_theme_font_size_override("font_size", 24)
+	input.add_theme_font_size_override("font_size", 43)
 	input.add_theme_color_override("font_color", ACCENT)
 	input.add_theme_color_override("font_placeholder_color", MUTED)
 	input.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -209,7 +209,7 @@ func _build_dice_group(dice_name: String, label_text: String, subtitle_text: Str
 	# Label
 	var lbl = Label.new()
 	lbl.text = label_text
-	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_font_size_override("font_size", 25)
 	lbl.add_theme_color_override("font_color", TEXT)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	group.add_child(lbl)
@@ -217,7 +217,7 @@ func _build_dice_group(dice_name: String, label_text: String, subtitle_text: Str
 	# Subtitle
 	var sub = Label.new()
 	sub.text = subtitle_text
-	sub.add_theme_font_size_override("font_size", 14)
+	sub.add_theme_font_size_override("font_size", 25)
 	sub.add_theme_color_override("font_color", MUTED)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	group.add_child(sub)
@@ -249,20 +249,20 @@ func _build_constellation_section() -> PanelContainer:
 
 	var star_lbl = Label.new()
 	star_lbl.text = "*"
-	star_lbl.add_theme_font_size_override("font_size", 18)
+	star_lbl.add_theme_font_size_override("font_size", 32)
 	star_lbl.add_theme_color_override("font_color", PURPLE)
 	title_row.add_child(star_lbl)
 
 	var title = Label.new()
 	title.text = "Constellation Override"
-	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_font_size_override("font_size", 29)
 	title.add_theme_color_override("font_color", PURPLE)
 	title_row.add_child(title)
 
 	# Subtitle
 	var sub = Label.new()
 	sub.text = "Choose your material cache instead of rolling D4"
-	sub.add_theme_font_size_override("font_size", 14)
+	sub.add_theme_font_size_override("font_size", 25)
 	sub.add_theme_color_override("font_color", SEC)
 	vbox.add_child(sub)
 
@@ -283,7 +283,7 @@ func _build_constellation_section() -> PanelContainer:
 	dd_sb.content_margin_bottom = 6
 	constellation_dropdown.add_theme_stylebox_override("normal", dd_sb)
 
-	constellation_dropdown.add_theme_font_size_override("font_size", 14)
+	constellation_dropdown.add_theme_font_size_override("font_size", 25)
 	constellation_dropdown.add_theme_color_override("font_color", TEXT)
 	vbox.add_child(constellation_dropdown)
 
@@ -299,7 +299,7 @@ func _build_right_card() -> PanelContainer:
 	# Section title
 	var section_title = Label.new()
 	section_title.text = "Materials Received"
-	section_title.add_theme_font_size_override("font_size", 20)
+	section_title.add_theme_font_size_override("font_size", 36)
 	section_title.add_theme_color_override("font_color", TEXT)
 	results_section.add_child(section_title)
 
@@ -324,7 +324,7 @@ func _build_right_card() -> PanelContainer:
 	# Summary
 	summary_label = Label.new()
 	summary_label.text = ""
-	summary_label.add_theme_font_size_override("font_size", 14)
+	summary_label.add_theme_font_size_override("font_size", 25)
 	summary_label.add_theme_color_override("font_color", MUTED)
 	summary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -356,7 +356,7 @@ func _make_result_card() -> PanelContainer:
 	var qty_lbl = Label.new()
 	qty_lbl.name = "QtyLabel"
 	qty_lbl.text = "0"
-	qty_lbl.add_theme_font_size_override("font_size", 22)
+	qty_lbl.add_theme_font_size_override("font_size", 40)
 	qty_lbl.add_theme_color_override("font_color", GREEN)
 	qty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(qty_lbl)
@@ -365,7 +365,7 @@ func _make_result_card() -> PanelContainer:
 	var name_lbl = Label.new()
 	name_lbl.name = "NameLabel"
 	name_lbl.text = ""
-	name_lbl.add_theme_font_size_override("font_size", 14)
+	name_lbl.add_theme_font_size_override("font_size", 25)
 	name_lbl.add_theme_color_override("font_color", SEC)
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -413,7 +413,7 @@ func _style_button(btn: Button, bg_color: Color, hover_color: Color) -> void:
 	pressed.bg_color = hover_color.darkened(0.15)
 	btn.add_theme_stylebox_override("pressed", pressed)
 
-	btn.add_theme_font_size_override("font_size", 15)
+	btn.add_theme_font_size_override("font_size", 27)
 	btn.add_theme_color_override("font_color", TEXT)
 	btn.add_theme_color_override("font_hover_color", TEXT)
 	btn.add_theme_color_override("font_pressed_color", TEXT)

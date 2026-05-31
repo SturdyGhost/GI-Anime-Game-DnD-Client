@@ -333,7 +333,7 @@ func _show_offline_indicator() -> void:
 	indicator.name = "OfflineIndicator"
 	indicator.text = "OFFLINE"
 	indicator.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
-	indicator.add_theme_font_size_override("font_size", 18)
+	indicator.add_theme_font_size_override("font_size", 32)
 	indicator.position = Vector2(20, 20)
 	add_child(indicator)
 
@@ -380,7 +380,7 @@ func set_ui():
 	if role_label == null:
 		role_label = Label.new()
 		role_label.name = "RoleLabel"
-		role_label.add_theme_font_size_override("font_size", 16)
+		role_label.add_theme_font_size_override("font_size", 29)
 		role_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		$UI/TopHotbar.add_child(role_label)
 	var role_text = str(Player_data.get("Role", "")) if Player_data != null else ""
@@ -532,7 +532,7 @@ func _update_unspent_banner() -> void:
 
 	var icon = Label.new()
 	icon.text = "!"
-	icon.add_theme_font_size_override("font_size", 22)
+	icon.add_theme_font_size_override("font_size", 40)
 	icon.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 	hbox.add_child(icon)
 
@@ -544,7 +544,7 @@ func _update_unspent_banner() -> void:
 
 	var msg = Label.new()
 	msg.text = "You have %s unspent — open a stat to allocate them!" % " and ".join(parts)
-	msg.add_theme_font_size_override("font_size", 16)
+	msg.add_theme_font_size_override("font_size", 29)
 	msg.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
 	hbox.add_child(msg)
 
@@ -552,7 +552,7 @@ func _update_unspent_banner() -> void:
 	var close_btn = Button.new()
 	close_btn.text = "X"
 	close_btn.custom_minimum_size = Vector2(30, 30)
-	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_font_size_override("font_size", 25)
 	close_btn.add_theme_color_override("font_color", Color(0.941, 0.949, 0.973))
 	var close_sb = StyleBoxFlat.new()
 	close_sb.bg_color = Color(0.6, 0.2, 0.2, 0.5)

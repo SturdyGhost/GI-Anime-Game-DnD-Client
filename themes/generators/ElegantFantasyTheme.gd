@@ -25,11 +25,12 @@ const BORDER_W   = 1
 const PAD        = 10
 const PAD_SM     = 8
 
-# ===== Typography (doubled) =====
+# ===== Typography =====
+# Scaled 1.8x from prior 32/40/28 baseline for laptop readability.
 const FONT_PATH          = "res://UI/zh-cn.ttf"
-const FONT_SIZE_BASE     = 32
-const FONT_SIZE_TITLE    = 40
-const FONT_SIZE_SMALL    = 28
+const FONT_SIZE_BASE     = 40
+const FONT_SIZE_TITLE    = 50
+const FONT_SIZE_SMALL    = 36
 const FONT_OUTLINE_SIZE  = 8               # thick outline
 const FONT_OUTLINE_COLOR = Color(0, 0, 0)  # black
 

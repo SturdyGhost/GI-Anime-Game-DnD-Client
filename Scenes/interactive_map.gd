@@ -752,7 +752,7 @@ func _build_ui() -> void:
 	_loading_label.set_anchors_preset(PRESET_CENTER)
 	_loading_label.offset_top = -30
 	_loading_label.add_theme_color_override("font_color", Color("#d4a74a"))
-	_loading_label.add_theme_font_size_override("font_size", 18)
+	_loading_label.add_theme_font_size_override("font_size", 32)
 	add_child(_loading_label)
 
 	_progress_bar = ProgressBar.new()
@@ -776,7 +776,7 @@ func _build_ui() -> void:
 	_placement_banner.offset_left = -200
 	_placement_banner.offset_right = 200
 	_placement_banner.add_theme_color_override("font_color", Color("#d4a74a"))
-	_placement_banner.add_theme_font_size_override("font_size", 14)
+	_placement_banner.add_theme_font_size_override("font_size", 25)
 	_placement_banner.visible = false
 	add_child(_placement_banner)
 
@@ -812,7 +812,7 @@ func _build_sidebar() -> void:
 	var title = Label.new()
 	title.text = "TEYVAT MAP"
 	title.add_theme_color_override("font_color", Color("#d4a74a"))
-	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_font_size_override("font_size", 29)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
@@ -822,7 +822,7 @@ func _build_sidebar() -> void:
 	var shape_label = Label.new()
 	shape_label.text = "PLACE MARKER"
 	shape_label.add_theme_color_override("font_color", Color("#888"))
-	shape_label.add_theme_font_size_override("font_size", 11)
+	shape_label.add_theme_font_size_override("font_size", 20)
 	vbox.add_child(shape_label)
 
 	var shape_row = HBoxContainer.new()
@@ -845,7 +845,7 @@ func _build_sidebar() -> void:
 	var legend_label = Label.new()
 	legend_label.text = "PLAYER MARKERS"
 	legend_label.add_theme_color_override("font_color", Color("#888"))
-	legend_label.add_theme_font_size_override("font_size", 11)
+	legend_label.add_theme_font_size_override("font_size", 20)
 	vbox.add_child(legend_label)
 
 	for pname in _player_names:
@@ -857,7 +857,7 @@ func _build_sidebar() -> void:
 		row.add_child(dot)
 		var lbl = Label.new()
 		lbl.text = pname + ("  (You)" if pname == _player_name else "")
-		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.add_theme_font_size_override("font_size", 23)
 		row.add_child(lbl)
 		vbox.add_child(row)
 
@@ -881,12 +881,12 @@ func _build_tooltip() -> void:
 
 	var tt_name = Label.new()
 	tt_name.name = "PlayerName"
-	tt_name.add_theme_font_size_override("font_size", 12)
+	tt_name.add_theme_font_size_override("font_size", 22)
 	tt_vbox.add_child(tt_name)
 
 	var tt_note = Label.new()
 	tt_note.name = "NotePreview"
-	tt_note.add_theme_font_size_override("font_size", 11)
+	tt_note.add_theme_font_size_override("font_size", 20)
 	tt_note.add_theme_color_override("font_color", Color("#ccc"))
 	tt_note.autowrap_mode = TextServer.AUTOWRAP_WORD
 	tt_note.custom_minimum_size.x = 180
@@ -918,17 +918,17 @@ func _build_marker_panel() -> void:
 	mp_title.name = "Title"
 	mp_title.text = "Marker Details  (drag to move)"
 	mp_title.add_theme_color_override("font_color", Color("#d4a74a"))
-	mp_title.add_theme_font_size_override("font_size", 14)
+	mp_title.add_theme_font_size_override("font_size", 25)
 	mp_vbox.add_child(mp_title)
 
 	var mp_owner = Label.new()
 	mp_owner.name = "Owner"
-	mp_owner.add_theme_font_size_override("font_size", 12)
+	mp_owner.add_theme_font_size_override("font_size", 22)
 	mp_vbox.add_child(mp_owner)
 
 	var mp_info = Label.new()
 	mp_info.name = "Info"
-	mp_info.add_theme_font_size_override("font_size", 11)
+	mp_info.add_theme_font_size_override("font_size", 20)
 	mp_info.add_theme_color_override("font_color", Color("#ccc"))
 	mp_info.autowrap_mode = TextServer.AUTOWRAP_WORD
 	mp_info.visible = false

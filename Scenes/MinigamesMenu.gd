@@ -43,7 +43,7 @@ func _ready() -> void:
 
 	var title = Label.new()
 	title.text = "Minigames"
-	title.add_theme_font_size_override("font_size", 36)
+	title.add_theme_font_size_override("font_size", 65)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_row.add_child(title)
 
@@ -90,7 +90,7 @@ func _create_card(game: Dictionary) -> PanelContainer:
 
 	var title_label = Label.new()
 	title_label.text = game["title"]
-	title_label.add_theme_font_size_override("font_size", 22)
+	title_label.add_theme_font_size_override("font_size", 40)
 	vbox.add_child(title_label)
 
 	var desc_label = Label.new()
@@ -112,13 +112,13 @@ func _create_card(game: Dictionary) -> PanelContainer:
 	var best_label = Label.new()
 	best_label.text = "Best: %d" % scores["overall"]
 	best_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
-	best_label.add_theme_font_size_override("font_size", 16)
+	best_label.add_theme_font_size_override("font_size", 29)
 	score_hbox.add_child(best_label)
 
 	var my_label = Label.new()
 	my_label.text = "Your Best: %d" % scores["personal"]
 	my_label.add_theme_color_override("font_color", Color(0.5, 0.8, 1.0))
-	my_label.add_theme_font_size_override("font_size", 16)
+	my_label.add_theme_font_size_override("font_size", 29)
 	score_hbox.add_child(my_label)
 
 	vbox.add_child(score_hbox)

@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://bqj7y87u1p4fj"]
 
-[ext_resource type="Script" path="res://Scenes/UI/expedition_panel.gd" id="1"]
+[ext_resource type="Script" uid="uid://doutxhscibt6k" path="res://Scenes/UI/expedition_panel.gd" id="1"]
 
 [node name="ExpeditionPanel" type="Control"]
 layout_mode = 3

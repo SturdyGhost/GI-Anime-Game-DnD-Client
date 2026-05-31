@@ -48,14 +48,15 @@ const RED        = Color(0.937, 0.267, 0.267)
 const ROW_EVEN   = Color(0.133, 0.157, 0.22)
 const ROW_ODD    = Color(0.102, 0.122, 0.169)
 
-const FONT_BODY  = 15
-const FONT_HDR   = 18
-const FONT_TITLE = 20
-const FONT_PREV  = 15
-const ROW_HEIGHT = 36
-const HEADER_HEIGHT = 38
+
+const FONT_BODY  = 30
+const FONT_HDR   = 36
+const FONT_TITLE = 48
+const FONT_PREV  = 30
+const ROW_HEIGHT = 72
+const HEADER_HEIGHT = 36
 const PREVIEW_H  = 450
-const FOOTER_H   = 48
+const FOOTER_H   = 36
 
 # ---- State ----
 var _slot_type: String = ""
@@ -653,7 +654,7 @@ func _build_preview_card(title_text: String) -> Panel:
 	# 2pc bonus
 	var pc2_lbl = Label.new()
 	pc2_lbl.text = "2-Piece Set Bonus:"
-	pc2_lbl.add_theme_font_size_override("font_size", 13)
+	pc2_lbl.add_theme_font_size_override("font_size", 23)
 	pc2_lbl.add_theme_color_override("font_color", TEXT_MUT)
 	info_vbox.add_child(pc2_lbl)
 
@@ -670,7 +671,7 @@ func _build_preview_card(title_text: String) -> Panel:
 	# 4pc bonus
 	var pc4_lbl = Label.new()
 	pc4_lbl.text = "4-Piece Set Bonus:"
-	pc4_lbl.add_theme_font_size_override("font_size", 13)
+	pc4_lbl.add_theme_font_size_override("font_size", 23)
 	pc4_lbl.add_theme_color_override("font_color", TEXT_MUT)
 	info_vbox.add_child(pc4_lbl)
 
@@ -871,7 +872,7 @@ func _fill_set_bonus_preview(card: Panel, new_artifact: Dictionary) -> void:
 
 	var header = Label.new()
 	header.text = "Set Bonuses"
-	header.add_theme_font_size_override("font_size", 14)
+	header.add_theme_font_size_override("font_size", 25)
 	header.add_theme_color_override("font_color", ACCENT)
 	preview.add_child(header)
 
@@ -1479,14 +1480,14 @@ func _show_confirm_popup(title: String, message: String, on_confirm: Callable) -
 
 	var title_lbl = Label.new()
 	title_lbl.text = title
-	title_lbl.add_theme_font_size_override("font_size", 18)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.add_theme_color_override("font_color", ACCENT)
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title_lbl)
 
 	var msg_lbl = Label.new()
 	msg_lbl.text = message
-	msg_lbl.add_theme_font_size_override("font_size", 15)
+	msg_lbl.add_theme_font_size_override("font_size", 27)
 	msg_lbl.add_theme_color_override("font_color", TEXT)
 	msg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD

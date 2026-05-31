@@ -5,7 +5,7 @@
 [ext_resource type="Theme" uid="uid://d0dwdlayg7sfd" path="res://UI/Gold Panel.tres" id="2_wtcwg"]
 [ext_resource type="Theme" uid="uid://bbbii7whnfq7m" path="res://UI/White Panel.tres" id="3_m8jhr"]
 [ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="3_wtcwg"]
-[ext_resource type="Texture2D" uid="uid://bgurjlhmn1u0t" path="res://UI/Dice icon.png" id="4_wtcwg"]
+[ext_resource type="Texture2D" uid="uid://boqyyto0wwq2d" path="res://UI/Dice icon.png" id="4_wtcwg"]
 
 [node name="Stat Button" type="TextureButton"]
 custom_minimum_size = Vector2(100, 0)

@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://c0bdw3hpgaip8" path="res://UI/artifact_button.gd" id="1_26amm"]
 [ext_resource type="Theme" uid="uid://d0dwdlayg7sfd" path="res://UI/Gold Panel.tres" id="3_pnnbs"]
 [ext_resource type="Theme" uid="uid://bbbii7whnfq7m" path="res://UI/White Panel.tres" id="4_2eaxb"]
-[ext_resource type="Texture2D" uid="uid://dc6q4jars2lj7" path="res://UI/Circlet Icon.png" id="5_26amm"]
+[ext_resource type="Texture2D" uid="uid://q3xeunxktb1w" path="res://UI/Circlet Icon.png" id="5_26amm"]
 [ext_resource type="Theme" uid="uid://dbpnpas2onmlg" path="res://UI/font theme.tres" id="6_ndwrt"]
-[ext_resource type="FontFile" uid="uid://vyr8kiirh8lc" path="res://UI/zh-cn.ttf" id="7_bhqnu"]
+[ext_resource type="FontFile" uid="uid://cdfkowdvj40cn" path="res://UI/zh-cn.ttf" id="7_bhqnu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_26amm"]
 bg_color = Color(0.054902, 0.12549, 0.141176, 1)
@@ -87,7 +87,7 @@ offset_bottom = 90.0
 scale = Vector2(0.5, 0.5)
 theme = ExtResource("6_ndwrt")
 theme_override_constants/outline_size = 20
-theme_override_font_sizes/font_size = 50
+theme_override_font_sizes/font_size = 60
 text = "Flower of Life"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -132,7 +132,7 @@ scale = Vector2(0.25, 0.25)
 theme = ExtResource("6_ndwrt")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 45
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 75
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -146,7 +146,8 @@ scale = Vector2(0.25, 0.25)
 theme = ExtResource("6_ndwrt")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 45
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 75
+text = "Elemental Masteru"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -163,14 +164,15 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_26amm")
 
 [node name="SetNameLabel" type="Label" parent="."]
 layout_mode = 0
-offset_top = 12.5
+offset_top = 14.5
 offset_right = 758.0
-offset_bottom = 111.5
+offset_bottom = 113.5
 scale = Vector2(0.5, 0.5)
 theme = ExtResource("6_ndwrt")
 theme_override_constants/outline_size = 20
 theme_override_fonts/font = SubResource("FontVariation_6tb11")
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 40
+text = "test label name"
 horizontal_alignment = 1
 vertical_alignment = 1
 

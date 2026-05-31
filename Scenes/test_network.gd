@@ -76,13 +76,13 @@ func _build_ui():
 
 	var title = Label.new()
 	title.text = "NETWORK INTEGRATION TEST"
-	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_font_size_override("font_size", 43)
 	title.add_theme_color_override("font_color", ACCENT)
 	vbox.add_child(title)
 
 	_status_label = Label.new()
 	_status_label.text = "Initializing..."
-	_status_label.add_theme_font_size_override("font_size", 16)
+	_status_label.add_theme_font_size_override("font_size", 29)
 	_status_label.add_theme_color_override("font_color", MUTED)
 	vbox.add_child(_status_label)
 

@@ -3,6 +3,8 @@ extends Node
 ## Base data lives as .tres files in the project. Save file holds mutable overrides.
 
 const SAVE_PATH = "user://save.tres"
+const SAVE_BACKUP = "user://save.tres.bak"
+const SAVE_TMP = "user://save.tres.tmp"
 const RES_DIR = "res://data/resources/"
 
 var data: SaveData = null
@@ -40,13 +42,23 @@ func load_save() -> void:
 		if _is_host:
 			save_to_disk()
 	else:
-		# 3. Load save file (mutable overrides)
+		# 3. Load save file (mutable overrides). Try main, then backup.
 		if FileAccess.file_exists(SAVE_PATH):
 			var loaded = load(SAVE_PATH)
 			if loaded is SaveData:
 				data = loaded
-				print("SaveManager: loaded save overrides from disk")
+				print("SaveManager: loaded save overrides from %s" % SAVE_PATH)
+			else:
+				push_error("SaveManager: %s exists but failed to deserialize as SaveData — trying backup" % SAVE_PATH)
+		if data == null and FileAccess.file_exists(SAVE_BACKUP):
+			var loaded = load(SAVE_BACKUP)
+			if loaded is SaveData:
+				data = loaded
+				push_warning("SaveManager: recovered save from backup %s" % SAVE_BACKUP)
+			else:
+				push_error("SaveManager: backup %s also failed to deserialize" % SAVE_BACKUP)
 		if data == null:
+			push_warning("SaveManager: no valid save found — starting with empty SaveData")
 			data = SaveData.new()
 
 	# 4. Apply save overrides on top of base resources
@@ -174,11 +186,23 @@ func save_to_disk() -> void:
 	if not _is_host or data == null:
 		return
 	_sync_to_save()
-	var err = ResourceSaver.save(data, SAVE_PATH)
-	if err == OK:
-		print("SaveManager: saved to disk")
-	else:
-		push_error("SaveManager: save failed (error %d)" % err)
+	# Write to a tmp file first so a mid-write crash never corrupts SAVE_PATH.
+	# Only after the tmp write succeeds do we promote the previous save to the
+	# .bak slot and replace SAVE_PATH with the new contents.
+	var err = ResourceSaver.save(data, SAVE_TMP)
+	if err != OK:
+		push_error("SaveManager: save failed (error %d) — SAVE_PATH untouched" % err)
+		return
+	if FileAccess.file_exists(SAVE_PATH):
+		var backup_err = DirAccess.copy_absolute(SAVE_PATH, SAVE_BACKUP)
+		if backup_err != OK:
+			push_warning("SaveManager: could not promote SAVE_PATH to backup (error %d)" % backup_err)
+	var promote_err = DirAccess.copy_absolute(SAVE_TMP, SAVE_PATH)
+	if promote_err != OK:
+		push_error("SaveManager: could not promote tmp save to SAVE_PATH (error %d) — previous save preserved" % promote_err)
+		return
+	DirAccess.remove_absolute(SAVE_TMP)
+	print("SaveManager: saved to disk")
 
 ## Sync current resource state back to the save file's override dictionaries.
 func _sync_to_save() -> void:
@@ -324,6 +348,7 @@ func _load_folder(path: String) -> Array:
 	var results = []
 	var dir = DirAccess.open(path)
 	if dir == null:
+		push_warning("SaveManager: cannot open resource folder %s" % path)
 		return results
 	dir.list_dir_begin()
 	var fname = dir.get_next()
@@ -332,6 +357,8 @@ func _load_folder(path: String) -> Array:
 			var res = load(path + fname)
 			if res != null:
 				results.append(res)
+			else:
+				push_error("SaveManager: failed to load %s%s — file may be corrupted or class missing" % [path, fname])
 		fname = dir.get_next()
 	dir.list_dir_end()
 	return results

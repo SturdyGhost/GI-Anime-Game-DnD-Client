@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CompanionSaveData" load_steps=4 format=3 uid="uid://bjh4bj1ydufa3"]
 
-[ext_resource type="Script" path="res://Scripts/save/companion_data.gd" id="1_2n3xs"]
-[ext_resource type="Script" path="res://Scripts/save/entity_stats.gd" id="2_1r8vb"]
+[ext_resource type="Script" uid="uid://dflxvaf5nfx3i" path="res://Scripts/save/companion_data.gd" id="1_2n3xs"]
+[ext_resource type="Script" uid="uid://d2vjye8jpb3kn" path="res://Scripts/save/entity_stats.gd" id="2_1r8vb"]
 
 [sub_resource type="Resource" id="Resource_7o08e"]
 script = ExtResource("2_1r8vb")
@@ -29,9 +29,9 @@ weapon = "Bow"
 region = "Sumeru"
 lore = "A Trainee Forest Ranger who is under the tutelage of Tighnari. She started her academic career a little later than her peers, so she is currently working hard to catch up.
 She hides the other side of her personality deep under the surface of optimism and kindness."
-unlocked = false
+unlocked = true
 active = false
-met = false
+met = true
 player_chosen = false
 owner = ""
 stats = SubResource("Resource_7o08e")

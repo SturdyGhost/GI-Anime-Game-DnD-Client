@@ -29,7 +29,7 @@ const FONT_SIZE        = 15
 const FONT_SIZE_HEADER = 17
 const FONT_SIZE_TITLE  = 24
 const FONT_SIZE_SMALL  = 13
-const SIDEBAR_WIDTH    = 280
+const SIDEBAR_WIDTH    = 600
 
 # ---- Node refs (built in _ready) ----
 var _bg: Panel
@@ -221,12 +221,12 @@ func _build_ui() -> void:
 	var exit_btn = Button.new()
 	exit_btn.text = "Back to Hub"
 	exit_btn.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	exit_btn.offset_left = -130
+	exit_btn.offset_left = -200
 	exit_btn.offset_top = 12
 	exit_btn.offset_right = -12
 	exit_btn.offset_bottom = 44
 	exit_btn.z_index = 10
-	exit_btn.add_theme_font_size_override("font_size", 14)
+	exit_btn.add_theme_font_size_override("font_size", 25)
 	exit_btn.add_theme_color_override("font_color", TEXT_COLOR)
 	var exit_sb = StyleBoxFlat.new()
 	exit_sb.bg_color = CARD_COLOR
@@ -596,7 +596,7 @@ func _rebuild_turn_rows() -> void:
 		# Number
 		var num = Label.new()
 		num.text = str(i + 1) + "."
-		num.add_theme_font_size_override("font_size", 14)
+		num.add_theme_font_size_override("font_size", 25)
 		num.add_theme_color_override("font_color", TEXT_DIM)
 		num.custom_minimum_size.x = 20
 		inner.add_child(num)
@@ -606,7 +606,7 @@ func _rebuild_turn_rows() -> void:
 		lbl.text = name_str
 		if is_companion:
 			lbl.text += " (comp)"
-		lbl.add_theme_font_size_override("font_size", 14)
+		lbl.add_theme_font_size_override("font_size", 25)
 		lbl.add_theme_color_override("font_color", TEXT_COLOR)
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lbl.clip_text = true
@@ -617,7 +617,7 @@ func _rebuild_turn_rows() -> void:
 		var up_btn = Button.new()
 		up_btn.text = "▲"
 		up_btn.custom_minimum_size = Vector2(28, 24)
-		up_btn.add_theme_font_size_override("font_size", 12)
+		up_btn.add_theme_font_size_override("font_size", 22)
 		_style_small_btn(up_btn)
 		up_btn.pressed.connect(_move_turn_order.bind(i, -1))
 		inner.add_child(up_btn)
@@ -626,7 +626,7 @@ func _rebuild_turn_rows() -> void:
 		var dn_btn = Button.new()
 		dn_btn.text = "▼"
 		dn_btn.custom_minimum_size = Vector2(28, 24)
-		dn_btn.add_theme_font_size_override("font_size", 12)
+		dn_btn.add_theme_font_size_override("font_size", 22)
 		_style_small_btn(dn_btn)
 		dn_btn.pressed.connect(_move_turn_order.bind(i, 1))
 		inner.add_child(dn_btn)
@@ -682,9 +682,9 @@ func _build_challenge_section(parent: VBoxContainer) -> void:
 
 	var header = Label.new()
 	header.text = "CHALLENGE QUEST"
-	header.add_theme_font_size_override("font_size", 14)
+	header.add_theme_font_size_override("font_size", 25)
 	header.add_theme_color_override("font_color", ACCENT_GOLD)
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	parent.add_child(header)
 
 	var card = PanelContainer.new()
@@ -708,7 +708,7 @@ func _build_challenge_section(parent: VBoxContainer) -> void:
 	var personality = str(quest.get("quest_giver_personality", ""))
 	var giver_label = Label.new()
 	giver_label.text = "%s (%s)" % [giver_name, personality]
-	giver_label.add_theme_font_size_override("font_size", 13)
+	giver_label.add_theme_font_size_override("font_size", 23)
 	giver_label.add_theme_color_override("font_color", TEXT_DIM)
 	vbox.add_child(giver_label)
 
@@ -726,14 +726,14 @@ func _build_challenge_section(parent: VBoxContainer) -> void:
 		var override_btn = Button.new()
 		override_btn.text = "Reroll Challenge"
 		override_btn.custom_minimum_size = Vector2(0, 32)
-		override_btn.add_theme_font_size_override("font_size", 13)
+		override_btn.add_theme_font_size_override("font_size", 23)
 		override_btn.pressed.connect(_reroll_challenge)
 		vbox.add_child(override_btn)
 
 		var edit_btn = Button.new()
 		edit_btn.text = "Edit Challenge"
 		edit_btn.custom_minimum_size = Vector2(0, 32)
-		edit_btn.add_theme_font_size_override("font_size", 13)
+		edit_btn.add_theme_font_size_override("font_size", 23)
 		edit_btn.pressed.connect(_edit_challenge)
 		vbox.add_child(edit_btn)
 

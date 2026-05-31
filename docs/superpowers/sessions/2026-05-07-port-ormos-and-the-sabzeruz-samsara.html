@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Session Guide — Port Ormos &amp; the Sabzeruz Samsara</title>
+<style>
+  @page { size: letter; margin: 0.6in; }
+  * { box-sizing: border-box; }
+  html, body { background: #fdfcf7; color: #1a1a1a; }
+  body { font-family: "Georgia", "Palatino Linotype", serif; font-size: 11pt; line-height: 1.45; max-width: 7.3in; margin: 0 auto; padding: 0.4in 0.3in; }
+  h1 { font-size: 22pt; color: #2d5e3e; border-bottom: 2px solid #2d5e3e; padding-bottom: 4pt; margin: 0 0 4pt 0; }
+  h2 { font-size: 15pt; color: #2d5e3e; border-bottom: 1px solid #c7c2b4; padding-bottom: 2pt; margin: 18pt 0 4pt 0; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; color: #8a6d1f; margin: 10pt 0 3pt 0; page-break-after: avoid; }
+  h4 { font-size: 11pt; margin: 8pt 0 2pt 0; page-break-after: avoid; }
+  .subtitle { color: #555; font-style: italic; margin-bottom: 12pt; }
+  .meta { background: #e8f1ea; border-left: 3px solid #2d5e3e; padding: 8pt 10pt; margin: 8pt 0 14pt 0; font-size: 10pt; }
+  .meta p { margin: 3pt 0; }
+  .callout { border: 1px solid #c7c2b4; background: #fff; padding: 8pt 10pt; margin: 8pt 0; border-radius: 3px; page-break-inside: avoid; }
+  .callout p { margin: 4pt 0; }
+  .callout.read { background: #f5f0e1; border-left: 4px solid #8a6d1f; font-style: italic; }
+  .callout.read::before { content: "READ ALOUD"; display: block; font-family: sans-serif; font-style: normal; font-size: 8.5pt; letter-spacing: 1pt; color: #8a6d1f; margin-bottom: 4pt; }
+  .callout.dm { background: #fff6f1; border-left: 4px solid #b05a2c; }
+  .callout.dm::before { content: "DM NOTE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #b05a2c; margin-bottom: 4pt; }
+  .callout.combat { background: #fbeaea; border-left: 4px solid #a33; }
+  .callout.combat::before { content: "COMBAT"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #a33; margin-bottom: 4pt; }
+  .callout.lore { background: #eef0f8; border-left: 4px solid #3a4a8a; }
+  .callout.lore::before { content: "LORE — DM ONLY"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #3a4a8a; margin-bottom: 4pt; }
+  .callout.puzzle { background: #fdf6e3; border-left: 4px solid #b58900; }
+  .callout.puzzle::before { content: "PUZZLE / PROP"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #b58900; margin-bottom: 4pt; }
+  .callout.choice { background: #f0e6f8; border-left: 4px solid #6b3fa0; }
+  .callout.choice::before { content: "PLAYER CHOICE"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #6b3fa0; margin-bottom: 4pt; }
+  .callout.alh { background: #eaf2ef; border-left: 4px solid #2d5e3e; }
+  .callout.alh::before { content: "ALHAITHAM — SAY THIS VERBATIM"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #2d5e3e; margin-bottom: 4pt; }
+  .callout.loop { background: #f3eee8; border-left: 4px solid #5d4a2c; }
+  .callout.loop::before { content: "LOOP CARD — WHAT ALWAYS HAPPENS"; display: block; font-family: sans-serif; font-size: 8.5pt; letter-spacing: 1pt; color: #5d4a2c; margin-bottom: 4pt; }
+  .tag { display: inline-block; font-family: sans-serif; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; padding: 1pt 5pt; border-radius: 2px; margin-right: 4pt; }
+  .tag.time { background: #2d5e3e; color: #fff; }
+  .tag.rp { background: #6b3fa0; color: #fff; }
+  .tag.combat { background: #a33; color: #fff; }
+  .tag.puzzle { background: #b58900; color: #fff; }
+  .tag.lore { background: #3a4a8a; color: #fff; }
+  .tag.loop { background: #5d4a2c; color: #fff; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt 0; font-size: 10pt; }
+  th, td { border: 1px solid #c7c2b4; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #e8f1ea; }
+  ul, ol { margin: 4pt 0 8pt 18pt; padding: 0; }
+  li { margin: 2pt 0; }
+  code { background: #f0eee6; padding: 1pt 4pt; border-radius: 2px; font-family: "Consolas", monospace; font-size: 10pt; }
+  hr { border: none; border-top: 1px dashed #c7c2b4; margin: 14pt 0; }
+  .mini { font-size: 9pt; color: #555; }
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>Port Ormos &amp; the Sabzeruz Samsara</h1>
+<p class="subtitle">Sumeru Archon Quest — closing 45 min of Act I + all of Act II through the breaking of the Sabzeruz Samsara. The party meets the smartest man in Sumeru, watches a god&#8209;capsule turn a man inside out, then wakes up to the same morning eight times before they figure out whose dream they are standing in and convince her to wake.</p>
+
+<div class="meta">
+  <p><strong>Players:</strong> Brian F., Brian C., Dylan (companions optional / swappable).</p>
+  <p><strong>Runtime:</strong> ~5 hours total (45 min Act I tail + ~4.5 hr Act II)</p>
+  <p><strong>Scenes:</strong> 5 | <strong>Loops:</strong> 8 | <strong>Combats:</strong> 2 | <strong>Puzzles / props:</strong> 3 | <strong>Player choices:</strong> 5</p>
+  <p><strong>Source:</strong> <em>Through Mists of Smoke and Forests Dark</em> (Lost in Prosperity / Ever So Close) + <em>The Morn a Thousand Roses Brings</em> (through The Causality of the Sabzeruz Festival).</p>
+  <p><strong>Tone:</strong> Brisk relief in Port Ormos &rarr; warmth at the festival &rarr; slow, creeping unease &rarr; controlled dread by the time Nahida takes off her ribbon.</p>
+  <p><strong>Load&#8209;bearing beats (do not cut):</strong> (1) Alhaitham reads each PC cold in three sentences and is matter&#8209;of&#8209;fact about it. (2) Mizri opens the Divine Knowledge Capsule and Alhaitham severs his Akasha terminal mid&#8209;berserk. (3) Mizri whispers <em>"World... forget me..."</em> &mdash; same line from the party's earlier Irminsul vision. (4) The party meet Nilou in the waking world the night before the loop starts. (5) The morning of Sabzeruz repeats and the players don't know yet. (6) Nahida's first &quot;dook dook&quot; line lands without setup. (7) The party identify the dream as Nilou's, convince her to truly believe it, and break the samsara &mdash; then wake to find Dunyarzad alive.</p>
+</div>
+
+<h2>Prep Checklist (Before the Session)</h2>
+<ul>
+  <li>&#9744; Print this guide double&#8209;sided. Color printing helps the callout boxes pop.</li>
+  <li>&#9744; <strong>DM Hub Battle Prep &mdash; Encounter A (Port Ormos):</strong> 1&times; <code>Eremite Ravenbeak Halberdier</code> [Rare] (Mizri) + 2&times; <code>Eremite Sword Dancer</code> [Uncommon] + 1&times; <code>Eremite Linebreaker</code> [Uncommon].</li>
+  <li>&#9744; <strong>DM Hub Battle Prep &mdash; Encounter B (Sabzeruz kidnap):</strong> 1&times; <code>Eremite Galehunter</code> [Rare] + 2&times; <code>Eremite Sword Dancer</code> [Uncommon] + 1&times; <code>Eremite Linebreaker</code> [Uncommon]. Loop&#8209;1 is run by Dehya solo (narration). Loop&#8209;6 reuses the same encounter with the party intervening.</li>
+  <li>&#9744; <strong>Yalda Candy box (PROP).</strong> Prepare 5 small slips of paper, each labeled with one flavor: <em>Rosewater</em>, <em>Cardamom&#8209;Clove</em>, <em>Saffron&#8209;Honey</em>, <em>Pomegranate</em>, <em>Mint&#8209;Pistachio</em>. Put them in any small opaque container. <strong>Let the player genuinely draw at random each loop</strong> &mdash; the candy is a choice&#8209;probe, not a locked sequence. The flavor varies because the party varied their pick. Nothing downstream ever changes; that <em>is</em> the lesson.</li>
+  <li>&#9744; <strong>"World... forget me..." card.</strong> Write the phrase on a small black&#8209;bordered card. Place face&#8209;down on the table at session start. Flip it the moment Mizri whispers it. Do not explain. Leave it visible for the rest of the session.</li>
+  <li>&#9744; Re&#8209;read Alhaitham's voice notes (Cast section). His charisma is doing 60% of the work tonight; he must not come across as smug or cocky.</li>
+  <li>&#9744; Re&#8209;read Loop 2 (the first reset). The players cannot see it coming &mdash; deliver Paimon's morning line <em>exactly</em> as you did the first time, word for word, and watch their faces.</li>
+  <li>&#9744; <strong>The beep (PROP).</strong> Have a single clean&#8209;tone sound loaded on your phone &mdash; you will play it at every reset. One note, half a heartbeat. Don't substitute or fade in; it should land sudden and identical every time.</li>
+  <li>&#9744; <strong>Remember:</strong> The party already saw a young scholar die from a Forbidden Knowledge capsule last session. They <em>think</em> they understand what these capsules are. Tonight they learn the capsules are not all the same.</li>
+  <li>&#9744; <strong>Remember:</strong> The party will break the loop tonight and learn it was Nilou's dream &mdash; and that dreams across Sumeru are being harvested. What they will <em>not</em> learn tonight: that the barefoot girl is the Dendro Archon (Lesser Lord Kusanali); who is doing the harvesting and why; the 168&#8209;cycle count; or what the &quot;World... forget me...&quot; line connects to. Keep those sealed.</li>
+</ul>
+
+<h2>Cast</h2>
+<table>
+  <tr><th>NPC</th><th>Role</th><th>Voice / Personality</th></tr>
+  <tr><td><strong>Alhaitham</strong></td><td>Akademiya Scribe. Carries the Port Ormos arc and reappears briefly on the festival morning. The smartest person they will ever meet.</td><td>Low, even, never hurried. Speaks in short sentences with no filler. Answers the question being asked, not the question said. Notices three things about each new face inside three seconds and mentions one of them, gently, as if it's small talk. Never raises his voice; never explains he's smart. He is correct so often that the people around him stop arguing. <strong>NOT cocky, NOT arrogant, NOT smug.</strong> He is &mdash; in a quiet, polite, slightly tired way &mdash; in a tier of his own.</td></tr>
+  <tr><td><strong>Mizri</strong></td><td>Leader of the Ayn Al&#8209;Ahmar Eremite cell. Wants to revive King Deshret. Believes the Capsule will give him divine power.</td><td>Zealous, raspy, theatrical. Speaks of King Deshret like a lover. After cracking the Capsule: voice doubles, syllables slip out of order, eyes do not blink for too long.</td></tr>
+  <tr><td><strong>Dunyarzad</strong></td><td>Festival organizer. Has Eleazar &mdash; terminal stage. Determined to see the Sabzeruz Festival before she dies.</td><td>Gentle, formal, ornate Sumeran phrasing. Tired smile. Coughs less when she's distracted, more when she's afraid. The version the party meets in Loop 2 onward is, increasingly, hollow.</td></tr>
+  <tr><td><strong>Dehya</strong></td><td>Eremite mercenary, Dunyarzad's bodyguard. Sold her old greatsword to fund the festival; has not yet acclimated to the new one.</td><td>Brash, loud, protective. Calls the party "kids." First trustworthy adult they've met all session. Tracks the loop the fastest of any NPC once they brief her.</td></tr>
+  <tr><td><strong>Nilou</strong></td><td>Zubayr Theater dancer. Devoted follower of "the Lesser Lord." Met in the waking world the night before the loop starts; rehearses the Dance of Sabzeruz &mdash; or is prevented from performing it &mdash; on every loop after. <strong>She is the unconscious host of the dream.</strong></td><td>Bright, graceful, unbearably sincere. Moves her hands when she talks. The party will spend the whole session liking her without realizing she is the load&#8209;bearing wall of the dream &mdash; until they have to ask her to let it go.</td></tr>
+  <tr><td><strong>Nahida</strong></td><td>A small barefoot girl the party glimpse at the edge of the crowd in Loop 3 and meet properly in Loop 4 at Bimarstan. Borrows Katheryne's mouth at the end of the session for the closing reveal. <strong>The party do not know she is the Dendro Archon.</strong></td><td>Soft, curious, slightly lonely. Talks like a child who has read too many books and not been outside. Knows things she should not. Drops the &quot;dook dook&quot; line in Loop 6 with no warning. Never claims to be a god; if asked, deflects: "I'm a friend of someone who lives nearby." When she lifts her ribbon, do not show her forehead yet.</td></tr>
+  <tr><td><strong>Grand Sage Azar</strong></td><td>Antagonist by proxy. Shuts down the festival. Speaks of "celebrating the birth of that god" with quiet venom.</td><td>Cold, polished, condescending without ever raising his voice. Setaria, his secretary, stands a step behind him and writes everything down.</td></tr>
+  <tr><td><strong>Setaria</strong></td><td>Azar's secretary. Always present, almost never speaks.</td><td>Always writing. Eyes flick to the party twice during Azar's speech &mdash; she has noticed something about them. Do not explain.</td></tr>
+  <tr><td><strong>Lambad</strong></td><td>Tavernkeeper. A favorite stop for the party once they start testing the loop. Cooks Sumeran fare with regional spice he insists no one else has gotten right.</td><td>Loud, bored, generous with portions. Does not remember the party between loops &mdash; but his menu does not change, and he will swear it has.</td></tr>
+  <tr><td><strong>Vihar</strong></td><td>Yalda Candy stall vendor. Manages the mystery&#8209;box game.</td><td>Cheerful, indifferent to outcomes. He wins either way. Recites the same six&#8209;line festival blessing in the same cadence at every loop.</td></tr>
+</table>
+
+<div class="pagebreak"></div>
+<h2>PART ONE &mdash; PORT ORMOS (closing Act I)</h2>
+<p class="mini">Target runtime: 30&ndash;45 min. Three scenes. One small combat. One canon&#8209;exact lore beat about Knowledge Capsules vs. Forbidden Knowledge Capsules.</p>
+
+<h3>Scene 1 &mdash; Arrival at Port Ormos</h3>
+<p><span class="tag time">0:00&ndash;0:05</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>Port Ormos is the lung of Sumeru. After three days of forest and stone road the harbor opens up in front of you all at once &mdash; cliff terraces stacked above water, rope&#8209;and&#8209;pulley cargo lifts hauling crates the size of houses, and the smell of salt and tar and stewed lamb braided together so thickly you can taste it. Behind each of your ears, the Akasha hums &mdash; soft, steady, the way it always has.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Pace:</strong> 2&ndash;3 minutes max. Do not let them shop. Push them toward the dispute.</p>
+<p>If a player wants to ask around, give them one beat: a dockworker points up the hill. <em>"You hear the shouting? That's the only fight on this dock with anything to do with the Akademiya. Go listen."</em></p>
+<p>If a player asks for an Akasha lookup on Alhaitham: the terminal returns <em>"Akademiya Scribe. House of Daena. No further information available."</em> Don't editorialize &mdash; just read the line.</p>
+</div>
+
+<h3>Scene 2 &mdash; The Dispute (meeting Alhaitham)</h3>
+<p><span class="tag time">0:05&ndash;0:18</span> <span class="tag rp">RP</span></p>
+
+<div class="callout read">
+<p>You climb the terrace. There is, in fact, shouting. A knot of men in red sashes and worn desert leathers are arrayed in a half&#8209;circle around a single tall figure who is reading a book.</p>
+<p>The man with the book is silver&#8209;haired, headphones around his neck, and is not, in any visible way, alarmed. The man at the front of the half&#8209;circle is sweating through his sash, has a jambiya at his hip, and is gesturing in an arc that takes in the harbor, the sky, and possibly the planet.</p>
+<p>"&mdash; the buried king will rise! And on the day of his return, the betrayer's god will burn from the inside, and the desert will&mdash;"</p>
+<p>"In four days," says the man with the book, without looking up. "You said that yesterday. You'll say it tomorrow. The arc of your sermon is fine. The conclusion needs work."</p>
+<p>The Eremite leader &mdash; <strong>Mizri</strong> &mdash; goes still. "<em>You</em>."</p>
+<p>"Me." The book closes. The man with the book finally raises his eyes. They land, in turn, on each of you. Three seconds. Then he speaks.</p>
+</div>
+
+<div class="callout alh">
+<p>"<strong>[Brian F.]</strong> &mdash; bowstring calluses on three fingers, not two; you draw long and you draw heavy. Even weight on both heels &mdash; you don't reposition under fire, you correct the distance once and stay there. And every archive between here and Mondstadt has a librarian who remembers your face. Not for the books you've read. Not for the ones you've returned on time." (beat)</p>
+<p>"<strong>[Brian C.]</strong> &mdash; your knuckles have healed and re&#8209;healed in the same places. That's not a fighter's hand. That's a man who keeps accepting the fight. You walk into rooms the way men walk who have learned the room moves out of the way for them. Whether that's nerve, brute force, or some combination I haven't seen the math on yet, I don't know. Probably all three." (beat)</p>
+<p>"<strong>[Dylan]</strong> &mdash; your stance is the older version of theirs; you've done this work longer than the other two have, combined. You don't carry a blade &mdash; you hold your weight in your off hand, where a focus or a relic would sit if you were quietly using one. And the ring on your left hand is Kamisato inlay; that work isn't done outside Inazuma, and it isn't given to outsiders." (a small gesture, north &mdash; toward Nod Krai) "Your wife's clan has moved. You'll follow when called. And you are still finishing a quarrel with a pest controller who, I'm told, does not stay killed. None of that is my business. All of it is on your face."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>These three reads are the entire characterization of Alhaitham in his first ninety seconds.</strong> He is not showing off. He is moving the conversation forward by saying the most useful true thing he can say. Read each one like he's giving directions &mdash; flat, useful, then on to the next person.</p>
+<p><strong>Do not let the players banter their way out of feeling read.</strong> If a player asks "how the hell did you know that?" Alhaitham answers, plainly: "You showed me. I looked." Then moves on. He never explains a deduction unless asked twice, and even then his answer is shorter than they expect.</p>
+<p>Each read pulls from past&#8209;session details on purpose. Alhaitham has read reports somewhere. He doesn't say so. The players should be able to feel that he has done his homework without him admitting that he has.</p>
+<p>If you want to sharpen any read, swap in a more current detail; just keep the cadence: <em>one physical observation, one recent or longstanding fact, one current tell.</em> No flourishes.</p>
+</div>
+
+<div class="callout choice">
+<p><strong>How does the party engage Alhaitham?</strong></p>
+<ul>
+  <li><strong>Match him &mdash; cold&#8209;read him back.</strong> If a player attempts a deduction (any tier of insight), let them roll Insight (DC 14). On success, they note one of: he holds the book at eye level (he doesn't need glasses; he's signaling he doesn't want to be approached); his Akasha terminal is <em>off</em> (rare in Sumeru &mdash; deliberate); the wine in front of him is full and warm (he never intended to drink). On any insight: Alhaitham gives a single approving beat &mdash; "Good." &mdash; and shares one extra fact later (DM choice).</li>
+  <li><strong>Ask him plainly what he wants.</strong> He answers plainly. "Mizri stole something from the Akademiya. I want it back. He doesn't know what he stole. You will help me retrieve it without a body count, if possible. With a body count, if necessary." Direct cooperation route &mdash; the cleanest path to the duel.</li>
+  <li><strong>Demand that he prove he's worth their time.</strong> He sets his book down. "Mizri will challenge me to a duel in the next ninety seconds. He'll accept four days from now. He'll bring three guards. He'll lose. None of that requires me." Then it happens. (See below &mdash; Mizri does in fact issue the challenge.) The party gets the cleanest demonstration of his read on the situation.</li>
+</ul>
+<p><strong>Persistent impact:</strong> Whichever route they pick, Alhaitham privately marks each PC with a quiet&#8209;respect tag that affects how forthcoming he is at the festival re&#8209;encounter (Loop 1, Scene 5). Cold&#8209;reading him = <em>respected.</em> Plain question = <em>cooperative.</em> Demanding proof = <em>amused</em> (he likes it).</p>
+</div>
+
+<div class="callout read">
+<p>Mizri spits at the cobblestones. "Four days. The cliff above the harbor. Bring whoever you want. Bring no one. The desert remembers."</p>
+<p>"It does," says Alhaitham, mildly. "Four days. Cliff. Noon. Don't be late."</p>
+<p>The Eremites turn and disperse like smoke. Alhaitham gestures for you to sit. He does not order food.</p>
+</div>
+
+<h3>Scene 3 &mdash; Knowledge Capsules (lore download, with rolls)</h3>
+<p><span class="tag time">0:18&ndash;0:28</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout alh">
+<p>"You don't know what a Knowledge Capsule is. Most of Sumeru doesn't. The ones who do prefer it that way. Telling you would take twenty minutes, half of which you'd forget. So &mdash; here."</p>
+<p>(He produces a small, dark&#8209;glass bead from an inner pocket and sets it on the table between you. It is inert. It is the size of a robin's egg, blue&#8209;black, and very still.)</p>
+<p>"This is a Knowledge Capsule. Standard category &mdash; the safest one I carry. The contents are a primer: what a Knowledge Capsule is, how it works, what kinds exist. I use it to teach apprentices."</p>
+<p>"It's sealed. To read it, you touch it. The contents enter your mind directly &mdash; no reading, no translation. What it shows you depends on what your mind can carry. So &mdash; one at a time. Place a finger on it. Roll for it." (a small, courteous gesture toward the table) "If you carry less than the capsule offers, the headache is mine to apologize for."</p>
+</div>
+
+<div class="callout puzzle">
+<p><strong>The Touch&#8209;and&#8209;Read Demo &mdash; running the prop.</strong></p>
+<p><strong>Setup:</strong> Alhaitham places one capsule on the table. Each PC, in turn, places a finger on it and <strong>rolls a d20.</strong> The capsule's contents are a primer on Knowledge Capsules; the roll determines how cleanly that information lands in their mind. Each PC takes their roll independently &mdash; even if the first player crit&#8209;fails or rolls a 20, the next two still touch the capsule. Each PC needs to feel personally what one of these does.</p>
+<p><strong>Optional staging:</strong> Hand the table a small bead, marble, or dark stone as the physical capsule. The player rolling picks it up between two fingers.</p>
+<p><strong>Roll outcomes:</strong></p>
+<table>
+  <tr><th>Roll</th><th>What the PC perceives</th></tr>
+  <tr><td><strong>Nat 1</strong></td><td><em>Misfire.</em> The PC takes one fragment of <strong>misleading</strong> information into their head as if it were true. Pick from the crit&#8209;fail seeds below. &minus;2 to their next ability check from a splitting headache. Alhaitham notices in their face, says one quiet line of correction (e.g. <em>"No. That's not how that works. We'll come back to it."</em>), and moves on.</td></tr>
+  <tr><td><strong>2&ndash;9</strong></td><td><em>Surface only.</em> "These are sealed packets of restricted information. The Akademiya makes them. Touching one delivers the contents directly into the user's mind. Most are survivable. Do not open one that has not been handed to you by someone who already knows what's inside."</td></tr>
+  <tr><td><strong>10&ndash;14</strong></td><td><em>Solid.</em> All of the above, plus: "There are three categories &mdash; Standard, Divine, and Forbidden. The category is what determines whether the user lives. The Akademiya guards this distinction more carefully than any other piece of internal taxonomy."</td></tr>
+  <tr><td><strong>15&ndash;19</strong></td><td><em>Strong.</em> All of the above, plus the differences: <strong>Standard</strong> = scholarly content (research, navigation, restricted history); survivable with discipline. <strong>Divine</strong> = information about the gods; survival not guaranteed; researchers who open these without preparation tend to end up speaking in tongues, or silent. <strong>Forbidden</strong> = not divine but <em>poisoned</em>; the Akasha itself was built, in part, to filter it out; anyone who absorbs it is overwritten. The PC also perceives that the Forbidden Knowledge Capsules &mdash; six of them &mdash; are sealed in the Sanctuary of Surasthana, where the Dendro Archon lives.</td></tr>
+  <tr><td><strong>Nat 20</strong></td><td><em>Crystal.</em> All of the above, plus <strong>one</strong> bonus impression. Roll a d4 or pick:
+    <ol style="margin-top:2pt;">
+      <li>The PC senses the capsule is <em>incomplete</em> &mdash; passages were redacted by the Akademiya before sealing. The Akademiya hides things even in the things it admits to.</li>
+      <li>The PC feels a faint resonance toward Irminsul itself, like the capsule is homesick. They could not point in its direction; they could only say it has one.</li>
+      <li>The PC catches a single phrase rising between layers of information &mdash; <em>"the world is louder than the words for it."</em> They cannot place where it came from.</li>
+      <li>The PC perceives, distantly, that the six Forbidden Knowledge Capsules far below them are <em>waiting.</em> Not malevolent. Just waiting. Like a held breath.</li>
+    </ol>
+    Each of these foreshadows a different Sumeru Act III beat. Choose the one that fits the PC.
+  </td></tr>
+</table>
+<p><strong>Crit&#8209;fail seeds (pick the one most likely to bite this PC later):</strong></p>
+<ul>
+  <li>The PC believes Knowledge Capsules can be safely re&#8209;sealed after opening. (They cannot. The vessel is single&#8209;use.)</li>
+  <li>The PC believes the Dendro Archon designed them. (She did not. The Akademiya did. The Archon is, on this subject, a victim.)</li>
+  <li>The PC believes Forbidden Knowledge can be diluted by mixing it with standard knowledge. (It cannot. There is no &quot;less poisoned.&quot;)</li>
+  <li>The PC believes that two people touching a capsule simultaneously splits the contents in half. (It does not. They both get all of it. Don't try this.)</li>
+</ul>
+<p><strong>DM notes:</strong></p>
+<ul>
+  <li>Even on a low roll, the PC has now <em>physically experienced</em> what a Knowledge Capsule feels like. They will treat the next one (the Divine Knowledge Capsule on Mizri's belt) with appropriate respect.</li>
+  <li>If a PC rolls high and a later PC rolls low, that is <em>fine.</em> Do not retcon the lower PC up to match. The point is each player feels their own access to the information &mdash; future RP can shake out from who learned what.</li>
+  <li>After all three rolls, Alhaitham briefly fills any gaps that matter for the duel. He does not lecture. He patches.</li>
+</ul>
+</div>
+
+<div class="callout lore">
+<p><strong>Canon mechanics (use these exactly &mdash; especially the rolls vs. no&#8209;rolls split):</strong></p>
+<ul>
+  <li><strong>Knowledge Capsule (standard):</strong> a vessel for knowledge that exceeds the Akasha's civilian filter. Opening one floods the user's mind with unfiltered information. A trained scholar can survive it. An untrained mind &mdash; or a mind already bent by zealotry &mdash; will rupture. (<em>Rolls allowed &mdash; INT or Wisdom save when a PC opens one. DC 14. Success = a useful piece of true information of the DM's choice; failure = &minus;2 to the next ability check from headache; crit&#8209;fail = a single true sentence they cannot stop hearing in their head for the rest of the day.</em>)</li>
+  <li><strong>Divine Knowledge Capsule:</strong> a Knowledge Capsule whose contents are categorized as <em>information about the gods.</em> Mizri stole one. He believes it will give him King Deshret's power. <strong>It will not.</strong> What it will do is poorly understood, even at the Sage level &mdash; only that researchers who open one without preparation tend to end the way Irminsul scholars end: speaking in tongues, or silent. (<em>Tonight's canon "...World... forget me..." beat fires when Mizri swallows it &mdash; same line from the party's earlier Irminsul vision under Devantaka.</em>)</li>
+  <li><strong>Forbidden Knowledge Capsule:</strong> a different category entirely. Not divine knowledge &mdash; <em>poisoned</em> knowledge. The Dendro Archon, Lesser Lord Kusanali, has been containing this poison for centuries at personal cost. The Sages know. They use her sacrifice as infrastructure. (<strong>No rolls. No saves. Opening one is a death sentence &mdash; full stop.</strong>) The party will not encounter one tonight; this is foreshadowing for Sumeru Act III.</li>
+</ul>
+<p><strong>What Alhaitham wants:</strong> the Divine Knowledge Capsule, intact, so he can study it and write a report that the Sages cannot ignore. He will not say this part out loud.</p>
+</div>
+
+<h3>Scene 4 &mdash; The Duel (Combat A)</h3>
+<p><span class="tag time">0:28&ndash;0:43</span> <span class="tag combat">COMBAT</span></p>
+
+<div class="callout dm">
+<p>Skip directly to "four days later, noon, cliff." Before the cut, give the party one short prep beat with Alhaitham &mdash; he tells them, plainly: <em>"Mizri carries the capsule on the left side of his belt. He will use it if he is losing. Plan around that."</em> Then jump. Dehya is <em>not</em> here &mdash; she's escorting Dunyarzad to the festival in Sumeru City, which is what hands us into Part Two.</p>
+<p>This is a <strong>small</strong> encounter. It exists for the capsule moment, not the dice. If the party dominate the standard fight in 2&ndash;3 rounds, accelerate Mizri's berserk pivot. Do not stall.</p>
+</div>
+
+<div class="callout combat">
+<p><strong>Encounter A &mdash; "The Cliffside Duel"</strong></p>
+<p><strong>Setup:</strong> Cliff above Port Ormos harbor. Wind off the sea. Old crumbling shrine to King Deshret behind Mizri. Drop&#8209;off on three sides &mdash; environmental hazard if anyone is shoved.</p>
+<p><strong>Enemies:</strong> 1&times; <code>Eremite Ravenbeak Halberdier</code> [Rare] (Mizri, reskinned with red sash) + 2&times; <code>Eremite Sword Dancer</code> [Uncommon] + 1&times; <code>Eremite Linebreaker</code> [Uncommon]. Alhaitham fights as an ally NPC &mdash; he engages exactly one enemy at a time and finishes them in one to two rounds. Do not let him steal the spotlight.</p>
+<p><strong>Goal:</strong> Reduce Mizri below 50% HP. <em>Then</em> Mizri triggers the capsule.</p>
+<p><strong>Twist:</strong> When Mizri is bloodied, he draws the Divine Knowledge Capsule from his belt &mdash; left side, as Alhaitham warned &mdash; and crushes it in his fist. He does not crack it. He <em>swallows</em> it. The eggshell capsule shatters into him. His Akasha terminal sings &mdash; a thin clean tone &mdash; then static. His eyes go white. His HP resets to phase 1; his attacks now apply 1d4 untyped damage as a passive aura to anyone within 1 tile. He attacks <em>his own Eremites first.</em> The Sword Dancers panic and break. The Linebreaker fights on, confused.</p>
+<p><strong>Reward:</strong> The capsule fragments &mdash; Alhaitham collects them quietly during the chaos. The Matra arrive within minutes. Alhaitham talks them off. Players see he <em>has</em> the fragments and didn't tell anyone.</p>
+</div>
+
+<div class="callout read">
+<p>Mizri's voice doubles. The mouth that was sneering five seconds ago opens around a sound that is not a sound. The Sword Dancers nearest him drop their swords and back away. One of them is screaming. Mizri has not noticed.</p>
+<p>Alhaitham, beside you, says: "Sever the terminal. Behind his ear. <em>Now.</em> Don't kill him."</p>
+</div>
+
+<div class="callout choice">
+<p><strong>How does the party stop Mizri's berserk?</strong></p>
+<ul>
+  <li><strong>Sever the Akasha terminal (Alhaitham's plan).</strong> A called shot to the small device behind Mizri's ear. DC 16 Dexterity (ranged) or DC 14 Strength (melee, opposed). On success, Mizri drops. He lives. He is incoherent for the rest of the day. <em>Best outcome.</em> Alhaitham gives a single nod and, in private later, a one&#8209;sentence "I owe you" tag.</li>
+  <li><strong>Kill him.</strong> Trivial &mdash; he is below 50% HP and his defense is shot. The capsule fragments survive but Alhaitham's report loses its primary witness. <em>Alhaitham does not blame the party</em> &mdash; he says, plainly, "Acceptable." But the party will never know what Mizri saw. (<strong>The "World... forget me..." line still triggers</strong> &mdash; he says it as he dies, not as he falls unconscious.)</li>
+  <li><strong>Try to subdue without severing.</strong> Grapple / restrain. Possible but harder &mdash; Mizri's berserk strength is unnatural (DC 18 STR contested). On success: same as the first option, but no "I owe you" tag &mdash; Alhaitham wanted the terminal severed because the data on it is now corrupted, and he wants the corruption sample. He'll say so, mildly.</li>
+</ul>
+<p><strong>Persistent impact:</strong> Severed terminal &rarr; Alhaitham keeps the corrupted Akasha terminal as evidence. It pays off two sessions from now when the Sages "mysteriously" lose track of where the party went next. Killed Mizri &rarr; Ayn Al&#8209;Ahmar fragments and a smaller cell will trail the party at distance for the rest of the chapter. Subdued without severing &rarr; same trail risk; Alhaitham is mildly irritated for one scene.</p>
+</div>
+
+<div class="callout read">
+<p>Mizri lies on the cliff stones. He is breathing. His mouth is moving. Alhaitham crouches beside him &mdash; gently &mdash; and tilts his head to listen.</p>
+<p>"World," Mizri whispers. The voice is his own again. The voice is also smaller, and very young, and afraid. "World... forget me..."</p>
+<p>(<strong>Flip the black&#8209;bordered card on the table now.</strong>)</p>
+<p>Alhaitham closes Mizri's eyes &mdash; carefully, not finally &mdash; and stands. "That phrase is the second time today I have heard a sentence that should not exist." He looks at you. "You heard it before. In the cave under Devantaka. Tighnari told me. We will discuss it. Not today. The Matra are six minutes out, and I have a report to write."</p>
+<p>He pockets the capsule fragments. He does not hide doing it. He does not explain it. He walks away.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Why this lands:</strong> Alhaitham &mdash; who has, all session, been ten moves ahead &mdash; has just been visibly <em>caught off&#8209;guard</em> by one sentence. Not panicked. Not afraid. But genuinely, for one beat, <em>not ahead.</em> That moment is the entire reason he becomes the man the party trusts. Play the recovery quietly. He doesn't comment on it. They will.</p>
+<p><strong>Transition:</strong> The party returns to Sumeru City. The Sabzeruz Festival is tomorrow morning. Dunyarzad has been asking after them.</p>
+</div>
+
+<div class="pagebreak"></div>
+<h2>PART TWO &mdash; THE SABZERUZ SAMSARA</h2>
+<p class="mini">Target runtime: ~4.5 hours. One real evening, then eight loops. The party rule out every ordinary explanation, learn whose dream they are standing in, and break it. Ends with everyone awake &mdash; and one quiet borrowed&#8209;mouth conversation that opens the next session.</p>
+
+<h3>Scene 5 &mdash; The Night Before (the last real evening)</h3>
+<p><span class="tag time">0:43&ndash;0:55</span> <span class="tag rp">RP</span></p>
+
+<div class="callout dm">
+<p><strong>This is the last scene that is unambiguously real.</strong> Everything after the party fall asleep tonight is the samsara &mdash; but do not tip that. Play this beat warm and a little tired. They have just come off the cliff; they have earned an evening.</p>
+<p><strong>Why this scene exists:</strong> the party must meet Nilou <em>here,</em> in the waking world &mdash; because the dream they are about to enter is hers. If her first introduction happened inside the loop, the reveal eight loops from now lands hollow. Tonight they meet a real person. Later they will have to wake her up.</p>
+</div>
+
+<div class="callout read">
+<p>Sumeru City at dusk is a different animal from Port Ormos. No salt, no tar &mdash; just warm stone, citrus smoke, and the sound of a thousand small preparations. The Grand Bazaar is being strung with lanterns for tomorrow. Above you, the Akademiya's lights are coming on against the dark like a second set of stars.</p>
+<p>Dunyarzad is waiting at the Bazaar steps, and her face when she sees you is pure relief. "You came. I was afraid the road would keep you." She has a cough she is pretending she doesn't. "Come &mdash; there's someone I've wanted you to meet, before the festival swallows us all whole."</p>
+</div>
+
+<div class="callout read">
+<p>She brings you to the amphitheater, where a young woman is rehearsing alone &mdash; barefoot on the cool stone, turning through the figures of a dance with her eyes half closed. She stops when she notices you, and the smile she gives you is so unguarded it is almost startling.</p>
+<p>"Oh! Dunyarzad's travelers." She crosses to you, hands already moving as she talks. "I'm Nilou. I dance the Sabzeruz tomorrow &mdash; the Lesser Lord's festival. Tell me about Liyue. Tell me about Mondstadt. I've never been anywhere that wasn't this city."</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Play Nilou warm, sincere, a little overflowing.</strong> She is the easiest NPC of the night to like &mdash; let the party like her. Give them five to ten minutes of genuine conversation.</p>
+<p><strong>Plant this &mdash; it is load&#8209;bearing:</strong> at some point Nilou talks about the festival flowers. She <em>wishes</em> they could use real <strong>Padisarahs</strong> &mdash; a purple flower extinct longer than anyone living can remember &mdash; instead of the Akademiya&#8209;issued substitute, whose color is just slightly, stubbornly <em>wrong.</em> She says it lightly, like a small private grief. The party should file it away as a charming detail. It is the thread they will pull, seven loops from now, to prove the world around them is a dream: <em>the dream cannot make a Padisarah either.</em></p>
+<p><strong>Do not foreshadow.</strong> No dread here. The dread is tomorrow.</p>
+</div>
+
+<div class="callout read">
+<p>Dunyarzad walks you back through the lantern&#8209;light to her house. Cardamom tea on the roof. The lights of the Akademiya above the city. She tells you, quietly, that tomorrow means more to her than she can quite explain, and that she is glad you will be there to see it.</p>
+<p>"Get some sleep," she says. "A few more hours won't hurt &mdash; but I want you bright for the morning."</p>
+<p>You sleep.</p>
+</div>
+
+<h3>The Loop Card</h3>
+
+<div class="callout loop">
+<p><strong>Every loop runs these eight beats, in this order, at the same time of day, with the same words. The party do not know this until Loop 2 &mdash; and the fact that you, the DM, are reading the same lines verbatim is the puzzle.</strong></p>
+<ol>
+  <li><strong>Paimon's morning line.</strong> The party wake in Dunyarzad's guest room. Paimon says &mdash; brightly, the same way, every loop: <em>"You're up! Come on &mdash; let's go find Dunyarzad, she'll be waiting for us!"</em> This is your reset cue. Same words, same cadence, every time.</li>
+  <li><strong>Dunyarzad, outside.</strong> The party head out and meet Dunyarzad in the courtyard. Same line: <em>"There you are! Oh, I've been hoping &mdash; I want you to see all of it. Before&hellip;"</em> She never finishes it; the cough takes the end of the sentence. Same cough, every loop.</li>
+  <li><strong>Vihar's stall &mdash; the mystery box.</strong> Vihar recites his blessing in the same cadence every loop: <em>"On the morn the Lesser Lord opens her eyes / a thousand roses bloom, and one is yours."</em> Then the party may draw. <strong>Let the player genuinely choose</strong> &mdash; reach in, pick a candy. The flavor varies because <em>they</em> varied it. Nothing downstream ever changes. (See the candy probe under Loop 2.)</li>
+  <li><strong>The Bazaar arch kidnap.</strong> Three Eremite Sword Dancers and a Linebreaker move on Dunyarzad. Dehya intervenes alone and always wins. <strong>Loop 1: she takes a bandage on her left forearm.</strong> That bandage is the canon clue &mdash; hold it.</li>
+  <li><strong>Dunyarzad's faint at midday.</strong> The party walk her to a quieter terrace. Same view, same line about the sky.</li>
+  <li><strong>Nilou &amp; Azar at the amphitheater.</strong> Grand Sage Azar shuts the festival down. Setaria writes. Azar's parting line, every loop, exactly: <em>"Celebrate the birth of that god to your heart's content."</em> (Player choice attached &mdash; see the note below.)</li>
+  <li><strong>Cardamom tea, then sleep.</strong> Dunyarzad's roof. The Akademiya lights. The same line: <em>"A few more hours won't hurt."</em></li>
+  <li><strong>The beep.</strong> A clean high tone, once. <strong>Play the sound on your phone.</strong> The lights of the Akademiya go out all at once. The day resets.</li>
+</ol>
+</div>
+
+<div class="callout dm">
+<p><strong>How to run loops without it taking all night:</strong> the Loop Card is the <em>only</em> thing that always happens. Run it in full <strong>only on Loop 1.</strong> On every loop after, narrate the fixed beats in a sentence each (&quot;Paimon's line. Dunyarzad in the courtyard &mdash; same cough. Vihar's blessing.&quot;) and spend the table's time on whatever the party are doing <em>differently.</em></p>
+<p><strong>The Azar choice (beat 6, recurring every loop).</strong> When Azar shuts down the festival, give the party a choice &mdash; and let it escalate naturally across the loops as their patience wears through:</p>
+<ul>
+  <li><strong>Sit quietly.</strong> Where most parties land on Loop 1 &mdash; they don't know him yet. They watch. Nothing changes.</li>
+  <li><strong>Start to speak up.</strong> A word, a question, a step forward. Azar acknowledges them with cold courtesy and continues. Nothing changes.</li>
+  <li><strong>Fully intervene.</strong> Argue, obstruct, make a scene. Azar has them removed, or simply talks over them. Setaria's eyes flick to them &mdash; <em>twice.</em> Nothing changes.</li>
+</ul>
+<p>All three roads end the same: Azar's line, the festival dark, cardamom tea, the beep. <strong>That is the point.</strong> The party cannot push their way through the wall by being louder. The loop does not care how they feel about it &mdash; and learning that the hard way is what makes them start looking for a different kind of door.</p>
+</div>
+
+<h3>Loop 1 &mdash; The First Day</h3>
+<p><span class="tag time">0:55&ndash;1:50</span> <span class="tag rp">RP</span> <span class="tag combat">COMBAT (narrated)</span></p>
+
+<div class="callout read">
+<p>You wake to Paimon's voice. "You're up! Come on &mdash; let's go find Dunyarzad, she'll be waiting for us!" Sun on the eastern wall. It is the morning of the Sabzeruz Festival.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Run the full Loop Card here, slowly &mdash; roughly an hour.</strong> The party have been through hell; this is meant to feel like a reward. Let them enjoy it. Highlights to pace around:</p>
+<ul>
+  <li><strong>Vihar's stall (~10 min):</strong> the blessing, the mystery box. Let the player pick a candy and hand them the flavor slip. Let them eat it. No weight yet &mdash; it is just candy. The weight comes when they pick again next loop.</li>
+  <li><strong>Festival exploration (~20 min):</strong> Lambad's tavern, the Zubayr Theater, a fortune&#8209;teller's stall, lantern paper&#8209;folding, a falconer with a handsome saker. <strong>Hold one specific phrase per PC in your head</strong> &mdash; one NPC line each &mdash; so you can repeat it word for word in a later loop. E.g. the falconer always says <em>"the bird flies if you let her, not if you ask her;"</em> the lantern girl always says <em>"fold the second crease against the grain."</em></li>
+  <li><strong>Nilou at the amphitheater (~5 min):</strong> she is rehearsing the Dance of Sabzeruz. She greets the party like the friends they became last night &mdash; <em>no introduction needed.</em> She is the same warm person from Scene 5. If a player brings up the Padisarahs, she lights up and grieves them all over again, exactly the same.</li>
+  <li><strong>Eremite kidnap + Dehya (~10 min, narrated):</strong> three Sword Dancers and a Linebreaker move on Dunyarzad at the Bazaar arch. Dehya arrives like an avalanche. Narrate her fight in two beats &mdash; she takes a clean cut on her left forearm. The party do not need to fight; if a player insists, allow one supporting roll, then close. <em>Encounter B is built but not run yet.</em></li>
+  <li><strong>Dunyarzad's faint (~5 min):</strong> quiet, sad, real. She tells the party she has Eleazar, that this is its terminal stage, and that the festival is the one thing she will not regret missing.</li>
+  <li><strong>Azar shuts down the festival (~10 min):</strong> <strong>introduce him properly &mdash; the party have never met him.</strong> Grand Sage Azar, highest of the Sages in all but title, flanked by Setaria, his ever&#8209;writing secretary. Read his lines exactly. <em>"Celebrate the birth of that god to your heart's content."</em> Run the Azar choice; on Loop 1 the party almost always sit quiet. Nilou cries. Dunyarzad, shaking, says they should comply.</li>
+  <li><strong>Tea on the roof, then sleep (~5 min):</strong> <em>"A few more hours won't hurt."</em></li>
+</ul>
+</div>
+
+<div class="callout read">
+<p>You hear a clean high tone &mdash; one note, ringing for half a heartbeat.</p>
+<p>(<strong>Play the beep on your phone now.</strong> Lean back from the table. Hold two real seconds of silence.)</p>
+<p>"You're up! Come on &mdash; let's go find Dunyarzad, she'll be waiting for us!" Sun on the eastern wall.</p>
+</div>
+
+<h3>Loop 2 &mdash; D&eacute;j&agrave; Vu</h3>
+<p><span class="tag time">1:50&ndash;2:15</span> <span class="tag rp">RP</span> <span class="tag puzzle">PUZZLE</span></p>
+
+<div class="callout dm">
+<p><strong>The first reset is the most important moment of the night.</strong> Do not explain anything. Read Paimon's line <em>verbatim,</em> in the exact cadence you used in Loop 1. Then wait. Let the players feel it before they can name it.</p>
+<p>If they don't catch it immediately, push them through the fixed beats until <em>something repeats that they cannot explain</em> &mdash; Dunyarzad's cough landing on the same word, Lambad's menu unchanged though he swears it isn't, the kestrel crossing the same patch of sky at the same moment, or simply <em>you</em> delivering a held NPC phrase word for word while no one else is talking. They will hear you.</p>
+</div>
+
+<div class="callout puzzle">
+<p><strong>The candy as a probe.</strong> Once the party suspect the day is repeating, the mystery box becomes their first instrument. They will start to <em>deliberately</em> pick a different candy &mdash; choose a flavor they didn't last time, pocket it instead of eating it, skip the stall entirely.</p>
+<p><strong>The lesson: it changes nothing.</strong> Whatever they pick, however they pick it, the loop runs identically. Dehya still takes the bandage. Azar still says his line. The beep still comes. Let them run the experiment as many times as they want across Loops 2&ndash;3 &mdash; the candy is how they prove to <em>themselves</em> that small choices do not bend the loop. That conclusion is what makes them go looking for a bigger lever.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Loop 2 is a fast loop.</strong> The party should:</p>
+<ul>
+  <li>Run the candy experiment (above).</li>
+  <li>Try to break routine &mdash; canon: they go to <strong>Lambad's Tavern</strong> for something they've never had. The food is familiar. Lambad does not remember them.</li>
+  <li>Notice Dunyarzad is <em>dimmer</em> &mdash; fewer jokes, less energy. She cannot tell them why. She doesn't know.</li>
+  <li>Watch Azar shut the festival down, exactly the same. The Azar choice escalates a notch &mdash; this is usually where a PC speaks up.</li>
+  <li>Sleep. The beep. The reset.</li>
+</ul>
+</div>
+
+<div class="callout choice">
+<p><strong>What does the party do once they're sure the day is repeating?</strong></p>
+<ul>
+  <li><strong>Tell Dunyarzad or Nilou directly.</strong> They are not believed. Dunyarzad is gentle: <em>"You've been through so much &mdash; rest."</em> The party lose time to a fruitless conversation. <em>No new information.</em></li>
+  <li><strong>Test the loop &mdash; do something genuinely different.</strong> Skip the festival, follow the kestrel, climb to a rooftop. Reward: the DM may drop <strong>one</strong> impossible detail to confirm the wrongness &mdash; a fountain pouring upward for one second, a falcon flying backward. <em>Encourage this one.</em></li>
+  <li><strong>Try to leave Sumeru City.</strong> They walk to the gate. They walk through it. <strong>The next thing they remember is Paimon's morning line.</strong> Their memory of leaving is simply gone. (Canon &mdash; exactly what happens to the Traveler.) This proves the city's edge is part of the cage.</li>
+</ul>
+<p><strong>Bias toward the second option.</strong> The first burns time; the third costs a memory they'll only miss later. Testing the loop is the most fun and the most productive.</p>
+</div>
+
+<h3>Loop 3 &mdash; The Girl at the Edge of the Crowd</h3>
+<p><span class="tag time">2:15&ndash;2:38</span> <span class="tag rp">RP</span> <span class="tag puzzle">PUZZLE</span></p>
+
+<div class="callout dm">
+<p>The party wake into Loop 3 already aware. Narrate the fixed beats fast. This loop is for <strong>bigger</strong> experiments &mdash; they have proven small choices don't matter, so let them swing harder: warn Dehya before the kidnap, try to out&#8209;argue Azar, stake out the bell tower at 3am. <em>None of it bends the loop.</em> Every thread comes back to the beep. The frustration is the design &mdash; they are being walked, deliberately, toward looking <em>outside</em> the loop's cast for an answer.</p>
+<p><strong>End the loop on the glimpse.</strong> Somewhere in Loop 3 &mdash; the corner of Lambad's tavern, the edge of the festival crowd, a doorway &mdash; there is <strong>a small barefoot girl in a green hood.</strong> She is not on anyone's customer list. She is watching the party specifically. When a PC turns to look straight at her, she is gone. Do this <strong>twice,</strong> then end Loop 3. Do not name her. The party should go into the reset hungry to catch her.</p>
+</div>
+
+<div class="callout read">
+<p>You have spent a whole day &mdash; another whole day &mdash; proving to yourselves that nothing you do reaches past sundown. And then, at the edge of the festival crowd, there is a child.</p>
+<p>Small. Barefoot. A green hood, green hair tied back beneath it. She is not looking at the festival. She is looking at <em>you</em> &mdash; the way you look at a word you're sure you've read somewhere before.</p>
+<p>You turn to face her fully. The space where she stood has a lantern in it, and a stranger, and no child at all.</p>
+</div>
+
+<h3>Loop 4 &mdash; Bimarstan</h3>
+<p><span class="tag time">2:38&ndash;3:08</span> <span class="tag rp">RP</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout dm">
+<p>Skip the fixed beats in two sentences. The party are hunting the girl now &mdash; that is the whole loop. She appears at the edge of the crowd again; when they move toward her she does not run, she <em>walks,</em> and she lets them follow. She leads them to <strong>Bimarstan,</strong> Sumeru's hospital, and steps through the door.</p>
+</div>
+
+<div class="callout read">
+<p>Bimarstan smells of camphor and chamomile. The hall is quiet; white curtains move in a draft you can't find the source of. The girl is at the end of the corridor, sitting on a windowsill, swinging her bare feet.</p>
+<p>"There you are," she says, like you are old friends running late. "I've been trying to catch you for days. You keep <em>looking</em> &mdash; you just don't <em>see.</em> Come here. There's something you need to look at properly."</p>
+<p>She slides down, pads to a curtain along the wall, and pulls it back. Behind it is a bed. In the bed is <strong>Dunyarzad.</strong> Pale, eyes closed, breath so shallow you have to watch for ten full seconds to be sure it's there at all. The Dunyarzad you have had cardamom tea with for four mornings is somewhere across the city right now, coughing on the word <em>before.</em></p>
+<p>"<em>That</em> one is real," the girl says. "The one you've been having tea with isn't, exactly &mdash; not anymore. She's thinning out. I've been holding her body together in here. I can't do it forever."</p>
+</div>
+
+<div class="callout lore">
+<p><strong>What the girl tells the party in Loop 4:</strong></p>
+<ul>
+  <li>They are stuck inside <em>something.</em> She will not call it by its name. <strong>She cannot tell them what it is</strong> &mdash; not won't, <em>can't:</em> "If I put the answer in your head, it changes the place you're standing in. And your heads would not survive the change. You have to find it yourselves. I can only point."</li>
+  <li>The real Dunyarzad is here, in this bed, fading a little with every cycle. <strong>This is the clock.</strong> She is the cost of every loop the party spend not solving it.</li>
+  <li>The party can perceive the girl &mdash; and this room &mdash; because of their Dendro exposure and their &quot;constitutions.&quot; No one else in the city can.</li>
+  <li>She does not give a name. If pressed: <em>"I'm a friend of someone who lives nearby. She can't leave the place she lives. I can &mdash; a little. I'm out of practice."</em> She is not lying. Be precise with her omissions.</li>
+</ul>
+</div>
+
+<div class="callout dm">
+<p><strong>The memory capsule &mdash; this is how the loop becomes winnable.</strong> Before the party leave, the girl gives them a <strong>Knowledge Capsule</strong> &mdash; the same kind of dark&#8209;glass bead Alhaitham used in Scene 3, Standard category, inert and safe. Hers does one specific thing: <em>"Touch it when you wake. It gives you back the loops you've already spent &mdash; everything you learned, everything you tried. So you always know what's new."</em> Mechanically: from Loop 5 on, the party keep full memory across resets without you hand&#8209;waving it. The capsule is <em>why.</em></p>
+<p><strong>The recurring prompt &mdash; set this up now and use it every loop after.</strong> The girl asks the party to come find her before each reset and tell her, in their own words, <strong>what they think is happening.</strong> She will not confirm or deny &mdash; but she will tell them whether they are <em>warmer</em> or <em>colder.</em> This &quot;prompt&quot; is the spine of Loops 5&ndash;8: each loop the party test a theory, bring her the result, and narrow it down.</p>
+<p><strong>No &quot;dook dook&quot; yet.</strong> Loop 4 is the serious introduction. Save the line for Loop 6, once the party have relaxed enough around her for it to land.</p>
+</div>
+
+<div class="callout read">
+<p>The clean high tone, through the Bimarstan window. The lights die.</p>
+<p>"You're up! Come on &mdash; let's go find Dunyarzad, she'll be waiting for us!"</p>
+<p>(This time &mdash; you remember. All of it. The capsule is warm in a hand that, a second ago, was empty.)</p>
+</div>
+
+<h3>Loop 5 &mdash; The First Theory</h3>
+<p><span class="tag time">3:08&ndash;3:30</span> <span class="tag rp">RP</span> <span class="tag puzzle">PUZZLE</span></p>
+
+<div class="callout dm">
+<p><strong>This is the first loop the party run as investigators.</strong> They have memory, a clock, and a girl who grades their guesses. Lay the three ordinary explanations on the table &mdash; through the party's own theorizing, or through the girl asking &quot;what are you assuming?&quot;:</p>
+<ol>
+  <li><strong>It's a time loop.</strong> Time itself is the broken axis. (Tested here, Loop 5.)</li>
+  <li><strong>The Akasha is harvesting their memories</strong> &mdash; wiping them each night, which is why the day feels new. (Tested Loop 6.)</li>
+  <li><strong>The Akademiya is staging it</strong> &mdash; paying the whole city to reset and perform the same day. (Tested Loop 7.)</li>
+</ol>
+<p>Loop 5 is the party testing <strong>#1.</strong> Let them design the experiment &mdash; get somewhere <em>before</em> they should be able to, leave a mark and look for it &quot;earlier,&quot; act on information they shouldn't have yet.</p>
+</div>
+
+<div class="callout puzzle">
+<p><strong>Ruling out the time loop.</strong> The experiment <em>fails to behave like time travel.</em> Whatever the party do, there is no causality to break &mdash; no paradox, no &quot;earlier,&quot; no past version of themselves to run into. The day is not a stretch of time being replayed; it is a <em>place</em> being re&#8209;entered. (If you ran the optional bell&#8209;tower beat: the clock at the top reads a different wrong time on a different face every loop &mdash; because there is no real time here for it to tell.)</p>
+<p><strong>Expect this to feel like a loss.</strong> The party spent a whole loop &mdash; a whole day of Dunyarzad's clock &mdash; on a wrong answer. Let it sting. When they bring the null result to the girl before the reset, she says, plainly: <em>"Colder. But you know one thing now you didn't. Cross it off."</em></p>
+</div>
+
+<div class="callout read">
+<p>You find her on the Bimarstan windowsill, feet swinging. You tell her: it isn't time. She nods, like you've handed her a homework page.</p>
+<p>"Colder. Good. Cross it off." She looks at the curtain, at the shape of Dunyarzad behind it, and for just a moment she looks very tired. "Bring me the next one faster, if you can."</p>
+<p>The beep. The lights. Paimon's voice.</p>
+</div>
+
+<h3>Loop 6 &mdash; Dehya, and &quot;Dook Dook&quot;</h3>
+<p><span class="tag time">3:30&ndash;4:05</span> <span class="tag rp">RP</span> <span class="tag combat">COMBAT</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout dm">
+<p><strong>Guide the party toward bringing in Dehya.</strong> The girl has told them no one else in the city can perceive her or the bedridden Dunyarzad &mdash; so an outside witness should be impossible. But Dehya is not quite an ordinary citizen of Sumeru: she is a desert woman, and the Akasha &quot;doesn't take&quot; on her the way it does on everyone else. If the party don't reach for her on their own, have the girl wonder aloud whether <em>anyone</em> stands far enough outside to help.</p>
+<p>This loop also tests <strong>theory #2 &mdash; the Akasha harvesting their memories.</strong> The party can rule it out themselves: the memory capsule <em>proves</em> their memories are not being erased &mdash; they are being <em>kept.</em> Whatever the loop is doing, it isn't theft of the past. Warmer than the time loop. Still not it.</p>
+</div>
+
+<div class="callout combat">
+<p><strong>Encounter B &mdash; "Bazaar Arch Kidnap (Player Intervention)"</strong></p>
+<p><strong>Setup:</strong> the Bazaar arch, bright noon, festival crowds &mdash; the same kidnap from Loop 1, now run for real with the party intervening alongside Dehya.</p>
+<p><strong>Enemies:</strong> 1&times; <code>Eremite Galehunter</code> [Rare] + 2&times; <code>Eremite Sword Dancer</code> [Uncommon] + 1&times; <code>Eremite Linebreaker</code> [Uncommon]. Dehya fights as an ally NPC; if the party are competent she plays conservative and shields Dunyarzad rather than dealing damage.</p>
+<p><strong>Goal:</strong> drive off the kidnappers <em>without Dehya taking the forearm cut.</em> If the party manage it, Dehya ends the loop <strong>unbandaged</strong> &mdash; the load&#8209;bearing detail.</p>
+<p><strong>Twist:</strong> the Galehunter, when bloodied, mutters &mdash; in <em>Mizri's</em> voice &mdash; <em>"World&hellip; forget me&hellip;"</em> then resumes fighting normally. Do not explain it. This is the second time tonight a stranger has spoken with someone else's mouth.</p>
+<p><strong>Reward:</strong> Dehya unbandaged. No loot &mdash; this is a dream; anything they pick up vanishes at the reset.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Bringing Dehya to Bimarstan.</strong> Dehya cannot <em>see</em> the girl, and she cannot see the bedridden Dunyarzad &mdash; but she can <strong>sense</strong> them: a wrongness in the air at the end of the corridor, a weight where the bed is. <strong>The girl is visibly surprised by this.</strong> It should not be possible, and her surprise is genuine; she covers it quickly, but the party should catch it. That flicker of the unflappable girl being <em>caught off guard</em> is what tips Dehya over &mdash; she trusts the party now. <em>"Kid, I've believed in less for worse reasons. I'm in."</em></p>
+</div>
+
+<div class="callout dm">
+<p><strong>Drop the &quot;dook dook&quot; line here.</strong> Wait until the Bimarstan conversation is deadly serious &mdash; the girl mid&#8209;sentence on something cosmic, the table leaning in. Then deliver it flat, in her ordinary curious voice, with no warning. The shift from cosmic horror &rarr; bathroom euphemism &rarr; cosmic horror is the whole joke. It is canon; the user has flagged it as a hard keep. Do not soften it.</p>
+</div>
+
+<div class="callout read">
+<p>"&mdash; and you can't just take the terminals off, by the way. We tried that. It only makes the next morning come faster. Also &mdash;" (she shifts on the windowsill, awkward) "&mdash; sorry, hold on &mdash; I have to go take a dook dook. I'll be right back. Please don't follow me."</p>
+<p>(She pads off down the corridor. The curtains shift. The real Dunyarzad keeps breathing. You are standing in a hospital hallway that is being held together by a child who just said <em>dook dook.</em>)</p>
+<p>When she comes back, she resumes the sentence as if no time has passed.</p>
+</div>
+
+<div class="callout read">
+<p>You bring her the day's result: it isn't memory theft &mdash; you <em>have</em> your memories, she made sure of that. And Dehya is here, and Dehya <em>believes.</em></p>
+<p>"Warmer," the girl says. "Much warmer. And you found someone who can stand where you're standing." She glances at Dehya with something like respect. "Cross off the second one. One ordinary answer left &mdash; and then the ones that aren't ordinary."</p>
+<p>The beep. The lights. Paimon's voice.</p>
+</div>
+
+<h3>Loop 7 &mdash; The Last Ordinary Answer</h3>
+<p><span class="tag time">4:05&ndash;4:28</span> <span class="tag rp">RP</span> <span class="tag puzzle">PUZZLE</span></p>
+
+<div class="callout dm">
+<p>With Dehya on the team and two theories crossed off, the party test <strong>#3 &mdash; the Akademiya is staging it.</strong> Paying the city. Choreographing the day. It is the last explanation that lets the world be <em>real.</em></p>
+<p><strong>It does not hold.</strong> Have the party push on it &mdash; corner Lambad, watch the falconer, time the kestrel, lean on Azar. What they find is the opposite of a performance: no one is <em>acting.</em> Actors vary. Paid extras drift. This city is too perfect &mdash; the kestrel crosses the identical patch of sky to the inch, Dunyarzad's cough lands on the identical syllable, Lambad believes his unchanged menu has changed. <strong>It isn't choreography. It's a recording.</strong> And a recording is not a thing the Akademiya knows how to make out of a living city.</p>
+<p>When the party bring this to the girl: <em>"Cold &mdash; and that's the good kind of cold. You've run out of ordinary answers. There's only the other kind left now."</em> Then steer them toward the question they have been circling all night: if the city is a recording, <em>whose recording is it?</em></p>
+</div>
+
+<div class="callout dm">
+<p><strong>Point them at Nilou.</strong> The party have the threads already &mdash; they just have to braid them:</p>
+<ul>
+  <li>Nilou is in <em>every</em> loop, load&#8209;bearing, the festival built around her dance.</li>
+  <li>The festival flowers are the Akademiya substitute &mdash; <strong>the dream cannot make a real Padisarah either.</strong> The world's edges fail in exactly the places Nilou herself grieves. (Scene 5 payoff.)</li>
+  <li>The city's whole shape is a thing Nilou loves, repeated forever, slightly wrong.</li>
+</ul>
+<p>Let the table say it out loud. The girl, when they do, does not confirm it &mdash; she just goes very still, and very gentle, and says: <em>"Warmer than you have ever been. Bring me that, tomorrow, and say it like you're sure."</em></p>
+<p><strong>End Loop 7 on the edge of the answer,</strong> not past it. Loop 8 is where they cross.</p>
+</div>
+
+<h3>Loop 8 &mdash; Nilou's Dream</h3>
+<p><span class="tag time">4:28&ndash;5:00</span> <span class="tag rp">RP</span></p>
+
+<div class="callout dm">
+<p><strong>This is the loop that breaks.</strong> The party wake knowing the answer: they are standing inside a dream, and the dream is <strong>Nilou's.</strong> Two things happen this loop &mdash; one terrible, one that ends the night.</p>
+<p><strong>First, the clock runs out.</strong> When the party reach Bimarstan, the bedridden Dunyarzad is <em>gone</em> &mdash; the bed empty, or the breath simply stopped. The girl is not on her windowsill. To the party, it reads as the worst thing: they were too slow, and the real Dunyarzad died while they ruled out wrong answers. <strong>Let them believe that.</strong> Do not soften it in the moment. (DM&#8209;only: the girl has left to chase Dunyarzad's mind into Dunyarzad's <em>own</em> harvested dream, to try to pull her back. The party will not learn this until they wake.)</p>
+<p><strong>Then they finish it without her.</strong> The party are on their own for the last step &mdash; which is correct. The girl could only ever point.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>The final task: make Nilou believe.</strong> The party go to Nilou &mdash; at the amphitheater, rehearsing, the same as every loop &mdash; and they have to convince her, <em>genuinely,</em> that all of this is a dream. Not get her to nod. Not get her to humor them. Make her <em>know</em> it, in the place where waking up starts.</p>
+<p>Run it as the night's climactic RP scene. The party's evidence is everything they have gathered:</p>
+<ul>
+  <li>The verbatim repetition &mdash; have a player recite an NPC's held phrase back before that NPC says it.</li>
+  <li>The Padisarah &mdash; the flower she herself knows is wrong; the dream cannot make the thing she loves most.</li>
+  <li>Dehya, standing there <em>unbandaged,</em> with no cut she cannot explain.</li>
+  <li>The beep. The reset. The morning that always, always comes back.</li>
+</ul>
+<p>Nilou does not want to believe it &mdash; this dream is <em>kind</em> to her, and waking means giving up a festival that, out there, the Akademiya already shut down. The turn should cost the party something to earn: let them reach her not by winning an argument but by being <em>true</em> with her, the way they were on the real night before any of this. When she believes &mdash; truly, all the way down &mdash; she goes still, and looks around at the city she made, and understands.</p>
+</div>
+
+<div class="callout read">
+<p>Nilou looks at the lanterns. At the flowers that were never the right color. At the amphitheater she has danced in for &mdash; how long? She doesn't know. She has never been able to count it.</p>
+<p>"It's mine," she says softly. "All of it. I've been&hellip; keeping it." Her eyes are bright. "And if I stop keeping it &mdash; everyone goes home."</p>
+<p>She closes her eyes. She breathes out. Somewhere above the city, for the first time in eight days, the Akademiya's lights do not go out on a clean high tone.</p>
+<p>They simply&hellip; come up. Like a morning.</p>
+</div>
+
+<h3>Waking Up</h3>
+<p><span class="tag time">5:00&ndash;5:20</span> <span class="tag rp">RP</span> <span class="tag lore">LORE</span></p>
+
+<div class="callout read">
+<p>You wake &mdash; really wake, the difference unmistakable now that you can feel it &mdash; in Dunyarzad's guest room. No Paimon line. No sun on a wall you've memorized. Just morning, ordinary and unrepeated, and the sounds of a city that has somewhere new to be.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Let the party brace for grief.</strong> The last thing they knew, the real Dunyarzad's bed was empty. Give them a beat to carry that into the waking world &mdash; and then take it back.</p>
+</div>
+
+<div class="callout read">
+<p>The door opens. It is Dunyarzad &mdash; <em>this</em> Dunyarzad, the real one, on her feet, color in her face, no cough catching the ends of her sentences. She holds the door frame like she's not entirely sure of it yet.</p>
+<p>"I had &mdash;" she stops. Starts again. "I had a <em>dream.</em> A whole one. I haven't&hellip;" Her eyes fill, and she laughs at herself for it. "I have to find Dehya. I have to tell her. She hasn't had a dream since she was a little girl &mdash; she told me once, like it didn't matter &mdash; and I have to tell her what it's <em>like.</em>"</p>
+<p>And she's gone, quick and light, out into the morning.</p>
+</div>
+
+<div class="callout dm">
+<p><strong>Let the party put it together.</strong> Dunyarzad rushing off to <em>describe a dream</em> like it's a miracle &mdash; because in Sumeru, it is. <strong>Nobody in this city dreams.</strong> The Akasha sees to that. The party have spent eight loops inside a dream; the horror underneath the horror is that a dream was a rare enough thing to be worth <em>stealing.</em> If a player lands the connection out loud, let it sit.</p>
+</div>
+
+<div class="callout read">
+<p>You are still sitting with that when someone stops in front of you. It is Katheryne &mdash; the Adventurers' Guild receptionist, unmistakable, the same as in every city. Except she crouches a little, to your eye level, which Katheryne does not do. And when she speaks, the cadence is one you have heard for the last eight days, swinging its bare feet on a windowsill.</p>
+<p>"Sorry about the borrowed mouth," the girl says, through Katheryne's face. "I can't be everywhere as myself yet. I wanted to tell you the parts you couldn't be told from the inside."</p>
+</div>
+
+<div class="callout lore">
+<p><strong>What the girl explains, now that they are awake:</strong></p>
+<ul>
+  <li><strong>Dunyarzad is alive</strong> because the girl went after her. When the body in Bimarstan failed, Dunyarzad's <em>mind</em> had already been pulled into a dream of her own &mdash; and the girl followed it in and brought her back. That is where she was during Loop 8.</li>
+  <li><strong>The dreams were being harvested.</strong> Sleeping minds across Sumeru &mdash; their dreams siphoned off for the power, the energy, the <em>knowledge</em> in them. Dunyarzad's. Nilou's. Others'.</li>
+  <li><strong>That is why the party were all trapped together.</strong> The victims were not each left in their own dream &mdash; they were <em>gathered,</em> folded into one shared dream so they could be drawn from at once. Nilou's was the one strong enough to hold a whole city. The party were simply swept in with everyone else.</li>
+  <li>She does <em>not</em> say who is doing the harvesting, or why, or what she herself is. <em>"That's the next thread. Pull it carefully. I'll be easier to find, after this."</em></li>
+</ul>
+</div>
+
+<div class="callout read">
+<p>Katheryne straightens up. Her eyes refocus &mdash; ordinary, professional, with no memory of the last minute &mdash; and she asks if you need anything from the Guild today.</p>
+<p>Behind you, the city is loud with a festival that, this time, no one is going to shut down.</p>
+<p>(<strong>End the session here.</strong>)</p>
+</div>
+
+<div class="pagebreak"></div>
+<h2>If You Run Short</h2>
+<ul>
+  <li><strong>Compress the Touch&#8209;and&#8209;Read demo (Scene 3).</strong> Run only one PC's roll &mdash; the player most likely to engage with lore &mdash; and have Alhaitham summarize the rest. Saves ~10 min.</li>
+  <li><strong>Compress Loop 1.</strong> Cut Lambad / falconer / lantern&#8209;folding; keep only Vihar, the kidnap (narrated), Azar, and sleep. Saves ~20 min. (Cost: fewer held NPC phrases to repeat later &mdash; keep at least one.)</li>
+  <li><strong>Merge Loops 2 and 3.</strong> Run one &quot;the day is repeating&quot; loop instead of two &mdash; the candy probe, one big failed experiment, and the girl&#8209;at&#8209;the&#8209;edge glimpse all in a single loop. Saves ~25 min.</li>
+  <li><strong>Collapse the hypothesis loops.</strong> Instead of one loop each for the time&#8209;loop / memory&#8209;harvest / Akademiya theories, run them as a single brisk investigation loop where the party rule out all three in montage and bring the girl one combined result. Saves ~30 min. (Cost: the grind of wrong answers is part of why the right one feels earned &mdash; cut this only if you must.)</li>
+  <li><strong>Skip Encounter B.</strong> Narrate the Loop&#8209;6 kidnap as a Dehya&#8209;solo win again, with the party arriving late. Lose the Mizri&#8209;voice cameo and the unbandaged&#8209;Dehya beat; Dehya can still come to believe through the Bimarstan &quot;sensing&quot; moment alone. Saves ~25 min.</li>
+</ul>
+
+<h2>If You Have Extra Time</h2>
+<ul>
+  <li><strong>Fortune&#8209;teller at the festival (Loop 1).</strong> An old woman with cataract&#8209;white eyes tells one PC something true that hasn't happened yet &mdash; seed her with the beep of the coming reset. The PC will hear it that night and remember her. ~10 min.</li>
+  <li><strong>The bell tower (Loop 3).</strong> If the party suspect <em>time</em> is the broken axis, let them climb the bell tower at 3am to catch the beep early. They do &mdash; and the clock at the top reads a different wrong time on a different face every loop, because there is no real time here to tell. ~15 min. (Doubles as a head start on ruling out the time&#8209;loop theory in Loop 5.)</li>
+  <li><strong>Setaria sub&#8209;beat (Loop 6 or 7).</strong> Setaria approaches one PC alone, says one sentence, walks off: <em>"You are reading. Be careful what you read back."</em> ~5 min. Foreshadows the Sages' awareness in Sumeru Act III.</li>
+  <li><strong>A second Knowledge Capsule.</strong> If the party were efficient at Port Ormos, Alhaitham offers them another Standard capsule before they leave for Sumeru City &mdash; this time with the INT save actually rolled. Risk and reward. ~10 min.</li>
+</ul>
+
+<h2>Lead&#8209;In to Next Session</h2>
+<ul>
+  <li><strong>The loop is broken &mdash; this one.</strong> The party did not leave the samsara running; they ended it. Next session opens in a Sumeru City that is awake, mid&#8209;festival, and does not reset.</li>
+  <li><strong>What the party know now:</strong> they were inside Nilou's dream; dreams across Sumeru were being harvested for their power and knowledge; the victims were gathered into one shared dream; Dunyarzad was saved at the last moment by the barefoot girl; and &mdash; the quiet horror &mdash; <em>nobody in Sumeru dreams,</em> which is why a dream was worth stealing.</li>
+  <li><strong>What they do not know yet:</strong> who the girl actually is; who is harvesting the dreams, and why; what she found when she followed Dunyarzad's mind; and how the Mizri capsule, the Galehunter's borrowed voice, and the <em>"World&hellip; forget me&hellip;"</em> line all connect. These are next session's reveals &mdash; keep them sealed.</li>
+  <li><strong>Threads left running:</strong> Alhaitham is still writing his report and will resurface at the next inflection point. Setaria noticed the party &mdash; the Sages may already be aware of them. The Ayn Al&#8209;Ahmar Eremites lost Mizri but not their cause.</li>
+  <li><strong>The girl's promise:</strong> <em>"I'll be easier to find, after this."</em> She will be. Next session, the party go looking for her on purpose.</li>
+</ul>
+
+<hr>
+<p class="mini">Source files: <code>docs/superpowers/sessions/2026-04-11-festival-of-sabzeruz.html</code> (superseded draft); wiki <em>Through Mists of Smoke and Forests Dark</em>; wiki <em>The Morn a Thousand Roses Brings</em>. Enemy data: <code>data/resources/enemies/eremite_*.tres</code>. Combat formula reference: campaign damage formula (host&#8209;authoritative).</p>
+
+</body>
+</html>

@@ -88,7 +88,7 @@ offset_left = 557.0
 offset_top = 55.0
 offset_right = 739.0
 offset_bottom = 141.0
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 45
 text = "Applied
 Element:"
 horizontal_alignment = 1

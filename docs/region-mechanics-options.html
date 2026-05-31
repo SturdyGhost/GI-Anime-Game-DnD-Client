@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Region Combat Mechanics — Design Options</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --card-alt: #1a2744;
+    --text: #e0e0e0;
+    --muted: #8892a4;
+    --accent-blue: #4fc3f7;
+    --accent-orange: #ffb74d;
+    --accent-purple: #b39ddb;
+    --accent-cyan: #4dd0e1;
+    --accent-green: #81c784;
+    --accent-red: #ef5350;
+    --accent-yellow: #fff176;
+    --bond: #e53935;
+    --nightsoul: #ff9800;
+    --lunar: #7c4dff;
+    --stellar: #00bcd4;
+    --border: #2a3a5c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .toc h2 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--accent-blue); }
+  .toc a { color: var(--accent-cyan); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc ul { list-style: none; padding-left: 0; }
+  .toc li { padding: 0.3rem 0; }
+  .toc li::before { content: '→ '; color: var(--muted); }
+
+  .mechanic-section {
+    margin-bottom: 4rem;
+    border-top: 3px solid var(--border);
+    padding-top: 2rem;
+  }
+  .mechanic-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .mechanic-badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-bond { background: var(--bond); color: white; }
+  .badge-nightsoul { background: var(--nightsoul); color: #1a1a2e; }
+  .badge-lunar { background: var(--lunar); color: white; }
+  .badge-stellar { background: var(--stellar); color: #1a1a2e; }
+
+  .mechanic-title { font-size: 1.8rem; }
+  .mechanic-summary {
+    background: var(--card);
+    border-left: 4px solid var(--border);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0 2rem 0;
+    border-radius: 0 8px 8px 0;
+    color: var(--muted);
+  }
+  .mechanic-summary strong { color: var(--text); }
+
+  .approach-group {
+    margin-bottom: 2.5rem;
+  }
+  .approach-label {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .approach-a .approach-label { color: var(--accent-green); border-color: var(--accent-green); }
+  .approach-b .approach-label { color: var(--accent-orange); border-color: var(--accent-orange); }
+  .approach-c .approach-label { color: var(--accent-purple); border-color: var(--accent-purple); }
+
+  .option-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .option-card:hover { border-color: var(--accent-blue); }
+
+  .option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .option-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+  }
+  .option-id {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: monospace;
+    white-space: nowrap;
+  }
+
+  .option-desc { margin-bottom: 1rem; }
+  .option-desc p { margin-bottom: 0.5rem; }
+
+  .rules-box {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 0.8rem 0;
+  }
+  .rules-box h4 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .rules-box ul { padding-left: 1.2rem; }
+  .rules-box li { margin-bottom: 0.3rem; font-size: 0.95rem; }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .pros, .cons {
+    background: var(--card-alt);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .pros { border-left: 3px solid var(--accent-green); }
+  .cons { border-left: 3px solid var(--accent-red); }
+  .pros h4 { color: var(--accent-green); margin-bottom: 0.5rem; font-size: 0.9rem; }
+  .cons h4 { color: var(--accent-red); margin-bottom: 0.5rem; font-size: 0.9rem; }
+  .pros li, .cons li { font-size: 0.9rem; margin-bottom: 0.3rem; }
+
+  .ratings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .rating-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-alt);
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+  .rating-label { color: var(--muted); }
+  .rating-bar {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .rating-pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+  .rating-pip.filled { background: var(--accent-cyan); }
+  .rating-pip.filled.high { background: var(--accent-green); }
+  .rating-pip.filled.mid { background: var(--accent-yellow); }
+  .rating-pip.filled.low { background: var(--accent-red); }
+  .rating-score {
+    font-weight: 700;
+    min-width: 2ch;
+    text-align: right;
+    margin-left: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .ranking-section {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .ranking-section h3 {
+    color: var(--accent-yellow);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  .rank-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1;
+  }
+  .rank-1 { color: #ffd700; }
+  .rank-2 { color: #c0c0c0; }
+  .rank-3 { color: #cd7f32; }
+  .rank-rest { color: var(--muted); }
+  .rank-name { font-weight: 700; color: var(--accent-cyan); }
+  .rank-reason { font-size: 0.9rem; color: var(--muted); margin-top: 0.2rem; }
+
+  @media (max-width: 700px) {
+    .pros-cons { grid-template-columns: 1fr; }
+    .ratings { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+<script>
+function renderRating(el) {
+  const score = parseInt(el.dataset.score);
+  const invert = el.dataset.invert === 'true';
+  let pips = '';
+  for (let i = 1; i <= 10; i++) {
+    let cls = 'rating-pip';
+    if (i <= score) {
+      cls += ' filled';
+      const effective = invert ? (11 - score) : score;
+      if (effective >= 7) cls += ' high';
+      else if (effective >= 4) cls += ' mid';
+      else cls += ' low';
+    }
+    pips += `<div class="${cls}"></div>`;
+  }
+  const colorClass = (() => {
+    const effective = invert ? (11 - score) : score;
+    if (effective >= 7) return 'high';
+    if (effective >= 4) return 'mid';
+    return 'low';
+  })();
+  el.querySelector('.rating-bar').innerHTML = pips;
+  const scoreEl = el.querySelector('.rating-score');
+  scoreEl.textContent = score;
+  scoreEl.className = `rating-score ${colorClass}`;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.rating-item').forEach(renderRating);
+});
+</script>
+</head>
+<body>
+
+<h1>Region Combat Mechanics — Design Options</h1>
+<p class="subtitle">Genshin DnD Tabletop Adaptation — 9 options per mechanic, rated and ranked</p>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#bond">Bond of Life (Fontaine)</a></li>
+    <li><a href="#nightsoul">Nightsoul's Blessing (Natlan)</a></li>
+    <li><a href="#lunar">Lunar Reactions (Nod Krai)</a></li>
+    <li><a href="#stellar">Stellar Cryo (Snezhnaya)</a></li>
+  </ul>
+  <p style="margin-top:1rem; font-size:0.85rem; color:var(--muted)">
+    Rating categories: <strong>Accuracy</strong> (faithfulness to original), <strong>Implement</strong> (dev effort, lower=harder, inverted for display),
+    <strong>Table Complexity</strong> (bookkeeping burden, lower=simpler, inverted), <strong>Player Clarity</strong> (how easy to grasp),
+    <strong>Combat Impact</strong> (meaningful tactical depth), <strong>System Fit</strong> (integration with existing WHEN/IF/DO/TO/FOR effects)
+  </p>
+</nav>
+
+<!-- ============================================================ -->
+<!--  BOND OF LIFE                                                  -->
+<!-- ============================================================ -->
+<section class="mechanic-section" id="bond">
+  <div class="mechanic-header">
+    <span class="mechanic-badge badge-bond">Fontaine</span>
+    <h2 class="mechanic-title">Bond of Life</h2>
+  </div>
+  <div class="mechanic-summary">
+    <strong>Original mechanic:</strong> A status tracked as an HP-value "debt" that blocks all healing until cleared. Characters voluntarily take on Bond to power up attacks (damage scales with Bond amount), then clear it via healing (which pays off the debt instead of restoring HP). Core fantasy: <strong>blood magic — strongest when most vulnerable.</strong> Key characters: Arlecchino (slow burn DPS), Clorinde (rapid cycle), Sigewinne (support fuel).
+  </div>
+
+  <!-- Approach A: Faithful -->
+  <div class="approach-group approach-a">
+    <h3 class="approach-label">Approach A — Faithful Adaptation</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A1: Full HP-Value Bond Tracking</span>
+        <span class="option-id">BOND-A1</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond of Life tracked as an <strong>exact HP number</strong> per character, just like the original game. Healing is intercepted and applied to Bond first. Damage bonuses scale proportionally to Bond value as a percentage of max HP.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond of Life = a number (0 to 2× max HP) tracked per battler alongside HP and shields</li>
+          <li>While Bond > 0: ALL incoming healing reduces Bond instead of restoring HP</li>
+          <li>Damage bonus = Bond ÷ Max HP × base multiplier (e.g., Bond at 65% max HP with 10× multiplier = +6.5 damage)</li>
+          <li>Specific abilities consume Bond: attacks reduce it by a set amount per hit, Bursts consume all Bond and heal for that value</li>
+          <li>Some characters (Arlecchino) flagged as "cannot receive ally healing" — only self-heal via Burst</li>
+          <li>Multiple Bond sources stack additively</li>
+          <li>New effect conditions: HAS_BOND, BOND_ABOVE_PERCENT, BOND_BELOW_PERCENT</li>
+        </ul>
+      </div>
+      <div class="rules-box">
+        <h4>Example Kit: Arlecchino Companion</h4>
+        <ul>
+          <li>Skill: Marks enemies with Blood-Debt Directives</li>
+          <li>Charged Attack near marked enemy: Absorb mark, gain Bond = 65% max HP (or 130% if mark aged 1+ turn)</li>
+          <li>While Bond > 30% max HP: Normal attacks convert to Pyro, deal bonus damage = Bond% × 0.1 per hit, each hit consumes 15% of current Bond</li>
+          <li>Burst: Consume ALL Bond, deal AoE Pyro damage, heal self for consumed Bond amount</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Perfectly captures the original scaling fantasy</li>
+            <li>Arlecchino/Clorinde companions feel authentic — damage scales with commitment</li>
+            <li>Threshold effects (>30%, =100%) create real decision points each turn</li>
+            <li>Healing interception is intuitive: "your heals pay off debt first"</li>
+            <li>Works as both a self-buff AND an enemy debuff (Fatui Operatives can inflict it)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>New per-character tracked value — currently you track HP, shields, burst charges, status effects. This adds another number</li>
+            <li>Percentage-based damage scaling means math at the table: "what's 65% of 42 HP?"</li>
+            <li>Healing interception is a new rule that touches ALL healing in the game when Bond is present</li>
+            <li>DM must remember to check Bond before applying any heal</li>
+            <li>Could slow down turns for Bond characters doing the scaling math</li>
+            <li>UI needs a Bond display element on character cards</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="10"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A2: HP-Value Bond with Simplified Scaling</span>
+        <span class="option-id">BOND-A2</span>
+      </div>
+      <div class="option-desc">
+        <p>Same HP-value tracking as A1, but damage bonuses use a <strong>lookup table</strong> instead of percentage math. Bond value maps to a bonus tier just like stats map to dice in your combat system.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond tracked as exact HP number (same as A1)</li>
+          <li>Healing interception (same as A1)</li>
+          <li>Damage bonus uses a tier table based on Bond as % of max HP:</li>
+          <li style="list-style:none; margin-left:1rem">1-25% → +1 damage | 26-50% → +2 | 51-75% → +3 | 76-100% → +4 | 101%+ → +5</li>
+          <li>No per-hit percentage math — just check which bracket you're in</li>
+          <li>Abilities still consume Bond by fixed amounts (e.g., "each attack reduces Bond by 5")</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Still tracks exact Bond for faithful feel, but no multiplication at the table</li>
+            <li>Tier table matches existing design pattern (stat→dice table)</li>
+            <li>Thresholds are easy to eyeball: "I'm over 50% Bond so +3"</li>
+            <li>Arlecchino/Clorinde kits still feel scaling and distinct</li>
+            <li>DM can announce tier: "you're at High Bond, +4 damage"</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Still tracking an exact HP number per character</li>
+            <li>Still need healing interception logic</li>
+            <li>Players need to know their max HP percentage bracket (minor mental math)</li>
+            <li>The tier jumps feel slightly less smooth than true scaling</li>
+            <li>UI still needs Bond tracking display</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="8"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A3: Dice-Value Bond</span>
+        <span class="option-id">BOND-A3</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond is tracked as an HP number, but instead of flat bonuses, your Bond value <strong>determines a bonus damage die</strong> using the existing stat→dice table. Bond of 8 HP means you roll a bonus D8 on attacks. Fits the existing dice-driven combat identity.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond tracked as HP number (same as A1/A2)</li>
+          <li>Healing interception (same as A1/A2)</li>
+          <li>While Bond > 0: attacks gain a <strong>bonus damage die</strong> determined by Bond value on the stat→dice table (Bond of 6 = bonus D6, Bond of 12 = bonus D12)</li>
+          <li>Each attack reduces Bond by the value rolled on the bonus die</li>
+          <li>Burst: consume all Bond, heal self for that amount, deal damage = Bond value</li>
+          <li>Natural synergy: higher Bond = bigger bonus die = faster consumption. Self-balancing.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Uses the dice table players already know — zero new math concepts</li>
+            <li>Rolling bonus dice is FUN and tactile at a tabletop</li>
+            <li>Self-balancing: big Bond = big die = drains faster. No runaway states</li>
+            <li>Consumption is organic (you roll what you spend) instead of fixed decrements</li>
+            <li>Feels like the existing combat system extended, not a foreign mechanic bolted on</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Departs from original Genshin math — Bond doesn't work as a "multiplier" like in-game</li>
+            <li>Still tracking exact Bond HP value</li>
+            <li>Rapid Bond consumption via big dice might make the buff feel too short</li>
+            <li>Clorinde's "build to 100% for max damage" loop is harder to capture — she wants to accumulate, not spend per-hit</li>
+            <li>Need to decide: does the bonus die replace or add to the normal damage die?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="6"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach B: Homebrew -->
+  <div class="approach-group approach-b">
+    <h3 class="approach-label">Approach B — Simplified Homebrew</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B1: Binary Unhealable + Flat Damage Buff</span>
+        <span class="option-id">BOND-B1</span>
+      </div>
+      <div class="option-desc">
+        <p>No Bond tracking at all. Characters gain an <strong>"Unhealable" status effect</strong> with a duration, paired with a flat damage bonus while active. Simple on/off toggle.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Abilities that would grant Bond instead apply "Unhealable" status (2-3 turns) + flat damage buff (+3 or +4)</li>
+          <li>While Unhealable: all healing to this character is blocked entirely (not redirected — just blocked)</li>
+          <li>Burst/special ability removes Unhealable early and heals for a set amount</li>
+          <li>No scaling, no tiers — damage bonus is the same whether you just got it or it's about to expire</li>
+          <li>Implemented entirely through existing effects: WHEN: ON_SKILL_USE, DO: APPLY_STATUS "Unhealable" + STAT_BONUS, FOR: 3</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Zero new systems — uses existing status effects and damage bonuses</li>
+            <li>Trivial to implement: just a new status effect name and a healing check</li>
+            <li>Players understand instantly: "you can't heal but you hit harder"</li>
+            <li>No math, no tracking, no new UI elements</li>
+            <li>DM doesn't need to remember anything new — it's just another status effect</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Completely loses the scaling fantasy — no "I'm at 130% Bond and hitting like a truck"</li>
+            <li>Arlecchino and Clorinde feel identical: both just get a flat buff + can't heal</li>
+            <li>No decision-making: you don't choose when to cash out, it just expires</li>
+            <li>The "blood magic risk/reward" is barely present — it's just a buff with a downside</li>
+            <li>Artifact sets like Fragment of Harmonic Whimsy lose their "fluctuation" trigger since there's nothing to fluctuate</li>
+            <li>Players who know Genshin will notice how watered down it is</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="2"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B2: HP Sacrifice Mechanic</span>
+        <span class="option-id">BOND-B2</span>
+      </div>
+      <div class="option-desc">
+        <p>Instead of Bond blocking healing, characters <strong>spend HP directly</strong> to power up attacks. No healing block — you're literally paying health for damage. Closer to "blood magic" in traditional RPG terms.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Abilities that would grant Bond instead cost HP to activate: "Spend 5 HP to deal +4 damage on your next 2 attacks"</li>
+          <li>No healing restriction — you CAN heal, but you're already down the HP</li>
+          <li>Burst abilities deal bonus damage based on missing HP: "+1 damage per 5 HP below max"</li>
+          <li>Creates natural tension: spend HP for offense, but you're closer to death</li>
+          <li>Healing is still useful (recovers the HP you spent) but doesn't negate the mechanic</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>HP is already tracked — no new resources needed</li>
+            <li>Extremely intuitive RPG mechanic: "spend health to hit harder"</li>
+            <li>Creates genuine risk: you can die if you over-invest</li>
+            <li>Missing HP scaling on Bursts gives a satisfying "desperation attack" moment</li>
+            <li>Healers on the team interact naturally — they restore what you spent</li>
+            <li>Works well with the existing damage formula (additive bonus from HP cost)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Not really Bond of Life at all — it's a different mechanic with similar flavor</li>
+            <li>Loses the "healing is blocked" tension entirely — that's the core of Bond</li>
+            <li>Arlecchino's "can't be healed by allies" doesn't translate (she CAN be healed here)</li>
+            <li>Fragment of Harmonic Whimsy (fluctuation bonus) doesn't map cleanly</li>
+            <li>Enemies inflicting "Bond" as a debuff doesn't work — they'd be dealing damage, not applying a status</li>
+            <li>Could be too punishing if HP pools are small — spending 5 HP when you have 30 is very different from Genshin's 30k HP characters</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B3: Reckless Stance Toggle</span>
+        <span class="option-id">BOND-B3</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond characters have a <strong>stance toggle</strong>: Defensive (normal) or Reckless (Bond active). While Reckless: +3 damage on all attacks, but take +2 damage from all sources and can't be healed. Toggle back as a free action on your turn.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond characters get a "Reckless Stance" they can toggle as a free action at the start of their turn</li>
+          <li>Reckless: +3 damage dealt, +2 damage taken, healing blocked</li>
+          <li>Defensive: normal stats, healing works</li>
+          <li>Burst abilities have bonus effects when used from Reckless stance (extra damage, self-heal on exit)</li>
+          <li>Some characters (Arlecchino) are always Reckless — can't toggle to Defensive. Burst is their only healing.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Binary state — trivially simple to track (a flag, not a number)</li>
+            <li>The +damage taken adds tension that flat "Unhealable" (B1) lacks</li>
+            <li>Toggle mechanic gives players agency each turn: "am I safe enough to stay Reckless?"</li>
+            <li>Arlecchino's "permanently committed" variant feels distinct from toggle characters</li>
+            <li>No new resources, just a state flag per character</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>No scaling — Reckless is always the same bonus, no "deeper commitment = bigger reward"</li>
+            <li>Clorinde's rapid build-and-spend loop doesn't exist — she just toggles</li>
+            <li>The +2 damage taken is a homebrew addition that doesn't match original Bond (Bond doesn't make you take more damage)</li>
+            <li>Sigewinne's "Bond fuels my healing" archetype can't work with a binary toggle</li>
+            <li>Artifact/weapon effects that key off Bond fluctuation don't apply</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach C: Hybrid -->
+  <div class="approach-group approach-c">
+    <h3 class="approach-label">Approach C — Hybrid</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C1: Three-Tier Bond (None / Low / High)</span>
+        <span class="option-id">BOND-C1</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond tracked as <strong>three simple tiers</strong> instead of exact HP. Each tier gives a set damage bonus and blocks healing. Actions move you between tiers. Simple enough for the table, rich enough for distinct kits.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond tiers: <strong>None</strong> (no Bond) → <strong>Low</strong> (+2 damage, healing blocked) → <strong>High</strong> (+4 damage, healing blocked)</li>
+          <li>Abilities grant Bond at a specific tier: "Skill grants High Bond" or "each attack builds one tier"</li>
+          <li>Attacks can consume tiers: "each attack drops Bond by one tier" or "special attack consumes all Bond"</li>
+          <li>Healing action while Bond > None: clears one tier (healing consumed, no HP restored)</li>
+          <li>Burst effects can key off current tier: "at High Bond, Burst deals +6 extra"</li>
+        </ul>
+      </div>
+      <div class="rules-box">
+        <h4>Kit Differentiation</h4>
+        <ul>
+          <li><strong>Arlecchino:</strong> Skill → High Bond. Attacks at High = +4, each attack drops a tier. Burst at any Bond tier = consume all + heal + bonus damage per tier consumed.</li>
+          <li><strong>Clorinde:</strong> Attacks build Bond (None→Low→High). Special attack at High = max damage + drop to None + self-heal. Rapid cycling.</li>
+          <li><strong>Sigewinne:</strong> Skill gives Low Bond. Clearing Bond gives +1 burst charge. While she has Bond, her heals to allies are +2.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Three states is trivially trackable — a marker on the character card or a mental note</li>
+            <li>Keeps meaningful scaling (Low vs High matters) without exact math</li>
+            <li>All three character archetypes (Arlecchino/Clorinde/Sigewinne) feel distinct</li>
+            <li>Healing interception still exists but is simpler: "heal clears one tier"</li>
+            <li>Artifact effects can key off tier changes: "when Bond tier changes, +3 damage for 1 turn" (Fragment of Harmonic Whimsy)</li>
+            <li>Easy to announce: "I'm at High Bond" — everyone knows what that means</li>
+            <li>DM can inflict Bond on players via enemies: "Fatui Operative hits you — gain Low Bond"</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Less granular than original — no difference between "barely above 30%" and "at 130%"</li>
+            <li>Three tiers might not be enough for complex kits (could add a third "Critical" tier if needed)</li>
+            <li>Still need a healing interception rule (but simpler than A1)</li>
+            <li>New enum to track per character (though much simpler than an HP value)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="7"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C2: Bond Points (Small Integer Pool)</span>
+        <span class="option-id">BOND-C2</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond tracked as <strong>0-10 Bond Points</strong> (not HP values). A small integer pool that's easy to count. Damage bonus = Bond Points ÷ 2 (rounded down). Healing clears Bond Points at a 1:1 rate with healing value.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Bond Points: 0-10 scale per character</li>
+          <li>Abilities grant fixed Bond Points: "Skill grants 6 Bond Points" / "each attack grants 2 Bond Points"</li>
+          <li>Damage bonus while Bond > 0: +1 per 2 Bond Points (so 6 Bond = +3 damage)</li>
+          <li>Healing blocked while Bond > 0. Each point of healing clears 1 Bond Point instead.</li>
+          <li>Attacks can consume Bond Points: "this attack costs 3 Bond Points for +5 damage"</li>
+          <li>Burst: consume all Bond Points, heal self for 2× points consumed, deal bonus = points consumed</li>
+          <li>Threshold effects: "while Bond ≥ 5: attacks convert to elemental"</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>More granular than tiers (C1) but simpler than HP tracking (A1)</li>
+            <li>0-10 is easy to count on fingers or track with a d10</li>
+            <li>Damage math is simple: divide by 2. Or just use a reference (5 Bond = +2, 8 Bond = +4)</li>
+            <li>Healing interaction is clean: 1 healing = 1 Bond cleared</li>
+            <li>Supports both "build up" (Clorinde) and "spend down" (Arlecchino) patterns</li>
+            <li>Threshold effects at specific point values (≥5, ≥8) create decision points</li>
+            <li>Can express in effects system: IF: BOND_POINTS >= 5, DO: ELEMENT_CONVERT</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Still a new per-character resource to track (though small)</li>
+            <li>Abstracted away from HP — loses the "your health IS the resource" flavor</li>
+            <li>Healing clearing Bond at 1:1 means a 5-point heal clears 5 Bond — might drain too fast or slow depending on healing values</li>
+            <li>Need to tune the numbers carefully against your HP/healing scale</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="6"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C3: Bond Die (Escalating Risk Die)</span>
+        <span class="option-id">BOND-C3</span>
+      </div>
+      <div class="option-desc">
+        <p>Bond is represented by a <strong>die that sits in front of the player</strong>. When you gain Bond, you get a Bond Die (starts at D4). Abilities can <strong>escalate</strong> the die (D4→D6→D8→D10→D12). On each attack, roll the Bond Die as bonus damage. On a 1, Bond breaks and healing is restored. High risk, high reward, very tactile.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Gaining Bond = place a Bond Die in front of you (starts at D4 or higher per ability)</li>
+          <li>While you have a Bond Die: healing is blocked, roll it as bonus damage on every attack</li>
+          <li>Some abilities escalate the die: D4→D6→D8→D10→D12 (bigger risk, bigger reward)</li>
+          <li>On any Bond Die roll of 1: Bond breaks. Die is removed. Healing restored. No bonus damage that hit.</li>
+          <li>Burst: voluntarily break Bond. Roll the Bond Die one final time as bonus damage + heal for the die's max value.</li>
+          <li>Arlecchino: starts at D8, escalates to D12 via Skill. Clorinde: starts at D4, escalates rapidly via attacks.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Incredibly tactile and fun at a physical table — the die IS the Bond</li>
+            <li>Escalation mechanic already exists in your system (Brian C.'s Nature Skill) — proven pattern</li>
+            <li>Self-balancing via the "roll 1 = break" rule. Bigger dice are harder to roll a 1 on (D12 = 8.3% chance vs D4 = 25%)</li>
+            <li>Creates genuine tension every roll: "please don't be a 1..."</li>
+            <li>No math — just roll the die. The die IS the tracking.</li>
+            <li>Players will LOVE the push-your-luck element</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Significantly departs from original Bond of Life — this is more "cursed die" than "healing debt"</li>
+            <li>The random break on 1 removes player agency — in original, you CHOOSE when to clear Bond</li>
+            <li>Clorinde's "build to 100% then cash out" loop becomes "escalate die and hope it doesn't break"</li>
+            <li>Harder to implement in the digital client — needs a "Bond Die" display with escalation</li>
+            <li>Sigewinne's support Bond usage doesn't map well to a push-your-luck die</li>
+            <li>Enemy-inflicted Bond is weird: "here, take this cursed die"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="4"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bond Ranking -->
+  <div class="ranking-section">
+    <h3>🏆 Bond of Life — Recommended Ranking</h3>
+    <div class="rank-item"><span class="rank-num rank-1">#1</span><div><span class="rank-name">C1: Three-Tier Bond</span><div class="rank-reason">Best balance of simplicity and depth. Three tiers are instantly graspable, keep all three character archetypes distinct, and integrate cleanly with the effects system. Healing interception is simple ("heal clears one tier"). The table overhead is minimal — just announce your tier. This is the sweet spot.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-2">#2</span><div><span class="rank-name">C2: Bond Points (0-10)</span><div class="rank-reason">More granular than tiers if you need it, and the 0-10 scale is very manageable. Good fallback if C1 feels too coarse. The main risk is tuning healing-to-Bond-clearing ratios against your existing healing values.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-3">#3</span><div><span class="rank-name">A2: HP-Value with Lookup Table</span><div class="rank-reason">If you want maximum faithfulness without the percentage math, this is the best faithful option. The tier table mirrors your existing stat→dice pattern. Only pick this if you really want exact HP tracking for narrative reasons.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#4</span><div><span class="rank-name">C3: Bond Die (Escalating Risk)</span><div class="rank-reason">The most FUN option at a physical table — players will love the push-your-luck tension. But it departs significantly from original Bond and removes player agency over when to clear. Great if fun > accuracy. The escalation pattern already exists in Brian C.'s kit, proving the concept works.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#5</span><div><span class="rank-name">A3: Dice-Value Bond</span><div class="rank-reason">Clever integration with existing dice system, and self-balancing. But the "roll what you spend" consumption model makes Bond feel too temporary for Arlecchino-type characters who want to sustain high Bond.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#6</span><div><span class="rank-name">B2: HP Sacrifice</span><div class="rank-reason">Intuitive RPG mechanic but it's not really Bond of Life — it's a different thing with vaguely similar flavor. Pick this only if you want to abandon the Bond concept entirely and do your own "blood magic" take.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#7</span><div><span class="rank-name">A1: Full HP-Value Tracking</span><div class="rank-reason">Maximum accuracy but the per-hit percentage math will slow down the table. Only worth it if you automate all Bond math in the client and never calculate by hand.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#8</span><div><span class="rank-name">B3: Reckless Stance Toggle</span><div class="rank-reason">Clean and simple but too flat. The +damage taken addition isn't true to Bond and the binary toggle removes all scaling depth. Characters feel samey.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#9</span><div><span class="rank-name">B1: Binary Unhealable + Flat Buff</span><div class="rank-reason">Too simple. Loses everything that makes Bond interesting. Only use this as a fallback if you decide Bond isn't worth ANY mechanical investment.</div></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--  NIGHTSOUL                                                     -->
+<!-- ============================================================ -->
+<section class="mechanic-section" id="nightsoul">
+  <div class="mechanic-header">
+    <span class="mechanic-badge badge-nightsoul">Natlan</span>
+    <h2 class="mechanic-title">Nightsoul's Blessing</h2>
+  </div>
+  <div class="mechanic-summary">
+    <strong>Original mechanic:</strong> A transformation state fueled by personal <strong>Nightsoul Points</strong> (60-100 cap) that drain in real-time. Backed by <strong>Phlogiston</strong> (shared party pool of 100) when personal points run out. Characters gain enhanced/converted attacks while active. <strong>Nightsoul Burst</strong> is a periodic team proc (cooldown scales with Natlan character count) that triggers individual character bonuses. <strong>Mavuika</strong> gains Fighting Spirit when allies spend Nightsoul Points, fueling her Burst. Core fantasy: <strong>channeling ancestral power on a ticking clock.</strong>
+  </div>
+
+  <!-- Approach A: Faithful -->
+  <div class="approach-group approach-a">
+    <h3 class="approach-label">Approach A — Faithful Adaptation</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A1: Full Dual Resource + Burst Timer</span>
+        <span class="option-id">NS-A1</span>
+      </div>
+      <div class="option-desc">
+        <p>Translate everything: personal Nightsoul Points per character, shared Phlogiston pool, Nightsoul Burst on a round timer, Fighting Spirit for Mavuika. Maximum fidelity.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Each Natlan character has a Nightsoul Point pool (cap set per character: 60-100)</li>
+          <li>Skill activates Nightsoul's Blessing, fills points to max</li>
+          <li>While active: attacks are enhanced (element conversion, bonus damage, kit-specific effects)</li>
+          <li>Each turn costs Nightsoul Points (20/turn baseline, some abilities cost more)</li>
+          <li>When personal points = 0: spend Phlogiston instead (20/turn from party pool of 100)</li>
+          <li>When both empty: state ends</li>
+          <li>Nightsoul Burst: triggers every N rounds (1 Natlan char = 4 rounds, 2 = 3 rounds, 3+ = 2 rounds). Each character has a passive that fires on Burst.</li>
+          <li>Mavuika: gains Fighting Spirit = Nightsoul Points spent by allies. Burst requires 100+, consumes all.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Every Natlan character plays exactly as designed — full kit fidelity</li>
+            <li>Mavuika's "allies fuel me" loop works perfectly</li>
+            <li>Nightsoul Burst rewards team composition just like the original</li>
+            <li>Phlogiston as shared backup creates party-level resource decisions</li>
+            <li>Artifact sets (Obsidian Codex, Scroll) work exactly as intended</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>THREE new resources: personal points, party Phlogiston, Burst timer. This is the most bookkeeping of any option in this entire document.</li>
+            <li>Fighting Spirit is a FOURTH resource unique to one character</li>
+            <li>60-100 point pools with 20/turn drain means tracking multi-digit numbers every turn</li>
+            <li>DM has to track a round counter for Nightsoul Burst AND the Phlogiston pool</li>
+            <li>Significantly more complex than anything else in your current combat system</li>
+            <li>Risk of slowing down combat as players calculate point costs</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="10"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A2: Scaled-Down Faithful (Smaller Numbers)</span>
+        <span class="option-id">NS-A2</span>
+      </div>
+      <div class="option-desc">
+        <p>Same structure as A1 but with <strong>smaller numbers</strong>. Nightsoul Points cap at 10 (not 60-100). Phlogiston pool = 10 (not 100). Costs = 2-3/turn. Same mechanics, friendlier math.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Nightsoul Points: 0-10 per character. Skill fills to max.</li>
+          <li>Base cost: 2 points/turn. Enhanced abilities cost 3-4 points.</li>
+          <li>Phlogiston: party pool of 10. Costs 2/turn when personal points empty.</li>
+          <li>Nightsoul Burst: same round timer as A1</li>
+          <li>Mavuika: Fighting Spirit = total Nightsoul Points spent by allies (accumulates across battle). Burst requires 10+.</li>
+          <li>Everything else identical to A1 but with 1/10th the numbers</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Same mechanical depth as A1 with much friendlier numbers</li>
+            <li>0-10 is trackable on fingers, dice, or a simple counter</li>
+            <li>All kit interactions preserved</li>
+            <li>Mavuika's loop still works (just smaller numbers)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Still three separate resources + Fighting Spirit</li>
+            <li>Still need a Nightsoul Burst round counter</li>
+            <li>Smaller numbers mean less granularity for per-ability costs</li>
+            <li>Some kits that rely on spending different amounts lose nuance (e.g., "spend 30 vs 50 points" becomes "spend 3 vs 5")</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="8"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A3: Client-Managed Faithful</span>
+        <span class="option-id">NS-A3</span>
+      </div>
+      <div class="option-desc">
+        <p>Full faithful mechanics (like A1) but <strong>the client handles all tracking</strong>. Players and DM don't manually count points — the app shows Nightsoul meters, auto-decrements, tracks Phlogiston, and fires Nightsoul Burst automatically. The complexity lives in code, not at the table.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Same rules as A1, but all resource tracking is automated in the battle client</li>
+          <li>Character cards show a Nightsoul meter that drains each turn</li>
+          <li>Phlogiston shown as a party-wide bar</li>
+          <li>Nightsoul Burst fires automatically on the round timer with a visual notification</li>
+          <li>Players only need to choose: "do I use my enhanced attack (costs more points) or normal attack?"</li>
+          <li>DM sees all resources on their host view</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Full mechanical depth with zero table bookkeeping — the app does it all</li>
+            <li>Players just make decisions, app tracks consequences</li>
+            <li>This is what the client is FOR — state tracking that's tedious by hand</li>
+            <li>Nightsoul Burst auto-fire means DM never forgets</li>
+            <li>Visual meters make the resource drain dramatic and visible</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Significant development effort — new UI elements, auto-decrement logic, burst timer system</li>
+            <li>Players might not understand WHY things are happening if the app is too opaque</li>
+            <li>If the client crashes mid-combat, you lose all the Nightsoul state</li>
+            <li>The DM loses some flexibility — auto-systems are harder to fudge on the fly</li>
+            <li>Development dependency: this mechanic is blocked until the client features are built</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="10"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach B: Homebrew -->
+  <div class="approach-group approach-b">
+    <h3 class="approach-label">Approach B — Simplified Homebrew</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B1: Timed Elemental Buff</span>
+        <span class="option-id">NS-B1</span>
+      </div>
+      <div class="option-desc">
+        <p>Nightsoul's Blessing is just a <strong>buff with a turn duration</strong>. Skill activates it for 3 turns. While active: +3 damage, attacks convert to element. No points, no Phlogiston, no Burst timer.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Skill: enter Nightsoul's Blessing for 3 turns</li>
+          <li>While active: +3 bonus damage, attacks become elemental, kit-specific enhanced effects</li>
+          <li>After 3 turns: blessing ends, back to normal</li>
+          <li>No team synergy mechanics — each character is independent</li>
+          <li>Mavuika: Burst charges gain +1 whenever an ally uses their Skill (simplified Fighting Spirit)</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Zero new systems — just a status effect with a duration. Already supported.</li>
+            <li>Players understand "use Skill, get buffed for 3 turns"</li>
+            <li>No resources to track beyond the turn counter (which effects already handle)</li>
+            <li>Trivial to implement: WHEN: ON_SKILL_USE, DO: STAT_BONUS, FOR: 3</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Nightsoul is DEFINED by resource management — remove that and it's just... a buff</li>
+            <li>No "do I spend big or conserve?" decisions. No Phlogiston party tension.</li>
+            <li>Every Natlan character plays identically: Skill → hit stuff for 3 turns → wait</li>
+            <li>Mavuika's "team fuels me" loop is reduced to generic burst charge gain</li>
+            <li>Nightsoul Burst team proc doesn't exist — no mono-Natlan incentive</li>
+            <li>Obsidian Codex ("after consuming 10 Nightsoul Points") can't work — there are no points</li>
+            <li>Kinich, Mualani, Chasca all lose their unique mechanics (grapple orbiting, surfing stacks, aerial absorption)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="2"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B2: Natlan Combo Counter</span>
+        <span class="option-id">NS-B2</span>
+      </div>
+      <div class="option-desc">
+        <p>Instead of individual resources, Natlan characters build a <strong>shared party Combo counter</strong>. Each Natlan character's attacks add to the Combo. At thresholds, the party gets bonuses. Mavuika cashes out the Combo for her Burst.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Shared "Natlan Combo" counter starts at 0 each combat</li>
+          <li>Every Natlan character's attack adds +1 to Combo. Skill attacks add +2.</li>
+          <li>Combo thresholds: 5 = all Natlan chars get +1 damage | 10 = +2 damage and +1 burst charge each | 15 = +3 damage</li>
+          <li>Mavuika: Burst consumes entire Combo counter, deals damage = Combo × 2</li>
+          <li>After Mavuika's Burst: Combo resets to 0</li>
+          <li>Nightsoul's Blessing flavor: Natlan Skills "enter the state" for 2 turns (enhanced attacks, element conversion) — this is what generates the Combo efficiently</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Captures the team synergy fantasy — more Natlan characters = faster Combo = better payoff</li>
+            <li>Mavuika's "allies fuel me" is clean and exciting: watch the counter climb, then BURST</li>
+            <li>One shared number instead of per-character resources</li>
+            <li>Combo thresholds create natural momentum in combat</li>
+            <li>Easy to track: one counter visible to everyone</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Individual Nightsoul resource management is gone — no "do I conserve points?" per character</li>
+            <li>Phlogiston doesn't exist in any form</li>
+            <li>Characters that spend Nightsoul Points in unique ways (Kinich's grapple, Mualani's stacks) lose identity</li>
+            <li>Combo is effectively "attack a lot and Mavuika nukes" — less nuanced than original</li>
+            <li>Non-Mavuika teams don't have a payoff for the Combo building</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B3: Ancestral Surge (Per-Battle Transformation)</span>
+        <span class="option-id">NS-B3</span>
+      </div>
+      <div class="option-desc">
+        <p>Each Natlan character gets <strong>one "Ancestral Surge" per battle</strong> — a powerful multi-turn transformation. No point tracking. Once you use it, you're in the empowered state for a fixed window, then it's spent. Simple resource: you have it or you don't.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Each Natlan character starts combat with 1 Ancestral Surge charge</li>
+          <li>Activate via Skill: enter empowered state for 3 turns. All attacks enhanced + element conversion + kit bonus</li>
+          <li>Once used, it's gone for the rest of the battle (unless restored by specific abilities)</li>
+          <li>If 2+ Natlan characters are in the party: each character gets a bonus effect when ANY ally activates their Surge ("Natlan Resonance")</li>
+          <li>Mavuika: her Surge lasts 4 turns instead of 3, and she gets +1 damage for each ally Surge already used this battle</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Dramatic and strategic: "when do I use my one big transformation?"</li>
+            <li>Zero tracking during the state — just a turn counter like any buff</li>
+            <li>The "save it for the right moment" decision is compelling</li>
+            <li>Natlan Resonance gives team synergy without complex timers</li>
+            <li>Mavuika's "stronger when allies have committed" is preserved in spirit</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Once per battle is very different from Nightsoul's "activate repeatedly" loop</li>
+            <li>No resource management at all — just a timing decision</li>
+            <li>Characters that rely on constantly entering/exiting Nightsoul (Chasca's aerial state) don't work</li>
+            <li>Phlogiston and Nightsoul Points don't exist</li>
+            <li>Might feel anticlimactic if the battle doesn't have a clear "right moment" to pop it</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach C: Hybrid -->
+  <div class="approach-group approach-c">
+    <h3 class="approach-label">Approach C — Hybrid</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C1: Nightsoul Charges (0-3) + Phlogiston Tokens</span>
+        <span class="option-id">NS-C1</span>
+      </div>
+      <div class="option-desc">
+        <p>Personal resource as <strong>3 Nightsoul Charges</strong> per character (not 60-100 points). Party <strong>Phlogiston = 3 tokens</strong> (not 100). Charges are spent on enhanced ability choices. Nightsoul Burst fires every 2 rounds with 2+ Natlan characters.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Skill: enter Nightsoul's Blessing, gain 3 Nightsoul Charges</li>
+          <li>While in Blessing with charges > 0: attacks are element-converted</li>
+          <li>Choose each turn: Normal attack (free, basic bonus) | Enhanced attack (1 charge, bigger bonus) | Special (2 charges, kit-specific powerful effect)</li>
+          <li>When charges = 0: state ends (or spend 1 Phlogiston token to regain 1 charge)</li>
+          <li>Phlogiston: 3 party tokens. Regen 1 per round. Some abilities restore tokens.</li>
+          <li>Nightsoul Burst: every 2 rounds (with 2+ Natlan chars), each Natlan character's Burst passive triggers</li>
+          <li>Mavuika: Fighting Spirit counter (+1 each time any ally spends a Nightsoul Charge). Burst at 6+ FS.</li>
+        </ul>
+      </div>
+      <div class="rules-box">
+        <h4>Kit Differentiation Examples</h4>
+        <ul>
+          <li><strong>Mualani:</strong> Enhanced attack (1 charge) builds Surf Stacks. At 3 stacks, next attack is a Sharky nuke (free, consumes stacks not charges).</li>
+          <li><strong>Kinich:</strong> Special (2 charges) = Scalespiker Cannon big hit. Normal attacks while in Blessing = Loop Shots that deal moderate Dendro.</li>
+          <li><strong>Xilonen:</strong> Entering Blessing samples party elements. When charges run out, shreds corresponding elemental RES for 2 turns.</li>
+          <li><strong>Mavuika:</strong> Fighting Spirit at 6+ = Burst nuke. At 10+ = enhanced Burst. Each ally charge spent = +1 FS.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Resource decisions preserved: "spend 1 for moderate or 2 for big?" is meaningful</li>
+            <li>3 charges is trivially trackable — count on fingers, use tokens, whatever</li>
+            <li>Phlogiston as 3 tokens is dead simple party resource</li>
+            <li>Each character can have unique charge-spending options → kit identity preserved</li>
+            <li>Mavuika's loop works: 4 party members × ~3 charges each = ~12 FS potential per cycle</li>
+            <li>Nightsoul Burst on round timer is easy (DM just counts rounds, already does this)</li>
+            <li>Small numbers work well in your dice-based combat system</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Still introducing personal resource + party resource + round timer (three new things)</li>
+            <li>Less granular than original — "3 charges" vs "80 Nightsoul Points" means fewer distinct cost tiers</li>
+            <li>Characters whose kits depend on spending different point amounts lose some nuance</li>
+            <li>Phlogiston regen (1/round) may need tuning — too fast or too slow depending on combat length</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="7"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C2: Nightsoul Dice Pool</span>
+        <span class="option-id">NS-C2</span>
+      </div>
+      <div class="option-desc">
+        <p>When entering Nightsoul's Blessing, the character gains a <strong>pool of Nightsoul Dice</strong> (e.g., 3×D6). Each turn they can spend dice from the pool to power enhanced attacks — roll and add to damage. When the pool is empty, the state ends. Phlogiston = party can contribute dice to your pool.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Skill: gain Nightsoul Dice pool (character-specific: Mualani gets 3×D8, Kinich gets 2×D10, Kachina gets 4×D4, etc.)</li>
+          <li>Each turn in Blessing: choose how many dice to spend (0 = basic enhanced attack, 1+ = roll and add to damage)</li>
+          <li>When pool empty: Blessing ends</li>
+          <li>Phlogiston: party pool of 3 generic D6 dice. Any Natlan character can pull from pool to extend their Blessing.</li>
+          <li>Nightsoul Burst: every 2 rounds, each Natlan character regains 1 spent Nightsoul Die</li>
+          <li>Mavuika: collects spent Nightsoul Dice from allies into her Fighting Spirit pool. Burst rolls ALL collected dice for massive damage.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Deeply integrated with your dice-based combat — Nightsoul IS dice, the core currency of the game</li>
+            <li>Each character's dice pool (different sizes/counts) creates automatic kit identity</li>
+            <li>"How many dice do I spend this turn?" is a satisfying tactical decision</li>
+            <li>Mavuika collecting ally dice and rolling them all at once is an INCREDIBLE table moment</li>
+            <li>Phlogiston as "shared dice pool" is intuitive</li>
+            <li>Players physically handle the dice — tactile and engaging</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Lots of physical dice to manage — players need to keep separate pools</li>
+            <li>Client implementation is complex: tracking variable dice pools per character + shared pool</li>
+            <li>Mavuika's "roll ALL collected dice" could be 8-12 dice — fun but potentially slow</li>
+            <li>Not very accurate to original Nightsoul (no point drain, no threshold effects)</li>
+            <li>Balancing dice sizes per character is a design challenge</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="5"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C3: Charge-Per-Action (No Passive Drain)</span>
+        <span class="option-id">NS-C3</span>
+      </div>
+      <div class="option-desc">
+        <p>Nightsoul Points (0-6 per character) but <strong>no passive drain per turn</strong>. Points are only spent when you actively USE enhanced abilities. The state lasts indefinitely until you run out of points. This makes it pure action economy, not a ticking clock.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Skill: enter Nightsoul's Blessing, gain 6 Nightsoul Points</li>
+          <li>No per-turn drain — points only spent on actions you choose</li>
+          <li>Basic attack while in Blessing: 0 points (element conversion only, no bonus damage)</li>
+          <li>Enhanced attack: 1 point (+2 damage)</li>
+          <li>Kit special: 2-3 points (powerful character-specific effect)</li>
+          <li>When points = 0: Blessing ends. Can re-enter by using Skill again (if off cooldown).</li>
+          <li>Phlogiston: 3 party tokens. Spend 1 token = restore 2 Nightsoul Points to any Natlan character.</li>
+          <li>Nightsoul Burst: every 2 rounds, each Natlan character restores 1 spent point</li>
+          <li>Mavuika: gains 1 Fighting Spirit per Nightsoul Point spent by allies. Burst at 8+.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Removes the most un-turn-based part of Nightsoul: passive real-time drain</li>
+            <li>6 points gives meaningful granularity for different cost tiers (1/2/3 point abilities)</li>
+            <li>Players control exactly how fast they spend — conservative play = longer Blessing, aggressive = shorter but more impactful</li>
+            <li>No "wasted turns" where the state drains while you can't act</li>
+            <li>Mavuika's loop is well-tuned: 4 allies × ~6 points each = ~24 potential FS</li>
+            <li>0-6 is easy to track mentally or with a small die</li>
+            <li>Re-entering via Skill creates natural rhythm with cooldowns</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Loses the "ticking clock" urgency of the original — no pressure to act fast</li>
+            <li>Players might hoard points and stay in Blessing for many turns doing basic attacks</li>
+            <li>Still three new things (personal points, party tokens, round timer)</li>
+            <li>Needs tuning: if 6 points lasts too long, Blessing feels permanent (against the spirit of the mechanic)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="6"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nightsoul Ranking -->
+  <div class="ranking-section">
+    <h3>🏆 Nightsoul — Recommended Ranking</h3>
+    <div class="rank-item"><span class="rank-num rank-1">#1</span><div><span class="rank-name">C1: Nightsoul Charges (0-3) + Phlogiston Tokens</span><div class="rank-reason">The best balance of depth and simplicity. 3 charges gives meaningful per-turn choices without big-number tracking. 3 Phlogiston tokens is a dead-simple party resource. Nightsoul Burst on a round timer is clean. Mavuika's loop works. Every Natlan character can have distinct charge-spending options. This is Nightsoul distilled to its essence for tabletop.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-2">#2</span><div><span class="rank-name">C3: Charge-Per-Action (0-6, No Passive Drain)</span><div class="rank-reason">Best adaptation for turn-based play because it removes the real-time drain that doesn't translate. 6 points gives more granularity than 3 charges. The risk: players may hoard, but that's solvable with kit design (make the enhanced attacks worth spending). Close second to C1.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-3">#3</span><div><span class="rank-name">C2: Nightsoul Dice Pool</span><div class="rank-reason">Most fun option at the physical table — spending actual dice and Mavuika rolling a fistful of collected dice is peak tabletop moments. Higher complexity cost but the payoff is memorable gameplay. Pick this if your group loves rolling dice (and who doesn't?).</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#4</span><div><span class="rank-name">NS-A2: Scaled-Down Faithful</span><div class="rank-reason">Good if you want more granularity than C1 but don't want full A1 complexity. The 0-10 scale works. Loses ranking because the passive per-turn drain adds bookkeeping that C1/C3 avoid without losing much depth.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#5</span><div><span class="rank-name">NS-B2: Natlan Combo Counter</span><div class="rank-reason">Captures team synergy well and Mavuika's moment of cashing out the Combo is great. But individual character identity suffers — everyone just "adds to the counter." Better as an additional layer on top of another option than as the whole system.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#6</span><div><span class="rank-name">NS-A3: Client-Managed Faithful</span><div class="rank-reason">Full depth with zero table overhead sounds ideal, but the dev cost is enormous and you lose DM flexibility. Only viable if you're willing to invest significant client development time for this one region's mechanic.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#7</span><div><span class="rank-name">NS-A1: Full Dual Resource + Burst Timer</span><div class="rank-reason">Maximum fidelity but the bookkeeping cost is too high for tabletop. Three tracked resources + Fighting Spirit + round timer = every Natlan turn takes twice as long. The client would need to handle most of this to be viable.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#8</span><div><span class="rank-name">NS-B3: Ancestral Surge (Once Per Battle)</span><div class="rank-reason">Dramatic timing decision but too limited. Nightsoul is about repeated activation and resource cycling, not a one-shot buff. The strategic timing is interesting but doesn't capture the mechanic's identity.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#9</span><div><span class="rank-name">NS-B1: Timed Elemental Buff</span><div class="rank-reason">Too generic. Every Natlan character becomes "use Skill, get +3 for 3 turns." No resource decisions, no team synergy, no kit differentiation. This is what you do if you decide Nightsoul isn't worth implementing at all.</div></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--  LUNAR REACTIONS                                               -->
+<!-- ============================================================ -->
+<section class="mechanic-section" id="lunar">
+  <div class="mechanic-header">
+    <span class="mechanic-badge badge-lunar">Nod Krai</span>
+    <h2 class="mechanic-title">Lunar Reactions</h2>
+  </div>
+  <div class="mechanic-summary">
+    <strong>Original mechanic:</strong> Upgraded versions of three Hydro-based reactions: <strong>Lunar-Charged</strong> (Hydro+Electro → persistent Thunderstorm), <strong>Lunar-Bloom</strong> (Hydro+Dendro → Verdant Dew stacks), <strong>Lunar-Crystallize</strong> (Hydro+Geo → Moondrift constructs). Require a <strong>Moonsign character</strong> (Nod Krai 5-star) in the party. Key difference: Lunar reactions <strong>can CRIT</strong> and scale on combat stats, not just EM. <strong>Moonsign Level</strong> (1 vs 2+ characters) provides tiered team buffs. Core fantasy: <strong>moonlight amplifies water-based reactions into something dramatically more powerful.</strong>
+  </div>
+
+  <!-- Approach A: Faithful -->
+  <div class="approach-group approach-a">
+    <h3 class="approach-label">Approach A — Faithful Adaptation</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A1: Full Sub-Effect Reactions + Moonsign</span>
+        <span class="option-id">LR-A1</span>
+      </div>
+      <div class="option-desc">
+        <p>Three distinct Lunar reaction types, each with their own sub-effect (Thunderstorm DoT, Verdant Dew buff, Moondrift counter). Full Moonsign level system. Lunar reactions can crit.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>If a Moonsign character is in the party, Water+Electric/Nature/Earth reactions upgrade to Lunar versions</li>
+          <li><strong>Lunar-Charged</strong> (Water+Electric): triggers a Thunderstorm — 2 automatic Electric damage to affected enemies at end of each turn for 2 turns</li>
+          <li><strong>Lunar-Bloom</strong> (Water+Nature): generates Verdant Dew — next Moonsign character attack deals +4 bonus damage</li>
+          <li><strong>Lunar-Crystallize</strong> (Water+Earth): generates a Moondrift counter. Every 3rd trigger fires a tracking projectile for 3 Earth damage</li>
+          <li>ALL Lunar reactions can crit: roll crit check using triggering character's crit threshold</li>
+          <li>Moonsign Level: 1 char = Nascent (+2 reaction damage) | 2+ = Ascendant (+4 reaction damage, party +2 reaction damage for 2 turns)</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Each Lunar reaction feels unique — Thunderstorm, Verdant Dew, Moondrift are all distinct</li>
+            <li>Earth/Geo finally gets an offensive reaction path (Moondrift) — huge for team diversity</li>
+            <li>Crit on reactions is a meaningful power increase that rewards investment in crit stats</li>
+            <li>Moonsign levels create real team-building incentives</li>
+            <li>Companions built around specific Lunar reactions (Zibai = Lunar-Crystallize) feel authentic</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Three new sub-mechanics to track: Thunderstorm DoT timer, Verdant Dew buff, Moondrift counter</li>
+            <li>Conditional reaction branching: DM must check "is this Lunar or normal?" every time Water reacts</li>
+            <li>Moonsign level adds a party-composition check at the start of battle</li>
+            <li>Crit on reactions means an extra roll per reaction trigger</li>
+            <li>Current reaction system (favorable/unfavorable/neutral) is simple — this adds significant complexity</li>
+            <li>Moondrift's "every 3rd trigger" counter is easy to lose track of</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="10"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A2: Unified Lunar Bonus + Per-Kit Sub-Effects</span>
+        <span class="option-id">LR-A2</span>
+      </div>
+      <div class="option-desc">
+        <p>All Lunar reactions share a <strong>unified bonus</strong> (+4 damage, can crit). The unique sub-effects (Thunderstorm, Verdant Dew, Moondrift) live in <strong>individual character kits</strong> rather than the reaction system itself. The reaction system stays simpler; characters add complexity.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Moonsign character in party → Water+Electric/Nature/Earth reactions become "Lunar" (tag only)</li>
+          <li>All Lunar reactions: +4 bonus damage AND can crit (use triggering character's crit stats)</li>
+          <li>Moonsign Level: 1 = +4 | 2+ = +4 and all party members get +2 to reaction damage for 2 turns</li>
+          <li>Sub-effects are CHARACTER abilities, not reaction properties:</li>
+          <li style="list-style:none; margin-left:1rem">— Ineffa's passive: "When you trigger Lunar-Charged, create a Thunderstorm (2 Electric DoT for 2 turns)"</li>
+          <li style="list-style:none; margin-left:1rem">— Lauma's passive: "When Lunar-Bloom triggers, gain Verdant Dew (+4 on next attack)"</li>
+          <li style="list-style:none; margin-left:1rem">— Zibai's passive: "Track Lunar-Crystallize triggers. Every 3rd fires a Moondrift (3 Earth damage)"</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Reaction system stays clean: "Lunar = +4 and can crit." One rule, done.</li>
+            <li>Complexity lives in individual kits where it's already expected</li>
+            <li>Non-Moonsign parties triggering Water reactions don't need to know Lunar rules</li>
+            <li>DM only thinks about sub-effects when specific companions are in play</li>
+            <li>New companions can add new sub-effects without modifying the reaction system</li>
+            <li>Expressible in existing effects: ON_REACTION + REACTION_ELEMENT conditions</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Without the specific companions, Lunar reactions are just "+4 damage" — functional but bland</li>
+            <li>The "Water + Earth = Moondrift" excitement is locked behind having Zibai, not inherent to the reaction</li>
+            <li>Players may not realize there are sub-effects unless they read companion kits carefully</li>
+            <li>Slightly less accurate — original game ties sub-effects to the reaction type, not the character</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="7"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A3: Lunar Reaction Table (Separate Outcome Rows)</span>
+        <span class="option-id">LR-A3</span>
+      </div>
+      <div class="option-desc">
+        <p>Add Lunar reactions as <strong>new rows in the existing reaction table</strong>. Water+Electric with Moonsign = different outcome row than Water+Electric without. The reaction data resource already supports this — just add more entries with a "Lunar" tag and different effects.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Reaction table gets new entries: "Lunar-Charged", "Lunar-Bloom", "Lunar-Crystallize"</li>
+          <li>When processing a reaction, check: is Moonsign present? If yes, use Lunar row. If no, use standard row.</li>
+          <li>Each Lunar row defines its own effect text, damage bonus, and sub-effect</li>
+          <li>Crit check added to Lunar rows: "this reaction can crit" flag on the reaction data</li>
+          <li>Moonsign level modifiers applied as reaction-level bonuses</li>
+          <li>Implemented via ReactionData resources — same system, more entries</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Uses the EXISTING reaction data system — just more rows in the table</li>
+            <li>No new code architecture needed — ReactionData already has id, elements, outcome, effect, effects[]</li>
+            <li>DM can see all Lunar reactions in the same reference as standard reactions</li>
+            <li>Clean data-driven approach: add/modify reactions without code changes</li>
+            <li>Client can display "Lunar-Charged!" vs "Electro-Charged!" with minimal UI changes</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Reaction table grows — 3 new conditional entries that only apply sometimes</li>
+            <li>Need a "requires_moonsign" field on ReactionData (schema change)</li>
+            <li>Crit-on-reaction needs implementation (currently reactions don't have crit)</li>
+            <li>Sub-effects (Thunderstorm, Verdant Dew, Moondrift) still need implementing regardless</li>
+            <li>The branching logic ("check for Moonsign before resolving reaction") touches the reaction processing code</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="9"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach B: Homebrew -->
+  <div class="approach-group approach-b">
+    <h3 class="approach-label">Approach B — Simplified Homebrew</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B1: Flat Reaction Damage Bonus</span>
+        <span class="option-id">LR-B1</span>
+      </div>
+      <div class="option-desc">
+        <p>No Lunar reactions at all. Nod Krai characters have a passive that gives <strong>flat bonus damage to Water reactions</strong>. More Nod Krai characters = bigger bonus. That's it.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Nod Krai characters have passive: "Water reactions involving this character deal +3 damage"</li>
+          <li>With 2+ Nod Krai characters: bonus increases to +5</li>
+          <li>No new reaction types, no sub-effects, no crit on reactions</li>
+          <li>Implemented as: WHEN: ON_REACTION, IF: REACTION_ELEMENT "Water", DO: FLAT_DAMAGE +3</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Zero new systems — one passive effect per character</li>
+            <li>Trivial to implement and understand</li>
+            <li>No reaction table changes</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Completely loses Lunar reaction identity — it's just "more damage"</li>
+            <li>No Earth offensive reaction (the biggest loss)</li>
+            <li>No crit on reactions</li>
+            <li>All Nod Krai characters feel the same: "+3 to Water reactions"</li>
+            <li>Companions designed around Lunar-Crystallize or Lunar-Bloom have empty kits</li>
+            <li>Removes the most interesting strategic element (team comp for specific Lunar types)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="1"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B2: Moonlight Empowerment (Team Aura)</span>
+        <span class="option-id">LR-B2</span>
+      </div>
+      <div class="option-desc">
+        <p>Instead of modifying reactions, Nod Krai characters provide a <strong>"Moonlight" team aura</strong> that buffs the entire party's elemental damage. More Nod Krai characters = stronger aura. Reactions work normally but everyone hits harder.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>1 Nod Krai character in party: Moonlight Aura = all party elemental damage +2</li>
+          <li>2+ Nod Krai characters: Moonlight Aura = all party elemental damage +3, all reactions deal +2 bonus damage</li>
+          <li>This is a passive effect computed at battle start — no per-reaction checks</li>
+          <li>Individual Nod Krai character kits can have their own reaction-triggered effects as personal abilities</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Simple team composition incentive without touching the reaction system</li>
+            <li>Computed once at battle start — no per-turn tracking</li>
+            <li>Individual kits can still have reaction-specific flavors</li>
+            <li>Universally useful: buffs ALL elemental damage, not just Water reactions</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Not Lunar reactions at all — it's an elemental resonance bonus</li>
+            <li>No unique reaction types, no crit on reactions, no Earth offensive reaction</li>
+            <li>Flat bonus to everyone is less interesting than targeted reaction upgrades</li>
+            <li>Companions designed around specific Lunar reaction types lose their identity</li>
+            <li>Doesn't reward building around specific element pairings</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="2"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B3: Homebrew Moon Reactions (Your Own Design)</span>
+        <span class="option-id">LR-B3</span>
+      </div>
+      <div class="option-desc">
+        <p>Like you did with Nature/Dendro — <strong>throw out the original Lunar reactions entirely</strong> and design your own "Moon" reactions from scratch that fit your system. Keep the Water+X pairing but make the effects whatever works best for tabletop.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Design 3 new reactions for Water + Electric/Nature/Earth that are unique to your game</li>
+          <li>Use the same favorable/unfavorable pattern as your Nature reactions: "good version = Water applied first, bad version = Water applied second"</li>
+          <li>Effects designed for tabletop fun rather than Genshin accuracy:</li>
+          <li style="list-style:none; margin-left:1rem">— Water+Electric (favorable): "Tidal Shock" — chain 2 damage to an adjacent enemy</li>
+          <li style="list-style:none; margin-left:1rem">— Water+Nature (favorable): "Moonbloom" — heal the attacker for 3 HP</li>
+          <li style="list-style:none; margin-left:1rem">— Water+Earth (favorable): "Moonstone" — grant the attacker a 3-HP shield</li>
+          <li>No Moonsign requirement — these are just new reactions for everyone</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Proven approach — you already did this with Nature and it works</li>
+            <li>Reactions designed specifically for YOUR combat system, not adapted from a different game</li>
+            <li>No Moonsign gating — all characters benefit, simplifying team building</li>
+            <li>Favorable/unfavorable pattern is already understood by your players</li>
+            <li>Can be added directly to the existing reaction table</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Completely abandons Lunar reactions — Nod Krai companions lose their identity</li>
+            <li>No crit on reactions (unless you add it here too)</li>
+            <li>No team-composition incentive (Moonsign level) for Nod Krai characters</li>
+            <li>Companions like Columbina, Ineffa, Zibai are designed AROUND Lunar mechanics — their kits need major rework</li>
+            <li>Removes the "regional character upgrade" pattern that could be reused for Stellar Cryo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="2"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach C: Hybrid -->
+  <div class="approach-group approach-c">
+    <h3 class="approach-label">Approach C — Hybrid</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C1: Unified Lunar Bonus + Crit (Simple Core, Kit Flavor)</span>
+        <span class="option-id">LR-C1</span>
+      </div>
+      <div class="option-desc">
+        <p>All Lunar reactions share one rule: <strong>+4 damage and can crit</strong>. Sub-effects live in character kits. Moonsign level provides team scaling. The reaction system adds one concept (Lunar tag + crit), character kits add the depth.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Moonsign character in party → Water+Electric/Nature/Earth = "Lunar" reaction</li>
+          <li>Lunar reactions: +4 bonus damage. Roll for crit using triggering character's crit threshold — if crit, reaction damage × Crit Damage stat.</li>
+          <li>Moonsign Level: 1 = +4 | 2+ = +4, and party gets +2 to ALL reaction damage for 2 turns</li>
+          <li>Sub-effects come from companion kits, not the reaction itself</li>
+          <li>New effect trigger: ON_LUNAR_REACTION (for character-specific passives)</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>One clean rule for the reaction system: "Lunar = +4, can crit"</li>
+            <li>Crit on reactions is a genuinely exciting addition that rewards stat investment</li>
+            <li>Moonsign level is a simple party check at battle start</li>
+            <li>Sub-effects in kits means the reaction system doesn't balloon in complexity</li>
+            <li>Reusable pattern: Stellar Cryo can use the exact same framework (Starsign, +4, can crit)</li>
+            <li>ON_LUNAR_REACTION trigger fits existing effects system</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Without specific companions, Lunar is just "better Water reactions" — functional but could feel underwhelming</li>
+            <li>Crit on reactions is a new concept that adds a roll to reaction resolution</li>
+            <li>Players need to understand Moonsign = "Nod Krai character enables this"</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="7"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C2: Lunar Reaction Dice Upgrade</span>
+        <span class="option-id">LR-C2</span>
+      </div>
+      <div class="option-desc">
+        <p>When a Lunar reaction triggers, instead of a flat bonus, the <strong>reaction's damage die is upgraded by one tier</strong> on the stat→dice table. If the reaction would normally deal D6 damage, Lunar makes it D8. Moonsign level 2+ upgrades by TWO tiers. Fits your dice-centric system perfectly.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Moonsign character in party → qualifying Water reactions become Lunar</li>
+          <li>Lunar reaction damage die upgraded: D4→D6, D6→D8, D8→D10, D10→D12, D12→D20</li>
+          <li>Moonsign Level 2+: upgrade TWO tiers (D4→D8, D6→D10, etc.)</li>
+          <li>Lunar reactions can also crit (same crit check as normal attacks)</li>
+          <li>No sub-effects at the reaction level — character kits provide those</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Uses your existing dice tier system — players immediately understand "upgrade by one die"</li>
+            <li>Scales naturally with the existing combat math — bigger dice = more variance = more exciting</li>
+            <li>Moonsign Level 2+ "upgrade by two" is dramatic and easy to grasp</li>
+            <li>No flat numbers to remember — just "go up a die"</li>
+            <li>Integrates perfectly with the stat→dice table everyone already knows</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Reactions don't currently use the dice table for damage — this assumes they roll dice (need to verify how reaction damage works in your system)</li>
+            <li>If reactions currently deal flat damage, "upgrade a die" doesn't apply without reworking reaction damage</li>
+            <li>Less dramatic than +4 flat at lower tiers (D4→D6 averages only +1 more)</li>
+            <li>Crit on reactions still needs implementing</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="5"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C3: Regional Reaction Upgrade Framework</span>
+        <span class="option-id">LR-C3</span>
+      </div>
+      <div class="option-desc">
+        <p>Design a <strong>generic "Regional Reaction Upgrade" system</strong> that works for both Lunar AND Stellar (and any future region). The framework: regional characters unlock upgraded versions of specific element-pair reactions. Upgrades = bonus damage + can crit + one simple per-type effect. Same pattern for every region.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li><strong>Regional Reaction Upgrade:</strong> if a character with a regional tag (Moonsign, Starsign, etc.) is in the party, qualifying reactions are upgraded</li>
+          <li>All upgraded reactions get: +4 bonus damage, can crit, one simple effect per type</li>
+          <li>Regional Level: 1 character = base bonus | 2+ = enhanced bonus + team buff</li>
+          <li><strong>Lunar (Water + X):</strong> Water+Electric = +chain 2 damage | Water+Nature = +heal 2 | Water+Earth = +shield 2</li>
+          <li><strong>Stellar (Ice + X):</strong> Ice+Electric = +defense shred 2 | Ice+Wind = +enemy slow (disadvantage next turn) | Ice+Nature = +AoE 2 to adjacent</li>
+          <li>Framework is data-driven: add a new region by adding entries to a "regional_reactions" table</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>One system handles BOTH Lunar and Stellar (and any future region)</li>
+            <li>Framework designed once, content slotted in — future-proof</li>
+            <li>Simple per-type effects (+chain, +heal, +shield) are easy to understand and track</li>
+            <li>Data-driven: new regions = new table entries, not new code</li>
+            <li>Consistent pattern: players learn "regional upgrade = +4, can crit, one bonus" once</li>
+            <li>Moonsign/Starsign levels use the same scaling pattern</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Generic framework may not capture the unique FEEL of each region (Lunar should feel different from Stellar)</li>
+            <li>Forced into symmetrical design — what if Stellar needs 4 reaction types instead of 3?</li>
+            <li>Per-type effects are simplified compared to original (Thunderstorm → "chain 2 damage")</li>
+            <li>Need to design Stellar effects now based on incomplete leak info</li>
+            <li>The framework is only as good as the content you fill it with</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="6"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lunar Ranking -->
+  <div class="ranking-section">
+    <h3>🏆 Lunar Reactions — Recommended Ranking</h3>
+    <div class="rank-item"><span class="rank-num rank-1">#1</span><div><span class="rank-name">C1: Unified Lunar Bonus + Crit</span><div class="rank-reason">Best balance. One clean reaction rule (+4, can crit), Moonsign level for team incentive, character kits carry the unique sub-effects. Reusable pattern for Stellar. Lowest complexity-to-impact ratio of all options. This is the one.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-2">#2</span><div><span class="rank-name">C3: Regional Reaction Upgrade Framework</span><div class="rank-reason">Most future-proof — design it once for Lunar, reuse for Stellar/future regions. The generic framework trades some per-region flavor for consistency and maintainability. Best pick if you want to solve this problem once and never again. Close second because it requires committing to Stellar design now.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-3">#3</span><div><span class="rank-name">A2: Unified Bonus + Per-Kit Sub-Effects</span><div class="rank-reason">Same philosophy as C1 but more explicitly separates reaction bonus from kit effects. Slightly more accurate to the original while keeping reaction system clean. Good alternative if C1 feels too simplified for your taste.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#4</span><div><span class="rank-name">A3: Lunar Reaction Table</span><div class="rank-reason">Most data-driven approach — fits your existing ReactionData architecture. Good if you want everything in the reaction table rather than split between reactions and kits. More implementation work than C1 but cleaner data model.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#5</span><div><span class="rank-name">C2: Lunar Reaction Dice Upgrade</span><div class="rank-reason">Elegant integration with your dice system, but depends on reactions rolling dice for damage (needs verification). If they do, this is brilliant. If they don't, it requires reworking reaction damage first.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#6</span><div><span class="rank-name">A1: Full Sub-Effect Reactions</span><div class="rank-reason">Maximum fidelity but three separate sub-mechanics (Thunderstorm, Verdant Dew, Moondrift) plus Moonsign plus crit is a lot of new rules. Only worth it if your group is hungry for tactical depth.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#7</span><div><span class="rank-name">B3: Homebrew Moon Reactions</span><div class="rank-reason">Proven pattern (you did it with Nature) but abandons Lunar identity. Pick this if you decide Lunar reactions aren't worth preserving and you'd rather design something that fits your table better from scratch.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#8</span><div><span class="rank-name">B2: Moonlight Empowerment Aura</span><div class="rank-reason">Simple team buff but doesn't feel like Lunar reactions at all — it's just an elemental resonance bonus. Misses the point of the mechanic.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#9</span><div><span class="rank-name">B1: Flat Reaction Damage Bonus</span><div class="rank-reason">Too simple. "+3 to Water reactions" doesn't justify existing as a mechanic. Earth never gets its offensive reaction. Nod Krai characters feel generic. Only if you're cutting Lunar entirely.</div></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--  STELLAR CRYO                                                  -->
+<!-- ============================================================ -->
+<section class="mechanic-section" id="stellar">
+  <div class="mechanic-header">
+    <span class="mechanic-badge badge-stellar">Snezhnaya</span>
+    <h2 class="mechanic-title">Stellar Cryo Reactions</h2>
+  </div>
+  <div class="mechanic-summary">
+    <strong>Known info (mostly leaks):</strong> Three expected reactions: <strong>Stellar-Conduct</strong> (Cryo+Electro, upgraded Superconduct — possibly stack-and-detonate), <strong>Stellar-Swirl</strong> (Cryo+Anemo, details unknown), and a <strong>Cryo-Dendro reaction</strong> (possibly based on "Rimegrass" prototype — Cryo+Dendro increases damage taken and spawns AoE). Expected to mirror Lunar's pattern: require Snezhnaya characters ("Starsign"), can crit, scale on combat stats. Release ~August 2026. <strong>Confidence: Medium — based on datamines and leaker reports, not official.</strong>
+  </div>
+
+  <!-- Approach A: Faithful -->
+  <div class="approach-group approach-a">
+    <h3 class="approach-label">Approach A — Faithful Adaptation (Speculative)</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A1: Full Speculative Implementation</span>
+        <span class="option-id">SC-A1</span>
+      </div>
+      <div class="option-desc">
+        <p>Design full Stellar reactions based on current leak info. Stellar-Conduct as stack-and-detonate, Stellar-Swirl with Cryo+Anemo synergy, Cryo-Nature as Rimegrass debuff. Full Starsign system mirroring Moonsign.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules (Speculative)</h4>
+        <ul>
+          <li>Starsign (Snezhnaya characters) enables Stellar reactions: Ice+Electric, Ice+Wind, Ice+Nature</li>
+          <li><strong>Stellar-Conduct</strong> (Ice+Electric): Apply stacks via rapid Ice+Electric hits. At 3 stacks: detonate for AoE damage = stacks × 4. Also shreds Physical defense by 2.</li>
+          <li><strong>Stellar-Swirl</strong> (Ice+Wind): Cryo Swirl creates a Frost Vortex that pulls enemies toward center and deals 3 Ice damage at end of turn for 2 turns.</li>
+          <li><strong>Rimegrass</strong> (Ice+Nature): Target takes +3 increased damage from all sources for 2 turns. Spawns a thorn dealing 2 AoE Ice+Nature damage to adjacent enemies.</li>
+          <li>All Stellar reactions can crit.</li>
+          <li>Starsign Level: 1 = base effects | 2+ = enhanced effects + party Ice damage +2</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Ready on day one when Snezhnaya drops — no scrambling</li>
+            <li>Each reaction has a unique feel: stack-detonate, CC vortex, debuff+AoE</li>
+            <li>Ice+Nature reaction fills the gap that currently exists (Cryo has no Dendro reaction)</li>
+            <li>Crit on reactions extends the Lunar pattern consistently</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Designing around leaks — HIGH RISK of needing major rework when official info drops</li>
+            <li>Stack-and-detonate is a new mechanic not seen elsewhere in your system</li>
+            <li>Three new sub-mechanics to implement on speculation</li>
+            <li>Development time potentially wasted if leaks are wrong</li>
+            <li>Could conflict with your homebrew Nature reaction table</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="6"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="4"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A2: Starsign Framework + Placeholder Effects</span>
+        <span class="option-id">SC-A2</span>
+      </div>
+      <div class="option-desc">
+        <p>Build the <strong>Starsign system</strong> (mirroring Moonsign) and mark the three reaction slots, but use <strong>placeholder effects</strong> that can be swapped out when official mechanics are revealed.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Starsign tag on Snezhnaya characters, Starsign Level (1 vs 2+)</li>
+          <li>Stellar reactions: Ice+Electric, Ice+Wind, Ice+Nature → all get +4 bonus damage + can crit (matching Lunar baseline)</li>
+          <li>Per-reaction effects: placeholder "TBD — use generic +2 bonus for now"</li>
+          <li>When official info releases: swap placeholders for real effects. No structural changes needed.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Framework is ready — just needs content fill when info drops</li>
+            <li>Zero risk of designing wrong mechanics</li>
+            <li>Starsign system is identical to Moonsign — no new code patterns</li>
+            <li>Snezhnaya characters can be built with Starsign tags now</li>
+            <li>Placeholder effects still make Stellar reactions functional and useful</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Placeholders feel incomplete — if players encounter them, it's clearly "not finished"</li>
+            <li>Need a second pass to fill in real effects later</li>
+            <li>Per-reaction effects might need new mechanics not in the placeholder framework</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="5"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">A3: Wait and Adapt</span>
+        <span class="option-id">SC-A3</span>
+      </div>
+      <div class="option-desc">
+        <p>Don't design Stellar at all right now. <strong>Wait for official release</strong> (~August 2026), then adapt faithfully. Focus development time on Bond of Life, Nightsoul, and Lunar — the mechanics that are known and needed sooner.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>No Stellar design work now</li>
+          <li>Ensure whatever framework we build for Lunar is extensible (so Stellar can slot in later)</li>
+          <li>When Snezhnaya releases: full design pass with complete information</li>
+          <li>Snezhnaya characters can be built with generic Ice kits in the interim</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Zero wasted work — everything built will be based on real info</li>
+            <li>Focus resources on the three mechanics that are known and needed</li>
+            <li>Lunar framework design inherently creates the pattern for Stellar</li>
+            <li>No risk of designing around wrong leaks</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>If your campaign reaches Snezhnaya before August 2026, you have nothing ready</li>
+            <li>Snezhnaya character companions will be generic until then</li>
+            <li>You lose the chance to playtest the regional reaction upgrade pattern with two regions simultaneously</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach B: Homebrew -->
+  <div class="approach-group approach-b">
+    <h3 class="approach-label">Approach B — Simplified Homebrew</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B1: Homebrew Cryo Reactions (Your Own Design)</span>
+        <span class="option-id">SC-B1</span>
+      </div>
+      <div class="option-desc">
+        <p>Like Nature — design your own Ice reaction upgrades from scratch. Ignore leaks entirely. Make them fit YOUR system and table.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Design new reaction effects for Ice+Electric, Ice+Wind, Ice+Nature using favorable/unfavorable pattern</li>
+          <li>Ice+Electric (favorable): "Frostbite" — target's next attack roll is at -3 (numb from cold)</li>
+          <li>Ice+Wind (favorable): "Blizzard" — 2 Ice damage to all enemies (AoE)</li>
+          <li>Ice+Nature (favorable): "Permafrost" — target is rooted for 1 turn + takes 2 Ice damage</li>
+          <li>No Starsign requirement — available to all characters</li>
+          <li>No crit on reactions</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Can design NOW with full confidence — no dependency on leaks or releases</li>
+            <li>Fits your existing favorable/unfavorable reaction pattern perfectly</li>
+            <li>Effects designed for YOUR combat balance, not adapted from different game</li>
+            <li>Ice+Nature fills the missing Cryo-Dendro gap with your own flavor</li>
+            <li>No new framework needed — just reaction table entries</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Completely ignores Stellar Cryo — Snezhnaya companions lose regional identity</li>
+            <li>No crit on reactions, no Starsign team-building incentive</li>
+            <li>Breaks pattern with however you handle Lunar (assuming Lunar uses a regional upgrade system)</li>
+            <li>If you use a regional framework for Lunar, it's inconsistent to homebrew for Stellar</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="1"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B2: Flat Ice Reaction Boost</span>
+        <span class="option-id">SC-B2</span>
+      </div>
+      <div class="option-desc">
+        <p>Mirror of Lunar B1 — Snezhnaya characters just give +3 bonus damage to Ice reactions. No new reaction types.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Snezhnaya characters have passive: "Ice reactions involving this character deal +3 damage"</li>
+          <li>With 2+ Snezhnaya characters: +5 damage</li>
+          <li>No new reaction types, no crit, no sub-effects</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Trivial to implement — one passive effect</li>
+            <li>Consistent with Lunar B1 if you chose that approach</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Same problems as Lunar B1 — completely loses Stellar identity</li>
+            <li>No unique reaction types, no Ice-Nature reaction</li>
+            <li>Snezhnaya characters feel generic</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="1"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">B3: Cryo Enhancement Aura</span>
+        <span class="option-id">SC-B3</span>
+      </div>
+      <div class="option-desc">
+        <p>Mirror of Lunar B2 — Snezhnaya characters provide a "Starlight Aura" that buffs party Ice damage and reaction damage. Team composition bonus, not reaction modification.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>1 Snezhnaya character: party Ice damage +2</li>
+          <li>2+ Snezhnaya characters: party Ice damage +3, all reactions deal +2</li>
+          <li>Passive computed at battle start — no per-reaction checks</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Simple team buff — computed once</li>
+            <li>Consistent with Lunar B2 if chosen</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Not Stellar reactions — just a generic buff</li>
+            <li>Same problems as Lunar B2</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="1"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="2" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approach C: Hybrid -->
+  <div class="approach-group approach-c">
+    <h3 class="approach-label">Approach C — Hybrid</h3>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C1: Use Lunar Framework + Fill Later</span>
+        <span class="option-id">SC-C1</span>
+      </div>
+      <div class="option-desc">
+        <p>Whatever framework you build for Lunar, <strong>commit to reusing it for Stellar</strong>. Build Starsign tags now. Use placeholder +4/can-crit baseline. Fill in per-reaction effects when Snezhnaya releases.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Starsign = same pattern as Moonsign (character tag, level 1 vs 2+)</li>
+          <li>Stellar reactions = same baseline as Lunar (bonus damage + can crit)</li>
+          <li>Ice+Electric, Ice+Wind, Ice+Nature are the three reaction pairs</li>
+          <li>Per-reaction effects: TBD — use generic +4 until official info</li>
+          <li>Framework guaranteed compatible because it IS the Lunar framework</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Zero new framework code — Lunar framework handles everything</li>
+            <li>Starsign tags can be added to Snezhnaya character data now</li>
+            <li>Placeholder effects are functional (not empty) — Stellar reactions still do something useful</li>
+            <li>When official info drops, just fill in the per-reaction effects. One update, done.</li>
+            <li>Consistent player experience: "regional reactions work like this" — same rules for Lunar and Stellar</li>
+            <li>This is the lowest-risk, highest-flexibility option</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Snezhnaya won't feel as polished as Nod Krai until the effects are filled in</li>
+            <li>If Stellar breaks pattern with Lunar significantly (unlikely but possible), framework might need extending</li>
+            <li>Requires discipline to come back and fill in the placeholders</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="5"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="5"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C2: Homebrew Now + Retrofit Later</span>
+        <span class="option-id">SC-C2</span>
+      </div>
+      <div class="option-desc">
+        <p>Design homebrew Cryo reactions NOW (like B1) to have something playable immediately, but use the regional framework structure so they can be <strong>upgraded to Stellar versions</strong> when official info drops. Best of both worlds: playable now, upgradeable later.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Now: homebrew Ice+Electric/Wind/Nature reactions using favorable/unfavorable pattern. Available to all characters.</li>
+          <li>Later (when Stellar releases): add Starsign requirement. Homebrew reactions become the "base" version; Stellar becomes the "upgraded" version (with Starsign = better effects + can crit).</li>
+          <li>Structure: same as Lunar (base reaction exists for everyone, Stellar upgrade requires Starsign)</li>
+          <li>Homebrew effects designed to be "upgradeable" — e.g., "Frostbite: -2 attack" now → "Stellar-Frostbite: -4 attack + can crit" later</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Playable immediately — Ice+Nature reaction exists NOW instead of waiting months</li>
+            <li>The Ice-Nature gap gets filled regardless of Stellar timeline</li>
+            <li>Upgrade path is clean: base → Stellar, same pattern as base → Lunar</li>
+            <li>If leaks are wrong, you still have functional homebrew reactions</li>
+            <li>Players get to experience Ice reactions evolving as the story reaches Snezhnaya</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Two design passes: homebrew now + Stellar later</li>
+            <li>Homebrew effects might not align with what Stellar actually does — could feel jarring to change</li>
+            <li>Players get used to homebrew version and might resist the "upgrade"</li>
+            <li>Slightly more work than C1's "placeholder and wait" approach</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="4"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="3" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="7"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="6"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="8"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+
+    <div class="option-card">
+      <div class="option-header">
+        <span class="option-name">C3: Framework-Only (No Content)</span>
+        <span class="option-id">SC-C3</span>
+      </div>
+      <div class="option-desc">
+        <p>Build ONLY the Starsign tag infrastructure and ensure the regional reaction framework supports Ice-based reactions. <strong>No reaction effects, no placeholders, no homebrew.</strong> Pure structural preparation. The "empty shelf" approach.</p>
+      </div>
+      <div class="rules-box">
+        <h4>Core Rules</h4>
+        <ul>
+          <li>Add "starsign" as a valid regional tag in character data (same as "moonsign")</li>
+          <li>Regional reaction framework supports Ice+Electric, Ice+Wind, Ice+Nature as valid upgrade pairs</li>
+          <li>No effects defined — empty slots waiting for content</li>
+          <li>When Snezhnaya releases: fill in effects. Framework is ready.</li>
+        </ul>
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>✅ Pros vs Current System</h4>
+          <ul>
+            <li>Minimal effort now — just data schema preparation</li>
+            <li>Guaranteed compatible with whatever Stellar actually does</li>
+            <li>Clean codebase — no placeholder or speculative content to clean up later</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>❌ Cons vs Current System</h4>
+          <ul>
+            <li>Snezhnaya characters have NO regional mechanics until you fill it in</li>
+            <li>Ice+Nature reaction gap remains unfilled</li>
+            <li>No combat impact at all until content pass</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="rating-item" data-score="3"><span class="rating-label">Accuracy</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="9" data-invert="true"><span class="rating-label">Implement</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1" data-invert="true"><span class="rating-label">Table Complexity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">Player Clarity</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="1"><span class="rating-label">Combat Impact</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+        <div class="rating-item" data-score="10"><span class="rating-label">System Fit</span><div class="rating-bar"></div><span class="rating-score"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stellar Ranking -->
+  <div class="ranking-section">
+    <h3>🏆 Stellar Cryo — Recommended Ranking</h3>
+    <div class="rank-item"><span class="rank-num rank-1">#1</span><div><span class="rank-name">C1: Use Lunar Framework + Fill Later</span><div class="rank-reason">The obvious winner. Whatever you build for Lunar, reuse it. Starsign tags go on Snezhnaya characters now. Placeholder +4/can-crit baseline makes Stellar reactions functional immediately. Fill in the real effects when Snezhnaya drops. Zero risk, minimal effort, maximum flexibility.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-2">#2</span><div><span class="rank-name">C2: Homebrew Now + Retrofit Later</span><div class="rank-reason">Best if you want playable Ice reactions immediately (especially Ice+Nature which doesn't exist yet). The "upgrade path" from homebrew to Stellar is elegant. More work than C1 but more immediately useful. Pick this if your campaign might hit Snezhnaya-adjacent content before August 2026.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-3">#3</span><div><span class="rank-name">A2: Starsign Framework + Placeholder Effects</span><div class="rank-reason">Very similar to C1 but slightly more explicit about building out the Starsign system as its own thing rather than just reusing Lunar's. Good if you want the framework to be more visible in the codebase. Practically equivalent to C1.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#4</span><div><span class="rank-name">SC-B1: Homebrew Cryo Reactions</span><div class="rank-reason">Good for filling the Ice+Nature gap now, but breaks pattern with Lunar if you use a regional framework there. Only pick this if you're doing homebrew for ALL regions (including Lunar).</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#5</span><div><span class="rank-name">A3: Wait and Adapt</span><div class="rank-reason">Safest but least productive. You're not doing anything wrong by waiting, but you're also not gaining anything. Lunar framework work will implicitly prepare for Stellar anyway.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#6</span><div><span class="rank-name">C3: Framework-Only</span><div class="rank-reason">Even less than A3 — you're just prepping data schema. Fine as a byproduct of Lunar work but not worth calling a "Stellar approach."</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#7</span><div><span class="rank-name">A1: Full Speculative Implementation</span><div class="rank-reason">High risk of wasted work. Designing stack-and-detonate and Frost Vortex based on leaks that could be wrong is a gamble. Only worth it if you NEED Stellar content ready before official release AND you're comfortable reworking it.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#8</span><div><span class="rank-name">B3: Cryo Enhancement Aura</span><div class="rank-reason">Generic team buff. Not worth designing if you have a regional framework available.</div></div></div>
+    <div class="rank-item"><span class="rank-num rank-rest">#9</span><div><span class="rank-name">B2: Flat Ice Reaction Boost</span><div class="rank-reason">Same as Lunar B1 — too simple to justify as a mechanic. Only if you're cutting regional reactions entirely.</div></div></div>
+  </div>
+</section>
+
+<div style="text-align:center; margin-top:3rem; padding:2rem; color:var(--muted); font-size:0.9rem; border-top:1px solid var(--border);">
+  Generated for Genshin DnD tabletop combat design — May 2026<br>
+  36 total options across 4 mechanics. Review, mix, match, and let's lock it down.
+</div>
+
+</body>
+</html>

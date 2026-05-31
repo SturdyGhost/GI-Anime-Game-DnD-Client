@@ -194,7 +194,7 @@ func _section_label(text: String) -> Label:
 	return l
 
 func _style_button(btn: Button, bg = BG_CARD, border = BORDER_SUBTLE, text_color = TEXT_PRIMARY) -> void:
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 40)
 	btn.add_theme_color_override("font_color", text_color)
 	btn.add_theme_color_override("font_hover_color", Color.WHITE)
 	btn.add_theme_stylebox_override("normal", _sb(bg, border, 1, 4, Vector4(12, 6, 12, 6)))
@@ -205,7 +205,7 @@ func _style_button(btn: Button, bg = BG_CARD, border = BORDER_SUBTLE, text_color
 	btn.add_theme_color_override("font_disabled_color", TEXT_MUTED)
 
 func _style_option(opt: OptionButton) -> void:
-	opt.add_theme_font_size_override("font_size", 14)
+	opt.add_theme_font_size_override("font_size", 40)
 	opt.add_theme_color_override("font_color", TEXT_PRIMARY)
 	opt.add_theme_stylebox_override("normal", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(8, 4, 8, 4)))
 	opt.add_theme_stylebox_override("hover", _sb(BG_HOVER, BORDER_FOCUS, 1, 4, Vector4(8, 4, 8, 4)))
@@ -213,7 +213,7 @@ func _style_option(opt: OptionButton) -> void:
 	opt.add_theme_stylebox_override("focus", _sb(BG_INSET, BORDER_FOCUS, 1, 4, Vector4(8, 4, 8, 4)))
 
 func _style_itemlist(il: ItemList) -> void:
-	il.add_theme_font_size_override("font_size", 14)
+	il.add_theme_font_size_override("font_size", 40)
 	il.add_theme_color_override("font_color", TEXT_PRIMARY)
 	il.add_theme_color_override("font_selected_color", ACCENT)
 	il.add_theme_stylebox_override("panel", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(4, 4, 4, 4)))
@@ -231,13 +231,13 @@ func _make_spinbox(prefix_text: String, max_val: int = 100) -> HBoxContainer:
 	spin.min_value = 0
 	spin.value = 0
 	spin.custom_minimum_size.x = 70
-	spin.add_theme_font_size_override("font_size", 14)
+	spin.add_theme_font_size_override("font_size", 40)
 	# Style the internal LineEdit
 	var le_style = _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(6, 2, 6, 2))
 	spin.get_line_edit().add_theme_stylebox_override("normal", le_style)
 	spin.get_line_edit().add_theme_stylebox_override("focus", _sb(BG_INSET, ACCENT, 1, 4, Vector4(6, 2, 6, 2)))
 	spin.get_line_edit().add_theme_color_override("font_color", TEXT_PRIMARY)
-	spin.get_line_edit().add_theme_font_size_override("font_size", 14)
+	spin.get_line_edit().add_theme_font_size_override("font_size", 40)
 	row.add_child(spin)
 	return row
 
@@ -274,7 +274,7 @@ func _tab_button(text: String, is_active = false) -> Button:
 	var btn = Button.new()
 	btn.text = text
 	btn.flat = true
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 40)
 	btn.add_theme_color_override("font_color", ACCENT if is_active else TEXT_MUTED)
 	btn.add_theme_color_override("font_hover_color", TEXT_PRIMARY)
 	# Underline effect via bottom border
@@ -367,7 +367,7 @@ func _build_ui():
 		var dm_hover = _sb(Color(0.4, 0.2, 0.6, 0.3), Color(0.6, 0.35, 0.85), 1, 6, Vector4(16, 6, 16, 6))
 		dm_btn.add_theme_stylebox_override("hover", dm_hover)
 		dm_btn.add_theme_color_override("font_color", Color(0.75, 0.55, 0.95))
-		dm_btn.add_theme_font_size_override("font_size", 14)
+		dm_btn.add_theme_font_size_override("font_size", 40)
 		dm_btn.pressed.connect(_on_dm_hub_pressed)
 		turn_vbox.add_child(dm_btn)
 
@@ -588,7 +588,7 @@ func _build_ui():
 
 	_crit_toggle = CheckButton.new()
 	_crit_toggle.text = "Critical Hit"
-	_crit_toggle.add_theme_font_size_override("font_size", 14)
+	_crit_toggle.add_theme_font_size_override("font_size", 40)
 	_crit_toggle.add_theme_color_override("font_color", TEXT_PRIMARY)
 	roll_vbox.add_child(_crit_toggle)
 
@@ -658,7 +658,7 @@ func _build_ui():
 	var et_hover = _sb(Color(0.788, 0.659, 0.298, 0.2), ACCENT, 2, 6, Vector4(20, 6, 20, 6))
 	_end_turn_btn.add_theme_stylebox_override("hover", et_hover)
 	_end_turn_btn.add_theme_color_override("font_color", ACCENT)
-	_end_turn_btn.add_theme_font_size_override("font_size", 14)
+	_end_turn_btn.add_theme_font_size_override("font_size", 40)
 	bottom_bar.add_child(_end_turn_btn)
 
 	# ═══════════════════════════════════════════════════════════
@@ -723,7 +723,7 @@ func _build_ui():
 
 		var quest_tag = Label.new()
 		quest_tag.text = "CHALLENGE QUEST"
-		quest_tag.add_theme_font_size_override("font_size", 11)
+		quest_tag.add_theme_font_size_override("font_size", 36)
 		quest_tag.add_theme_color_override("font_color", Color(0.788, 0.659, 0.298))
 		quest_tag.tooltip_text = tooltip_text
 		quest_tag.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -906,7 +906,12 @@ func _on_data_load_complete():
 	_build_battlers()
 	_refresh_all()
 	_update_dock_visibility()
-	check_battle_end()
+	# Battle-end is host-authoritative. Clients learn of victory via
+	# NetworkManager.battle_summary_received -> _on_battle_summary_received,
+	# never by inspecting their own (potentially stale/empty) BATTLEENEMIES
+	# or PartyCharacters dicts. Offline mode acts as its own authority.
+	if NetworkManager.is_host or Global.is_offline:
+		check_battle_end()
 
 
 # =============================================================================
@@ -1366,7 +1371,7 @@ func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", Color(color, 1.0).lightened(0.3))
-	lbl.add_theme_font_size_override("font_size", 12)
+	lbl.add_theme_font_size_override("font_size", 36)
 	panel.add_child(lbl)
 	return panel
 
@@ -1814,7 +1819,7 @@ func _rebuild_target_rows() -> void:
 		roll_spin.max_value = 100
 		roll_spin.value = 0
 		roll_spin.custom_minimum_size = Vector2(55, 0)
-		roll_spin.add_theme_font_size_override("font_size", 13)
+		roll_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(roll_spin)
 
 		# Hits
@@ -1824,7 +1829,7 @@ func _rebuild_target_rows() -> void:
 		hits_spin.max_value = 20
 		hits_spin.value = 1
 		hits_spin.custom_minimum_size = Vector2(55, 0)
-		hits_spin.add_theme_font_size_override("font_size", 13)
+		hits_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(hits_spin)
 
 		# Damage
@@ -1834,7 +1839,7 @@ func _rebuild_target_rows() -> void:
 		dmg_spin.max_value = 9999
 		dmg_spin.value = 0
 		dmg_spin.custom_minimum_size = Vector2(55, 0)
-		dmg_spin.add_theme_font_size_override("font_size", 13)
+		dmg_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(dmg_spin)
 
 		# Type
@@ -1844,13 +1849,13 @@ func _rebuild_target_rows() -> void:
 		type_opt.add_item("Healed")
 		type_opt.add_item("Shielded")
 		type_opt.custom_minimum_size = Vector2(55, 0)
-		type_opt.add_theme_font_size_override("font_size", 13)
+		type_opt.add_theme_font_size_override("font_size", 36)
 		fields.add_child(type_opt)
 
 		# Hit Shield checkbox (below the grid)
 		var shield_check = CheckButton.new()
 		shield_check.text = "Hit Shield"
-		shield_check.add_theme_font_size_override("font_size", 13)
+		shield_check.add_theme_font_size_override("font_size", 36)
 		shield_check.add_theme_color_override("font_color", TEXT_PRIMARY if has_shield else TEXT_MUTED)
 		shield_check.disabled = not has_shield
 		vbox.add_child(shield_check)
@@ -1923,7 +1928,7 @@ func check_battle_end():
 
 	if all_enemies_dead or all_players_down:
 		_battle_ending = true
-		if NetworkManager.is_host:
+		if NetworkManager.is_host or Global.is_offline:
 			# Wait briefly for any pending player turn log RPCs to arrive
 			# (the killing blow's log may be in-flight from a player client)
 			await get_tree().create_timer(1.0).timeout
@@ -2107,13 +2112,21 @@ func _process_expedition_returns() -> void:
 				_persist_expedition_item(owner_name if owner_name != "" else companion_labels[0], mat_name, clean_loot[mat_name])
 	Global._expedition_results = results
 	Global._expedition_assignments = {}
-	Global._expedition_pool = []
 
-	# Clear Party record fields
+	# Generate a fresh expedition pool host-side so every player sees the same
+	# list on returning to the hub (instead of each player rolling their own
+	# when they first open the panel).
+	var new_pool = ExpeditionManager.generate_pool(Global.Current_Region)
+	var new_pool_dicts: Array = []
+	for exp in new_pool:
+		new_pool_dicts.append(exp.to_dict())
+	Global._expedition_pool = new_pool_dicts
+
+	# Persist to Party record (broadcasts to all clients via Update_Records).
 	if party and party.get("id") != null:
 		var party_id = int(party.get("id"))
 		Global.Update_Records([
-			{"table": "Party", "record_id": party_id, "field": "Expedition_Pool", "value": ""},
+			{"table": "Party", "record_id": party_id, "field": "Expedition_Pool", "value": JSON.stringify(new_pool_dicts)},
 			{"table": "Party", "record_id": party_id, "field": "Expedition_Assignments", "value": ""},
 		])
 
@@ -2190,7 +2203,7 @@ func _host_battle_cleanup() -> void:
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
-	_assign_random_roles()
+	_assign_fixed_roles()
 	NetworkManager.broadcast_table_update("Characters")
 	NetworkManager.broadcast_table_update("BattleEnemies")
 	Global.end_battle_effects()
@@ -2204,20 +2217,28 @@ func _persist_loot(loot: Dictionary) -> void:
 			_persist_expedition_item(player_name, mat_name, int(player_loot[mat_name]))
 
 
-func _assign_random_roles() -> void:
-	var roles = ["Artisan", "Blacksmith", "Scout"]
-	roles.shuffle()
-	var players = []
+## Roles are fixed per player at the group's request — no rotation. Brian C.
+## stays Artisan (crafting flow), Dylan stays Blacksmith, Brian F. stays Scout.
+## Any new player not in this map gets no role until they're added.
+const FIXED_ROLES := {
+	"Brian C.": "Artisan",
+	"Dylan": "Blacksmith",
+	"Brian F.": "Scout",
+}
+
+func _assign_fixed_roles() -> void:
+	var updates: Array = []
 	for char in Global.CHARACTERS.values():
-		if str(char.get("User_Type", "")) != "Dungeon Master":
-			players.append(char)
-	var updates = []
-	for i in range(mini(players.size(), roles.size())):
+		if str(char.get("User_Type", "")) == "Dungeon Master":
+			continue
+		var pname: String = str(char.get("Name", ""))
+		if not FIXED_ROLES.has(pname):
+			continue
 		updates.append({
 			"table": "Characters",
-			"record_id": int(players[i].get("id", 0)),
+			"record_id": int(char.get("id", 0)),
 			"field": "Role",
-			"value": roles[i]
+			"value": FIXED_ROLES[pname],
 		})
 	if updates.size() > 0:
 		Global.Update_Records(updates)

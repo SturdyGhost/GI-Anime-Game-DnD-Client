@@ -195,7 +195,7 @@ func _build_encounter_setup(parent: VBoxContainer) -> void:
 	_enemy_search = LineEdit.new()
 	_enemy_search.placeholder_text = "Filter enemies..."
 	_enemy_search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_enemy_search.add_theme_font_size_override("font_size", 13)
+	_enemy_search.add_theme_font_size_override("font_size", 23)
 	_enemy_search.text_changed.connect(_on_enemy_search_changed)
 	vbox.add_child(_enemy_search)
 
@@ -271,7 +271,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 		var row := _make_hbox(4)
 		vbox.add_child(row)
 		var cb := CheckButton.new()
-		cb.add_theme_font_size_override("font_size", 11)
+		cb.add_theme_font_size_override("font_size", 20)
 		row.add_child(cb)
 		_stat_override_enabled[stat_key] = cb
 		var slbl := _lbl(stat_name, 12, TEXT_COLOR)
@@ -283,7 +283,7 @@ func _build_loadout_overrides(parent: VBoxContainer) -> void:
 		spin.step = 1
 		spin.value = 0
 		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		spin.add_theme_font_size_override("font_size", 11)
+		spin.add_theme_font_size_override("font_size", 20)
 		spin.editable = false
 		cb.toggled.connect(func(on): spin.editable = on)
 		row.add_child(spin)
@@ -305,7 +305,7 @@ func _build_sim_config_ui(parent: VBoxContainer) -> void:
 	_battle_spin.max_value = 10000
 	_battle_spin.step = 10
 	_battle_spin.value = 1000
-	_battle_spin.add_theme_font_size_override("font_size", 13)
+	_battle_spin.add_theme_font_size_override("font_size", 23)
 	_battle_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_battle_spin.value_changed.connect(func(v): _battle_count = int(v))
 	bc_row.add_child(_battle_spin)
@@ -409,7 +409,7 @@ func _build_results_panel(parent: VBoxContainer) -> void:
 
 	_ability_battler_dropdown = OptionButton.new()
 	_ability_battler_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_ability_battler_dropdown.add_theme_font_size_override("font_size", 12)
+	_ability_battler_dropdown.add_theme_font_size_override("font_size", 22)
 	_ability_battler_dropdown.custom_minimum_size.y = 0
 	_ability_battler_dropdown.item_selected.connect(_on_ability_battler_selected)
 	abil_vbox.add_child(_ability_battler_dropdown)
@@ -1267,7 +1267,7 @@ func _display_recommendations(r: Dictionary, n: float) -> void:
 
 			var rec_lbl := Label.new()
 			rec_lbl.text = rec
-			rec_lbl.add_theme_font_size_override("font_size", 13)
+			rec_lbl.add_theme_font_size_override("font_size", 23)
 			rec_lbl.add_theme_color_override("font_color", Color(0.63, 0.78, 0.63))
 			rec_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			rec_panel.add_child(rec_lbl)
@@ -1358,11 +1358,11 @@ func _style_button(btn: Button, bg_color: Color) -> void:
 	btn.add_theme_stylebox_override("hover", hover)
 
 	btn.add_theme_color_override("font_color", TEXT_COLOR)
-	btn.add_theme_font_size_override("font_size", 14)
+	btn.add_theme_font_size_override("font_size", 25)
 
 
 func _style_dropdown(dd: OptionButton) -> void:
-	dd.add_theme_font_size_override("font_size", 12)
+	dd.add_theme_font_size_override("font_size", 22)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.12, 0.14, 0.20)
 	sb.border_color = CARD_BORDER

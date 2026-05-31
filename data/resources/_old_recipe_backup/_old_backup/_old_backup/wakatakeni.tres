@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_8dep1"]
+
+[resource]
+script = ExtResource("1_8dep1")
+id = 84
+product = "Wakatakeni"
+region = "Inazuma"
+description = "Restores 33% of your max health each turn for 5 turns."
+role = "Artisan"
+material = "Sea Ganoderma"
+quantity = 4

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_0brgx"]
+
+[resource]
+script = ExtResource("1_0brgx")
+id = 267
+product = "Almond Tofu"
+region = "Inazuma"
+description = "Recovers 2 HP per turn over 10 turns."
+role = "Artisan"
+material = "Calla Lily"
+quantity = 4

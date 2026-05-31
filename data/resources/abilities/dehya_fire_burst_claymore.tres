@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3 uid="uid://cakl511trcjnk"]
 
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_8ysde"]
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_dlkh8"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_8ysde"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_dlkh8"]
 
 [sub_resource type="Resource" id="Resource_8ysde"]
 script = ExtResource("1_8ysde")
@@ -50,7 +50,7 @@ script = ExtResource("1_dlkh8")
 id = 268
 name = "Dehya – Burst"
 element = "Fire"
-description = "Dehya enters her Lioness Spirit state for 3 turns, while active at the start of her turn she automatically dashes to and fire punches the nearest enemy. Whenever an ally is damaged by an enemy Dehya Counterstrikes dealing reflective fire damage back at the enemy and guards the targetted ally giving them +4 to their defense rolls."
+description = "Dehya enters her Lioness Spirit state for 3 turns, while active at the start of her turn she automatically dashes to and fire punches the nearest enemy. When the first ally is damaged by an enemy in between Dehya's turns Dehya Counterstrikes dealing equal fire damage back at the enemy and guards the targetted ally giving them +4 to their defense rolls. "
 dice_count = 0
 dice_die = 0
 dice_flat = 0

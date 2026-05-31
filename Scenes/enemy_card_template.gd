@@ -66,7 +66,7 @@ func set_card(id):
 		CardHealthText.add_theme_color_override("font_color", Color(0.918, 0.702, 0.031))  # yellow
 	else:
 		CardHealthText.add_theme_color_override("font_color", Color(0.937, 0.267, 0.267))  # red
-	CardHealthText.add_theme_font_size_override("font_size", 16)
+	CardHealthText.add_theme_font_size_override("font_size", 29)
 	shield_value = e.get("Shield_Health")
 	if shield_value != null:
 		shield_hp = int(shield_value)
@@ -94,7 +94,7 @@ func _update_effects_display() -> void:
 		lbl.name = "EffectsLabel"
 		lbl.position = Vector2(0, 200)
 		lbl.custom_minimum_size = Vector2(200, 20)
-		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.add_theme_font_size_override("font_size", 20)
 		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 		add_child(lbl)
 

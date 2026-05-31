@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interactive Map - UI Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; overflow: hidden; height: 100vh; }
+
+  .container { display: flex; height: 100vh; width: 100vw; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #16213e 0%, #0f1a30 100%);
+    border-right: 2px solid #d4a74a;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    z-index: 10;
+  }
+  .sidebar h2 {
+    color: #d4a74a;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #d4a74a44;
+    padding-bottom: 8px;
+  }
+
+  /* Marker tools */
+  .marker-tools { display: flex; flex-direction: column; gap: 8px; }
+  .shape-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+  .shape-btn {
+    width: 36px; height: 36px;
+    border: 2px solid #555;
+    border-radius: 6px;
+    background: #1a1a2e;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .shape-btn:hover { border-color: #d4a74a; }
+  .shape-btn.active { border-color: #d4a74a; background: #d4a74a22; box-shadow: 0 0 8px #d4a74a44; }
+  .shape-btn svg { width: 20px; height: 20px; }
+
+  /* Region list */
+  .region-list { display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+  .region-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .region-item:hover { background: #ffffff11; }
+  .region-item.unlocked { color: #e0e0e0; }
+  .region-item.locked { color: #666; font-style: italic; }
+  .region-item .status { font-size: 10px; }
+  .region-item.active { background: #d4a74a22; border: 1px solid #d4a74a44; }
+
+  /* Player legend */
+  .player-legend { display: flex; flex-direction: column; gap: 4px; }
+  .player-entry {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; padding: 4px 0;
+  }
+  .player-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid #fff3;
+  }
+
+  /* Map area */
+  .map-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #111827;
+  }
+
+  /* Fake map surface */
+  .map-surface {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background:
+      radial-gradient(ellipse at 30% 40%, #2d4a3e 0%, transparent 40%),
+      radial-gradient(ellipse at 60% 35%, #3a4a5e 0%, transparent 35%),
+      radial-gradient(ellipse at 45% 65%, #4a3a2e 0%, transparent 30%),
+      radial-gradient(ellipse at 75% 55%, #2e3a4a 0%, transparent 35%),
+      radial-gradient(ellipse at 20% 70%, #3e3a4a 0%, transparent 25%),
+      #111827;
+  }
+
+  /* Region labels on map */
+  .region-label {
+    position: absolute;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-shadow: 0 2px 8px #000a;
+  }
+  .region-label.unlocked { color: #e0d5b8; opacity: 0.7; }
+  .region-label.locked { color: #555; opacity: 0.3; }
+
+  /* Fog overlay */
+  .fog-region {
+    position: absolute;
+    background: #0a0a1acc;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fog-region .lock-icon { font-size: 28px; opacity: 0.3; }
+
+  /* Markers on map */
+  .map-marker {
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.15s;
+    filter: drop-shadow(0 2px 4px #000a);
+  }
+  .map-marker:hover { transform: scale(1.3); z-index: 100; }
+  .map-marker svg { width: 24px; height: 24px; }
+
+  /* Tooltip */
+  .marker-tooltip {
+    position: absolute;
+    background: #16213eee;
+    border: 1px solid #d4a74a88;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    max-width: 200px;
+    pointer-events: none;
+    box-shadow: 0 4px 16px #000a;
+    z-index: 200;
+    display: none;
+  }
+  .marker-tooltip .tt-player { color: #d4a74a; font-weight: 600; font-size: 11px; }
+  .marker-tooltip .tt-note { margin-top: 4px; color: #ccc; }
+
+  /* Marker detail panel (on click) */
+  .marker-panel {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 280px;
+    background: linear-gradient(180deg, #16213eee, #0f1a30ee);
+    border: 2px solid #d4a74a88;
+    border-radius: 12px;
+    padding: 20px;
+    z-index: 300;
+    box-shadow: 0 8px 32px #000a;
+    display: none;
+  }
+  .marker-panel.visible { display: block; }
+  .marker-panel h3 { color: #d4a74a; font-size: 14px; margin-bottom: 12px; }
+  .marker-panel textarea {
+    width: 100%;
+    height: 80px;
+    background: #0a0f1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #e0e0e0;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: none;
+  }
+  .marker-panel .panel-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: #d4a74a; color: #d4a74a; }
+  .btn.danger { border-color: #aa3333; color: #cc4444; }
+  .btn.danger:hover { background: #aa333322; }
+  .btn.primary { border-color: #d4a74a; color: #d4a74a; background: #d4a74a22; }
+
+  /* Zoom controls */
+  .zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 50;
+  }
+  .zoom-btn {
+    width: 36px; height: 36px;
+    background: #16213ecc;
+    border: 1px solid #d4a74a66;
+    border-radius: 6px;
+    color: #d4a74a;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .zoom-btn:hover { background: #d4a74a33; }
+
+  /* Close button */
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px; height: 32px;
+    background: #16213ecc;
+    border: 1px solid #aa333388;
+    border-radius: 6px;
+    color: #cc4444;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { background: #aa333333; }
+
+  /* Mini-map */
+  .minimap {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 160px;
+    height: 110px;
+    background: #111827;
+    border: 1px solid #d4a74a66;
+    border-radius: 8px;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .minimap-viewport {
+    position: absolute;
+    border: 1px solid #d4a74a;
+    background: #d4a74a11;
+    border-radius: 2px;
+  }
+  .minimap-label {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 9px;
+    color: #d4a74a88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Placement mode indicator */
+  .placement-mode {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d4a74a22;
+    border: 1px solid #d4a74a88;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: #d4a74a;
+    z-index: 50;
+    display: none;
+  }
+  .placement-mode.active { display: block; }
+
+  /* Section labels in sidebar */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>🗺️ Teyvat Map</h2>
+
+    <div class="section-label">Place Marker</div>
+    <div class="marker-tools">
+      <div class="shape-picker">
+        <div class="shape-btn active" title="Circle">
+          <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#e8b445" stroke-width="2"/></svg>
+        </div>
+        <div class="shape-btn" title="Diamond">
+          <svg viewBox="0 0 20 20"><polygon points="10,2 18,10 10,18 2,10" fill="none" stroke="#e8b445" stroke-width="2"/></svg>
+        </div>
+        <div class="shape-btn" title="Star">
+          <svg viewBox="0 0 20 20"><polygon points="10,2 12.5,7.5 18,8 14,12.5 15,18 10,15 5,18 6,12.5 2,8 7.5,7.5" fill="none" stroke="#e8b445" stroke-width="1.5"/></svg>
+        </div>
+        <div class="shape-btn" title="Triangle">
+          <svg viewBox="0 0 20 20"><polygon points="10,3 18,17 2,17" fill="none" stroke="#e8b445" stroke-width="2"/></svg>
+        </div>
+        <div class="shape-btn" title="Square">
+          <svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" fill="none" stroke="#e8b445" stroke-width="2"/></svg>
+        </div>
+        <div class="shape-btn" title="Cross">
+          <svg viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="#e8b445" stroke-width="2"/><line x1="16" y1="4" x2="4" y2="16" stroke="#e8b445" stroke-width="2"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Regions</div>
+    <div class="region-list">
+      <div class="region-item unlocked active">
+        <span class="status">✅</span> Mondstadt
+      </div>
+      <div class="region-item unlocked">
+        <span class="status">✅</span> Liyue
+      </div>
+      <div class="region-item unlocked">
+        <span class="status">✅</span> Inazuma
+      </div>
+      <div class="region-item locked">
+        <span class="status">🔒</span> Sumeru <span style="color:#666; font-size:11px;">(AR 3)</span>
+      </div>
+      <div class="region-item locked">
+        <span class="status">🔒</span> Fontaine <span style="color:#666; font-size:11px;">(AR 4)</span>
+      </div>
+      <div class="region-item locked">
+        <span class="status">🔒</span> Natlan <span style="color:#666; font-size:11px;">(AR 5)</span>
+      </div>
+      <div class="region-item locked">
+        <span class="status">🔒</span> Nod Krai <span style="color:#666; font-size:11px;">(AR 6)</span>
+      </div>
+      <div class="region-item locked">
+        <span class="status">🔒</span> Snezhnaya <span style="color:#666; font-size:11px;">(AR 7)</span>
+      </div>
+    </div>
+
+    <div class="section-label">Player Markers</div>
+    <div class="player-legend">
+      <div class="player-entry">
+        <div class="player-dot" style="background: #e84545;"></div>
+        Chase <span style="color:#666; font-size:11px;">(You)</span>
+      </div>
+      <div class="player-entry">
+        <div class="player-dot" style="background: #4589e8;"></div>
+        Brian
+      </div>
+      <div class="player-entry">
+        <div class="player-dot" style="background: #45e87a;"></div>
+        Alex
+      </div>
+      <div class="player-entry">
+        <div class="player-dot" style="background: #e8c845;"></div>
+        Sam
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Area -->
+  <div class="map-area">
+    <div class="map-surface">
+      <!-- Region labels -->
+      <div class="region-label unlocked" style="left: 22%; top: 30%;">Mondstadt</div>
+      <div class="region-label unlocked" style="left: 42%; top: 55%;">Liyue</div>
+      <div class="region-label unlocked" style="left: 68%; top: 35%;">Inazuma</div>
+      <div class="region-label locked" style="left: 38%; top: 75%;">Sumeru</div>
+      <div class="region-label locked" style="left: 15%; top: 68%;">Fontaine</div>
+
+      <!-- Fog overlays for locked regions -->
+      <div class="fog-region" style="left: 30%; top: 62%; width: 30%; height: 30%; border-radius: 40%;">
+        <span class="lock-icon">🔒</span>
+      </div>
+      <div class="fog-region" style="left: 5%; top: 58%; width: 25%; height: 28%; border-radius: 40%;">
+        <span class="lock-icon">🔒</span>
+      </div>
+
+      <!-- Sample markers - Chase (red) -->
+      <div class="map-marker" style="left: 25%; top: 32%;" data-player="Chase" data-note="Stormterror's Lair — investigate next session" data-shape="star">
+        <svg viewBox="0 0 20 20"><polygon points="10,2 12.5,7.5 18,8 14,12.5 15,18 10,15 5,18 6,12.5 2,8 7.5,7.5" fill="#e84545" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+      <div class="map-marker" style="left: 20%; top: 38%;" data-player="Chase" data-note="Hidden chest behind waterfall" data-shape="diamond">
+        <svg viewBox="0 0 20 20"><polygon points="10,2 18,10 10,18 2,10" fill="#e84545" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+
+      <!-- Sample markers - Brian (blue) -->
+      <div class="map-marker" style="left: 45%; top: 50%;" data-player="Brian" data-note="Liyue Harbor — shop has good deals" data-shape="circle">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#4589e8" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+      <div class="map-marker" style="left: 50%; top: 58%;" data-player="Brian" data-note="Mining spot — cor lapis" data-shape="square">
+        <svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" fill="#4589e8" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+
+      <!-- Sample markers - Alex (green) -->
+      <div class="map-marker" style="left: 70%; top: 30%;" data-player="Alex" data-note="Shrine — need electro to unlock" data-shape="triangle">
+        <svg viewBox="0 0 20 20"><polygon points="10,3 18,17 2,17" fill="#45e87a" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+
+      <!-- Sample markers - Sam (gold) -->
+      <div class="map-marker" style="left: 30%; top: 28%;" data-player="Sam" data-note="Good fishing spot" data-shape="circle">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#e8c845" stroke="#fff" stroke-width="0.5"/></svg>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="marker-tooltip" id="tooltip">
+      <div class="tt-player">Chase</div>
+      <div class="tt-note">Stormterror's Lair — investigate next session</div>
+    </div>
+
+    <!-- Marker detail panel -->
+    <div class="marker-panel" id="markerPanel">
+      <h3>📍 Marker Details</h3>
+      <div style="margin-bottom:8px;">
+        <span style="font-size:12px; color:#888;">Placed by:</span>
+        <span style="color:#e84545; font-weight:600;">Chase</span>
+      </div>
+      <div style="margin-bottom:8px; font-size:12px; color:#888;">Shape: ⭐ Star</div>
+      <textarea placeholder="Add a note...">Stormterror's Lair — investigate next session</textarea>
+      <div class="panel-actions">
+        <button class="btn primary">Save</button>
+        <button class="btn danger">Delete</button>
+        <button class="btn" id="closePanel">Close</button>
+      </div>
+    </div>
+
+    <!-- Placement mode banner -->
+    <div class="placement-mode active" id="placementBanner">
+      Click on the map to place a ⭐ Star marker — Right-click to cancel
+    </div>
+
+    <!-- Close map button -->
+    <div class="close-btn" title="Close Map">✕</div>
+
+    <!-- Zoom controls -->
+    <div class="zoom-controls">
+      <div class="zoom-btn" title="Zoom In">+</div>
+      <div class="zoom-btn" title="Zoom Out">−</div>
+      <div class="zoom-btn" title="Reset" style="font-size:12px;">⟳</div>
+    </div>
+
+    <!-- Mini-map -->
+    <div class="minimap">
+      <div style="width:100%;height:100%;background:
+        radial-gradient(ellipse at 30% 40%, #2d4a3e 0%, transparent 40%),
+        radial-gradient(ellipse at 60% 35%, #3a4a5e 0%, transparent 35%),
+        radial-gradient(ellipse at 45% 65%, #4a3a2e 0%, transparent 30%),
+        #111827;"></div>
+      <div class="minimap-viewport" style="left:15%; top:20%; width:35%; height:40%;"></div>
+      <div class="minimap-label">Minimap</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple interactivity for the mockup
+  const markers = document.querySelectorAll('.map-marker');
+  const tooltip = document.getElementById('tooltip');
+  const panel = document.getElementById('markerPanel');
+  const closePanel = document.getElementById('closePanel');
+  const shapeBtns = document.querySelectorAll('.shape-btn');
+  const placementBanner = document.getElementById('placementBanner');
+
+  // Hover tooltips
+  markers.forEach(m => {
+    m.addEventListener('mouseenter', e => {
+      tooltip.querySelector('.tt-player').textContent = m.dataset.player;
+      tooltip.querySelector('.tt-note').textContent = m.dataset.note;
+      tooltip.style.left = (e.clientX - 250) + 'px';
+      tooltip.style.top = (e.clientY - 60) + 'px';
+      tooltip.style.display = 'block';
+      const color = getComputedStyle(m.querySelector('svg *[fill]')).fill || '#fff';
+      tooltip.querySelector('.tt-player').style.color = m.querySelector('[fill]').getAttribute('fill');
+    });
+    m.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+    m.addEventListener('click', () => {
+      panel.classList.add('visible');
+      tooltip.style.display = 'none';
+      panel.querySelector('h3').textContent = '📍 Marker Details';
+      panel.querySelector('[style*="Placed by"]').nextElementSibling.textContent = m.dataset.player;
+      panel.querySelector('textarea').value = m.dataset.note;
+    });
+  });
+
+  closePanel.addEventListener('click', () => panel.classList.remove('visible'));
+
+  // Shape picker toggle
+  shapeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      shapeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const shapeName = btn.getAttribute('title');
+      placementBanner.innerHTML = `Click on the map to place a <b>${shapeName}</b> marker — Right-click to cancel`;
+    });
+  });
+</script>
+
+</body>
+</html>

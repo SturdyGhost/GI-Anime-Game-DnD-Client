@@ -11,11 +11,11 @@ const TEXT_SEC  = Color(0.69, 0.722, 0.8)
 const TEXT_MUTED = Color(0.533, 0.573, 0.659)
 const ACCENT    = Color(0.788, 0.659, 0.298)
 
-const FONT_SM  = 15
-const FONT_MD  = 18
-const FONT_LG  = 24
-const FONT_XL  = 32
-const FONT_XXL = 42
+const FONT_SM  = 40
+const FONT_MD  = 45
+const FONT_LG  = 52
+const FONT_XL  = 62
+const FONT_XXL = 72
 
 # ── State ───────────────────────────────────────────────────────────────────
 var SelectedStat: String = ""

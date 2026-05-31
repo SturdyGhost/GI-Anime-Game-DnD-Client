@@ -332,7 +332,7 @@ func _spawn_score_popup(pos: Vector2, points: int) -> void:
 	var lbl = Label.new()
 	lbl.text = "+%d" % points
 	lbl.position = pos - Vector2(20, 20)
-	lbl.add_theme_font_size_override("font_size", 28)
+	lbl.add_theme_font_size_override("font_size", 50)
 	if points >= 50:
 		lbl.modulate = Color(1, 0.85, 0.1)
 	elif points >= 30:

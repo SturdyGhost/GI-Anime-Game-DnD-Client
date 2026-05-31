@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CraftingRecipeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/crafting_recipe_data.gd" id="1_phn7p"]
+
+[resource]
+script = ExtResource("1_phn7p")
+id = 358
+product = "Sumeru Random Legendary Weapon"
+region = "Sumeru"
+description = "Used to craft a random Legendary weapon from Sumeru."
+role = "Blacksmith"
+material = "Luminescent Pollen"
+quantity = 35
