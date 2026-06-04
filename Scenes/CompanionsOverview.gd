@@ -21,12 +21,12 @@ const COLOR_BADGE_YELLOW = Color(0.60, 0.48, 0.05)
 const COLOR_BADGE_RED = Color(0.55, 0.12, 0.12)
 const COLOR_BADGE_GRAY = Color(0.25, 0.27, 0.32)
 
-const FONT_SIZE_TITLE = 24
-const FONT_SIZE_NAME = 20
-const FONT_SIZE_BODY = 18
-const FONT_SIZE_SMALL = 16
-const FONT_SIZE_BADGE = 16
-const FONT_SIZE_HEADER = 20
+const FONT_SIZE_TITLE = 48
+const FONT_SIZE_NAME = 40
+const FONT_SIZE_BODY = 36
+const FONT_SIZE_SMALL = 32
+const FONT_SIZE_BADGE = 32
+const FONT_SIZE_HEADER = 40
 
 const LEFT_WIDTH = 320
 const CARD_HEIGHT = 72
@@ -133,7 +133,7 @@ func _build_ui() -> void:
 	close_btn.add_theme_stylebox_override("hover", _make_flat_button_sb(COLOR_CARD_HOVER))
 	close_btn.add_theme_stylebox_override("pressed", _make_flat_button_sb(COLOR_BG_DARKER))
 	close_btn.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	close_btn.offset_left = -100
+	close_btn.offset_left = -200
 	close_btn.offset_top = 10
 	close_btn.offset_right = -10
 	close_btn.offset_bottom = 44
@@ -661,8 +661,15 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 		no_lore.add_theme_color_override("font_color", COLOR_TEXT_DIM)
 		lore_scroll.add_child(no_lore)
 
-	# Add bottom section to the split
-	_profile_split.add_child(_bottom_vbox)
+	# Wrap the bottom section in a ScrollContainer so the VSplit can be
+	# dragged freely. Without this, the abilities row's natural minimum
+	# height anchors the bottom side and the top side gets squeezed.
+	var bottom_scroll = ScrollContainer.new()
+	bottom_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_profile_split.add_child(bottom_scroll)
+	bottom_scroll.add_child(_bottom_vbox)
 
 	# ── ABILITIES (in bottom split section) ──────────────────────────────
 	var abilities_pad = MarginContainer.new()

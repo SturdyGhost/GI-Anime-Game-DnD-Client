@@ -1437,6 +1437,13 @@ func _show_host_exit_confirm_popup() -> void:
 		_host_confirm_popup_active = false
 	)
 	confirm_btn.pressed.connect(func():
+		# Announce the graceful end to clients first so they go straight
+		# to the lobby with a friendly toast instead of burning 5 minutes
+		# in _attempt_reconnect. Brief await lets the reliable RPC flush
+		# before the ENet peer dies with the process.
+		if NetworkManager.is_host:
+			NetworkManager.broadcast_session_ending()
+			await get_tree().create_timer(0.3).timeout
 		get_tree().quit()
 	)
 

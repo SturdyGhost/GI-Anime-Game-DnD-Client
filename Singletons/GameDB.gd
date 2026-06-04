@@ -165,19 +165,34 @@ func _load_table(table_key: String, converter: Callable) -> void:
 	_register(table_key, resources)
 
 ## Load all .tres files from a folder, returning an array of Resources.
+##
+## Handles both editor and exported-build cases:
+##   - Editor: files appear as <name>.tres on disk.
+##   - Export: Godot converts each .tres to a binary resource and ships a
+##             <name>.tres.remap sidecar; the original .tres filename does
+##             not appear in DirAccess listings. We strip .remap and load
+##             via the original .tres path — load() follows the remap
+##             transparently. Without this stripping, exported builds
+##             enumerate zero resources and fall through to the JSON
+##             converter, which silently misses every .tres-only record
+##             (e.g., enemies added directly as .tres without round-tripping
+##             through the legacy JSON).
 func _load_folder(folder_path: String) -> Array:
 	var results = []
 	var dir = DirAccess.open(folder_path)
 	if dir == null:
 		return results
+	var seen: Dictionary = {}
 	dir.list_dir_begin()
 	var file_name = dir.get_next()
 	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var full_path = folder_path + file_name
-			var res = load(full_path)
-			if res != null:
-				results.append(res)
+		if not dir.current_is_dir():
+			var base = file_name.trim_suffix(".remap")
+			if base.ends_with(".tres") and not seen.has(base):
+				seen[base] = true
+				var res = load(folder_path + base)
+				if res != null:
+					results.append(res)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 	return results

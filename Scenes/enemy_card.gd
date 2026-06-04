@@ -273,12 +273,12 @@ func _build_ui() -> void:
 
 	# Name
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", _sf(18))
+	_name_label.add_theme_font_size_override("font_size", _sf(27))
 	_name_label.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name_label.custom_minimum_size.y = 24
 	var settings = LabelSettings.new()
-	settings.font_size = 18
+	settings.font_size = 27
 	var font = ThemeDB.fallback_font
 	if font:
 		settings.font = font
@@ -287,14 +287,14 @@ func _build_ui() -> void:
 
 	# Tier (own row)
 	_tier_label = Label.new()
-	_tier_label.add_theme_font_size_override("font_size", _sf(15))
+	_tier_label.add_theme_font_size_override("font_size", _sf(23))
 	_tier_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_tier_label.custom_minimum_size.y = 22
 	vbox.add_child(_tier_label)
 
 	# Phase
 	_phase_label = Label.new()
-	_phase_label.add_theme_font_size_override("font_size", _sf(15))
+	_phase_label.add_theme_font_size_override("font_size", _sf(23))
 	_phase_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_phase_label.custom_minimum_size.y = 22
 	_phase_label.visible = false
@@ -302,7 +302,7 @@ func _build_ui() -> void:
 
 	# Condition
 	_condition_label = Label.new()
-	_condition_label.add_theme_font_size_override("font_size", _sf(18))
+	_condition_label.add_theme_font_size_override("font_size", _sf(27))
 	_condition_label.add_theme_color_override("font_color", COLOR_GREEN)
 	_condition_label.custom_minimum_size.y = 24
 	vbox.add_child(_condition_label)
@@ -314,7 +314,7 @@ func _build_ui() -> void:
 
 	_shield_label = Label.new()
 	_shield_label.text = "Shielded"
-	_shield_label.add_theme_font_size_override("font_size", _sf(15))
+	_shield_label.add_theme_font_size_override("font_size", _sf(23))
 	_shield_label.add_theme_color_override("font_color", COLOR_BORDER_SHIELD)
 	_shield_label.custom_minimum_size.y = 22
 	_shield_label.visible = false
@@ -329,7 +329,7 @@ func _build_ui() -> void:
 	bottom.add_child(_element_icon)
 
 	_effects_label = Label.new()
-	_effects_label.add_theme_font_size_override("font_size", _sf(15))
+	_effects_label.add_theme_font_size_override("font_size", _sf(23))
 	_effects_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_effects_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	_effects_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL

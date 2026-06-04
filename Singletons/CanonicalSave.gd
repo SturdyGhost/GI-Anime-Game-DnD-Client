@@ -42,6 +42,19 @@ const PERSISTED_TABLES: Array = [
 	"ActiveEffects",
 ]
 
+## Pure battle-time runtime state. These tables live in `tables` (in-memory)
+## for sync purposes — clients still receive deltas via broadcast_field_updates
+## and new joiners still get a snapshot via _send_full_sync_to_peer — but they
+## are filtered out of disk writes, the snapshot payload sent to clients as
+## their offline-mode backup, and the periodic content-hash comparison. That
+## eliminates per-action save_to_disk thrash during battle and prevents the
+## periodic backup ping from firing on transient battle state.
+const EPHEMERAL_TABLES: Array = [
+	"BattleEnemies",
+	"Active_Status_Effects",
+	"Active_Abilities",
+]
+
 # In-memory state: { table_name: { record_id_str: record_dict } }
 var tables: Dictionary = {}
 
@@ -132,7 +145,7 @@ func save_to_disk() -> void:
 	var payload := {
 		"schema_version": SCHEMA_VERSION,
 		"last_saved_ms": Time.get_ticks_msec(),
-		"tables": tables,
+		"tables": _persisted_tables_view(),
 	}
 	var json_str := JSON.stringify(payload, "\t")
 
@@ -282,12 +295,14 @@ func _read_json_array(path: String) -> Array:
 
 # ── Snapshot for backup distribution (Phase 4) ─────────────────────────────
 
-## Produces a deep-copied payload suitable for RPC broadcasting.
+## Produces a deep-copied payload suitable for RPC broadcasting as a client's
+## offline-mode backup. Excludes EPHEMERAL_TABLES — a half-finished battle is
+## not resumable from a cold restart anyway.
 func snapshot() -> Dictionary:
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"last_saved_ms": Time.get_ticks_msec(),
-		"tables": tables.duplicate(true),
+		"tables": _persisted_tables_view(true),
 	}
 
 ## Fingerprint of the current canonical content (the `tables` dict only —
@@ -296,5 +311,19 @@ func snapshot() -> Dictionary:
 ## whether a given client is already up-to-date and can skip the full payload.
 ## Cheap to compute on demand at the ~5-min tick cadence; not cached because
 ## any mutator path would otherwise need to invalidate it.
+##
+## EPHEMERAL_TABLES are excluded so transient battle state doesn't bump the
+## hash and force every client to request a full backup mid-battle.
 func get_content_hash() -> String:
-	return JSON.stringify(tables).sha256_text()
+	return JSON.stringify(_persisted_tables_view()).sha256_text()
+
+## Returns a view of `tables` containing only durable (non-ephemeral) entries.
+## Pass `deep_copy = true` when the caller may serialize the result on a
+## background path or hold it across mutations (e.g., RPC broadcast).
+func _persisted_tables_view(deep_copy: bool = false) -> Dictionary:
+	var out: Dictionary = {}
+	for name in tables:
+		if name in EPHEMERAL_TABLES:
+			continue
+		out[name] = tables[name].duplicate(true) if deep_copy else tables[name]
+	return out

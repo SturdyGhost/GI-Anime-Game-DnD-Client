@@ -327,7 +327,7 @@ func _build_ui() -> void:
 	vbox.add_child(name_row)
 
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", _sf(16))
+	_name_label.add_theme_font_size_override("font_size", _sf(24))
 	_name_label.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_row.add_child(_name_label)
@@ -342,7 +342,7 @@ func _build_ui() -> void:
 
 	# Subtitle (companions only)
 	_subtitle_label = Label.new()
-	_subtitle_label.add_theme_font_size_override("font_size", _sf(13))
+	_subtitle_label.add_theme_font_size_override("font_size", _sf(20))
 	_subtitle_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_subtitle_label.custom_minimum_size.y = 20
 	_subtitle_label.visible = false
@@ -377,7 +377,7 @@ func _build_ui() -> void:
 
 	# HP text
 	_hp_text = Label.new()
-	_hp_text.add_theme_font_size_override("font_size", _sf(14))
+	_hp_text.add_theme_font_size_override("font_size", _sf(21))
 	_hp_text.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	vbox.add_child(_hp_text)
 
@@ -395,13 +395,13 @@ func _build_ui() -> void:
 	_shield_row.add_child(shield_icon)
 
 	_shield_label = Label.new()
-	_shield_label.add_theme_font_size_override("font_size", _sf(13))
+	_shield_label.add_theme_font_size_override("font_size", _sf(20))
 	_shield_label.add_theme_color_override("font_color", COLOR_BORDER_SHIELD)
 	_shield_row.add_child(_shield_label)
 
 	# Effects
 	_effects_label = Label.new()
-	_effects_label.add_theme_font_size_override("font_size", _sf(13))
+	_effects_label.add_theme_font_size_override("font_size", _sf(20))
 	_effects_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_effects_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	_effects_label.custom_minimum_size.y = 20
@@ -410,7 +410,7 @@ func _build_ui() -> void:
 	# Downed label
 	_downed_label = Label.new()
 	_downed_label.text = "DOWNED"
-	_downed_label.add_theme_font_size_override("font_size", _sf(14))
+	_downed_label.add_theme_font_size_override("font_size", _sf(21))
 	_downed_label.add_theme_color_override("font_color", COLOR_RED)
 	_downed_label.custom_minimum_size.y = 20
 	_downed_label.visible = false

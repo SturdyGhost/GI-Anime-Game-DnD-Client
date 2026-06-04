@@ -189,7 +189,7 @@ func _lbl(text: String, size: int = 14, color: Color = TEXT_PRIMARY, bold = fals
 	return l
 
 func _section_label(text: String) -> Label:
-	var l = _lbl(text, 13, TEXT_MUTED)
+	var l = _lbl(text, 32, TEXT_MUTED)
 	l.uppercase = true
 	return l
 
@@ -223,7 +223,7 @@ func _style_itemlist(il: ItemList) -> void:
 func _make_spinbox(prefix_text: String, max_val: int = 100) -> HBoxContainer:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	var lbl = _lbl(prefix_text, 14, TEXT_SECONDARY)
+	var lbl = _lbl(prefix_text, 32, TEXT_SECONDARY)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(lbl)
 	var spin = SpinBox.new()
@@ -1912,15 +1912,27 @@ func _on_stun_confirm():
 func check_battle_end():
 	if _battle_ending:
 		return
-	var all_enemies_dead = true
-	var all_players_down = true
 
-	for enemy in Global.BATTLEENEMIES.values():
+	# Strict semantics: an empty side does NOT mean "all dead" — it means
+	# we don't have data to judge. The battle ends only when there is at
+	# least one entity on a side AND every entity on that side is at 0 HP
+	# (Killed for enemies). Initializing both flags from .size() > 0
+	# guards against vacuous-true triggers during any moment when
+	# BATTLEENEMIES or PartyCharacters reads empty (sync race during
+	# the first end-of-turn broadcast, BattleManager momentarily inactive,
+	# stale clear between battles, etc.). Future Update_Records broadcasts
+	# will re-fire this check once the data populates.
+	var enemies: Array = Global.BATTLEENEMIES.values()
+	var players: Array = Global.PartyCharacters
+
+	var all_enemies_dead = enemies.size() > 0
+	for enemy in enemies:
 		if int(enemy.get("Current_Health", 1)) > 0 and not bool(enemy.get("Killed", false)):
 			all_enemies_dead = false
 			break
 
-	for player_name in Global.PartyCharacters:
+	var all_players_down = players.size() > 0
+	for player_name in players:
 		var char_id = Global.CHARACTERS_NAME.get(player_name, "")
 		if int(Global.CHARACTERS.get(char_id, {}).get("Current_Health", 1)) > 0:
 			all_players_down = false

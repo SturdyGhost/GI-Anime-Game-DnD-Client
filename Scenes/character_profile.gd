@@ -45,7 +45,22 @@ var _right_content: VBoxContainer
 var _portrait_rect: TextureRect
 var _portrait_grid_container: Control
 var _stats_container: VBoxContainer
-var _ally_modal: Control
+
+## Optional override. When set (non-empty) the profile renders the named
+## party member's data instead of the active user's. Set by _open_ally_modal
+## immediately after instantiate(), before add_child triggers _ready.
+var target_name: String = ""
+
+func _viewing_name() -> String:
+	return target_name if target_name != "" else Global.ACTIVE_USER_NAME
+
+func _viewing_record_id() -> int:
+	if target_name == "":
+		return Global.ACTIVE_USER_RECORD_ID
+	return _get_record_id_for(target_name)
+
+func _is_ally_view() -> bool:
+	return target_name != "" and target_name != Global.ACTIVE_USER_NAME
 
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 func _ready() -> void:
@@ -136,7 +151,7 @@ func _build_sidebar() -> PanelContainer:
 	margin.add_child(vbox)
 	scroll.add_child(margin)
 
-	var char_data = _get_my_character_data()
+	var char_data = _get_character_data_for(_viewing_name())
 
 	# Portrait
 	_portrait_rect = TextureRect.new()
@@ -181,26 +196,27 @@ func _build_sidebar() -> PanelContainer:
 	var element: String = char_data.get("Element", "")
 	if element != "":
 		badge_row.add_child(_make_badge(element, ELEMENT_COLORS.get(element, TEXT_SEC)))
-	var weapon_type = _get_equipped_weapon_type()
+	var weapon_type = _get_equipped_weapon_type_for(_viewing_name())
 	if weapon_type != "":
 		badge_row.add_child(_make_badge(weapon_type, TEXT_SEC))
 	vbox.add_child(badge_row)
 
-	# Change Portrait button
-	var change_btn = Button.new()
-	change_btn.text = "Change Portrait"
-	change_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_style_button(change_btn, BG_CARD)
-	change_btn.add_theme_font_size_override("font_size", FONT_SM)
-	change_btn.pressed.connect(_toggle_portrait_grid)
-	vbox.add_child(change_btn)
+	# Change Portrait button — hidden in ally view (can't edit someone else's portrait)
+	if not _is_ally_view():
+		var change_btn = Button.new()
+		change_btn.text = "Change Portrait"
+		change_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_style_button(change_btn, BG_CARD)
+		change_btn.add_theme_font_size_override("font_size", FONT_SM)
+		change_btn.pressed.connect(_toggle_portrait_grid)
+		vbox.add_child(change_btn)
 
-	# Portrait grid (hidden initially)
-	_portrait_grid_container = VBoxContainer.new()
-	_portrait_grid_container.visible = false
-	_portrait_grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_build_portrait_grid(_portrait_grid_container)
-	vbox.add_child(_portrait_grid_container)
+		# Portrait grid (hidden initially)
+		_portrait_grid_container = VBoxContainer.new()
+		_portrait_grid_container.visible = false
+		_portrait_grid_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_build_portrait_grid(_portrait_grid_container)
+		vbox.add_child(_portrait_grid_container)
 
 	# Separator
 	vbox.add_child(_make_separator())
@@ -213,24 +229,22 @@ func _build_sidebar() -> PanelContainer:
 	_populate_stats(_stats_container)
 	vbox.add_child(_stats_container)
 
-	# Separator
-	vbox.add_child(_make_separator())
-
-	# Party Members header
-	var party_title = _make_label("View Party Member Kits", FONT_MD, ACCENT)
-	vbox.add_child(party_title)
-
-	# List party members (players only, not companions)
-	for member_name in Global.PartyCharacters:
-		if member_name == Global.ACTIVE_USER_NAME:
-			continue
-		var btn = Button.new()
-		btn.text = member_name
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_style_button(btn, BG_CARD)
-		btn.add_theme_font_size_override("font_size", FONT_SM)
-		btn.pressed.connect(_open_ally_modal.bind(member_name))
-		vbox.add_child(btn)
+	# Party Members list — only on the active user's own profile, to avoid
+	# nested-window recursion and unnecessary noise on the ally view.
+	if not _is_ally_view():
+		vbox.add_child(_make_separator())
+		var party_title = _make_label("View Party Member Kits", FONT_MD, ACCENT)
+		vbox.add_child(party_title)
+		for member_name in Global.PartyCharacters:
+			if member_name == Global.ACTIVE_USER_NAME:
+				continue
+			var btn = Button.new()
+			btn.text = member_name
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			_style_button(btn, BG_CARD)
+			btn.add_theme_font_size_override("font_size", FONT_SM)
+			btn.pressed.connect(_open_ally_modal.bind(member_name))
+			vbox.add_child(btn)
 
 	return panel
 
@@ -295,9 +309,9 @@ func _refresh_right_content() -> void:
 	for c in _right_content.get_children():
 		c.queue_free()
 	match _current_tab:
-		0: _build_abilities_tab(_right_content, Global.ACTIVE_USER_NAME, Global.ACTIVE_USER_RECORD_ID)
-		1: _build_constellations_tab(_right_content, Global.ACTIVE_USER_NAME)
-		2: _build_talents_tab(_right_content, Global.ACTIVE_USER_NAME)
+		0: _build_abilities_tab(_right_content, _viewing_name(), _viewing_record_id())
+		1: _build_constellations_tab(_right_content, _viewing_name())
+		2: _build_talents_tab(_right_content, _viewing_name())
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -801,149 +815,29 @@ func _on_portrait_selected(path: String) -> void:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-#  ALLY KIT MODAL
+#  ALLY KIT VIEW
 # ═════════════════════════════════════════════════════════════════════════════
+## Open the ally's profile in its own fullscreen Window, using the same scene
+## as the active user's profile but with target_name set to the ally. Mirrors
+## the Window-wrapping pattern in player_hub._open_character_profile so the
+## ally view gets the same layout, close button, and tab content as the
+## first-person view.
 func _open_ally_modal(ally_name: String) -> void:
-	if _ally_modal and is_instance_valid(_ally_modal):
-		_ally_modal.queue_free()
-
-	_ally_modal = Control.new()
-	_ally_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_ally_modal)
-
-	# Dark overlay
-	var overlay = ColorRect.new()
-	overlay.color = Color(0, 0, 0, 0.7)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var overlay_btn = Button.new()
-	overlay_btn.flat = true
-	overlay_btn.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay_btn.pressed.connect(_close_ally_modal)
-	_ally_modal.add_child(overlay)
-	_ally_modal.add_child(overlay_btn)
-
-	# Centered panel
-	var panel = PanelContainer.new()
-	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	panel.offset_left = -420
-	panel.offset_top = -320
-	panel.offset_right = 420
-	panel.offset_bottom = 320
-	var sb = StyleBoxFlat.new()
-	sb.bg_color = BG_PANEL
-	sb.border_color = BORDER
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(10)
-	sb.content_margin_left = 0
-	sb.content_margin_right = 0
-	sb.content_margin_top = 0
-	sb.content_margin_bottom = 0
-	panel.add_theme_stylebox_override("panel", sb)
-	_ally_modal.add_child(panel)
-
-	var outer = VBoxContainer.new()
-	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer.set("theme_override_constants/separation", 0)
-	panel.add_child(outer)
-
-	# Header
-	var header_bg = PanelContainer.new()
-	header_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var hdr_sb = StyleBoxFlat.new()
-	hdr_sb.bg_color = BG_DEEP
-	hdr_sb.content_margin_left = 16
-	hdr_sb.content_margin_right = 16
-	hdr_sb.content_margin_top = 10
-	hdr_sb.content_margin_bottom = 10
-	header_bg.add_theme_stylebox_override("panel", hdr_sb)
-	outer.add_child(header_bg)
-
-	var header_row = HBoxContainer.new()
-	header_row.set("theme_override_constants/separation", 12)
-	header_bg.add_child(header_row)
-
-	# Ally info
-	var ally_char = _get_character_data_for(ally_name)
-	var ally_element: String = ally_char.get("Element", "")
-	var ally_weapon = _get_equipped_weapon_type_for(ally_name)
-
-	header_row.add_child(_make_label(ally_name, FONT_XL, TEXT_PRI))
-	if ally_element != "":
-		header_row.add_child(_make_badge(ally_element, ELEMENT_COLORS.get(ally_element, TEXT_SEC)))
-	if ally_weapon != "":
-		header_row.add_child(_make_badge(ally_weapon, TEXT_SEC))
-
-	# Spacer to push close button right
-	var spacer = Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_row.add_child(spacer)
-
-	var close_btn = Button.new()
-	close_btn.text = "X"
-	_style_button(close_btn, Color(0.6, 0.2, 0.2))
-	close_btn.add_theme_font_size_override("font_size", FONT_MD)
-	close_btn.pressed.connect(_close_ally_modal)
-	header_row.add_child(close_btn)
-
-	# Tabs for ally
-	var ally_tab_state = {"current": 0}
-	var ally_tab_buttons: Array[Button] = []
-
-	var ally_tab_bar = HBoxContainer.new()
-	ally_tab_bar.set("theme_override_constants/separation", 0)
-	var atb_bg = PanelContainer.new()
-	atb_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var atb_sb = StyleBoxFlat.new()
-	atb_sb.bg_color = BG_INSET
-	atb_sb.content_margin_left = 8
-	atb_sb.content_margin_right = 8
-	atb_sb.content_margin_top = 4
-	atb_sb.content_margin_bottom = 4
-	atb_bg.add_theme_stylebox_override("panel", atb_sb)
-	atb_bg.add_child(ally_tab_bar)
-	outer.add_child(atb_bg)
-
-	var ally_content = VBoxContainer.new()
-	ally_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	ally_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer.add_child(ally_content)
-
-	var ally_record_id = _get_record_id_for(ally_name)
-
-	var ally_tabs = ["Abilities", "Constellations", "Talents"]
-	for i in ally_tabs.size():
-		var btn = Button.new()
-		btn.text = ally_tabs[i]
-		btn.toggle_mode = true
-		btn.button_pressed = (i == 0)
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.add_theme_font_size_override("font_size", FONT_SM)
-		_style_tab_button(btn, i == 0)
-		btn.pressed.connect(func():
-			ally_tab_state["current"] = ally_tabs.find(btn.text)
-			for b in ally_tab_buttons:
-				var is_active = (b == btn)
-				b.button_pressed = is_active
-				_style_tab_button(b, is_active)
-			for c in ally_content.get_children():
-				c.queue_free()
-			match ally_tab_state["current"]:
-				0: _build_abilities_tab(ally_content, ally_name, ally_record_id)
-				1: _build_constellations_tab(ally_content, ally_name)
-				2: _build_talents_tab(ally_content, ally_name)
-		)
-		ally_tab_bar.add_child(btn)
-		ally_tab_buttons.append(btn)
-
-	# Default: show abilities
-	_build_abilities_tab(ally_content, ally_name, ally_record_id)
-
-
-func _close_ally_modal() -> void:
-	if _ally_modal and is_instance_valid(_ally_modal):
-		_ally_modal.queue_free()
-		_ally_modal = null
+	var s: PackedScene = preload("res://Scenes/character_profile.tscn")
+	var dlg = s.instantiate()
+	# Set target BEFORE add_child so _ready() sees it during _build_ui().
+	dlg.target_name = ally_name
+	var win := Window.new()
+	win.title = ally_name
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.close_requested.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -986,7 +880,7 @@ func _get_equipped_weapon_type_for(player_name: String) -> String:
 
 
 func _populate_stats(container: VBoxContainer) -> void:
-	var stats = CharacterManager.get_stats(Global.ACTIVE_USER_NAME)
+	var stats = CharacterManager.get_stats(_viewing_name())
 	if stats == null:
 		container.add_child(_make_label("No stats available.", FONT_SM, TEXT_MUT))
 		return
@@ -996,8 +890,8 @@ func _populate_stats(container: VBoxContainer) -> void:
 		["ATK", "%.0f" % stats.attack],
 		["DEF", "%.0f" % stats.defense],
 		["EM", "%.0f" % stats.elemental_mastery],
-		["Crit DMG", "%.0f%%" % stats.critical_damage],
-		["ER", "%.0f%%" % stats.energy_recharge],
+		["Crit DMG", "%.0f%%" % (stats.critical_damage * 100.0)],
+		["ER", "%.0f%%" % (stats.energy_recharge * 100.0)],
 	]
 	for pair in pairs:
 		var row = HBoxContainer.new()

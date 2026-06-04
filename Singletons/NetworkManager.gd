@@ -43,8 +43,20 @@ const ENET_OUT_BANDWIDTH = 104857600  # 100 MB/s
 # timeout (up to 60s) still owns actual disconnect.
 const HEARTBEAT_INTERVAL_SEC: float = 3.0
 const HEARTBEAT_STALE_MS: int = 9000
+# Health-state thresholds used by ConnectionStatusOverlay (and any UI that
+# queries get_host_health_state / get_self_health_state). "Stale" = warn,
+# "Critical" = visibly degraded (yellow → red).
+const HEALTH_STALE_MS: int = 5000
+const HEALTH_CRITICAL_MS: int = 15000
 var _heartbeat_timer: Timer = null
 var _last_pong_ms: Dictionary = {}  # peer_id -> Time.get_ticks_msec() of last pong
+# Client-side: when did we last hear from the host? Updated on _heartbeat_ping
+# arrival. Zero until the first ping lands.
+var _last_ping_from_host_ms: int = 0
+# Suppress the reconnect loop when the host announced an intentional shutdown
+# via broadcast_session_ending — clients then go straight to the lobby with a
+# friendly message instead of burning 5 minutes trying to reconnect.
+var _suppress_reconnect: bool = false
 
 # ─── Reconnect (LAN-aggressive) ─────────────────────────────────────────────
 const RECONNECT_FAST_INTERVAL_SEC: float = 1.0
@@ -291,6 +303,8 @@ func _on_heartbeat_tick() -> void:
 func _heartbeat_ping(host_ms: int) -> void:
 	if is_host:
 		return
+	# Record arrival so client UI can show "DM is healthy" based on staleness.
+	_last_ping_from_host_ms = Time.get_ticks_msec()
 	# Client echoes the host's timestamp back so host can measure roundtrip
 	# AND confirm peer liveness (the reliable ACK alone proves we're alive).
 	_heartbeat_pong.rpc_id(1, host_ms)
@@ -301,6 +315,56 @@ func _heartbeat_pong(_host_ms: int) -> void:
 		return
 	var sender: int = multiplayer.get_remote_sender_id()
 	_last_pong_ms[sender] = Time.get_ticks_msec()
+
+# ─── Health snapshot for the connection status overlay ───────────────────
+# Both helpers return: { "status": int (0=ok, 1=stale, 2=critical, -1=n/a),
+#                       "label": String — short user-facing description }
+
+## Client view: how healthy is the connection to the DM?
+func get_host_health_state() -> Dictionary:
+	if not is_connected_to_host:
+		return {"status": 2, "label": "Disconnected from DM"}
+	if _last_ping_from_host_ms == 0:
+		return {"status": 1, "label": "Waiting for DM..."}
+	var age_ms: int = Time.get_ticks_msec() - _last_ping_from_host_ms
+	if age_ms >= HEALTH_CRITICAL_MS:
+		return {"status": 2, "label": "DM unresponsive (%ds)" % (age_ms / 1000)}
+	if age_ms >= HEALTH_STALE_MS:
+		return {"status": 1, "label": "DM slow (%ds)" % (age_ms / 1000)}
+	return {"status": 0, "label": "DM connected"}
+
+## Host view: am I reachable? If every connected client has gone stale on
+## pong then it's likely I'M the one who has dropped (frozen process,
+## ethernet unplugged, etc.). Solo-host with zero clients is shown
+## informationally — not an error condition.
+func get_self_health_state() -> Dictionary:
+	if not is_host:
+		return {"status": -1, "label": ""}
+	if connected_players.is_empty():
+		return {"status": 1, "label": "No players connected"}
+	var now_ms: int = Time.get_ticks_msec()
+	var stale_count: int = 0
+	var critical_count: int = 0
+	var total: int = connected_players.size()
+	for peer_id in connected_players.keys():
+		var last: int = int(_last_pong_ms.get(peer_id, 0))
+		if last == 0:
+			stale_count += 1
+			continue
+		var age: int = now_ms - last
+		if age >= HEALTH_CRITICAL_MS:
+			critical_count += 1
+		elif age >= HEALTH_STALE_MS:
+			stale_count += 1
+	# Every connected client gone critical at once → likely YOUR network/process
+	# is the problem, not theirs. Flag accordingly.
+	if critical_count == total and total > 0:
+		return {"status": 2, "label": "You appear dropped (%d unreachable)" % total}
+	if critical_count > 0:
+		return {"status": 2, "label": "%d/%d players unreachable" % [critical_count, total]}
+	if stale_count > 0:
+		return {"status": 1, "label": "%d/%d players slow" % [stale_count, total]}
+	return {"status": 0, "label": "%d player%s connected" % [total, "" if total == 1 else "s"]}
 
 # ─── Periodic backup distribution (Phase 4) ──────────────────────────────
 # Host broadcasts the entire canonical save to all clients every
@@ -390,6 +454,20 @@ func _request_canonical_backup() -> void:
 		return
 	var sender_peer: int = multiplayer.get_remote_sender_id()
 	_send_canonical_backup_to_peer(sender_peer)
+
+## Host announces that the session is ending intentionally (DM clicked
+## "Confirm and exit" on the host close popup). Clients flip a flag so the
+## subsequent ENet disconnect is interpreted as a graceful end rather than
+## a network drop — no reconnect loop, friendly message instead.
+func broadcast_session_ending() -> void:
+	if not is_host:
+		return
+	_receive_host_session_ending.rpc()
+
+@rpc("authority", "reliable", "call_remote", 1)
+func _receive_host_session_ending() -> void:
+	_suppress_reconnect = true
+	Toast.notify("DM ended the session", Toast.INFO, 8.0)
 
 # ─── LAN DISCOVERY ───
 
@@ -597,10 +675,16 @@ func _on_connection_failed() -> void:
 	emit_signal("connection_failed")
 
 func _on_server_disconnected() -> void:
-	print("NetworkManager: Lost connection to host — attempting reconnect to %s:%d" % [_last_host_ip, _last_host_port])
 	is_connected_to_host = false
-	# Stop pinging into the void; reconnect will restart it on success.
 	_stop_heartbeat()
+	# If the host announced a graceful shutdown just before this disconnect,
+	# skip the reconnect loop. The toast was already shown by the RPC handler.
+	if _suppress_reconnect:
+		print("NetworkManager: Host ended session gracefully — returning to lobby")
+		_suppress_reconnect = false
+		_return_to_lobby()
+		return
+	print("NetworkManager: Lost connection to host — attempting reconnect to %s:%d" % [_last_host_ip, _last_host_port])
 	Toast.notify("Lost connection to host — reconnecting...", Toast.WARNING, 5.0)
 	if _last_host_ip != "":
 		_attempt_reconnect()

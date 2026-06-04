@@ -34,6 +34,7 @@ ResearchAPI="*res://Singletons/ResearchAPI.gd"
 System="*res://Singletons/System.gd"
 Toast="*res://Singletons/Toast.gd"
 OfflineChanges="*res://Singletons/OfflineChanges.gd"
+ConnectionStatusOverlay="*res://Singletons/ConnectionStatusOverlay.gd"
 
 [debug]
 
