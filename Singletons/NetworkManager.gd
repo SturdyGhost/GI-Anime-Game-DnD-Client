@@ -871,6 +871,35 @@ func _receive_field_updates(json_str: String) -> void:
 	Global._queue_offline_snapshot_save()
 	Global.emit_signal("data_load_complete")
 
+# ─── BATTLE-STATE SNAPSHOT (host -> client shells) ───
+# The host assembles the authoritative battle view (battler_data, turn bookkeeping,
+# and ability cooldowns once Phase 3 lands) and broadcasts it. Clients render the
+# snapshot instead of re-deriving battle state locally. Persistent entity facts
+# (HP, enemy rows) keep flowing through the table sync above.
+signal battle_state_received(snapshot: Dictionary)
+
+## Host: broadcast the current authoritative battle view to all clients.
+func broadcast_battle_state() -> void:
+	if not is_host:
+		return
+	_receive_battle_state.rpc(JSON.stringify(BattleManager.make_snapshot()))
+
+@rpc("authority", "reliable")
+func _receive_battle_state(json_str: String) -> void:
+	var snap = JSON.parse_string(json_str)
+	if snap == null or typeof(snap) != TYPE_DICTIONARY:
+		push_error("NetworkManager: failed to parse battle state snapshot")
+		return
+	BattleManager.apply_snapshot(snap)
+	battle_state_received.emit(snap)
+
+## Client -> host: request a fresh battle snapshot (e.g. on entering the scene).
+@rpc("any_peer", "reliable")
+func request_battle_state() -> void:
+	if not is_host:
+		return
+	broadcast_battle_state()
+
 # ─── CLIENT -> HOST REQUESTS ───
 
 ## Client submits offline changes to host on reconnect. Host reconciles each

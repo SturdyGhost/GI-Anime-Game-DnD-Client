@@ -124,6 +124,10 @@ func _ready():
 	else:
 		NetworkManager.damage_breakdown_received.connect(_on_damage_breakdown_received)
 		NetworkManager.battle_summary_received.connect(_on_battle_summary_received)
+		# Client shell: render the host's authoritative battle view from broadcasts,
+		# and ask for a fresh snapshot now that we've entered the scene.
+		NetworkManager.battle_state_received.connect(_on_battle_state_received)
+		NetworkManager.request_battle_state.rpc_id(1)
 
 	# Connect split container dragged signals to save layout
 	_outer_split.dragged.connect(func(_ofs): _save_layout())
@@ -159,6 +163,11 @@ func _disconnect_signals():
 		NetworkManager.damage_breakdown_received.disconnect(_on_damage_breakdown_received)
 	if NetworkManager.battle_summary_received.is_connected(_on_battle_summary_received):
 		NetworkManager.battle_summary_received.disconnect(_on_battle_summary_received)
+	if NetworkManager.battle_state_received.is_connected(_on_battle_state_received):
+		NetworkManager.battle_state_received.disconnect(_on_battle_state_received)
+	# Leaving the battle: drop the authoritative view so non-battle screens fall
+	# back to table-derived data.
+	BattleManager.clear_state()
 
 
 # =============================================================================
@@ -838,36 +847,48 @@ func _setup_turn_order():
 # =============================================================================
 
 func _build_battlers():
-	if Original_Order.size() > 0:
-		Global.BattlerData = BattlerState.build_all(Original_Order)
-		for battler_name in Global.BattlerData:
-			var entry: Dictionary = Global.BattlerData[battler_name]
-			var max_bc = null
-			for ability in entry.get("entity_current_ability_data", {}).values():
-				var cost = ability.get("charge_cost", 0)
-				if cost > 0:
-					if max_bc == null or cost > max_bc:
-						max_bc = cost
-			entry["max_burst_charges"] = max_bc
-		var ct = Global.Current_Party.get("Current_Turn")
-		if Global.BattlerData.has(ct):
-			Global.Current_Battler_Data = Global.BattlerData[ct]
-		if NetworkManager.is_host and Global.effect_processor == null:
-			Global.start_battle_effects(Global.BattlerData)
-			# Start battle logger
-			if _battle_logger == null:
-				_battle_logger = BattleLogger.new()
-				if battle_id == null or battle_id == "":
-					battle_id = str(Time.get_unix_time_from_system())
-				_battle_logger.start_battle(str(battle_id))
+	if Original_Order.size() == 0:
+		return
 
-		# Sync effects so all clients can see them immediately
-		if NetworkManager.is_host and Global.effect_processor:
-			Global.sync_active_effects()
+	# Client shells do NOT assemble battle state — they render the host's broadcast
+	# snapshot (applied into BattleManager via _receive_battle_state). Only the
+	# authoritative owner (host, or offline=self) builds battler_data.
+	if not (NetworkManager.is_host or Global.is_offline):
+		return
 
-		# Recalculate stats with effects and sync max/current health
-		if NetworkManager.is_host:
-			_sync_health_with_effects()
+	var bd: Dictionary = BattlerState.build_all(Original_Order)
+	for battler_name in bd:
+		var entry: Dictionary = bd[battler_name]
+		var max_bc = null
+		for ability in entry.get("entity_current_ability_data", {}).values():
+			var cost = ability.get("charge_cost", 0)
+			if cost > 0:
+				if max_bc == null or cost > max_bc:
+					max_bc = cost
+		entry["max_burst_charges"] = max_bc
+
+	# Adopt the assembled view as authoritative (sets BattleManager.active so the
+	# Global.BattlerData / Current_Battler_Data getters serve it).
+	BattleManager.set_host_view(bd, str(Global.Current_Party.get("Current_Turn", "")), turn_no)
+
+	if NetworkManager.is_host and Global.effect_processor == null:
+		Global.start_battle_effects(BattleManager.battler_data)
+		# Start battle logger
+		if _battle_logger == null:
+			_battle_logger = BattleLogger.new()
+			if battle_id == null or battle_id == "":
+				battle_id = str(Time.get_unix_time_from_system())
+			_battle_logger.start_battle(str(battle_id))
+
+	# Sync effects so all clients can see them immediately
+	if NetworkManager.is_host and Global.effect_processor:
+		Global.sync_active_effects()
+
+	# Recalculate stats with effects and sync max/current health
+	if NetworkManager.is_host:
+		_sync_health_with_effects()
+		# Broadcast the freshly-assembled authoritative view to client shells.
+		NetworkManager.broadcast_battle_state()
 
 
 # =============================================================================
@@ -925,6 +946,18 @@ func _on_data_load_complete():
 	# or PartyCharacters dicts. Offline mode acts as its own authority.
 	if NetworkManager.is_host or Global.is_offline:
 		check_battle_end()
+
+
+## Client shell: a fresh authoritative battle view arrived from the host. The
+## snapshot is already applied into BattleManager (Global.BattlerData serves it);
+## just re-render.
+func _on_battle_state_received(_snapshot: Dictionary) -> void:
+	if _battle_ending:
+		return
+	Current_Turn = Global.Current_Party.get("Current_Turn")
+	_setup_turn_order()
+	_refresh_all()
+	_update_dock_visibility()
 
 
 # =============================================================================

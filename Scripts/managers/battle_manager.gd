@@ -209,3 +209,47 @@ func _register_all_effects() -> void:
 
 func _rebuild_battler_data() -> void:
 	battler_data = BattlerState.build_all(turn_order)
+
+# ── Host-authoritative snapshot (broadcast to client shells) ──────────────────
+# The host owns battle state and assembles `battler_data`; clients render the
+# broadcast rather than re-deriving it. Persistent facts (enemy/character HP) keep
+# flowing through the synced tables; this snapshot carries the assembled view +
+# turn bookkeeping (and, via battler_data, ability cooldowns once Phase 3 lands).
+
+## Host: capture the current authoritative view as a JSON-safe dict.
+func make_snapshot() -> Dictionary:
+	return {
+		"turn_no": turn_no,
+		"current_turn": current_turn,
+		"battler_data": battler_data,
+	}
+
+## Client: adopt a snapshot received from the host. Sets `active` so the
+## Global.BattlerData / Current_Battler_Data getters serve this view.
+func apply_snapshot(snap: Dictionary) -> void:
+	if snap == null or typeof(snap) != TYPE_DICTIONARY:
+		return
+	# Monotonic guard: ignore stale/out-of-order snapshots.
+	var incoming_turn := int(snap.get("turn_no", 0))
+	if active and incoming_turn < turn_no:
+		return
+	turn_no = incoming_turn
+	current_turn = str(snap.get("current_turn", current_turn))
+	battler_data = snap.get("battler_data", {})
+	active = not battler_data.is_empty()
+
+## Host: adopt the locally-assembled view as authoritative.
+func set_host_view(p_battler_data: Dictionary, p_current_turn: String, p_turn_no: int) -> void:
+	battler_data = p_battler_data
+	current_turn = p_current_turn
+	turn_no = p_turn_no
+	active = not battler_data.is_empty()
+
+## Tear down battle view state (battle end / leaving the scene).
+func clear_state() -> void:
+	active = false
+	battler_data = {}
+	current_turn = ""
+	turn_no = 0
+	enemies.clear()
+	turn_order.clear()
