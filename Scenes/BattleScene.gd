@@ -1512,6 +1512,7 @@ func _setup_effects_display():
 
 	var b_name = str(Current_Turn) if Current_Turn != null else ""
 	var effects = Global.get_battler_effects(b_name)
+	print("[FX-DIAG] EFFECTS tab for '%s': get_battler_effects -> %d effect(s); _synced has ActiveEffects=%s" % [b_name, effects.size(), str(Global._synced.has("ActiveEffects"))])
 
 	var entries: Array = []
 	for fx in effects:

@@ -240,6 +240,7 @@ static func process_turn(input: Dictionary) -> Array:
 			})
 
 	# ── 8. Apply status effects from ability ─────────────────────────────────
+	print("[FX-DIAG] step8 gate: ability_empty=%s is_host=%s have_processor=%s effect_status=%s" % [str(ability_data.is_empty()), str(NetworkManager.is_host), str(Global.effect_processor != null), str(ability_data.get("effect_status", "<none>"))])
 	if not ability_data.is_empty() and NetworkManager.is_host and Global.effect_processor:
 		var raw_es = ability_data.get("effect_status", 0)
 		if raw_es != null and int(raw_es) > 0:
@@ -251,6 +252,7 @@ static func process_turn(input: Dictionary) -> Array:
 			var status_data = GameDB.status_effects.get(t_effect_status, null)
 			var status_name: String = status_data.name if status_data else "Status_%d" % t_effect_status
 			var status_effects: Array = StatusEffectsMap.get_effects(status_name)
+			print("[FX-DIAG] status_id=%d name='%s' StatusEffectsMap.get_effects -> %d effect(s), duration=%d, target=%s" % [t_effect_status, status_name, status_effects.size(), t_effect_status_duration, t_effect_status_target])
 
 			# Build list of who gets the effect
 			var effect_targets: Array = []

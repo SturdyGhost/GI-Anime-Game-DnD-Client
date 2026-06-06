@@ -503,9 +503,14 @@ func _apply_passive_statuses() -> void:
 ## Serialize and broadcast active effects to all clients.
 func sync_active_effects() -> void:
 	if effect_processor == null:
+		print("[FX-DIAG] sync_active_effects: effect_processor is NULL (nothing to sync)")
 		return
 	var effects_data = effect_processor.serialize_all()
 	_synced["ActiveEffects"] = effects_data
+	var _fx_counts := {}
+	for _b in effects_data:
+		_fx_counts[_b] = (effects_data[_b] as Array).size() if effects_data[_b] is Array else 0
+	print("[FX-DIAG] sync_active_effects: serialized effects for %d battler(s): %s (is_host=%s)" % [effects_data.size(), str(_fx_counts), str(NetworkManager.is_host)])
 	if NetworkManager.is_host:
 		var json_test = JSON.stringify(effects_data)
 		if json_test == null or json_test == "":
