@@ -810,6 +810,8 @@ func _apply_update_to_save(u: Dictionary) -> void:
 			_synced_name[table][str(value)] = str(rid)
 	elif table != "ActiveEffects":
 		push_warning("Global: field update for %s record %d dropped — record not in _synced" % [table, rid])
+		if table in ["Characters", "Companions"]:
+			printerr("[DMG-DIAG] DROPPED %s update rid=%d field=%s value=%s — record_id not found in _synced[%s] (keys: %s)" % [table, rid, field, str(value), table, str(_synced.get(table, {}).keys())])
 
 	# Sync local state for party-wide values regardless of SaveManager
 	if table == "Party" and field == "Current_Region":

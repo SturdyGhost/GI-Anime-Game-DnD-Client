@@ -922,6 +922,7 @@ func _sync_health_with_effects() -> void:
 			new_cur = calc_max
 		if new_cur < 0:
 			new_cur = 0
+		print("[DMG-DIAG] sync_health %s: stored_max=%d calc_max=%d cur=%d -> new=%d (THIS OVERWRITES Current_Health)" % [pname, stored_max, calc_max, cur_hp, new_cur])
 		updates.append({"table": "Characters", "record_id": int(cid), "field": "Max_Health", "value": calc_max})
 		updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": new_cur})
 	if updates.size() > 0:

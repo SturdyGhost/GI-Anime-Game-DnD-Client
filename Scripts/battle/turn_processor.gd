@@ -481,6 +481,7 @@ static func _resolve_damage(row_data: Dictionary, t_table: String, t_id, t_type:
 			"value": new_hp,
 		})
 		row_data["Current_Health"] = new_hp
+		print("[DMG-DIAG] %s rid=%d hp %d -> %d (dmg=%d, max=%d)" % [t_table, record_id, current_hp, new_hp, hp_damage, max_hp])
 
 		# If HP hit 0 from damage, mark as Skipped (and Killed for BattleEnemies)
 		if new_hp == 0 and t_type_lower in ["damage", "true damage"]:
