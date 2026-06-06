@@ -215,13 +215,10 @@ static func process_turn(input: Dictionary) -> Array:
 					_apply_immediate_effect(eff, fx_target_name2, updates)
 
 	# ── 6. Put ability on cooldown ───────────────────────────────────────────
-	if not ability_data.is_empty() and ability_data.get("cooldown", 0) > 0 and not active_ability_record.is_empty():
-		updates.append({
-			"table": "Active_Abilities",
-			"record_id": int(active_ability_record.get("id", 0)),
-			"field": "Ability_Cooldown",
-			"value": ability_data.get("cooldown"),
-		})
+	# Host-authoritative: remaining cooldown lives in BattleManager (keyed by the
+	# stable .tres ability id), not the Active_Abilities table. The actual set
+	# happens AFTER _process_cooldowns (step 8) so the just-used ability starts at
+	# its full duration and isn't decremented this turn.
 
 	# ── 7. Subtract burst charge cost ────────────────────────────────────────
 	if not ability_data.is_empty() and ability_data.get("charge_cost", 0) > 0:
@@ -292,7 +289,12 @@ static func process_turn(input: Dictionary) -> Array:
 		_gain_burst_charges(battler_name, burst_gained, updates, cost_already_subtracted)
 
 	# ── 11. Process cooldowns ────────────────────────────────────────────────
+	# Tick the acting battler's existing cooldowns down first...
 	_process_cooldowns(battler_name, updates)
+	# ...THEN put the just-used ability on cooldown at its full static duration, so
+	# it isn't decremented this turn (matches end-of-own-turn semantics).
+	if not ability_data.is_empty() and int(ability_data.get("cooldown", 0)) > 0:
+		BattleManager.put_on_cooldown(battler_name, int(ability_data.get("id", 0)), int(ability_data.get("cooldown", 0)))
 
 	# ── 12. Combat log ───────────────────────────────────────────────────────
 	var elements_applied: Array = elements_unique.keys()
@@ -585,37 +587,17 @@ static func _resolve_target(target_name: String) -> Dictionary:
 
 
 ## Tick effect durations and ability cooldowns for a battler at end of turn.
-static func _process_cooldowns(battler_name: String, updates: Array) -> void:
-	var battler_data: Dictionary = Global.BattlerData.get(battler_name, {})
-	var battler_type: String = battler_data.get("type", "")
-	var battler_id: int = int(battler_data.get("id", 0))
-
-	# For enemies, Active_Abilities uses the EnemyData.id, not the BattleEnemy record ID
-	var match_id: int = battler_id
-	if battler_type == "Enemy":
-		var enemy_def_id = battler_data.get("entity_data", {}).get("EnemyID")
-		if enemy_def_id != null:
-			match_id = int(enemy_def_id)
-
+## `_updates` is retained for call-site compatibility but no longer used (cooldowns
+## are tracked in BattleManager rather than appended as table updates).
+static func _process_cooldowns(battler_name: String, _updates: Array) -> void:
 	# Tick effect durations via processor (host only)
 	if NetworkManager.is_host and Global.effect_processor and battler_name != "":
 		Global.effect_processor.on_turn_end(battler_name)
 		Global.sync_active_effects()
 
-	# Subtract 1 turn from ability cooldowns
-	for entry in Global.ACTIVE_ABILITIES.values():
-		var _eid = entry.get("Entity_ID")
-		if _eid == null:
-			continue
-		if entry.get("Entity_Type") == battler_type \
-		and int(_eid) == int(match_id) \
-		and entry.get("Ability_Cooldown", 0) > 0:
-			updates.append({
-				"table": "Active_Abilities",
-				"record_id": int(entry.get("id", 0)),
-				"field": "Ability_Cooldown",
-				"value": int(entry.get("Ability_Cooldown", 0)) - 1,
-			})
+	# Subtract 1 turn from this battler's ability cooldowns (host-authoritative,
+	# tracked in BattleManager keyed by the stable .tres ability id).
+	BattleManager.tick_battler(battler_name)
 
 
 ## Subtract item from inventory when used.

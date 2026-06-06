@@ -70,8 +70,14 @@ static func _build_one(battler: String) -> Dictionary:
 		var ability_id = _i(aa.get("Ability_ID"))
 		var ability_def: AbilityData = GameDB.get_ability(ability_id)
 
+		# Inject the host-authoritative remaining cooldown (BattleManager) so the
+		# attack dropdown's "N turns left" reflects the live countdown rather than a
+		# table value. Duplicate so we never mutate the shared ACTIVE_ABILITIES dict.
+		var aa_view: Dictionary = aa.duplicate()
+		aa_view["Ability_Cooldown"] = BattleManager.remaining(battler, ability_id)
+
 		# Store in "all" collections
-		b_all_active_abilities[aa_id] = aa
+		b_all_active_abilities[aa_id] = aa_view
 		if ability_def:
 			b_all_ability_defs[str(ability_id)] = _ability_to_dict(ability_def)
 
@@ -84,7 +90,7 @@ static func _build_one(battler: String) -> Dictionary:
 			)
 		# Companions and enemies: all abilities are current
 		if passes_filter:
-			b_current_abilities[aa_id] = aa
+			b_current_abilities[aa_id] = aa_view
 			if ability_def:
 				b_current_ability_defs[str(ability_id)] = _ability_to_dict(ability_def)
 

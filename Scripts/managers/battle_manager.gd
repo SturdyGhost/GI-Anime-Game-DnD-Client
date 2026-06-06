@@ -18,6 +18,12 @@ var current_turn: String = ""
 var effect_processor: EffectProcessor = null
 var battler_data: Dictionary = {}     # battler_label → Dictionary (same shape as old BattlerData)
 
+# Remaining ability cooldowns, host-authoritative. battler_label → { ability_id: turns_left }.
+# Static cooldown LENGTH lives on AbilityData.cooldown (.tres); this is the live
+# countdown. Reaches clients via battler_data (assembled by BattlerState) in the
+# broadcast snapshot — no separate sync needed. Cleared at battle end.
+var cooldowns: Dictionary = {}
+
 # ── Lifecycle ────────────────────────────────────────────────────────────────
 
 func start_battle(enemy_list: Array, party_turn_order: Array) -> void:
@@ -253,3 +259,34 @@ func clear_state() -> void:
 	turn_no = 0
 	enemies.clear()
 	turn_order.clear()
+	cooldowns.clear()
+
+# ── Ability cooldowns (host-authoritative) ────────────────────────────────────
+
+## Put an ability on cooldown for `turns` (its static AbilityData.cooldown). Called
+## when the ability is used, AFTER tick_battler so it isn't decremented that turn.
+func put_on_cooldown(label: String, ability_id: int, turns: int) -> void:
+	if turns <= 0:
+		return
+	if not cooldowns.has(label):
+		cooldowns[label] = {}
+	cooldowns[label][ability_id] = turns
+
+## Decrement all of one battler's cooldowns by 1. Called at the END of that
+## battler's OWN turn (not every turn). Entries reaching 0 are removed.
+func tick_battler(label: String) -> void:
+	if not cooldowns.has(label):
+		return
+	var m: Dictionary = cooldowns[label]
+	for aid in m.keys():
+		var left: int = int(m[aid]) - 1
+		if left <= 0:
+			m.erase(aid)
+		else:
+			m[aid] = left
+	if m.is_empty():
+		cooldowns.erase(label)
+
+## Turns remaining before `ability_id` is usable for `label` (0 = ready).
+func remaining(label: String, ability_id: int) -> int:
+	return int(cooldowns.get(label, {}).get(ability_id, 0))
