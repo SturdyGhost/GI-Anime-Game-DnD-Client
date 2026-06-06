@@ -56,8 +56,9 @@ class_name AbilityData extends Resource
 @export var weapon_type: String = ""   # Sword, Claymore, Polearm, Bow, Catalyst
 @export var ability_type: String = ""  # "Basic Attack", "Charged Attack", "Skill", "Burst", "Passive"
 @export var kit_element: String = ""   # Which element kit this belongs to (separate from damage element)
-@export var active_ability_id: int = 0 # Preserved record ID for cooldown tracking compatibility
-@export var ability_cooldown: int = 0  # Runtime cooldown state
+# NOTE: runtime cooldown state and the old Active_Abilities link id used to live
+# here; both are gone. Static cooldown LENGTH is `cooldown` above; remaining
+# cooldown is host-tracked in BattleManager.
 
 static func _i(v) -> int:    return int(v) if v != null else 0
 static func _f(v) -> float:  return float(v) if v != null else 0.0

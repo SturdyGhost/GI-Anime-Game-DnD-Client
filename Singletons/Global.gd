@@ -327,18 +327,10 @@ var BATTLEENEMIES: Dictionary:
 
 var ACTIVE_ABILITIES: Dictionary:
 	get:
-		# Start with .tres-based abilities (source of truth for mappings)
-		var result = GameDB.build_active_abilities_table()
-		# Merge synced runtime state (cooldowns) on top
-		if _synced.has("Active_Abilities"):
-			for key in _synced["Active_Abilities"]:
-				var synced_entry = _synced["Active_Abilities"][key]
-				# Update cooldown state on matching entries
-				if result.has(key):
-					result[key]["Ability_Cooldown"] = synced_entry.get("Ability_Cooldown", 0)
-				else:
-					result[key] = synced_entry
-		return result
+		# Pure entity->ability mapping derived from the .tres catalog (source of
+		# truth). No synced-table overlay: there is no Active_Abilities table any
+		# more, and remaining cooldown lives in BattleManager (see Phase 3/4).
+		return GameDB.build_active_abilities_table()
 var ACTIVE_STATUS_EFFECTS: Dictionary:
 	get:
 		return _synced.get("Active_Status_Effects", {})
@@ -933,9 +925,9 @@ func _set_battle_enemy_field(e: BattleEnemy, field: String, value) -> void:
 		"Fog": e.fog = bool(value) if value != null else false
 
 # ── Data loading shim (used by NetworkManager) ──────────────────────────────
-var TABLES: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Active_Abilities","Active_Status_Effects","BattleEnemies","Game_Config","Minigames_Results"]
-var TABLES_TO_SAVE: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Game_Config","Minigames_Results","BattleEnemies","Active_Abilities","Active_Status_Effects"]
-var TABLES_TO_SYNC_OFTEN: Array = ["Characters","BattleEnemies","Companions","Active_Abilities","Active_Status_Effects"]
+var TABLES: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Active_Status_Effects","BattleEnemies","Game_Config","Minigames_Results"]
+var TABLES_TO_SAVE: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Game_Config","Minigames_Results","BattleEnemies","Active_Status_Effects"]
+var TABLES_TO_SYNC_OFTEN: Array = ["Characters","BattleEnemies","Companions","Active_Status_Effects"]
 
 func _process_table(table_name: String, records: Array) -> void:
 	# Stores every synced table into _synced so both host and client can read it.

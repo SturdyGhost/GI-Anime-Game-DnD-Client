@@ -34,7 +34,6 @@ const PERSISTED_TABLES: Array = [
 	"Talents",
 	"Constellations",
 	"Party",
-	"Active_Abilities",
 	"Active_Status_Effects",
 	"BattleEnemies",
 	"Game_Config",
@@ -52,7 +51,6 @@ const PERSISTED_TABLES: Array = [
 const EPHEMERAL_TABLES: Array = [
 	"BattleEnemies",
 	"Active_Status_Effects",
-	"Active_Abilities",
 ]
 
 # In-memory state: { table_name: { record_id_str: record_dict } }

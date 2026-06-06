@@ -115,7 +115,6 @@ func _get_global_dict(table_name: String) -> Dictionary:
 		"Constellations": return Global.CONSTELLATIONS
 		"Material_Caches": return Global.MATERIAL_CACHES
 		"Party": return Global.PARTY
-		"Active_Abilities": return Global.ACTIVE_ABILITIES
 		"Active_Status_Effects": return Global.ACTIVE_STATUS_EFFECTS
 		"Status_Effects": return Global.STATUS_EFFECTS
 		"Game_Config": return Global.GAME_CONFIG

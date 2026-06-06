@@ -573,9 +573,6 @@ func _validate_kit_abilities() -> void:
 				issues.append("%s (id %d): empty kit_element -> never matches the character's element, dropped from the battle dropdown" % [a.name, a.id])
 			if a.weapon_type == "":
 				issues.append("%s (id %d): empty weapon_type -> never matches the equipped weapon, dropped from the battle dropdown" % [a.name, a.id])
-			# Post-cleanup no Character ability should be unlinked; flag any regression.
-			if a.active_ability_id <= 0:
-				issues.append("%s (id %d): active_ability_id is 0 -> no link to its Active_Abilities row" % [a.name, a.id])
 	if issues.is_empty():
 		print("GameDB: kit ability validation passed")
 	else:
@@ -584,23 +581,23 @@ func _validate_kit_abilities() -> void:
 			push_warning("  ⚠ " + msg)
 			printerr("GameDB VALIDATION: " + msg)
 
-## Build the Active_Abilities table from .tres entity context fields.
-## Returns a Dictionary matching the shape consumers expect:
-##   { "record_id_str": { id, Entity_ID, Entity_Type, Ability_ID, Weapon_Type, Element, Ability_Type, Ability_Cooldown } }
+## Build the entity->ability mapping from the .tres catalog's entity-context
+## fields. This is a pure derived view (no persistence, no synced overlay); it
+## replaced the old Active_Abilities table. Keyed by the stable .tres ability id.
+## Remaining cooldown is NOT carried here — it lives in BattleManager and is
+## injected into battler_data by BattlerState.
+##   { "ability_id_str": { id, Entity_ID, Entity_Type, Ability_ID, Weapon_Type, Element, Ability_Type } }
 func build_active_abilities_table() -> Dictionary:
 	var result = {}
 	for a in abilities_by_entity.values():
-		# Use stored active_ability_id if available, otherwise generate from ability id
-		var record_id = a.active_ability_id if a.active_ability_id > 0 else a.id + 100000
-		result[str(record_id)] = {
-			"id": record_id,
+		result[str(a.id)] = {
+			"id": a.id,
 			"Entity_ID": a.entity_id,
 			"Entity_Type": a.entity_type,
 			"Ability_ID": a.id,
 			"Weapon_Type": a.weapon_type,
 			"Element": a.kit_element,
 			"Ability_Type": a.ability_type,
-			"Ability_Cooldown": a.ability_cooldown,
 		}
 	return result
 
