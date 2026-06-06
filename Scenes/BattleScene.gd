@@ -205,6 +205,12 @@ func _style_button(btn: Button, bg = BG_CARD, border = BORDER_SUBTLE, text_color
 	btn.add_theme_color_override("font_disabled_color", TEXT_MUTED)
 
 func _style_option(opt: OptionButton) -> void:
+	# Don't let a long item name dictate the control's width. Fill the column
+	# and clip the selected text with an ellipsis instead (full text on hover).
+	opt.fit_to_longest_item = false
+	opt.clip_text = true
+	opt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	opt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	opt.add_theme_font_size_override("font_size", 40)
 	opt.add_theme_color_override("font_color", TEXT_PRIMARY)
 	opt.add_theme_stylebox_override("normal", _sb(BG_INSET, BORDER_SUBTLE, 1, 4, Vector4(8, 4, 8, 4)))
@@ -213,6 +219,9 @@ func _style_option(opt: OptionButton) -> void:
 	opt.add_theme_stylebox_override("focus", _sb(BG_INSET, BORDER_FOCUS, 1, 4, Vector4(8, 4, 8, 4)))
 
 func _style_itemlist(il: ItemList) -> void:
+	# Clip long entries with an ellipsis rather than growing the list's width.
+	il.auto_width = false
+	il.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	il.add_theme_font_size_override("font_size", 40)
 	il.add_theme_color_override("font_color", TEXT_PRIMARY)
 	il.add_theme_color_override("font_selected_color", ACCENT)
@@ -1584,9 +1593,9 @@ func _restyle_tab(btn: Button, active: bool) -> void:
 
 func _on_end_turn_pressed():
 	var targets_input = []
-	# Results are in a GridContainer inside _results_container
+	# Results are in an HFlowContainer inside _results_container
 	for child in _results_container.get_children():
-		if child is GridContainer:
+		if child is HFlowContainer:
 			for card in child.get_children():
 				if not card.has_meta("target_name"):
 					continue
@@ -1763,13 +1772,15 @@ func _rebuild_target_rows() -> void:
 	for child in _results_container.get_children():
 		child.queue_free()
 
-	# Use a 2-column grid for results
-	var grid = GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 6)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_results_container.add_child(grid)
+	# Flow results cards left-to-right; wrap to a new row only when there's no
+	# horizontal room. HFlowContainer's min width is its widest single card (not
+	# N cards side-by-side), so the dock no longer balloons as targets are added.
+	# Overflow scrolls vertically via the parent ScrollContainer.
+	var flow = HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 6)
+	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_results_container.add_child(flow)
 
 	for item_idx in _target_list.get_selected_items():
 		var target_name = _target_list.get_item_text(item_idx)
@@ -1792,18 +1803,25 @@ func _rebuild_target_rows() -> void:
 			t_id = parts[-1]
 			has_shield = int(Global.BATTLEENEMIES.get(t_id, {}).get("Shield_Health", 0)) > 0
 
-		# Build compact card for this target
+		# Build compact card for this target. Fixed width so cards keep a
+		# consistent size and the flow can compute how many fit per row.
 		var card = PanelContainer.new()
 		card.add_theme_stylebox_override("panel", _sb(BG_CARD, BORDER_SUBTLE, 1, 4, Vector4(6, 4, 6, 4)))
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		grid.add_child(card)
+		card.custom_minimum_size.x = 240
+		flow.add_child(card)
 
 		var vbox = VBoxContainer.new()
 		vbox.add_theme_constant_override("separation", 2)
 		card.add_child(vbox)
 
-		# Target name header
-		vbox.add_child(_lbl(target_name, 14, ACCENT))
+		# Target name header — clip long names so they don't widen the card
+		# past its fixed width (full name shown on hover).
+		var name_lbl = _lbl(target_name, 14, ACCENT)
+		name_lbl.clip_text = true
+		name_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_lbl.tooltip_text = target_name
+		vbox.add_child(name_lbl)
 
 		# Use a compact GridContainer for the fields: 2 cols (label, input)
 		var fields = GridContainer.new()

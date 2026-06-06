@@ -159,7 +159,7 @@ func show_summary(summary: Dictionary) -> void:
 		challenge_desc.fit_content = true
 		challenge_desc.scroll_active = false
 		challenge_desc.text = "[center]%s[/center]" % challenge_text
-		challenge_desc.add_theme_font_size_override("normal_font_size", 14)
+		challenge_desc.add_theme_font_size_override("normal_font_size", 21)
 		challenge_desc.add_theme_color_override("default_color", COL_TEXT)
 		root_vbox.add_child(challenge_desc)
 		var quest_full: Dictionary = summary.get("challenge_quest_full", {})
@@ -295,7 +295,7 @@ func show_summary(summary: Dictionary) -> void:
 	btn.add_theme_color_override("font_color", COL_ACCENT)
 	btn.add_theme_color_override("font_hover_color", COL_ACCENT)
 	btn.add_theme_color_override("font_pressed_color", COL_ACCENT)
-	btn.add_theme_font_size_override("font_size", 27)
+	btn.add_theme_font_size_override("font_size", 41)
 	btn.pressed.connect(_on_continue)
 	btn_row.add_child(btn)
 
@@ -396,7 +396,8 @@ func _stat_row(grid: GridContainer, label_text: String, value_text: String,
 func _label(text: String, size: int, color: Color) -> Label:
 	var l = Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", maxi(size, 13))
+	# +50% on every baseline. Floor scaled in step: 13 → 20.
+	l.add_theme_font_size_override("font_size", maxi(int(round(size * 1.5)), 20))
 	l.add_theme_color_override("font_color", color)
 	return l
 

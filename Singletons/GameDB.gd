@@ -487,6 +487,7 @@ func _register(table_key: String, resources: Array) -> void:
 					abilities_by_entity[key] = a
 					entity_count += 1
 			print("GameDB: abilities_by_entity populated with %d entries (of %d total abilities)" % [entity_count, resources.size()])
+			_validate_kit_abilities()
 		"items":
 			items.clear(); items_by_name.clear()
 			for it in resources:
@@ -556,6 +557,32 @@ func get_artifact_set_bonuses(set_name: String) -> Array:
 
 func get_ability(ability_id: int) -> AbilityData:
 	return abilities.get(ability_id, null)
+
+## Validate entity-linked kit abilities for data defects that silently break the
+## battle attack dropdown. The dropdown only lists a Character's ability when its
+## kit_element AND weapon_type both match the character (see battler_state.gd),
+## so a blank field drops the ability with no error — exactly how Brian C.'s
+## Basic/Burst vanished. This surfaces that class of defect loudly at load.
+func _validate_kit_abilities() -> void:
+	var issues: Array[String] = []
+	for a in abilities_by_entity.values():
+		# kit_element/weapon_type matching only gates player Characters; companions
+		# and enemies bypass that filter, so blanks there are harmless.
+		if a.entity_type == "Character":
+			if a.kit_element == "":
+				issues.append("%s (id %d): empty kit_element -> never matches the character's element, dropped from the battle dropdown" % [a.name, a.id])
+			if a.weapon_type == "":
+				issues.append("%s (id %d): empty weapon_type -> never matches the equipped weapon, dropped from the battle dropdown" % [a.name, a.id])
+			# Post-cleanup no Character ability should be unlinked; flag any regression.
+			if a.active_ability_id <= 0:
+				issues.append("%s (id %d): active_ability_id is 0 -> no link to its Active_Abilities row" % [a.name, a.id])
+	if issues.is_empty():
+		print("GameDB: kit ability validation passed")
+	else:
+		push_warning("GameDB: %d kit ability data issue(s) detected:" % issues.size())
+		for msg in issues:
+			push_warning("  ⚠ " + msg)
+			printerr("GameDB VALIDATION: " + msg)
 
 ## Build the Active_Abilities table from .tres entity context fields.
 ## Returns a Dictionary matching the shape consumers expect:
