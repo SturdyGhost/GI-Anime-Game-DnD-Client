@@ -1764,33 +1764,6 @@ func _on_damage_breakdown_received(turn_input: Dictionary) -> void:
 	_show_damage_breakdown(turn_input)
 
 
-func _broadcast_damage_breakdown(input: Dictionary) -> void:
-	# Send the turn input to the acting player's client so they can show the breakdown
-	var battler_name: String = str(input.get("battler_name", ""))
-	var bd = Global.BattlerData.get(battler_name, {})
-	var b_type: String = str(bd.get("type", ""))
-
-	# Only broadcast player/companion turns to the owning player
-	if b_type == "Enemy":
-		return
-
-	# Find the peer ID for this player
-	var player_name: String = battler_name
-	if b_type == "Companion":
-		# Find the companion's owner
-		for c in Global.COMPANIONS.values():
-			if c.get("Name") == battler_name:
-				player_name = str(c.get("Owner", ""))
-				break
-
-	# Find peer ID by player name
-	for peer_id in NetworkManager.connected_players:
-		var info: Dictionary = NetworkManager.connected_players[peer_id]
-		if info.get("name") == player_name:
-			NetworkManager._send_damage_breakdown.rpc_id(peer_id, JSON.stringify(input))
-			break
-
-
 # =============================================================================
 #  Advance Turn
 # =============================================================================
