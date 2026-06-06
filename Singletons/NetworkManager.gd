@@ -1029,6 +1029,46 @@ func request_update(updates_json: String) -> void:
 			break
 	Global.emit_signal("data_load_complete")
 
+## Client -> host: submit a raw turn input for the host to resolve authoritatively.
+## The host owns all combat logic; clients only send their intended action and
+## render the resulting synced/broadcast state. SP path: BattleScene calls
+## host_resolve_turn directly; this RPC is the MP entry to the same function.
+@rpc("any_peer", "reliable")
+func request_process_turn(input_json: String) -> void:
+	if not is_host:
+		return
+	var sender_peer: int = multiplayer.get_remote_sender_id()
+	var actor: String = _actor_for_peer(sender_peer)
+	var input = JSON.parse_string(input_json)
+	if input == null or typeof(input) != TYPE_DICTIONARY:
+		push_error("NetworkManager: failed to parse request_process_turn")
+		return
+	# Authority guard: the sender must own the acting battler and it must be its turn.
+	var battler_name: String = str(input.get("battler_name", ""))
+	if not _peer_owns_battler(actor, battler_name):
+		push_warning("NetworkManager: rejected turn from %s for '%s' (not owner / not their turn)" % [actor, battler_name])
+		return
+	var scene = get_tree().get_first_node_in_group("battle_scene")
+	if scene == null:
+		push_error("NetworkManager: request_process_turn received but no battle scene on host")
+		return
+	scene.host_resolve_turn(input)
+
+## True if `actor_name` is allowed to act `battler_name` right now: it must be that
+## battler's turn, and the actor must own it (own character, or owner of the
+## companion). Enemies are host-controlled and never client-submittable.
+func _peer_owns_battler(actor_name: String, battler_name: String) -> bool:
+	if str(Global.Current_Party.get("Current_Turn", "")) != battler_name:
+		return false
+	if Global.PartyCharacters.has(battler_name):
+		return battler_name == actor_name
+	if Global.PartyCompanions.has(battler_name):
+		for c in Global.COMPANIONS.values():
+			if str(c.get("Name", "")) == battler_name:
+				return str(c.get("Owner", "")) == actor_name
+		return false
+	return false
+
 ## Resolve a peer_id to an actor string for ChangeLog auditing.
 ##   1 (host) -> "host"
 ##   any other -> the player's name as registered in connected_players, or "peer N"

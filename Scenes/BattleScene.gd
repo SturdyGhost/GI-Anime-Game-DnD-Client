@@ -102,6 +102,10 @@ func _ready():
 	_build_ui()
 	_apply_tooltip_theme()
 
+	# Host-authoritative turn resolution: the host's NetworkManager finds this
+	# scene via the group to run client-submitted turns (request_process_turn).
+	add_to_group("battle_scene")
+
 	# Connect signals
 	Global.connect("data_load_complete", _on_data_load_complete)
 	tree_exiting.connect(_disconnect_signals)
@@ -1631,22 +1635,39 @@ func _on_end_turn_pressed():
 		"turn_no": turn_no,
 	}
 
+	# Host-authoritative: the host resolves the turn. Host/offline run it directly;
+	# clients submit the raw input and the host resolves on their behalf.
+	# SP→MP migration: the `else` branch replaces a local process_turn call with an
+	# RPC to peer 1 (host); host_resolve_turn is the single resolution path.
+	if NetworkManager.is_host or Global.is_offline:
+		host_resolve_turn(input)
+	else:
+		NetworkManager.request_process_turn.rpc_id(1, JSON.stringify(input))
+
+
+## Host-authoritative turn resolution. Runs ONLY on the host (directly for
+## host-acted turns, or via NetworkManager.request_process_turn for client turns)
+## and in offline mode. Clients never run combat logic.
+func host_resolve_turn(input: Dictionary) -> void:
+	var targets_input: Array = input.get("targets", [])
 	var updates = TurnProcessor.process_turn(input)
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
-	# Show damage breakdown panel and broadcast to acting player
-	_show_damage_breakdown(input)
-	if not Global.is_offline:
-		_broadcast_damage_breakdown(input)
+	# Damage breakdown -> the acting player: send to their client, or show locally
+	# if the host itself controls the battler (own character / companion / enemy).
+	var battler_name: String = str(input.get("battler_name", ""))
+	var acting_peer: int = _peer_for_battler(battler_name)
+	if acting_peer > 1:
+		NetworkManager._send_damage_breakdown.rpc_id(acting_peer, JSON.stringify(input))
+	else:
+		_show_damage_breakdown(input)
 
-	# Log the turn — send to host for logging
+	# Detect kills from updates for the turn log: check both "Killed" field and HP
+	# dropping to 0, excluding enemies that had a phase transition in this batch.
 	var total_dmg = 0
-	var kills = []
 	for t in targets_input:
 		total_dmg += int(t.get("raw_damage", 0))
-	# Detect kills from updates: check both "Killed" field and HP dropping to 0
-	# Exclude enemies that had a phase transition (Phase field updated in same batch)
 	var phase_transitioned_ids = {}
 	for u in updates:
 		if u.get("table") == "BattleEnemies" and u.get("field") == "Phase":
@@ -1660,21 +1681,39 @@ func _on_end_turn_pressed():
 			killed_ids[rid] = true
 		if u.get("table") == "BattleEnemies" and u.get("field") == "Current_Health" and int(u.get("value", 1)) == 0:
 			killed_ids[rid] = true
+	var kills = []
 	for kid in killed_ids:
 		for e in Global.BATTLEENEMIES.values():
 			if str(e.get("id")) == kid:
 				kills.append(str(e.get("EnemyName", "")) + " " + kid)
 				break
 	var log_results = {"total_damage": total_dmg, "killed": kills, "reactions": []}
-	# Log the turn — host logs directly, clients send via NetworkManager RPC
-	if NetworkManager.is_host and _battle_logger:
+	if _battle_logger:
 		_battle_logger.log_turn(input, log_results)
-	elif not NetworkManager.is_host:
-		# Send turn log to host via NetworkManager (which has working cross-path RPCs)
-		var log_payload = {"type": "turn_log", "input": input, "results": log_results}
-		NetworkManager.host_combat_log(log_payload)
 
 	_advance_turn()
+
+
+## Returns the remote client peer id that owns `battler_name`, or -1 if the host
+## itself controls it (its own character, a companion it owns, or an enemy).
+func _peer_for_battler(battler_name: String) -> int:
+	var bd = Global.BattlerData.get(battler_name, {})
+	var b_type: String = str(bd.get("type", ""))
+	if b_type == "Enemy":
+		return -1
+	var player_name: String = battler_name
+	if b_type == "Companion":
+		for c in Global.COMPANIONS.values():
+			if c.get("Name") == battler_name:
+				player_name = str(c.get("Owner", ""))
+				break
+	if player_name == Global.ACTIVE_USER_NAME:
+		return -1
+	for peer_id in NetworkManager.connected_players:
+		var info: Dictionary = NetworkManager.connected_players[peer_id]
+		if info.get("name") == player_name:
+			return int(peer_id)
+	return -1
 
 
 func _show_damage_breakdown(input: Dictionary) -> void:
@@ -1724,14 +1763,16 @@ func _broadcast_damage_breakdown(input: Dictionary) -> void:
 # =============================================================================
 
 func _advance_turn():
-	if _turn_list.item_count < 2:
+	# Advance from the turn-order DATA, not the UI. Mirrors _refresh_turn_list's
+	# rotation: next turn is simply the entry after current in Original_Order
+	# (wrapping). Runs host-side only (called from host_resolve_turn).
+	if Original_Order.size() < 2:
 		return
-	var second_text = _turn_list.get_item_text(1)
-	# Strip the "⟶ " prefix if present
-	var next_name = second_text
-	if second_text.begins_with("⟶"):
-		next_name = second_text.substr(2)
-	next_name = next_name.strip_edges()
+	var current = str(Global.Current_Party.get("Current_Turn", ""))
+	var idx = Original_Order.find(current)
+	if idx < 0:
+		return
+	var next_name = str(Original_Order[(idx + 1) % Original_Order.size()])
 
 	turn_no += 1
 	var updates = [{
