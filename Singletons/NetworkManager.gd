@@ -1284,6 +1284,9 @@ func _handle_transfer_request(giver_peer: int, corr_id: String, receiver_name: S
 	var actor_for_log: String = _actor_for_peer(giver_peer)
 
 	# ── Phase 1: stage addition on receiver (don't touch giver yet) ────
+	# Perf: no disk persist here — the commit (or timeout rollback) flushes, and
+	# both are terminal. And broadcast only the receiver's changed record, not the
+	# whole Character_Items table.
 	var receiver_record = _find_item_record(receiver_name, item_name)
 	var receiver_record_id: int = -1
 	var receiver_had_existing: bool = (receiver_record != null)
@@ -1293,6 +1296,12 @@ func _handle_transfer_request(giver_peer: int, corr_id: String, receiver_name: S
 		var new_qty: int = old_qty + qty
 		Global._apply_local_update("Character_Items", str(receiver_record_id), "Quantity", new_qty)
 		ChangeLog.append_update(actor_for_log, "Character_Items", receiver_record_id, "Quantity", new_qty, old_qty)
+		broadcast_field_updates([{
+			"table": "Character_Items",
+			"record_id": receiver_record_id,
+			"field": "Quantity",
+			"value": new_qty,
+		}])
 	else:
 		var item_def = _find_master_item_def(item_name)
 		if item_def == null:
@@ -1310,8 +1319,7 @@ func _handle_transfer_request(giver_peer: int, corr_id: String, receiver_name: S
 		}
 		Global._insert_record("Character_Items", str(receiver_record_id), new_record)
 		ChangeLog.append_insert(actor_for_log, "Character_Items", receiver_record_id, new_record)
-	DataStore.persist_table("Character_Items")
-	broadcast_table_update("Character_Items")
+		broadcast_record_update("Character_Items", str(receiver_record_id), new_record)
 
 	# Track pending. Even if we commit immediately below, _commit_transfer expects this.
 	_pending_transfers[corr_id] = {
@@ -1360,6 +1368,10 @@ func _commit_transfer(corr_id: String, message: String) -> void:
 	var pending: Dictionary = _pending_transfers[corr_id]
 	_pending_transfers.erase(corr_id)
 
+	if pending.get("bulk", false):
+		_commit_bulk_transfer(corr_id, pending, message)
+		return
+
 	var giver_record_id: int = int(pending.get("giver_record_id", -1))
 	var qty: int = int(pending.get("qty", 0))
 	var actor_for_log: String = _actor_for_peer(int(pending.get("giver_peer", 0)))
@@ -1389,6 +1401,10 @@ func _on_transfer_timeout(corr_id: String) -> void:
 	var pending: Dictionary = _pending_transfers[corr_id]
 	_pending_transfers.erase(corr_id)
 
+	if pending.get("bulk", false):
+		_rollback_bulk_transfer(corr_id, pending)
+		return
+
 	var receiver_record_id: int = int(pending.get("receiver_record_id", -1))
 	var qty: int = int(pending.get("qty", 0))
 	if pending.get("receiver_had_existing", false):
@@ -1407,6 +1423,154 @@ func _on_transfer_timeout(corr_id: String) -> void:
 		corr_id,
 		false,
 		"%s didn't confirm receipt — transfer cancelled" % str(pending.get("receiver_name", "Receiver"))
+	)
+
+# ─── BULK ITEM TRANSFER (full-quantity, batched 2PC) ───────────────────────
+# Transfers the ENTIRE quantity of each named item from giver to receiver in a
+# SINGLE request — far fewer round-trips/persists/broadcasts than firing one
+# transfer per item. Same host-authoritative stage->ack->commit/rollback safety
+# as the single transfer, just batched under one correlation id. No per-item
+# quantity (always the full stack), so none of the single-transfer qty nuance.
+
+## Public entry: giver starts a bulk transfer of several items (full quantity each).
+func request_bulk_item_transfer(corr_id: String, receiver_name: String, item_names: Array) -> void:
+	if is_host:
+		_handle_bulk_transfer_request(1, corr_id, receiver_name, item_names)
+	else:
+		_rpc_request_bulk_item_transfer.rpc_id(1, corr_id, receiver_name, item_names)
+
+@rpc("any_peer", "reliable")
+func _rpc_request_bulk_item_transfer(corr_id: String, receiver_name: String, item_names: Array) -> void:
+	if not is_host:
+		return
+	_handle_bulk_transfer_request(multiplayer.get_remote_sender_id(), corr_id, receiver_name, item_names)
+
+func _handle_bulk_transfer_request(giver_peer: int, corr_id: String, receiver_name: String, item_names: Array) -> void:
+	var giver_name: String = Global.ACTIVE_USER_NAME if giver_peer == 1 else connected_players.get(giver_peer, {}).get("name", "")
+	if giver_name == "" or str(receiver_name).strip_edges() == "" or item_names.is_empty():
+		_send_transfer_result(giver_peer, corr_id, false, "Invalid bulk transfer")
+		return
+	if giver_name == receiver_name:
+		_send_transfer_result(giver_peer, corr_id, false, "Cannot give to yourself")
+		return
+	var actor_for_log: String = _actor_for_peer(giver_peer)
+
+	# ── Phase 1: stage every item the giver actually has onto the receiver ──
+	var staged: Array = []
+	var field_updates: Array = []
+	var seen := {}
+	for raw_name in item_names:
+		var item_name := str(raw_name)
+		if item_name == "" or seen.has(item_name):
+			continue
+		seen[item_name] = true
+		var giver_record = _find_item_record(giver_name, item_name)
+		if giver_record == null:
+			continue
+		var qty: int = int(giver_record.get("Quantity", 0))
+		if qty <= 0:
+			continue
+		var rr = _find_item_record(receiver_name, item_name)
+		var had: bool = rr != null
+		var rrid: int
+		if had:
+			rrid = int(rr.get("id"))
+			var oq: int = int(rr.get("Quantity", 0))
+			Global._apply_local_update("Character_Items", str(rrid), "Quantity", oq + qty)
+			ChangeLog.append_update(actor_for_log, "Character_Items", rrid, "Quantity", oq + qty, oq)
+			field_updates.append({"table": "Character_Items", "record_id": rrid, "field": "Quantity", "value": oq + qty})
+		else:
+			var item_def = _find_master_item_def(item_name)
+			if item_def == null:
+				continue
+			rrid = _next_id_for_table("Character_Items")
+			var nr := {
+				"id": rrid, "Owner": receiver_name, "Name": item_name, "Quantity": qty,
+				"Type": item_def.get("Type", ""), "Rarity": item_def.get("Rarity", ""),
+				"Description": item_def.get("Description", ""),
+			}
+			Global._insert_record("Character_Items", str(rrid), nr)
+			ChangeLog.append_insert(actor_for_log, "Character_Items", rrid, nr)
+			broadcast_record_update("Character_Items", str(rrid), nr)
+		staged.append({
+			"item_name": item_name, "qty": qty,
+			"giver_record_id": int(giver_record.get("id")),
+			"receiver_record_id": rrid, "receiver_had_existing": had,
+		})
+
+	if staged.is_empty():
+		_send_transfer_result(giver_peer, corr_id, false, "Nothing to transfer")
+		return
+
+	DataStore.persist_table("Character_Items")  # single flush for the whole batch
+	if not field_updates.is_empty():
+		broadcast_field_updates(field_updates)   # single batched broadcast
+
+	_pending_transfers[corr_id] = {
+		"bulk": true,
+		"giver_name": giver_name,
+		"giver_peer": giver_peer,
+		"receiver_name": receiver_name,
+		"items": staged,
+		"started_at_ms": Time.get_ticks_msec(),
+	}
+
+	var receiver_peer: int = _peer_id_for_player(receiver_name)
+	if receiver_peer == -1:
+		_commit_transfer(corr_id, "%s offline — %d item(s) will sync on reconnect" % [receiver_name, staged.size()])
+		return
+	if receiver_peer == 1:
+		_commit_transfer(corr_id, "Transferred %d item(s)" % staged.size())
+		return
+	_notify_received_bulk_transfer.rpc_id(receiver_peer, corr_id, staged.size(), giver_name)
+	var timer := get_tree().create_timer(TRANSFER_TIMEOUT_SEC)
+	timer.timeout.connect(_on_transfer_timeout.bind(corr_id))
+
+@rpc("authority", "reliable")
+func _notify_received_bulk_transfer(corr_id: String, count: int, giver_name: String) -> void:
+	Toast.notify("Received %d item(s) from %s" % [count, giver_name], Toast.SUCCESS)
+	_ack_received_transfer.rpc_id(1, corr_id)
+
+## Host: commit a bulk transfer — subtract the full staged quantity from the
+## giver for every item, in one persist + one batched broadcast.
+func _commit_bulk_transfer(corr_id: String, pending: Dictionary, message: String) -> void:
+	var actor_for_log: String = _actor_for_peer(int(pending.get("giver_peer", 0)))
+	var items_dict: Dictionary = Global._synced.get("Character_Items", {})
+	var field_updates: Array = []
+	for it in pending.get("items", []):
+		var grid: int = int(it.get("giver_record_id", -1))
+		var qty: int = int(it.get("qty", 0))
+		var grec = items_dict.get(str(grid), null)
+		if grec == null:
+			continue
+		var oq: int = int(grec.get("Quantity", 0))
+		var nq: int = max(0, oq - qty)
+		Global._apply_local_update("Character_Items", str(grid), "Quantity", nq)
+		ChangeLog.append_update(actor_for_log, "Character_Items", grid, "Quantity", nq, oq)
+		field_updates.append({"table": "Character_Items", "record_id": grid, "field": "Quantity", "value": nq})
+	DataStore.persist_table("Character_Items")
+	if not field_updates.is_empty():
+		broadcast_field_updates(field_updates)
+	_send_transfer_result(int(pending.get("giver_peer", 0)), corr_id, true, message)
+
+## Host: roll back a bulk transfer — undo every receiver-side staged add.
+func _rollback_bulk_transfer(corr_id: String, pending: Dictionary) -> void:
+	var items_dict: Dictionary = Global._synced.get("Character_Items", {})
+	for it in pending.get("items", []):
+		var rrid: int = int(it.get("receiver_record_id", -1))
+		var qty: int = int(it.get("qty", 0))
+		if it.get("receiver_had_existing", false):
+			var rec = items_dict.get(str(rrid), null)
+			if rec != null:
+				var cur: int = int(rec.get("Quantity", 0))
+				Global._apply_local_update("Character_Items", str(rrid), "Quantity", max(0, cur - qty))
+		else:
+			Global._remove_record("Character_Items", str(rrid))
+	DataStore.persist_table("Character_Items")
+	broadcast_table_update("Character_Items")
+	_send_transfer_result(
+		int(pending.get("giver_peer", 0)), corr_id, false,
+		"%s didn't confirm receipt — bulk transfer cancelled" % str(pending.get("receiver_name", "Receiver"))
 	)
 
 func _send_transfer_result(giver_peer: int, corr_id: String, success: bool, message: String) -> void:

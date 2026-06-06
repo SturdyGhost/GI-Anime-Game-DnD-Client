@@ -65,6 +65,13 @@ var _rarity_chips: Array = [] # [{btn: Button, label: String}]
 var _active_types: Array = ["All"]
 var _active_rarities: Array = ["Any Rarity"]
 
+# ---------- bulk transfer tab ----------
+var _bulk_type_container: HFlowContainer
+var _bulk_list: ItemList
+var _bulk_player_dropdown: OptionButton
+var _bulk_type_chips: Array = []
+var _bulk_active_types: Array = ["All"]
+
 # ============================================================
 #  READY — build entire UI tree
 # ============================================================
@@ -76,6 +83,10 @@ func _ready() -> void:
 	_load_owner_items()
 	_populate_player_dropdown()
 	_apply_filters_and_search()
+	# Bulk transfer tab (populated after items are loaded)
+	_build_bulk_type_chips()
+	_populate_bulk_dropdown()
+	_refresh_bulk_list()
 	_split.dragged.connect(func(_ofs): _save_layout())
 	_load_layout.call_deferred()
 
@@ -126,12 +137,20 @@ func _build_ui() -> void:
 	spacer.custom_minimum_size = Vector2(0, 8)
 	outer_vbox.add_child(spacer)
 
-	# --- split container ---
+	# --- tabs: Inventory (existing) + Bulk Transfer (new) ---
+	var tabs = TabContainer.new()
+	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	outer_vbox.add_child(tabs)
+
+	# --- split container (Inventory tab) ---
 	_split = HSplitContainer.new()
+	_split.name = "Inventory"
 	_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_split.split_offset = 380
-	outer_vbox.add_child(_split)
+	tabs.add_child(_split)
+	_build_bulk_tab(tabs)
 
 	# ===== LEFT PANE =====
 	var left_panel = PanelContainer.new()
@@ -348,6 +367,165 @@ func _build_rarity_chips() -> void:
 		_rarity_chip_container.add_child(btn)
 		_rarity_chips.append({"btn": btn, "label": chip_label})
 	_refresh_rarity_chip_styles()
+
+# ============================================================
+#  BULK TRANSFER TAB
+# ============================================================
+func _build_bulk_tab(tabs: TabContainer) -> void:
+	var panel = PanelContainer.new()
+	panel.name = "Bulk Transfer"
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = PANEL
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(16)
+	panel.add_theme_stylebox_override("panel", sb)
+	tabs.add_child(panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(vbox)
+
+	vbox.add_child(_make_section_label("Bulk Transfer — sends the FULL stack of each selected item"))
+
+	vbox.add_child(_make_section_label("Filter by Type"))
+	_bulk_type_container = HFlowContainer.new()
+	_bulk_type_container.add_theme_constant_override("h_separation", 4)
+	_bulk_type_container.add_theme_constant_override("v_separation", 4)
+	vbox.add_child(_bulk_type_container)
+
+	var sel_row = HBoxContainer.new()
+	sel_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(sel_row)
+	var sel_all = Button.new()
+	sel_all.text = "Select All"
+	_style_button(sel_all, CARD, TEXT)
+	sel_all.pressed.connect(_bulk_select_all)
+	sel_row.add_child(sel_all)
+	var clear_btn = Button.new()
+	clear_btn.text = "Clear"
+	_style_button(clear_btn, CARD, TEXT)
+	clear_btn.pressed.connect(func(): _bulk_list.deselect_all())
+	sel_row.add_child(clear_btn)
+
+	_bulk_list = ItemList.new()
+	_bulk_list.select_mode = ItemList.SELECT_MULTI
+	_bulk_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bulk_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_bulk_list.add_theme_font_size_override("font_size", 32)
+	vbox.add_child(_bulk_list)
+
+	var send_row = HBoxContainer.new()
+	send_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(send_row)
+	var to_lbl = Label.new()
+	to_lbl.text = "To:"
+	to_lbl.add_theme_color_override("font_color", TEXT)
+	send_row.add_child(to_lbl)
+	_bulk_player_dropdown = OptionButton.new()
+	_style_option_button(_bulk_player_dropdown)
+	_bulk_player_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	send_row.add_child(_bulk_player_dropdown)
+	var xfer = Button.new()
+	xfer.text = "Transfer Selected"
+	_style_button(xfer, ACCENT, Color.BLACK)
+	xfer.pressed.connect(_on_bulk_transfer_pressed)
+	send_row.add_child(xfer)
+
+## Build the bulk type-filter chips from the owner's actual item types.
+func _build_bulk_type_chips() -> void:
+	if _bulk_type_container == null:
+		return
+	for c in _bulk_type_container.get_children():
+		c.queue_free()
+	_bulk_type_chips.clear()
+	var types: Array = ["All"]
+	for it in _all_items_for_owner:
+		var t = str(it.get("type", ""))
+		if t != "" and not types.has(t):
+			types.append(t)
+	for t in types:
+		var chip = Button.new()
+		chip.text = t
+		chip.custom_minimum_size = Vector2(0, 32)
+		_style_chip(chip, t in _bulk_active_types)
+		chip.pressed.connect(_on_bulk_type_chip_pressed.bind(t))
+		_bulk_type_container.add_child(chip)
+		_bulk_type_chips.append({"btn": chip, "label": t})
+
+func _on_bulk_type_chip_pressed(chip_label: String) -> void:
+	if chip_label == "All":
+		_bulk_active_types = ["All"]
+	else:
+		if "All" in _bulk_active_types:
+			_bulk_active_types.erase("All")
+		if chip_label in _bulk_active_types:
+			_bulk_active_types.erase(chip_label)
+		else:
+			_bulk_active_types.append(chip_label)
+		if _bulk_active_types.is_empty():
+			_bulk_active_types = ["All"]
+	for entry in _bulk_type_chips:
+		_style_chip(entry["btn"], entry["label"] in _bulk_active_types)
+	_refresh_bulk_list()
+
+## Populate the multi-select list with the owner's items matching the type filter.
+func _refresh_bulk_list() -> void:
+	if _bulk_list == null:
+		return
+	_bulk_list.clear()
+	var filter_all: bool = "All" in _bulk_active_types
+	for it in _all_items_for_owner:
+		if int(it.get("qty", 0)) <= 0:
+			continue
+		if not filter_all and not (str(it.get("type", "")) in _bulk_active_types):
+			continue
+		var idx = _bulk_list.add_item("%s   x%d   (%s)" % [it.get("name", ""), int(it.get("qty", 0)), it.get("type", "")])
+		_bulk_list.set_item_metadata(idx, str(it.get("name", "")))
+
+func _bulk_select_all() -> void:
+	if _bulk_list == null:
+		return
+	for i in range(_bulk_list.item_count):
+		_bulk_list.select(i, false)
+
+func _populate_bulk_dropdown() -> void:
+	if _bulk_player_dropdown == null:
+		return
+	_bulk_player_dropdown.clear()
+	for pname in Global.CHARACTERS_NAME.keys():
+		if pname != Global.ACTIVE_USER_NAME and pname != "Chase":
+			_bulk_player_dropdown.add_item(pname)
+
+func _on_bulk_transfer_pressed() -> void:
+	if _bulk_player_dropdown == null or _bulk_player_dropdown.selected < 0:
+		Toast.notify("Pick a recipient", Toast.WARNING)
+		return
+	var receiver: String = _bulk_player_dropdown.get_item_text(_bulk_player_dropdown.selected)
+	var names: Array = []
+	for i in _bulk_list.get_selected_items():
+		var n = str(_bulk_list.get_item_metadata(i))
+		if n != "" and not names.has(n):
+			names.append(n)
+	if names.is_empty():
+		Toast.notify("Select at least one item", Toast.WARNING)
+		return
+
+	var popup = AcceptDialog.new()
+	popup.title = "Confirm Bulk Transfer"
+	popup.dialog_text = "Send the full stack of %d item(s) to %s?" % [names.size(), receiver]
+	popup.ok_button_text = "Transfer"
+	popup.add_cancel_button("Cancel")
+	popup.confirmed.connect(func():
+		var my_peer: int = multiplayer.get_unique_id() if multiplayer.multiplayer_peer != null else 0
+		var corr_id: String = "%d-%d-bulk" % [my_peer, Time.get_ticks_msec()]
+		NetworkManager.request_bulk_item_transfer(corr_id, receiver, names)
+		popup.queue_free()
+	)
+	popup.canceled.connect(func(): popup.queue_free())
+	add_child(popup)
+	popup.popup_centered()
 
 func _on_type_chip_pressed(chip_label: String) -> void:
 	if chip_label == "All":
