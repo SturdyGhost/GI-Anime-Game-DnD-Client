@@ -335,70 +335,43 @@ static func process_turn(input: Dictionary) -> Array:
 
 
 ## Apply element to a target. Returns { "reaction": bool, "current_element": String }.
+## Rules:
+##   - No element applied     -> apply the incoming element.
+##   - SAME element applied    -> keep it; no reaction, no change.
+##   - DIFFERENT element       -> reaction; the existing element is consumed (cleared).
 ## CRITICAL: Characters/Companions use "Applied_Element", BattleEnemies uses "AppliedElement".
 static func _apply_element(t_table: String, t_id, t_elem: String, updates: Array) -> Dictionary:
 	var result = {"reaction": false, "current_element": "None"}
 
+	var field: String
+	var rec: Dictionary
+	var key: String = str(t_id)
 	match t_table:
 		"Characters":
-			var key: String = str(t_id)
-			var rec: Dictionary = Global.CHARACTERS.get(key, {})
-			if rec.get("Applied_Element", "None") == "None":
-				updates.append({
-					"table": "Characters",
-					"record_id": int(t_id),
-					"field": "Applied_Element",
-					"value": t_elem,
-				})
-			else:
-				result["current_element"] = str(rec.get("Applied_Element", "None"))
-				result["reaction"] = true
-				updates.append({
-					"table": "Characters",
-					"record_id": int(t_id),
-					"field": "Applied_Element",
-					"value": "None",
-				})
-
+			field = "Applied_Element"
+			rec = Global.CHARACTERS.get(key, {})
 		"Companions":
-			var key: String = str(t_id)
-			var rec: Dictionary = Global.COMPANIONS.get(key, {})
-			if rec.get("Applied_Element", "None") == "None":
-				updates.append({
-					"table": "Companions",
-					"record_id": int(t_id),
-					"field": "Applied_Element",
-					"value": t_elem,
-				})
-			else:
-				result["current_element"] = str(rec.get("Applied_Element", "None"))
-				result["reaction"] = true
-				updates.append({
-					"table": "Companions",
-					"record_id": int(t_id),
-					"field": "Applied_Element",
-					"value": "None",
-				})
-
+			field = "Applied_Element"
+			rec = Global.COMPANIONS.get(key, {})
 		"BattleEnemies":
-			var key: String = str(t_id)
-			var rec: Dictionary = Global.BATTLEENEMIES.get(key, {})
-			if rec.get("AppliedElement", "None") == "None":
-				updates.append({
-					"table": "BattleEnemies",
-					"record_id": int(t_id),
-					"field": "AppliedElement",
-					"value": t_elem,
-				})
-			else:
-				result["current_element"] = str(rec.get("AppliedElement", "None"))
-				result["reaction"] = true
-				updates.append({
-					"table": "BattleEnemies",
-					"record_id": int(t_id),
-					"field": "AppliedElement",
-					"value": "None",
-				})
+			field = "AppliedElement"
+			rec = Global.BATTLEENEMIES.get(key, {})
+		_:
+			return result
+
+	var current: String = str(rec.get(field, "None"))
+
+	if current == "None":
+		# Nothing applied yet — apply the incoming element.
+		updates.append({"table": t_table, "record_id": int(t_id), "field": field, "value": t_elem})
+	elif current == t_elem:
+		# Same element re-applied — it persists, no reaction, no state change.
+		result["current_element"] = current
+	else:
+		# Different element — reaction; the existing element is consumed.
+		result["current_element"] = current
+		result["reaction"] = true
+		updates.append({"table": t_table, "record_id": int(t_id), "field": field, "value": "None"})
 
 	return result
 

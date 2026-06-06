@@ -946,6 +946,10 @@ func _on_data_load_complete():
 	# or PartyCharacters dicts. Offline mode acts as its own authority.
 	if NetworkManager.is_host or Global.is_offline:
 		check_battle_end()
+		# If the turn landed on a downed/killed battler, auto-skip their turn
+		# (host-authoritative). _advance_turn picks the next living battler.
+		if not _battle_ending and _is_battler_down(str(Current_Turn)):
+			_advance_turn()
 
 
 ## Client shell: a fresh authoritative battle view arrived from the host. The
@@ -1769,16 +1773,23 @@ func _on_damage_breakdown_received(turn_input: Dictionary) -> void:
 # =============================================================================
 
 func _advance_turn():
-	# Advance from the turn-order DATA, not the UI. Mirrors _refresh_turn_list's
-	# rotation: next turn is simply the entry after current in Original_Order
-	# (wrapping). Runs host-side only (called from host_resolve_turn).
+	# Advance from the turn-order DATA, not the UI. Next turn is the first entry
+	# after current in Original_Order (wrapping) that ISN'T downed/killed — a
+	# downed battler's turn is auto-skipped. Runs host-side only.
 	if Original_Order.size() < 2:
 		return
 	var current = str(Global.Current_Party.get("Current_Turn", ""))
 	var idx = Original_Order.find(current)
 	if idx < 0:
 		return
-	var next_name = str(Original_Order[(idx + 1) % Original_Order.size()])
+	var next_name = ""
+	for step in range(1, Original_Order.size() + 1):
+		var cand = str(Original_Order[(idx + step) % Original_Order.size()])
+		if not _is_battler_down(cand):
+			next_name = cand
+			break
+	if next_name == "":
+		return  # everyone is down — battle end is handled by check_battle_end
 
 	turn_no += 1
 	var updates = [{
@@ -1788,6 +1799,24 @@ func _advance_turn():
 		"value": next_name
 	}]
 	Global.Update_Records(updates)
+
+
+## True if a battler (by label) is downed/killed and should be skipped on its turn.
+func _is_battler_down(label: String) -> bool:
+	if Global.PartyCharacters.has(label):
+		var cid = Global.CHARACTERS_NAME.get(label, "")
+		return int(Global.CHARACTERS.get(cid, {}).get("Current_Health", 1)) <= 0
+	if Global.PartyCompanions.has(label):
+		var coid = Global.COMPANIONS_NAME.get(label, "")
+		return int(Global.COMPANIONS.get(coid, {}).get("Current_Health", 1)) <= 0
+	# Enemy: record id is the last space-separated token of the label.
+	var parts = label.split(" ")
+	if parts.size() == 0:
+		return false
+	var erec = Global.BATTLEENEMIES.get(str(parts[-1]), {})
+	if erec.is_empty():
+		return false
+	return int(erec.get("Current_Health", 1)) <= 0 or bool(erec.get("Killed", false))
 
 
 # =============================================================================
