@@ -69,6 +69,7 @@ var _active_rarities: Array = ["Any Rarity"]
 var _bulk_type_container: HFlowContainer
 var _bulk_list: ItemList
 var _bulk_player_dropdown: OptionButton
+var _bulk_transfer_btn: Button
 var _bulk_type_chips: Array = []
 var _bulk_active_types: Array = ["All"]
 
@@ -406,7 +407,7 @@ func _build_bulk_tab(tabs: TabContainer) -> void:
 	var clear_btn = Button.new()
 	clear_btn.text = "Clear"
 	_style_button(clear_btn, CARD, TEXT)
-	clear_btn.pressed.connect(func(): _bulk_list.deselect_all())
+	clear_btn.pressed.connect(func(): _bulk_list.deselect_all(); _update_bulk_transfer_button())
 	sel_row.add_child(clear_btn)
 
 	_bulk_list = ItemList.new()
@@ -414,6 +415,9 @@ func _build_bulk_tab(tabs: TabContainer) -> void:
 	_bulk_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_bulk_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_bulk_list.add_theme_font_size_override("font_size", 32)
+	# Plain left-click toggles/adds to the selection (no shift/ctrl needed).
+	_bulk_list.gui_input.connect(_on_bulk_list_input)
+	_bulk_list.multi_selected.connect(func(_i, _s): _update_bulk_transfer_button())
 	vbox.add_child(_bulk_list)
 
 	var send_row = HBoxContainer.new()
@@ -427,12 +431,13 @@ func _build_bulk_tab(tabs: TabContainer) -> void:
 	_style_option_button(_bulk_player_dropdown)
 	_bulk_player_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	send_row.add_child(_bulk_player_dropdown)
-	var xfer = Button.new()
-	xfer.text = "Transfer Selected"
+	_bulk_transfer_btn = Button.new()
+	_bulk_transfer_btn.text = "Transfer Selected"
 	# Match the regular tab's Give button styling exactly.
-	_style_button(xfer, INSET, ACCENT)
-	xfer.pressed.connect(_on_bulk_transfer_pressed)
-	send_row.add_child(xfer)
+	_style_button(_bulk_transfer_btn, INSET, ACCENT)
+	_bulk_transfer_btn.disabled = true  # enabled once at least one item is selected
+	_bulk_transfer_btn.pressed.connect(_on_bulk_transfer_pressed)
+	send_row.add_child(_bulk_transfer_btn)
 
 ## Build the bulk type-filter chips from the owner's actual item types.
 func _build_bulk_type_chips() -> void:
@@ -484,12 +489,37 @@ func _refresh_bulk_list() -> void:
 			continue
 		var idx = _bulk_list.add_item("%s   x%d   (%s)" % [it.get("name", ""), int(it.get("qty", 0)), it.get("type", "")])
 		_bulk_list.set_item_metadata(idx, str(it.get("name", "")))
+	# Re-applying the filter clears selection, so the transfer button resets too.
+	_update_bulk_transfer_button()
 
 func _bulk_select_all() -> void:
 	if _bulk_list == null:
 		return
 	for i in range(_bulk_list.item_count):
 		_bulk_list.select(i, false)
+	_update_bulk_transfer_button()
+
+## Plain left-click toggles an item in/out of the multi-selection without clearing
+## the rest (so users don't need shift/ctrl). Shift+click still does range select.
+func _on_bulk_list_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if Input.is_key_pressed(KEY_SHIFT):
+			return  # let the default range-select handle shift+click
+		var idx = _bulk_list.get_item_at_position(event.position, true)
+		if idx < 0:
+			return
+		if _bulk_list.is_selected(idx):
+			_bulk_list.deselect(idx)
+		else:
+			_bulk_list.select(idx, false)  # false = add to selection, don't clear others
+		_update_bulk_transfer_button()
+		_bulk_list.accept_event()  # suppress default single-select
+
+## Enable Transfer Selected only when at least one item is selected.
+func _update_bulk_transfer_button() -> void:
+	if _bulk_transfer_btn == null:
+		return
+	_bulk_transfer_btn.disabled = _bulk_list == null or _bulk_list.get_selected_items().is_empty()
 
 func _populate_bulk_dropdown() -> void:
 	if _bulk_player_dropdown == null:
