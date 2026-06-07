@@ -274,60 +274,6 @@ func _on_expeditions_button_pressed() -> void:
 
 	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
-func _process_expedition_returns() -> void:
-	var assignments: Dictionary = Global.get("_expedition_assignments")
-	if not assignments is Dictionary or assignments.is_empty():
-		return
-	var pool: Array = Global.get("_expedition_pool")
-	if not pool is Array or pool.is_empty():
-		return
-	var results: Array = []
-	for idx_key in assignments:
-		var idx = int(idx_key)
-		if idx >= pool.size():
-			continue
-		var exp = ExpeditionData.from_dict(pool[idx])
-		var comp_name: String = str(assignments[idx_key])
-		var comp_data: Dictionary = {}
-		for comp in Global.COMPANIONS.values():
-			if str(comp.get("Name", "")) == comp_name:
-				comp_data = comp
-				break
-		if comp_data.is_empty():
-			continue
-		var loot = ExpeditionManager.process_results(exp, comp_data)
-		results.append({"expedition": exp.expedition_name, "companion": comp_name, "loot": loot})
-		for mat_name in loot:
-			_upsert_expedition_loot(comp_name, mat_name, loot[mat_name])
-	Global._expedition_results = results
-	Global._expedition_assignments = {}
-	Global._expedition_pool = []
-
-func _upsert_expedition_loot(owner_name: String, mat_name: String, qty: int) -> void:
-	if owner_name == "" or owner_name == "null":
-		return
-	if qty <= 0:
-		return
-	# Match existing item — same pattern as DMHub._process_items
-	for record_id in Global.CHARACTER_ITEMS.keys():
-		var rec: Dictionary = Global.CHARACTER_ITEMS[record_id]
-		if str(rec.get("Owner", "")) == owner_name and str(rec.get("Name", "")) == mat_name:
-			var old_qty: int = int(float(rec.get("Quantity", 0)))
-			Global.Update_Records([{
-				"table": "Character_Items",
-				"record_id": str(int(record_id)),
-				"field": "Quantity",
-				"value": old_qty + qty
-			}])
-			return
-	var item_def = GameDB.items_by_name.get(mat_name, null)
-	Global.Insert("Character_Items",
-		["Owner", "Name", "Quantity", "Type", "Description", "Rarity"],
-		[owner_name, mat_name, qty,
-		item_def.type if item_def else "Material",
-		item_def.description if item_def else "",
-		item_def.rarity if item_def else "Common"])
-
 func _show_offline_indicator() -> void:
 	var indicator = Label.new()
 	indicator.name = "OfflineIndicator"

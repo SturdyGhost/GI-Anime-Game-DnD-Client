@@ -48,15 +48,24 @@ func _load_state() -> void:
 			_expedition_pool = ExpeditionManager.generate_pool(Global.Current_Region)
 			_save_state()
 
+	var party_has_assignments: bool = party != null and party.has("Expedition_Assignments")
 	if assign_json != "":
 		var parsed = JSON.parse_string(assign_json)
 		if parsed is Dictionary:
 			_assignments = parsed
-
-	if _assignments.is_empty():
+	elif not party_has_assignments:
+		# Only fall back to local state when the synced Party record has NO
+		# assignment field yet (true first load). A present-but-empty field means
+		# assignments were explicitly cleared (e.g. after a battle) — respect that
+		# instead of resurrecting stale local assignments (which would leave
+		# companions still showing in slots after every battle).
 		var saved_assignments = Global.get("_expedition_assignments")
 		if saved_assignments is Dictionary:
 			_assignments = saved_assignments.duplicate()
+
+	# Keep the local copy in step with a cleared synced state.
+	if _assignments.is_empty():
+		Global._expedition_assignments = {}
 
 	var results = Global.get("_expedition_results")
 	if results is Array:
