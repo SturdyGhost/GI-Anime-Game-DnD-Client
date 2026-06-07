@@ -1,15 +1,15 @@
 [gd_scene load_steps=11 format=3 uid="uid://chcaa1gjm820j"]
 
-[ext_resource type="Texture2D" uid="uid://bbk2ph8fwu0yh" path="res://UI/Feather Icon.png" id="1_huc8g"]
+[ext_resource type="Texture2D" uid="uid://dw6v2j1n3p1gr" path="res://UI/Feather Icon.png" id="1_huc8g"]
 [ext_resource type="Script" uid="uid://c0agvolemfkrv" path="res://Scenes/enemy_card_compact.gd" id="1_ikjvj"]
-[ext_resource type="Texture2D" uid="uid://b0u0h27bm71sw" path="res://UI/Element Icons/Wind.png" id="2_ikjvj"]
+[ext_resource type="Texture2D" uid="uid://j5jaaxjqiaf4" path="res://UI/Element Icons/Wind.png" id="2_ikjvj"]
 [ext_resource type="StyleBox" uid="uid://b4jayqrl2ppb7" path="res://UI/Dark Blue Panel.tres" id="2_qdjow"]
-[ext_resource type="Texture2D" uid="uid://ca75b07at4n7s" path="res://UI/Element Icons/Earth.png" id="3_qdjow"]
-[ext_resource type="Texture2D" uid="uid://br5oyqj50y8ct" path="res://UI/Element Icons/Electric.png" id="4_i4dux"]
-[ext_resource type="Texture2D" uid="uid://bi16ayppmc5r4" path="res://UI/Element Icons/Nature.png" id="5_y2fa5"]
-[ext_resource type="Texture2D" uid="uid://240yfhdyt5dv" path="res://UI/Element Icons/Water.png" id="6_ldobs"]
-[ext_resource type="Texture2D" uid="uid://cl4pew40oldhh" path="res://UI/Element Icons/Fire.png" id="7_vlhct"]
-[ext_resource type="Texture2D" uid="uid://w1qqq4pdqmhl" path="res://UI/Element Icons/Ice.png" id="8_xxto4"]
+[ext_resource type="Texture2D" uid="uid://rkh5oopkfg6k" path="res://UI/Element Icons/Earth.png" id="3_qdjow"]
+[ext_resource type="Texture2D" uid="uid://devjgwn5fq2ht" path="res://UI/Element Icons/Electric.png" id="4_i4dux"]
+[ext_resource type="Texture2D" uid="uid://okmi71u6gwbd" path="res://UI/Element Icons/Nature.png" id="5_y2fa5"]
+[ext_resource type="Texture2D" uid="uid://ffp6rnrt8kom" path="res://UI/Element Icons/Water.png" id="6_ldobs"]
+[ext_resource type="Texture2D" uid="uid://besk36i0sk7d7" path="res://UI/Element Icons/Fire.png" id="7_vlhct"]
+[ext_resource type="Texture2D" uid="uid://8gwvtyl3hous" path="res://UI/Element Icons/Ice.png" id="8_xxto4"]
 
 [node name="EnemyCardCompact" type="Control"]
 layout_mode = 3

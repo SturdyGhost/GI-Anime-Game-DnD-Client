@@ -1433,15 +1433,21 @@ func _on_transfer_timeout(corr_id: String) -> void:
 # quantity (always the full stack), so none of the single-transfer qty nuance.
 
 ## Public entry: giver starts a bulk transfer of several items (full quantity each).
+## Item list is sent as a JSON string (same proven pattern as request_update) to
+## avoid any Array-over-RPC serialization edge cases. Offline = process locally.
 func request_bulk_item_transfer(corr_id: String, receiver_name: String, item_names: Array) -> void:
-	if is_host:
+	if is_host or Global.is_offline:
 		_handle_bulk_transfer_request(1, corr_id, receiver_name, item_names)
 	else:
-		_rpc_request_bulk_item_transfer.rpc_id(1, corr_id, receiver_name, item_names)
+		_rpc_request_bulk_item_transfer.rpc_id(1, corr_id, receiver_name, JSON.stringify(item_names))
 
 @rpc("any_peer", "reliable")
-func _rpc_request_bulk_item_transfer(corr_id: String, receiver_name: String, item_names: Array) -> void:
+func _rpc_request_bulk_item_transfer(corr_id: String, receiver_name: String, names_json: String) -> void:
 	if not is_host:
+		return
+	var item_names = JSON.parse_string(names_json)
+	if typeof(item_names) != TYPE_ARRAY:
+		push_error("NetworkManager: failed to parse bulk transfer item list")
 		return
 	_handle_bulk_transfer_request(multiplayer.get_remote_sender_id(), corr_id, receiver_name, item_names)
 

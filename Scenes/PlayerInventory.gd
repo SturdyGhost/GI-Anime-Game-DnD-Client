@@ -429,7 +429,8 @@ func _build_bulk_tab(tabs: TabContainer) -> void:
 	send_row.add_child(_bulk_player_dropdown)
 	var xfer = Button.new()
 	xfer.text = "Transfer Selected"
-	_style_button(xfer, ACCENT, Color.BLACK)
+	# Match the regular tab's Give button styling exactly.
+	_style_button(xfer, INSET, ACCENT)
 	xfer.pressed.connect(_on_bulk_transfer_pressed)
 	send_row.add_child(xfer)
 
