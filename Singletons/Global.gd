@@ -995,8 +995,27 @@ func Refresh_Data(table_list: Array) -> void:
 func _apply_local_update(table_name: String, record_id: String, field: String, value) -> void:
 	_apply_update_to_save({"table": table_name, "record_id": int(record_id), "field": field, "value": value})
 
+## Single-record UPSERT (add or replace just this one record). Must NOT clear the
+## rest of the table — that is what broadcast_record_update relies on. (Whole-table
+## replacement is _process_table, used only for full-table syncs.)
 func _apply_record_update(table_name: String, record_id: String, data: Dictionary) -> void:
-	_process_table(table_name, [data])
+	if typeof(data) != TYPE_DICTIONARY:
+		return
+	if not _synced.has(table_name):
+		_synced[table_name] = {}
+	var rid: int = int(data.get("id", record_id))
+	data["id"] = rid
+	# Clean up legacy bracketed item names (mirrors _process_table).
+	if table_name == "Character_Items" and data.has("Name"):
+		var n := str(data["Name"])
+		if n.begins_with("[") or n.ends_with("]"):
+			data["Name"] = n.trim_prefix("[").trim_suffix("]")
+	_synced[table_name][str(rid)] = data
+	if data.has("Name"):
+		if not _synced_name.has(table_name):
+			_synced_name[table_name] = {}
+		_synced_name[table_name][str(data["Name"])] = str(rid)
+	_queue_offline_snapshot_save()
 	CharacterManager.recalculate_all()
 	emit_signal("data_load_complete")
 
