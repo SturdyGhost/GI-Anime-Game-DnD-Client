@@ -51,7 +51,7 @@ var _stun_title: Label
 var _stun_text: Label
 var _stun_btn: Button
 var _audio: AudioStreamPlayer
-var _ability_info_box: HFlowContainer
+var _ability_info_box: Control  # manual flow layout (see _reflow_ability_chips)
 var _attack_tab: VBoxContainer
 var _effects_tab: VBoxContainer
 var _stats_tab: VBoxContainer
@@ -521,9 +521,13 @@ func _build_ui():
 	ability_col.add_child(_attack_select)
 
 	# Element + stat chip row below dropdown
-	_ability_info_box = HFlowContainer.new()
-	_ability_info_box.add_theme_constant_override("h_separation", 6)
-	_ability_info_box.add_theme_constant_override("v_separation", 4)
+	# Plain Control (NOT HFlowContainer): we lay pills out manually in
+	# _reflow_ability_chips so a pill can shrink/ellipsize below its text width.
+	# An HFlowContainer sizes children to their minimum, which would force the
+	# column min to the widest pill — the exact thing we want to avoid.
+	_ability_info_box = Control.new()
+	_ability_info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ability_info_box.clip_contents = true
 	_ability_info_box.visible = false
 	_ability_info_box.resized.connect(_reflow_ability_chips)
 	ability_col.add_child(_ability_info_box)
@@ -1408,6 +1412,7 @@ func _on_attack_option_changed(_idx: int) -> void:
 
 	_ability_info_box.visible = true
 	_reflow_ability_chips()
+	_reflow_ability_chips.call_deferred()  # again after layout assigns a real width
 
 func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	var panel = PanelContainer.new()
@@ -1429,29 +1434,47 @@ func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	lbl.clip_text = true
 	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	panel.add_child(lbl)
-	# Record the pill's natural (unclipped) width. _reflow_ability_chips caps each
-	# pill to the row width: pills keep natural width (so the HFlowContainer wraps
-	# them to new rows first), and only a pill wider than the panel gets clipped.
+	# Record the pill's natural (unclipped) width for the manual flow layout. We do
+	# NOT set custom_minimum_size.x — the pill must be able to shrink below its
+	# text width (the clipped label has ~0 min) so it never forces the column min.
 	var f = lbl.get_theme_font("font")
 	var natural_w := 0.0
 	if f != null:
 		natural_w = f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 36).x
 	natural_w += 18.0  # content margins (8+8) + border slack
 	panel.set_meta("natural_w", natural_w)
-	panel.custom_minimum_size.x = natural_w
 	return panel
 
-## Cap each ability pill to the current row width so a lone over-wide pill
-## ellipsizes (pills otherwise keep natural width and wrap via the HFlowContainer).
+## Manual flow layout for the ability pills. Each pill is drawn at min(natural,
+## available) width and wrapped to a new row when it doesn't fit — so pills move to
+## extra rows first, and a lone pill wider than the panel is clipped (its label
+## ellipsizes). The container reports ~0 width min, so pills never force the column.
 func _reflow_ability_chips() -> void:
 	if _ability_info_box == null:
 		return
 	var avail: float = _ability_info_box.size.x
 	if avail <= 0.0:
 		return
+	const H_SEP := 6.0
+	const V_SEP := 4.0
+	var x := 0.0
+	var y := 0.0
+	var row_h := 0.0
 	for chip in _ability_info_box.get_children():
-		if chip is PanelContainer and chip.has_meta("natural_w"):
-			chip.custom_minimum_size.x = minf(float(chip.get_meta("natural_w")), avail)
+		if not (chip is Control):
+			continue
+		var nat: float = float(chip.get_meta("natural_w", 80.0))
+		var w: float = minf(nat, avail)
+		if x > 0.0 and x + w > avail:  # wrap to next row
+			x = 0.0
+			y += row_h + V_SEP
+			row_h = 0.0
+		var ch: float = chip.get_combined_minimum_size().y
+		chip.position = Vector2(x, y)
+		chip.size = Vector2(w, ch)
+		row_h = maxf(row_h, ch)
+		x += w + H_SEP
+	_ability_info_box.custom_minimum_size.y = y + row_h
 
 # =============================================================================
 #  Target Selection

@@ -301,7 +301,9 @@ func _build_ui() -> void:
 	base_style.content_margin_bottom = 10
 	add_theme_stylebox_override("panel", base_style)
 	custom_minimum_size = Vector2(264, 0)
-	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	# Fill the column width (matches the widest element, e.g. the quest text) so
+	# all cards are uniform width rather than shrinking to their own content.
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	# Root HBox: portrait | info column
 	var hbox = HBoxContainer.new()
