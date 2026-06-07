@@ -586,11 +586,17 @@ func _validate_kit_abilities() -> void:
 ## replaced the old Active_Abilities table. Keyed by the stable .tres ability id.
 ## Remaining cooldown is NOT carried here — it lives in BattleManager and is
 ## injected into battler_data by BattlerState.
-##   { "ability_id_str": { id, Entity_ID, Entity_Type, Ability_ID, Weapon_Type, Element, Ability_Type } }
+## Keyed by the UNIQUE "EntityType|EntityID|AbilityID" composite (abilities_by_entity's
+## own key). NOT by ability id alone: shared "default charged attack" abilities reuse
+## the same ability id across many entities (e.g. id 266 across 11 characters), so
+## keying by id would collapse them to one entry and drop everyone but the last —
+## which is what made Ayaka's charged attack disappear.
+##   { "EntityType|EntityID|AbilityID": { id, Entity_ID, Entity_Type, Ability_ID, Weapon_Type, Element, Ability_Type } }
 func build_active_abilities_table() -> Dictionary:
 	var result = {}
-	for a in abilities_by_entity.values():
-		result[str(a.id)] = {
+	for key in abilities_by_entity:
+		var a = abilities_by_entity[key]
+		result[key] = {
 			"id": a.id,
 			"Entity_ID": a.entity_id,
 			"Entity_Type": a.entity_type,

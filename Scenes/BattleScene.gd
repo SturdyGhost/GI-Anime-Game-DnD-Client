@@ -525,6 +525,7 @@ func _build_ui():
 	_ability_info_box.add_theme_constant_override("h_separation", 6)
 	_ability_info_box.add_theme_constant_override("v_separation", 4)
 	_ability_info_box.visible = false
+	_ability_info_box.resized.connect(_reflow_ability_chips)
 	ability_col.add_child(_ability_info_box)
 
 	# Right side of left split: center + right in another HSplit
@@ -1406,6 +1407,7 @@ func _on_attack_option_changed(_idx: int) -> void:
 			_ability_info_box.add_child(_make_info_chip(part, fx_color))
 
 	_ability_info_box.visible = true
+	_reflow_ability_chips()
 
 func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	var panel = PanelContainer.new()
@@ -1423,8 +1425,33 @@ func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", Color(color, 1.0).lightened(0.3))
 	lbl.add_theme_font_size_override("font_size", 36)
+	# Let a pill ellipsize when it must shrink below its text width.
+	lbl.clip_text = true
+	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	panel.add_child(lbl)
+	# Record the pill's natural (unclipped) width. _reflow_ability_chips caps each
+	# pill to the row width: pills keep natural width (so the HFlowContainer wraps
+	# them to new rows first), and only a pill wider than the panel gets clipped.
+	var f = lbl.get_theme_font("font")
+	var natural_w := 0.0
+	if f != null:
+		natural_w = f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 36).x
+	natural_w += 18.0  # content margins (8+8) + border slack
+	panel.set_meta("natural_w", natural_w)
+	panel.custom_minimum_size.x = natural_w
 	return panel
+
+## Cap each ability pill to the current row width so a lone over-wide pill
+## ellipsizes (pills otherwise keep natural width and wrap via the HFlowContainer).
+func _reflow_ability_chips() -> void:
+	if _ability_info_box == null:
+		return
+	var avail: float = _ability_info_box.size.x
+	if avail <= 0.0:
+		return
+	for chip in _ability_info_box.get_children():
+		if chip is PanelContainer and chip.has_meta("natural_w"):
+			chip.custom_minimum_size.x = minf(float(chip.get_meta("natural_w")), avail)
 
 # =============================================================================
 #  Target Selection

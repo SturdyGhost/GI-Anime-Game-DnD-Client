@@ -330,6 +330,8 @@ func _build_ui() -> void:
 	_name_label.add_theme_font_size_override("font_size", _sf(24))
 	_name_label.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
 	_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_name_label.clip_text = true
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_row.add_child(_name_label)
 
 	_element_icon = TextureRect.new()
@@ -340,11 +342,15 @@ func _build_ui() -> void:
 	_element_icon.visible = false
 	name_row.add_child(_element_icon)
 
-	# Subtitle (companions only)
+	# Subtitle (companions only) — clip with an ellipsis so a long owner name
+	# (e.g. "Brian C.'s companion") doesn't widen the card.
 	_subtitle_label = Label.new()
 	_subtitle_label.add_theme_font_size_override("font_size", _sf(20))
 	_subtitle_label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	_subtitle_label.custom_minimum_size.y = 20
+	_subtitle_label.clip_text = true
+	_subtitle_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_subtitle_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_subtitle_label.visible = false
 	vbox.add_child(_subtitle_label)
 
