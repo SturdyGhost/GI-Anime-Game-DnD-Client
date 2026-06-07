@@ -80,5 +80,3 @@ entity_name = "Brian F."
 weapon_type = "Bow"
 ability_type = "Charged Attack"
 kit_element = "Nature"
-active_ability_id = 21
-ability_cooldown = 0

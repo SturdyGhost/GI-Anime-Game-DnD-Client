@@ -756,7 +756,7 @@ func _build_ui():
 		quest_tag.mouse_filter = Control.MOUSE_FILTER_STOP
 		stats_box.add_child(quest_tag)
 
-	var my_stats_title = _lbl("MY STATS", 13, TEXT_MUTED)
+	var my_stats_title = _lbl("MY STATS", 26, TEXT_MUTED)
 	my_stats_title.uppercase = true
 	stats_box.add_child(my_stats_title)
 
@@ -775,7 +775,7 @@ func _build_ui():
 	fx_box.add_theme_constant_override("separation", 2)
 	_info_split.add_child(fx_box)
 
-	var my_fx_title = _lbl("MY EFFECTS", 13, TEXT_MUTED)
+	var my_fx_title = _lbl("MY EFFECTS", 26, TEXT_MUTED)
 	my_fx_title.uppercase = true
 	fx_box.add_child(my_fx_title)
 
@@ -1163,14 +1163,15 @@ func _refresh_my_stats():
 	for stat in stats_to_show:
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
+		# Name yields/ellipsizes; the value keeps its natural width so the number
+		# is always visible (never pushed off the right edge of the column).
 		var name_lbl = _lbl(stat[0], 26, TEXT_MUTED)
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_lbl.clip_text = true
 		name_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		row.add_child(name_lbl)
 		var val_lbl = _lbl(stat[1], 26, TEXT_PRIMARY)
-		val_lbl.clip_text = true
-		val_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row.add_child(val_lbl)
 		_my_stats_container.add_child(row)
 

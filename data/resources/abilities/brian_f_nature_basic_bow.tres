@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=4 format=3 uid="uid://f36vt0x63ind"]
 
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_1ab2n"]
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_giq1v"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_1ab2n"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_giq1v"]
 
 [sub_resource type="Resource" id="Resource_1ab2n"]
 script = ExtResource("1_1ab2n")
@@ -28,7 +28,7 @@ description = "If target Rooted, +2 damage"
 script = ExtResource("1_giq1v")
 id = 385
 name = "Brian F. – Basic"
-element = "Nature"
+element = "Physical"
 description = "Attack within 10 tiles. Move up to 1 tile after. If target Rooted, +2 damage."
 dice_count = 1
 dice_die = 12
@@ -80,5 +80,3 @@ entity_name = "Brian F."
 weapon_type = "Bow"
 ability_type = "Basic Attack"
 kit_element = "Nature"
-active_ability_id = 1
-ability_cooldown = 0
