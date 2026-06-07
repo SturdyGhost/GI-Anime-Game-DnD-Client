@@ -43,14 +43,17 @@ func _build_ui() -> void:
 	_layer.layer = 100
 	add_child(_layer)
 
+	# Center the badge along the TOP edge of the screen, across all scenes. A
+	# full-width CenterContainer strip at the top keeps it horizontally centered
+	# regardless of the panel's (content-driven) width.
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	center.offset_top = 8
+	center.offset_bottom = 52
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_layer.add_child(center)
+
 	_panel = PanelContainer.new()
-	_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	# Sit below the typical "Close" button row (~50px tall) and far enough
-	# left to not overlap a wide title bar.
-	_panel.offset_left = -340
-	_panel.offset_top = 56
-	_panel.offset_right = -14
-	_panel.offset_bottom = 96
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.08, 0.10, 0.14, 0.88)
@@ -62,7 +65,7 @@ func _build_ui() -> void:
 	sb.content_margin_top = 6
 	sb.content_margin_bottom = 6
 	_panel.add_theme_stylebox_override("panel", sb)
-	_layer.add_child(_panel)
+	center.add_child(_panel)
 
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 10)

@@ -1163,10 +1163,15 @@ func _refresh_my_stats():
 	for stat in stats_to_show:
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
-		var name_lbl = _lbl(stat[0], 13, TEXT_MUTED)
+		var name_lbl = _lbl(stat[0], 26, TEXT_MUTED)
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_lbl.clip_text = true
+		name_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		row.add_child(name_lbl)
-		row.add_child(_lbl(stat[1], 13, TEXT_PRIMARY))
+		var val_lbl = _lbl(stat[1], 26, TEXT_PRIMARY)
+		val_lbl.clip_text = true
+		val_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		row.add_child(val_lbl)
 		_my_stats_container.add_child(row)
 
 func _get_max_burst_cost(char_name: String) -> int:
@@ -1210,8 +1215,10 @@ func _refresh_my_effects():
 
 		var name_text = "%s%s %s%s" % [marker, dur_str, fx.get("source_name", "?"), stacks_str]
 
-		var lbl = _lbl(name_text, 13, label_color)
+		var lbl = _lbl(name_text, 26, label_color)
 		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+		lbl.clip_text = true
+		lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 		lbl.tooltip_text = "%s (%s)\n%s" % [
 			fx.get("source_name", ""), fx.get("source_type", ""), _wrap_text(desc, 80)
@@ -1426,6 +1433,9 @@ func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	sb.content_margin_top = 2
 	sb.content_margin_bottom = 2
 	panel.add_theme_stylebox_override("panel", sb)
+	# Full text on hover, in case the pill is shrunk/ellipsized.
+	panel.tooltip_text = text
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	var lbl = Label.new()
 	lbl.text = text
 	lbl.add_theme_color_override("font_color", Color(color, 1.0).lightened(0.3))
@@ -1433,6 +1443,7 @@ func _make_info_chip(text: String, color: Color) -> PanelContainer:
 	# Let a pill ellipsize when it must shrink below its text width.
 	lbl.clip_text = true
 	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.add_child(lbl)
 	# Record the pill's natural (unclipped) width for the manual flow layout. We do
 	# NOT set custom_minimum_size.x — the pill must be able to shrink below its
