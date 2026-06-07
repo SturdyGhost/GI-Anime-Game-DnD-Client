@@ -702,6 +702,25 @@ func _build_artifact_panel() -> void:
 	_art_panel.visible = false
 	pm_panel.add_child(_art_panel)
 
+	# ── Roll guide (what each die is for; D8-vs-D10 rule for stat rolls) ──
+	var guide = Label.new()
+	guide.text = "ARTIFACT ROLL GUIDE\n" \
+		+ "• D10 (Set): 1–5 = Set 1,  6–10 = Set 2\n" \
+		+ "• D12 (Piece): 1–3 Flower · 4–6 Feather · 7–8 Sands · 9–10 Goblet · 11–12 Circlet\n" \
+		+ "• D20 (Substats): 1–12 = one substat,  13–20 = two substats\n" \
+		+ "\n" \
+		+ "STAT TYPE ROLL — which die depends on the PIECE you rolled:\n" \
+		+ "• Flower of Life & Feather of Death → roll D8\n" \
+		+ "      1–2 Health · 3–4 Attack · 5–6 Defense · 7–8 Elemental Mastery\n" \
+		+ "• Sands / Goblet / Circlet → roll D10 (a 9–10 adds that piece's unique stat)\n" \
+		+ "      1–2 Health · 3–4 Attack · 5–6 Defense · 7–8 EM ·\n" \
+		+ "      9–10 → Sands = Energy Recharge,  Goblet = Damage Bonus,  Circlet = Crit DMG\n" \
+		+ "\n" \
+		+ "• D12 (Sign): 1–6 negative,  7–12 positive      • D20 (Value): substat = roll × 0.1"
+	guide.add_theme_font_size_override("font_size", 20)
+	guide.add_theme_color_override("font_color", Color(0.78, 0.82, 0.90))
+	_art_panel.add_child(guide)
+
 	# ── Row 1: Set selection ──
 	var set_row = HBoxContainer.new()
 	set_row.add_theme_constant_override("separation", 12)
@@ -747,7 +766,7 @@ func _build_artifact_panel() -> void:
 	var r2 = HBoxContainer.new()
 	r2.add_theme_constant_override("separation", 12)
 	_art_panel.add_child(r2)
-	_art_rolls.append(_art_spin(r2, "D8/D10 (Stat Type)", 1, 10))
+	_art_rolls.append(_art_spin(r2, "Stat Type (D8 or D10 — see guide)", 1, 10))
 	_art_rolls.append(_art_spin(r2, "D12 (Sign: 7+=pos)", 1, 12))
 	_art_rolls.append(_art_spin(r2, "D20 (Value x0.1)", 1, 20))
 
@@ -757,7 +776,7 @@ func _build_artifact_panel() -> void:
 	_art_sub2_row = HBoxContainer.new()
 	_art_sub2_row.add_theme_constant_override("separation", 12)
 	_art_panel.add_child(_art_sub2_row)
-	_art_rolls.append(_art_spin(_art_sub2_row, "D8/D10 (Stat Type)", 1, 10))
+	_art_rolls.append(_art_spin(_art_sub2_row, "Stat Type (D8 or D10 — see guide)", 1, 10))
 	_art_rolls.append(_art_spin(_art_sub2_row, "D12 (Sign: 7+=pos)", 1, 12))
 	_art_rolls.append(_art_spin(_art_sub2_row, "D20 (Value x0.1)", 1, 20))
 	sub2_label.visible = false

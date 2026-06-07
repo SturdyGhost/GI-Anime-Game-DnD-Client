@@ -604,7 +604,11 @@ func _filter_dims() -> Dictionary:
 func _row_filter_values(r: Dictionary) -> Array:
 	if _buy_mode and _current_shop == "Artifacts":
 		return [str(r.get("Type", "")), str(r.get("Artifact_Set", ""))]
-	# Weapons, other buy categories, and the mixed sell list: Rarity + Type.
+	# Sell-tab artifacts carry a numeric Rarity — don't surface it as a rarity
+	# filter (keep only the piece Type).
+	if not _buy_mode and str(r.get("__table", "")) == "Character_Artifacts":
+		return ["", str(r.get("Type", ""))]
+	# Weapons, other buy categories, and the rest of the mixed sell list: Rarity + Type.
 	return [str(r.get("Rarity", "")), str(r.get("Type", ""))]
 
 func _rebuild_filter_chips(rows: Array) -> void:
