@@ -51,17 +51,17 @@ func get_player_names() -> Array:
 	return result
 
 ## Get active companion names.
+## Reads the authoritative SYNCED Companions table on BOTH host and client so the
+## active set is identical everywhere. The host's typed SaveManager `active` flags
+## could drift from the synced `Active`; when they did, the host saw only the first
+## companion AND dropped the rest from battler_data (they fell through to the enemy
+## branch in BattlerState), so non-first companions showed no abilities. One source
+## fixes both the host party-panel display and the missing-abilities bug.
 func get_companion_names() -> Array:
 	var result = []
-	if SaveManager.data != null:
-		for comp in SaveManager.get_all_companions():
-			if comp.active:
-				result.append(comp.name)
-	else:
-		# Client fallback: read from _synced Companions
-		for comp in Global.COMPANIONS.values():
-			if comp.get("Active") == true:
-				result.append(comp.get("Name", ""))
+	for comp in Global.COMPANIONS.values():
+		if comp.get("Active") == true:
+			result.append(str(comp.get("Name", "")))
 	return result
 
 ## Check if a name is a player character.
