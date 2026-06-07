@@ -59,6 +59,15 @@ var _selected_entry = {}
 var _cached_rows = []
 var _search_text = ""
 
+# ── Filters (built dynamically from what's currently in view) ────────
+var _active_filter_a: Array = ["All"]  # Weapons/others: Rarity; Artifacts: Piece
+var _active_filter_b: Array = ["All"]  # Weapons/others: Type;   Artifacts: Set
+var _filter_box: VBoxContainer
+var _filter_a_label: Label
+var _filter_a_chips: HFlowContainer
+var _filter_b_label: Label
+var _filter_b_chips: HFlowContainer
+
 # ── Node refs (set in _ready) ───────────────────────────────────────
 var _root_panel: PanelContainer
 var _mora_label: Label
@@ -332,6 +341,25 @@ func _build_body() -> HSplitContainer:
 	_search_bar.text_changed.connect(func(t): _search_text = t.strip_edges().to_lower(); _refresh_item_list())
 	center_vbox.add_child(_search_bar)
 
+	# ── Filter chips (two rows, populated dynamically from current stock) ──
+	_filter_box = VBoxContainer.new()
+	_filter_box.add_theme_constant_override("separation", 4)
+	center_vbox.add_child(_filter_box)
+
+	_filter_a_label = _make_filter_label("Rarity")
+	_filter_box.add_child(_filter_a_label)
+	_filter_a_chips = HFlowContainer.new()
+	_filter_a_chips.add_theme_constant_override("h_separation", 4)
+	_filter_a_chips.add_theme_constant_override("v_separation", 4)
+	_filter_box.add_child(_filter_a_chips)
+
+	_filter_b_label = _make_filter_label("Type")
+	_filter_box.add_child(_filter_b_label)
+	_filter_b_chips = HFlowContainer.new()
+	_filter_b_chips.add_theme_constant_override("h_separation", 4)
+	_filter_b_chips.add_theme_constant_override("v_separation", 4)
+	_filter_box.add_child(_filter_b_chips)
+
 	# Scrollable item list
 	_item_scroll = ScrollContainer.new()
 	_item_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -493,6 +521,7 @@ func _set_mode_buy(is_buy: bool) -> void:
 	# Sidebar visible only in buy mode
 	_sidebar.get_parent().visible = is_buy
 
+	_reset_attr_filters()
 	if is_buy:
 		_on_category_selected(_current_shop)
 	else:
@@ -544,6 +573,7 @@ func _on_data_load_complete() -> void:
 
 func _on_category_selected(cat_name: String) -> void:
 	_current_shop = cat_name
+	_reset_attr_filters()
 	_update_sidebar_highlight()
 	_clear_selection()
 	_refresh_item_list()
@@ -556,6 +586,116 @@ func _refresh_mora() -> void:
 # ═════════════════════════════════════════════════════════════════════
 #  ITEM LIST
 # ═════════════════════════════════════════════════════════════════════
+# ── Attribute filters ───────────────────────────────────────────────
+func _make_filter_label(text: String) -> Label:
+	var l = Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", 22)
+	l.add_theme_color_override("font_color", TEXT_MUT)
+	return l
+
+## The two filter dimensions for the current context (buy category / sell).
+func _filter_dims() -> Dictionary:
+	if _buy_mode and _current_shop == "Artifacts":
+		return {"a": "Piece", "b": "Set"}
+	return {"a": "Rarity", "b": "Type"}
+
+## Returns [filter_a_value, filter_b_value] for a row, per the current context.
+func _row_filter_values(r: Dictionary) -> Array:
+	if _buy_mode and _current_shop == "Artifacts":
+		return [str(r.get("Type", "")), str(r.get("Artifact_Set", ""))]
+	# Weapons, other buy categories, and the mixed sell list: Rarity + Type.
+	return [str(r.get("Rarity", "")), str(r.get("Type", ""))]
+
+func _rebuild_filter_chips(rows: Array) -> void:
+	var dims = _filter_dims()
+	_filter_a_label.text = dims["a"]
+	_filter_b_label.text = dims["b"]
+	var a_vals = {}
+	var b_vals = {}
+	for r in rows:
+		var v = _row_filter_values(r)
+		if str(v[0]) != "":
+			a_vals[str(v[0])] = true
+		if str(v[1]) != "":
+			b_vals[str(v[1])] = true
+	_populate_chip_row(_filter_a_chips, a_vals.keys(), _active_filter_a, "a")
+	_populate_chip_row(_filter_b_chips, b_vals.keys(), _active_filter_b, "b")
+	# Hide a whole filter row when this view has no values for it.
+	_filter_a_label.visible = a_vals.size() > 0
+	_filter_a_chips.visible = a_vals.size() > 0
+	_filter_b_label.visible = b_vals.size() > 0
+	_filter_b_chips.visible = b_vals.size() > 0
+
+func _populate_chip_row(container: HFlowContainer, values: Array, active_arr: Array, group: String) -> void:
+	for c in container.get_children():
+		c.queue_free()
+	if values.is_empty():
+		return
+	values.sort()
+	var labels = ["All"]
+	labels.append_array(values)
+	for lbl in labels:
+		container.add_child(_make_filter_chip(str(lbl), str(lbl) in active_arr, group))
+
+func _make_filter_chip(text: String, active: bool, group: String) -> Button:
+	var btn = Button.new()
+	btn.text = text
+	btn.add_theme_font_size_override("font_size", 22)
+	var sb = _flat(ACCENT_DIM if active else BG_CARD)
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 10
+	sb.content_margin_right = 10
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
+	sb.border_color = ACCENT if active else BORDER
+	sb.set_border_width_all(1)
+	btn.add_theme_stylebox_override("normal", sb)
+	btn.add_theme_stylebox_override("hover", sb)
+	btn.add_theme_stylebox_override("pressed", sb)
+	btn.add_theme_color_override("font_color", ACCENT if active else TEXT)
+	btn.pressed.connect(func(): _on_filter_chip_pressed(group, text))
+	return btn
+
+func _on_filter_chip_pressed(group: String, value: String) -> void:
+	var arr: Array = (_active_filter_a if group == "a" else _active_filter_b).duplicate()
+	if value == "All":
+		arr = ["All"]
+	else:
+		if "All" in arr:
+			arr.erase("All")
+		if value in arr:
+			arr.erase(value)
+		else:
+			arr.append(value)
+		if arr.is_empty():
+			arr = ["All"]
+	if group == "a":
+		_active_filter_a = arr
+	else:
+		_active_filter_b = arr
+	_refresh_item_list()
+
+func _apply_attr_filters(rows: Array) -> Array:
+	var a_all = "All" in _active_filter_a
+	var b_all = "All" in _active_filter_b
+	if a_all and b_all:
+		return rows
+	var out = []
+	for r in rows:
+		var v = _row_filter_values(r)
+		if not a_all and not (str(v[0]) in _active_filter_a):
+			continue
+		if not b_all and not (str(v[1]) in _active_filter_b):
+			continue
+		out.append(r)
+	return out
+
+func _reset_attr_filters() -> void:
+	_active_filter_a = ["All"]
+	_active_filter_b = ["All"]
+
+
 func _refresh_item_list() -> void:
 	# Clear old rows
 	for c in _item_list_vbox.get_children():
@@ -576,6 +716,11 @@ func _refresh_item_list() -> void:
 		rows = filtered
 	else:
 		rows = _gather_sell_inventory_rows()
+
+	# Build filter chips from the full current stock (so every available option
+	# shows), then narrow the list by the two attribute filters.
+	_rebuild_filter_chips(rows)
+	rows = _apply_attr_filters(rows)
 
 	# Apply search filter
 	if _search_text != "":
