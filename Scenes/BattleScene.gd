@@ -1956,7 +1956,7 @@ func _rebuild_target_rows() -> void:
 
 		# Target name header — clip long names so they don't widen the card
 		# past its fixed width (full name shown on hover).
-		var name_lbl = _lbl(target_name, 14, ACCENT)
+		var name_lbl = _lbl(target_name, 42, ACCENT)
 		name_lbl.clip_text = true
 		name_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1971,37 +1971,37 @@ func _rebuild_target_rows() -> void:
 		vbox.add_child(fields)
 
 		# Their Roll
-		fields.add_child(_lbl("Roll", 13, TEXT_MUTED))
+		fields.add_child(_lbl("Roll", 36, TEXT_MUTED))
 		var roll_spin = SpinBox.new()
 		roll_spin.min_value = 0
 		roll_spin.max_value = 100
 		roll_spin.value = 0
-		roll_spin.custom_minimum_size = Vector2(55, 0)
+		roll_spin.custom_minimum_size = Vector2(37, 0)
 		roll_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(roll_spin)
 
 		# Hits
-		fields.add_child(_lbl("Hits", 13, TEXT_MUTED))
+		fields.add_child(_lbl("Hits", 36, TEXT_MUTED))
 		var hits_spin = SpinBox.new()
 		hits_spin.min_value = 0
 		hits_spin.max_value = 20
 		hits_spin.value = 1
-		hits_spin.custom_minimum_size = Vector2(55, 0)
+		hits_spin.custom_minimum_size = Vector2(37, 0)
 		hits_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(hits_spin)
 
 		# Damage
-		fields.add_child(_lbl("Dmg", 13, TEXT_MUTED))
+		fields.add_child(_lbl("Dmg", 36, TEXT_MUTED))
 		var dmg_spin = SpinBox.new()
 		dmg_spin.min_value = 0
 		dmg_spin.max_value = 9999
 		dmg_spin.value = 0
-		dmg_spin.custom_minimum_size = Vector2(55, 0)
+		dmg_spin.custom_minimum_size = Vector2(37, 0)
 		dmg_spin.add_theme_font_size_override("font_size", 36)
 		fields.add_child(dmg_spin)
 
 		# Type
-		fields.add_child(_lbl("Type", 13, TEXT_MUTED))
+		fields.add_child(_lbl("Type", 36, TEXT_MUTED))
 		var type_opt = OptionButton.new()
 		type_opt.add_item("Damage")
 		type_opt.add_item("Healed")
