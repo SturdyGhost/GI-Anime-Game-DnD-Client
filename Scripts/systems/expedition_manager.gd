@@ -1,15 +1,47 @@
 class_name ExpeditionManager
 extends RefCounted
 
+## Expedition flavour. A template is now ONLY an identity: type, name and blurb.
+## Weapon bonus, risk level and material yield are rolled per slot, so any type
+## can turn up as a safe Bow run one pool and a risky Catalyst run the next.
+##
+## Names are split into `lead` + region + `tail` rather than one pattern so a
+## risky run can slot an adjective in front of the region and still read as
+## English: "Excavate the Perilous Sumeru Barrows", not "Perilous Excavate the".
 const EXPEDITION_TEMPLATES := [
-	{"type": "foraging", "name_pattern": "Harvest the %s", "description": "Gather herbs and plants", "bonus_weapon": "Bow", "risk_level": "safe", "base_materials": 3},
-	{"type": "mining", "name_pattern": "Mine the %s Deposits", "description": "Extract ore and minerals", "bonus_weapon": "Claymore", "risk_level": "safe", "base_materials": 3},
-	{"type": "hunting", "name_pattern": "Hunt in the %s Wilds", "description": "Track and gather from creatures", "bonus_weapon": "Polearm", "risk_level": "moderate", "base_materials": 4},
-	{"type": "research", "name_pattern": "Study the %s Ruins", "description": "Investigate ancient sites", "bonus_weapon": "Catalyst", "risk_level": "moderate", "base_materials": 4},
-	{"type": "trade", "name_pattern": "Trade at the %s Market", "description": "Barter for rare goods", "bonus_weapon": "Sword", "risk_level": "safe", "base_materials": 3},
-	{"type": "foraging", "name_pattern": "Deep %s Expedition", "description": "Venture deep for rare specimens", "bonus_weapon": "Bow", "risk_level": "risky", "base_materials": 6},
-	{"type": "mining", "name_pattern": "Dangerous %s Caverns", "description": "Delve into unstable mines", "bonus_weapon": "Claymore", "risk_level": "risky", "base_materials": 6},
+	{"type": "foraging",   "lead": "Harvest the",  "tail": "Groves",   "description": "Gather herbs and plants"},
+	{"type": "mining",     "lead": "Mine the",     "tail": "Deposits", "description": "Extract ore and minerals"},
+	{"type": "hunting",    "lead": "Hunt in the",  "tail": "Wilds",    "description": "Track and gather from creatures"},
+	{"type": "research",   "lead": "Study the",    "tail": "Ruins",    "description": "Investigate ancient sites"},
+	{"type": "trade",      "lead": "Trade at the", "tail": "Market",   "description": "Barter for rare goods"},
+	{"type": "fishing",    "lead": "Fish the",     "tail": "Waters",   "description": "Work the shoals and still pools"},
+	{"type": "salvage",    "lead": "Salvage the",  "tail": "Wreckage", "description": "Strip what the disasters left behind"},
+	{"type": "escort",     "lead": "Escort a",     "tail": "Caravan",  "description": "See a merchant train safely through"},
+	{"type": "survey",     "lead": "Chart the",    "tail": "Frontier", "description": "Map the ground nobody has walked"},
+	{"type": "excavation", "lead": "Excavate the", "tail": "Barrows",  "description": "Dig out what was buried on purpose"},
+	{"type": "patrol",     "lead": "Patrol the",   "tail": "Borders",  "description": "Walk the line and clear what's on it"},
+	{"type": "diplomacy",  "lead": "Petition the", "tail": "Court",    "description": "Trade favours with those who hold them"},
+	{"type": "bounty",     "lead": "Claim a",      "tail": "Bounty",   "description": "Collect on a posted contract"},
 ]
+
+## Risk tier -> material yield. Riskier ALWAYS pays more; this is the only place
+## base_materials comes from, so the two can never disagree.
+const RISK_MATERIALS := {"safe": 3, "moderate": 4, "risky": 6}
+
+## Adjectives used only when a slot rolls risky, so a name never promises danger
+## the risk level doesn't back up ("Dangerous Caverns — Risk: safe").
+const RISKY_ADJECTIVES := ["Deep", "Dangerous", "Perilous", "Treacherous"]
+
+## Every weapon can headline any expedition type now, so the bonus is rolled.
+const BONUS_WEAPONS := ["Sword", "Claymore", "Polearm", "Bow", "Catalyst"]
+
+## A pool may contain at most ONE duplicated type (two mining runs, never three,
+## and never two separate duplicated types). This is how often that happens.
+const TYPE_REPEAT_CHANCE := 0.25
+
+## Slots 0-1 always draw the party's current region. Later slots roll for it.
+const GUARANTEED_HOME_SLOTS := 2
+const HOME_REGION_CHANCE := 0.6
 
 const ELEMENT_REGION_AFFINITY := {
 	"Fire": ["Sumeru", "Inazuma"],
@@ -32,57 +64,151 @@ static func _elements_for_region(region: String) -> Array:
 	elems.shuffle()
 	return elems
 
+
+## Pick the templates for one pool: `count` entries, all distinct except that a
+## single type may be duplicated (TYPE_REPEAT_CHANCE of the time).
+static func _pick_templates(count: int) -> Array:
+	var deck: Array = EXPEDITION_TEMPLATES.duplicate()
+	deck.shuffle()
+
+	var unique_wanted: int = mini(count, deck.size())
+	var allow_repeat: bool = (
+		count > 1
+		and deck.size() >= count - 1
+		and randf() < TYPE_REPEAT_CHANCE
+	)
+	if allow_repeat:
+		unique_wanted = mini(count - 1, deck.size())
+
+	var picked: Array = deck.slice(0, unique_wanted)
+	while picked.size() < count:
+		# Duplicate one already-picked type rather than reaching for a new one.
+		picked.append(picked[randi() % maxi(picked.size(), 1)])
+	picked.shuffle()
+	return picked
+
+
+## One risk tier per slot. Every pool is guaranteed at least one safe, one
+## moderate and one risky; any slots beyond those three roll freely. Shuffled so
+## the guaranteed tiers don't always land in the same positions.
+static func _roll_risk_levels(count: int) -> Array:
+	var tiers: Array = RISK_MATERIALS.keys()
+	var levels: Array = []
+	for tier in tiers:
+		if levels.size() < count:
+			levels.append(tier)
+	while levels.size() < count:
+		levels.append(tiers[randi() % tiers.size()])
+	levels.shuffle()
+	return levels
+
+
+## Unused caches for a region, as an Array. Consumes nothing — the caller marks
+## what it takes in `used_cache_ids`.
+static func _unused_caches(region: String, used_cache_ids: Dictionary) -> Array:
+	var out: Array = []
+	for cache in LootGenerator.pick_caches(region, 99):
+		if not used_cache_ids.has(_cache_id(cache)):
+			out.append(cache)
+	return out
+
+
+## Stable identity for a cache, so "Sumeru cache 2" can be struck off the list
+## once it has been handed to a slot.
+static func _cache_id(cache) -> String:
+	if cache is MaterialCacheData:
+		return "%s#%d" % [cache.region, cache.id]
+	return "%s#%s" % [str(cache.get("Region", "")), str(cache.get("id", cache.get("Roll", 0)))]
+
+
+static func _cache_roll(cache) -> int:
+	return cache.roll if cache is MaterialCacheData else int(cache.get("Roll", 1))
+
+
+## Choose the region for one slot, given which caches are already spoken for.
+##
+## Slots 0-1 are the party's current region; later slots take it with
+## HOME_REGION_CHANCE. Either way the choice only stands if that region still has
+## an unused cache — once home is exhausted (there are only 4 caches per region,
+## so with 5 slots that always happens) the slot is forced abroad.
+## Returns "" when every region is exhausted.
+static func _pick_region(slot: int, home: String, used_cache_ids: Dictionary) -> String:
+	var home_open: bool = not _unused_caches(home, used_cache_ids).is_empty()
+	var wants_home: bool = slot < GUARANTEED_HOME_SLOTS or randf() < HOME_REGION_CHANCE
+
+	if wants_home and home_open:
+		return home
+
+	var others: Array = ALL_REGIONS.filter(func(r): return r != home)
+	others.shuffle()
+	for r in others:
+		if not _unused_caches(r, used_cache_ids).is_empty():
+			return r
+
+	# Nowhere else left — fall back home if it still has anything.
+	return home if home_open else ""
+
+
+## "Excavate the Sumeru Barrows", or with the risk adjective folded in before the
+## region, "Excavate the Perilous Sumeru Barrows".
+static func _build_name(tmpl: Dictionary, region: String, risk: String) -> String:
+	var middle: String = region
+	if risk == "risky":
+		middle = "%s %s" % [RISKY_ADJECTIVES[randi() % RISKY_ADJECTIVES.size()], region]
+	return "%s %s %s" % [str(tmpl["lead"]), middle, str(tmpl["tail"])]
+
+
 static func generate_pool(region: String, pool_size: int = 5) -> Array:
-	var templates = EXPEDITION_TEMPLATES.duplicate()
-	templates.shuffle()
+	var templates: Array = _pick_templates(pool_size)
+	var risks: Array = _roll_risk_levels(pool_size)
 	var pool: Array = []
 
-	# Pick regions: mostly current, with a chance of other regions
-	var regions_for_pool: Array = []
-	var other_regions: Array = ALL_REGIONS.filter(func(r): return r != region)
-	other_regions.shuffle()
-	for i in range(pool_size):
-		if i < 3 or randf() > 0.4:
-			regions_for_pool.append(region)
-		else:
-			regions_for_pool.append(other_regions[i % other_regions.size()])
-
-	# Collect element pools per region so we rotate through them
+	# Caches are unique across the WHOLE pool: once a slot takes Sumeru cache 2,
+	# no other slot may offer it, in any region.
+	var used_cache_ids: Dictionary = {}
 	var region_elem_pools: Dictionary = {}
 
-	for i in range(mini(pool_size, templates.size())):
-		var tmpl = templates[i]
-		var exp_region: String = regions_for_pool[i]
-		var caches = LootGenerator.pick_caches(exp_region, 4)
-		if caches.is_empty():
-			caches = LootGenerator.pick_caches(region, 4)
-			exp_region = region
-		var cache_idx = i % caches.size()
-		var cache = caches[cache_idx]
-		var cache_roll_val = cache.roll if cache is MaterialCacheData else int(cache.get("Roll", 1))
+	for i in range(pool_size):
+		if i >= templates.size():
+			break
+
+		var exp_region: String = _pick_region(i, region, used_cache_ids)
+		if exp_region == "":
+			break  # every cache in the game is spoken for
+
+		var available: Array = _unused_caches(exp_region, used_cache_ids)
+		if available.is_empty():
+			break
+		var cache = available[randi() % available.size()]
+		used_cache_ids[_cache_id(cache)] = true
+
+		var tmpl: Dictionary = templates[i]
+		var risk: String = str(risks[i])
 
 		# Pick a bonus element, rotating through all matching elements for this region
 		if not region_elem_pools.has(exp_region):
 			region_elem_pools[exp_region] = _elements_for_region(exp_region)
 		var elem_list: Array = region_elem_pools[exp_region]
-		var bonus_elem = ""
+		var bonus_elem: String = ""
 		if elem_list.size() > 0:
-			bonus_elem = elem_list[i % elem_list.size()]
+			bonus_elem = str(elem_list[i % elem_list.size()])
 
-		var data = {
-			"name": tmpl["name_pattern"] % exp_region,
+		var exp_name: String = _build_name(tmpl, exp_region, risk)
+
+		pool.append(ExpeditionData.new({
+			"name": exp_name,
 			"region": exp_region,
 			"type": tmpl["type"],
 			"description": tmpl["description"],
-			"base_materials": tmpl["base_materials"],
-			"cache_roll": cache_roll_val,
-			"risk_level": tmpl["risk_level"],
+			"base_materials": int(RISK_MATERIALS.get(risk, 3)),
+			"cache_roll": _cache_roll(cache),
+			"risk_level": risk,
 			"bonus_region": exp_region,
-			"bonus_weapon": tmpl["bonus_weapon"],
+			"bonus_weapon": BONUS_WEAPONS[randi() % BONUS_WEAPONS.size()],
 			"bonus_element": bonus_elem,
-		}
-		pool.append(ExpeditionData.new(data))
+		}))
 	return pool
+
 
 ## Returns { "total": float, "bonuses": Array[String] } with breakdown of all bonuses.
 static func companion_bonus_detailed(companion: Dictionary, expedition: ExpeditionData) -> Dictionary:
