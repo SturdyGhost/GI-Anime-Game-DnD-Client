@@ -454,6 +454,12 @@ func _update_enemy_info() -> void:
 	if e.phase4_hp > 0:
 		stats.append(["Phase 4 HP", str(e.phase4_hp)])
 
+	# Derived tier-based attack (the actual enemy-hit formula)
+	var acc_dice := DiceRoller.enemy_accuracy_dice(e.tier)
+	var dprof := DiceRoller.enemy_damage_profile(e.tier)
+	stats.append(["Accuracy", _accuracy_label(acc_dice)])
+	stats.append(["Hit Damage", "%dd (closest to diff) + %d" % [int(dprof["count"]), int(dprof["floor"])]])
+
 	for s in stats:
 		var row := _make_hbox(4)
 		_enemy_info_vbox.add_child(row)
@@ -495,6 +501,8 @@ func _update_profile_display() -> void:
 		["Revives Needed", "%.0f%%" % float(profile.get("revives_needed_rate", 0))],
 		["Perma-Death Rate", "%.0f%%" % float(profile.get("perma_death_rate", 0))],
 		["Expected Rounds", "%d-%d" % [profile.get("rounds_per_enemy", [0, 0])[0], profile.get("rounds_per_enemy", [0, 0])[1]]],
+		["Enemy Accuracy", "d%d" % int(profile.get("attack_die", 0))],
+		["Hit Damage", "%s of closest die" % str(profile.get("damage_formula", "?"))],
 	]
 
 	for t in targets:
@@ -827,6 +835,18 @@ func _display_party_performance(per_battler: Dictionary, n: float) -> void:
 # ===============================================
 #  UI helpers (same pattern as battle simulator)
 # ===============================================
+
+## Label a combo accuracy die, e.g. [10,6] -> "d16 (d10 + d6)".
+func _accuracy_label(dice: Array) -> String:
+	var total := 0
+	var parts: Array = []
+	for d in dice:
+		total += int(d)
+		parts.append("d%d" % int(d))
+	if dice.size() <= 1:
+		return "d%d" % total
+	return "d%d (%s)" % [total, " + ".join(parts)]
+
 
 func _lbl(text: String, size: int, color: Color) -> Label:
 	var l := Label.new()

@@ -791,10 +791,6 @@ static func get_effects(ability_id: int) -> Array:
 			var e_no_move = EffectBuilder.prevent_movement(0, "Cannot move on activation turn")
 			return [e_no_move]  # Transformation handled in logic based on roll
 
-		# Dylan test passives – no effects
-		459, 460:
-			return []
-
 		# =====================================================================
 		#  COMPANION ABILITIES
 		# =====================================================================

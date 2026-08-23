@@ -56,36 +56,17 @@ func restore_health():
 			"value": character.get("Max_Health")})
 	if updates.size() > 0:
 		Global.Update_Records(updates)
-func assign_party():
-	Global.PartyCharacters = []
-	Global.PartyCompanions = []
-	for party in Global.PARTY.values():
-		if party.get("Party_Member_1") == Global.ACTIVE_USER_NAME or party.get("Party_Member_2") == Global.ACTIVE_USER_NAME or party.get("Party_Member_3") == Global.ACTIVE_USER_NAME or party.get("Party_Member_4") == Global.ACTIVE_USER_NAME:
-			Global.Current_Party = party
-			if party.get("Party_Member_1") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_1")) == false:
-				Global.PartyCharacters.append(party.get("Party_Member_1"))
-			if party.get("Party_Member_2") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_2")) == false:
-				Global.PartyCharacters.append(party.get("Party_Member_2"))
-			if party.get("Party_Member_3") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_3")) == false:
-				Global.PartyCharacters.append(party.get("Party_Member_3"))
-			if party.get("Party_Member_4") != "COMPANION" and Global.PartyCharacters.has(party.get("Party_Member_4")) == false:
-				Global.PartyCharacters.append(party.get("Party_Member_4"))
-	for companion in Global.COMPANIONS.values():
-		if companion.get("Active") == true:
-			if Global.PartyCompanions.has(companion.get("Name")) == false:
-				Global.PartyCompanions.append(companion.get("Name"))
 func role_check():
 	if Player_data == null or Player_data.is_empty():
 		return
 	var role = Player_data.get("Role")
-	var hotbar = $"UI/BottomHotbar/HBoxContainer"
 	# Try new button names first, fall back to old TextureButton names
-	var crafting_btn = hotbar.get_node_or_null("CraftingButton_Btn")
+	var crafting_btn = _find_hotbar_button("CraftingButton_Btn")
 	if crafting_btn == null:
-		crafting_btn = hotbar.get_node_or_null("Crafting Button")
-	var map_btn = hotbar.get_node_or_null("ResearchButton_Btn")
+		crafting_btn = _find_hotbar_button("Crafting Button")
+	var map_btn = _find_hotbar_button("ResearchButton_Btn")
 	if map_btn == null:
-		map_btn = hotbar.get_node_or_null("Research Button")
+		map_btn = _find_hotbar_button("Research Button")
 	if crafting_btn == null:
 		return
 	# Map button is always enabled for all roles
@@ -183,12 +164,14 @@ func _try_initial_setup() -> void:
 		_show_offline_indicator()
 	# Replace all TextureButtons in bottom hotbar with regular Buttons
 	_convert_hotbar_buttons()
+	_add_reputation_button()
 	role_check()
 
 func _convert_hotbar_buttons() -> void:
 	var hotbar = $"UI/BottomHotbar/HBoxContainer"
 	if hotbar == null:
 		return
+	var grid = _button_grid()
 
 	# Map button names to their handlers and display labels
 	# Gather → Expeditions, Research removed for non-Scout (handled by role_check disabling)
@@ -208,37 +191,139 @@ func _convert_hotbar_buttons() -> void:
 		if old_btn == null:
 			continue
 		var config = button_config[btn_name]
-		var idx = old_btn.get_index()
-		var btn_size = old_btn.custom_minimum_size
 		var is_disabled = old_btn.disabled if "disabled" in old_btn else false
 		old_btn.visible = false
 
 		# Check if replacement already exists
 		var new_name = btn_name.replace(" ", "") + "_Btn"
-		if hotbar.get_node_or_null(new_name) != null:
+		if grid.get_node_or_null(new_name) != null:
 			continue
 
 		var new_btn = Button.new()
 		new_btn.name = new_name
 		new_btn.text = config["label"]
-		new_btn.custom_minimum_size = Vector2(btn_size.x - 5, btn_size.y)
-		new_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		new_btn.add_theme_font_size_override("font_size", 32)
+		_style_grid_btn(new_btn)
 		new_btn.disabled = is_disabled
 		if has_method(config["handler"]):
 			new_btn.pressed.connect(Callable(self, config["handler"]))
-		hotbar.add_child(new_btn)
-		hotbar.move_child(new_btn, idx)
+		grid.add_child(new_btn)
 
 	# In offline mode, replace Combat with Manage Inventory
 	if Global.is_offline:
-		var combat_btn = hotbar.get_node_or_null("CombatButton_Btn")
+		var combat_btn = _find_hotbar_button("CombatButton_Btn")
 		if combat_btn:
-			combat_btn.text = "Manage\nInventory"
+			combat_btn.text = "Manage Inventory"
 			if combat_btn.is_connected("pressed", _on_combat_button_pressed):
 				combat_btn.disconnect("pressed", _on_combat_button_pressed)
 			if not combat_btn.is_connected("pressed", _open_offline_management):
 				combat_btn.pressed.connect(_open_offline_management)
+
+## Add the Reputation + Quests buttons, then lay the whole hotbar out as two rows
+## of wide rectangular buttons so every label fits without clipping. (People/NPCs
+## are a tab inside the Reputation window — no hotbar button.)
+func _add_reputation_button() -> void:
+	var grid = _button_grid()
+	if grid == null:
+		return
+	if grid.get_node_or_null("Reputation_Btn") == null:
+		var btn = Button.new()
+		btn.name = "Reputation_Btn"
+		btn.text = "Reputation"
+		_style_grid_btn(btn)
+		btn.pressed.connect(_on_reputation_button_pressed)
+		grid.add_child(btn)
+	if grid.get_node_or_null("Quests_Btn") == null:
+		var qbtn = Button.new()
+		qbtn.name = "Quests_Btn"
+		qbtn.text = "Quests"
+		_style_grid_btn(qbtn)
+		qbtn.pressed.connect(_on_quests_button_pressed)
+		grid.add_child(qbtn)
+	# Keep Exit as the very last button regardless of when it was added.
+	var exit_btn = grid.get_node_or_null("ExitButton_Btn")
+	if exit_btn:
+		grid.move_child(exit_btn, grid.get_child_count() - 1)
+	_layout_button_grid()
+
+## Returns the 2-row button grid that holds the live hotbar buttons, creating it
+## (and hiding the original single-row HBox) on first use.
+func _button_grid() -> GridContainer:
+	var panel = $"UI/BottomHotbar"
+	if panel == null:
+		return null
+	var grid = panel.get_node_or_null("ButtonGrid")
+	if grid == null:
+		grid = GridContainer.new()
+		grid.name = "ButtonGrid"
+		grid.add_theme_constant_override("h_separation", 12)
+		grid.add_theme_constant_override("v_separation", 12)
+		panel.add_child(grid)
+		grid.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		grid.offset_left = 16
+		grid.offset_top = 10
+		grid.offset_right = -16
+		grid.offset_bottom = -10
+		var hbox = panel.get_node_or_null("HBoxContainer")
+		if hbox:
+			hbox.visible = false  # original single-row layout retired
+	return grid
+
+## Look up a hotbar button by name in the grid first, then the legacy HBox.
+func _find_hotbar_button(btn_name: String) -> Node:
+	var panel = $"UI/BottomHotbar"
+	if panel == null:
+		return null
+	var grid = panel.get_node_or_null("ButtonGrid")
+	if grid:
+		var n = grid.get_node_or_null(btn_name)
+		if n:
+			return n
+	var hbox = panel.get_node_or_null("HBoxContainer")
+	if hbox:
+		return hbox.get_node_or_null(btn_name)
+	return null
+
+## Standard look for a wide rectangular hotbar button.
+func _style_grid_btn(b: Button) -> void:
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	b.custom_minimum_size = Vector2(0, 64)
+	b.clip_text = false
+	b.add_theme_font_size_override("font_size", 30)
+
+## Set the grid column count so visible buttons fall into exactly two rows.
+func _layout_button_grid() -> void:
+	var grid = $"UI/BottomHotbar".get_node_or_null("ButtonGrid")
+	if grid == null:
+		return
+	var count = 0
+	for c in grid.get_children():
+		if c is Button and c.visible:
+			count += 1
+	grid.columns = max(1, int(ceil(count / 2.0)))
+
+func _on_reputation_button_pressed() -> void:
+	_open_scripted_window("res://Scenes/reputation_window.gd")
+
+func _on_quests_button_pressed() -> void:
+	_open_scripted_window("res://Scenes/quest_window.gd")
+
+func _open_scripted_window(script_path: String) -> void:
+	var dlg := Control.new()
+	dlg.set_script(load(script_path))
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 func _open_simulator() -> void:
 	var s: PackedScene = preload("res://Scenes/UI/battle_simulator.tscn")
@@ -319,7 +404,10 @@ func set_background():
 func set_ui():
 	if not Global.CHARACTERS_NAME.has(Global.ACTIVE_USER_NAME):
 		return
-	assign_party()
+	# No party assignment needed: Global.Current_Party / PartyCharacters /
+	# PartyCompanions are all derived getters over the synced Party record
+	# (see PartyManager). They have `pass` setters, so the old assign_party()
+	# here was a complete no-op.
 	$UI/TopHotbar/CharacterPortrait.set_character(Global.ACTIVE_USER_NAME)
 	# Show current role badge
 	var role_label = $UI/TopHotbar.get_node_or_null("RoleLabel")
@@ -362,16 +450,33 @@ func set_ui():
 	$"UI/GearContainer/Circlet of Principles".set_artifact()
 	Mora.text = str(Global.Current_Party.get("Mora"))
 	Level.text = "Level: "+str(int(Player_data.get("Level")))+"/"+str(int(Player_data.get("Level_Cap")))
-	var array = 0
-	for player in Global.PartyCharacters:
-		var _pid = Global.CHARACTERS_NAME.get(player, "")
-		array += Global.CHARACTERS.get(_pid, {}).get("Max_Health", 0)
-	Global.AverageHealth = array / max(Global.PartyCharacters.size(), 1)
+	# Companions: derive Max_Health from the companion formula (avg player base +
+	# own gear) via CharacterManager, matching BattleScene's host sync. Adjust
+	# Current_Health by the difference so gear changes grant/remove HP without
+	# resetting battle damage to full.
+	CharacterManager.recalculate_all()
 	var updates = []
 	for Companion in Global.COMPANIONS.values():
-		if Companion.get("Current_Health") != Global.AverageHealth:
-			updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Current_Health","value": Global.AverageHealth})
-			updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Max_Health","value": Global.AverageHealth})
+		var cname := str(Companion.get("Name", ""))
+		if cname == "":
+			continue
+		var ccalc = CharacterManager.calculate_companion_stats(cname)
+		if ccalc == null:
+			continue
+		var ccalc_max := int(ccalc.health)
+		if ccalc_max <= 0:
+			continue
+		var cstored_max := int(Companion.get("Max_Health", 0))
+		if ccalc_max == cstored_max:
+			continue
+		var cnew_cur: int
+		if cstored_max > 0:
+			cnew_cur = int(Companion.get("Current_Health", cstored_max)) + (ccalc_max - cstored_max)
+		else:
+			cnew_cur = ccalc_max
+		cnew_cur = clampi(cnew_cur, 0, ccalc_max)
+		updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Max_Health","value": ccalc_max})
+		updates.append({"table": "Companions","record_id": int(Companion.get("id")),"field": "Current_Health","value": cnew_cur})
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 	if Global.Region_Changed == 1:

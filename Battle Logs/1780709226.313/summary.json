@@ -1,0 +1,323 @@
+{
+	"battle_id": "1780709226.313",
+	"combatants": {
+		"Ayaka": {
+			"abilities_used": {
+				"Ayaka – Skill": 1,
+				"Sword - Default Charged Attack": 2
+			},
+			"attack_rolls": [
+				11,
+				12
+			],
+			"avg_attack_roll": 11.5,
+			"avg_damage_per_hit": 1.5,
+			"avg_damage_per_turn": 8.0,
+			"avg_defense_roll": 7.0,
+			"crits": 0,
+			"defense_rolls": [
+				7
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 1,
+			"times_attacked": 1,
+			"total_damage_dealt": 24,
+			"total_damage_received": 2,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 16,
+			"turns_taken": 3,
+			"type": "Unknown"
+		},
+		"Brian C.": {
+			"abilities_used": {
+				"Brian C. – Charged Attack": 3,
+				"Brian C. – Skill": 1
+			},
+			"attack_rolls": [
+				17,
+				3,
+				7,
+				18
+			],
+			"avg_attack_roll": 11.25,
+			"avg_damage_per_hit": 35.0,
+			"avg_damage_per_turn": 43.75,
+			"avg_defense_roll": 15.5,
+			"crits": 0,
+			"defense_rolls": [
+				18,
+				16,
+				14,
+				14
+			],
+			"items_used": {
+
+			},
+			"kills": 2,
+			"shields_generated": 0,
+			"tiles_moved": 4,
+			"times_attacked": 4,
+			"total_damage_dealt": 175,
+			"total_damage_received": 0,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 5,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Brian F.": {
+			"abilities_used": {
+				"Brian F. – Charged Attack": 2
+			},
+			"attack_rolls": [
+				19,
+				16,
+				7,
+				15
+			],
+			"avg_attack_roll": 14.25,
+			"avg_damage_per_hit": 25.3333333333333,
+			"avg_damage_per_turn": 19.0,
+			"avg_defense_roll": 1.0,
+			"crits": 0,
+			"defense_rolls": [
+				1
+			],
+			"items_used": {
+
+			},
+			"kills": 2,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 1,
+			"total_damage_dealt": 76,
+			"total_damage_received": 3,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 3,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Dylan": {
+			"abilities_used": {
+				"Dylan – Charged Attack": 3,
+				"Dylan – Skill": 1
+			},
+			"attack_rolls": [
+				16,
+				16
+			],
+			"avg_attack_roll": 16.0,
+			"avg_damage_per_hit": 3.91666666666667,
+			"avg_damage_per_turn": 11.75,
+			"avg_defense_roll": 8.5,
+			"crits": 1,
+			"defense_rolls": [
+				11,
+				10,
+				8,
+				5
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 2,
+			"times_attacked": 4,
+			"total_damage_dealt": 47,
+			"total_damage_received": 4,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 12,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Eremite Linebreaker 4": {
+			"abilities_used": {
+				"Charged Swing": 1,
+				"Overhead Smash": 2
+			},
+			"attack_rolls": [
+				11,
+				5,
+				10
+			],
+			"avg_attack_roll": 8.66666666666667,
+			"avg_damage_per_hit": 2.0,
+			"avg_damage_per_turn": 2.0,
+			"avg_defense_roll": 7.57142857142857,
+			"crits": 0,
+			"defense_rolls": [
+				9,
+				11,
+				6,
+				4,
+				6,
+				8,
+				9
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 7,
+			"total_damage_dealt": 6,
+			"total_damage_received": 82,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 3,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Eremite Ravenbeak Halberdier 1": {
+			"abilities_used": {
+				"Thrown Halberd": 1
+			},
+			"attack_rolls": [
+				11
+			],
+			"avg_attack_roll": 11.0,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 5.0,
+			"crits": 0,
+			"defense_rolls": [
+				2,
+				11,
+				6,
+				1
+			],
+			"items_used": {
+
+			},
+			"kills": 1,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 4,
+			"total_damage_dealt": 0,
+			"total_damage_received": 78,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Eremite Sword Dancer 2": {
+			"abilities_used": {
+				"Rapid Slashes": 2
+			},
+			"attack_rolls": [
+				5,
+				7,
+				6
+			],
+			"avg_attack_roll": 6.0,
+			"avg_damage_per_hit": 3.0,
+			"avg_damage_per_turn": 1.0,
+			"avg_defense_roll": 7.9,
+			"crits": 0,
+			"defense_rolls": [
+				15,
+				7,
+				8,
+				4,
+				6,
+				9,
+				10,
+				8,
+				7,
+				5
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 7,
+			"times_attacked": 10,
+			"total_damage_dealt": 3,
+			"total_damage_received": 83,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 1,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Eremite Sword Dancer 3": {
+			"abilities_used": {
+				"Rapid Slashes": 2
+			},
+			"attack_rolls": [
+				7,
+				6
+			],
+			"avg_attack_roll": 6.5,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 6.33333333333333,
+			"crits": 0,
+			"defense_rolls": [
+				9,
+				6,
+				4
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 3,
+			"total_damage_dealt": 0,
+			"total_damage_received": 81,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Yae Miko": {
+			"abilities_used": {
+				"Yae Miko – Charged Attack": 2
+			},
+			"attack_rolls": [
+				9,
+				14
+			],
+			"avg_attack_roll": 11.5,
+			"avg_damage_per_hit": 1.0,
+			"avg_damage_per_turn": 0.666666666666667,
+			"avg_defense_roll": 0.0,
+			"crits": 0,
+			"defense_rolls": [],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 3,
+			"times_attacked": 0,
+			"total_damage_dealt": 2,
+			"total_damage_received": 0,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 2,
+			"turns_taken": 3,
+			"type": "Unknown"
+		}
+	},
+	"duration_seconds": 5069.31,
+	"end_time": "2026-06-06T02:51:35",
+	"start_time": "2026-06-06T01:27:06",
+	"total_damage": 333,
+	"total_kills": 5,
+	"total_turns": 30
+}

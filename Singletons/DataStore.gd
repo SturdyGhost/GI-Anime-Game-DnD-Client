@@ -120,4 +120,6 @@ func _get_global_dict(table_name: String) -> Dictionary:
 		"Game_Config": return Global.GAME_CONFIG
 		"Minigames": return Global.MINIGAMES
 		"Minigames_Results": return Global.MINIGAMES_RESULTS
+		"Reputation_Events": return Global.REPUTATION_EVENTS
+		"Quests": return Global.QUESTS
 	return {}

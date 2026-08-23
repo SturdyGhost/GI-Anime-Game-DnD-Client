@@ -42,9 +42,13 @@ func _ready() -> void:
 	add_child(_container)
 
 func notify(message: String, level: int = Level.INFO, duration: float = DURATION) -> void:
-	# Trim old toasts
+	# Trim old toasts. remove_child() first: queue_free() only frees at the end
+	# of the frame, so the child count wouldn't drop and this loop would spin
+	# forever whenever MAX_TOASTS notifications land inside a single frame.
 	while _container.get_child_count() >= MAX_TOASTS:
-		_container.get_child(0).queue_free()
+		var oldest = _container.get_child(0)
+		_container.remove_child(oldest)
+		oldest.queue_free()
 
 	var panel = PanelContainer.new()
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE

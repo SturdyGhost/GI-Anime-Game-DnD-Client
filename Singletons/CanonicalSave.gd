@@ -39,6 +39,8 @@ const PERSISTED_TABLES: Array = [
 	"Game_Config",
 	"Minigames_Results",
 	"ActiveEffects",
+	"Reputation_Events",
+	"Quests",
 ]
 
 ## Pure battle-time runtime state. These tables live in `tables` (in-memory)
@@ -116,6 +118,10 @@ func _load_file(path: String) -> bool:
 const _STATIC_HYDRATE_SOURCES := {
 	"Talents":        "res://data/Talents.json",
 	"Constellations": "res://data/Constellations.json",
+	# Reputation history: if a save has no reputation events yet (fresh game or a
+	# save predating the feature), backfill the party's campaign deeds-to-date
+	# from the bundled default. Once real events accumulate, this no longer fires.
+	"Reputation_Events": "res://data/Reputation_Events.json",
 }
 
 func _hydrate_static_tables_if_empty() -> void:

@@ -1,0 +1,461 @@
+{
+	"battle_id": "1780718630.96",
+	"combatants": {
+		"Ayaka": {
+			"abilities_used": {
+				"Ayaka – Burst": 1,
+				"Ayaka – Skill": 1,
+				"Sword - Default Charged Attack": 1
+			},
+			"attack_rolls": [
+				15,
+				9,
+				17
+			],
+			"avg_attack_roll": 13.6666666666667,
+			"avg_damage_per_hit": 1.91304347826087,
+			"avg_damage_per_turn": 29.3333333333333,
+			"avg_defense_roll": 9.0,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				8,
+				6,
+				14
+			],
+			"items_used": {
+
+			},
+			"kills": 1,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 4,
+			"total_damage_dealt": 88,
+			"total_damage_received": 2,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 46,
+			"turns_taken": 3,
+			"type": "Unknown"
+		},
+		"Brian C.": {
+			"abilities_used": {
+				"Brian C. – Charged Attack": 1,
+				"Brian C. – Skill": 1
+			},
+			"attack_rolls": [],
+			"avg_attack_roll": 0.0,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 14.0,
+			"crits": 0,
+			"defense_rolls": [
+				17,
+				5,
+				19,
+				18,
+				10,
+				15
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 6,
+			"total_damage_dealt": 0,
+			"total_damage_received": 3,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Brian F.": {
+			"abilities_used": {
+				"Brian F. – Basic": 1,
+				"Brian F. – Charged Attack": 1
+			},
+			"attack_rolls": [
+				11,
+				11,
+				15
+			],
+			"avg_attack_roll": 12.3333333333333,
+			"avg_damage_per_hit": 30.3333333333333,
+			"avg_damage_per_turn": 22.75,
+			"avg_defense_roll": 7.75,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				6,
+				9,
+				8
+			],
+			"items_used": {
+
+			},
+			"kills": 1,
+			"shields_generated": 0,
+			"tiles_moved": 7,
+			"times_attacked": 4,
+			"total_damage_dealt": 91,
+			"total_damage_received": 0,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 3,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Dehya": {
+			"abilities_used": {
+				"Claymore - Default Charged Attack": 4
+			},
+			"attack_rolls": [
+				6,
+				11
+			],
+			"avg_attack_roll": 8.5,
+			"avg_damage_per_hit": 88.5,
+			"avg_damage_per_turn": 265.5,
+			"avg_defense_roll": 9.0,
+			"crits": 0,
+			"defense_rolls": [
+				9
+			],
+			"items_used": {
+
+			},
+			"kills": 7,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 1,
+			"total_damage_dealt": 1062,
+			"total_damage_received": 0,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 12,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Dylan": {
+			"abilities_used": {
+				"Dylan – Basic": 1,
+				"Dylan – Burst": 1,
+				"Dylan – Charged Attack": 1,
+				"Dylan – Skill": 1
+			},
+			"attack_rolls": [
+				11,
+				10,
+				20
+			],
+			"avg_attack_roll": 13.6666666666667,
+			"avg_damage_per_hit": 2.7,
+			"avg_damage_per_turn": 6.75,
+			"avg_defense_roll": 9.25,
+			"crits": 1,
+			"defense_rolls": [
+				11,
+				9,
+				4,
+				13
+			],
+			"items_used": {
+
+			},
+			"kills": 1,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 4,
+			"total_damage_dealt": 27,
+			"total_damage_received": 8,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 10,
+			"turns_taken": 4,
+			"type": "Unknown"
+		},
+		"Eremite Linebreaker 5": {
+			"abilities_used": {
+				"Overhead Smash": 3
+			},
+			"attack_rolls": [
+				9,
+				5,
+				14
+			],
+			"avg_attack_roll": 9.33333333333333,
+			"avg_damage_per_hit": 3.0,
+			"avg_damage_per_turn": 1.0,
+			"avg_defense_roll": 1.0,
+			"crits": 0,
+			"defense_rolls": [
+				1
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 1,
+			"total_damage_dealt": 3,
+			"total_damage_received": 150,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 1,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Eremite Ravenbeak Halberdier 6": {
+			"abilities_used": {
+				"Halberd Strike": 2,
+				"Thrown Halberd": 1
+			},
+			"attack_rolls": [
+				5,
+				2,
+				3
+			],
+			"avg_attack_roll": 3.33333333333333,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 5.4,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				9,
+				3,
+				6,
+				1
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 5,
+			"total_damage_dealt": 0,
+			"total_damage_received": 191,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Eremite Sword Dancer 7": {
+			"abilities_used": {
+				"Rapid Slashes": 3
+			},
+			"attack_rolls": [
+				13,
+				3,
+				12
+			],
+			"avg_attack_roll": 9.33333333333333,
+			"avg_damage_per_hit": 1.0,
+			"avg_damage_per_turn": 0.333333333333333,
+			"avg_defense_roll": 8.16666666666667,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				11,
+				10,
+				3,
+				9,
+				8
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 6,
+			"total_damage_dealt": 1,
+			"total_damage_received": 231,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 1,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Large Earth Slime 2": {
+			"abilities_used": {
+				"Basic Attack": 1
+			},
+			"attack_rolls": [
+				8,
+				3,
+				9
+			],
+			"avg_attack_roll": 6.66666666666667,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 5.0,
+			"crits": 0,
+			"defense_rolls": [
+				4,
+				8,
+				3
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 3,
+			"total_damage_dealt": 0,
+			"total_damage_received": 171,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Large Fire Slime 3": {
+			"abilities_used": {
+				"Basic Attack": 1
+			},
+			"attack_rolls": [
+				13,
+				15
+			],
+			"avg_attack_roll": 14.0,
+			"avg_damage_per_hit": 1.0,
+			"avg_damage_per_turn": 0.666666666666667,
+			"avg_defense_roll": 8.33333333333333,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				11,
+				9,
+				10,
+				3,
+				9
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 6,
+			"total_damage_dealt": 2,
+			"total_damage_received": 226,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 2,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Large Ice Slime 4": {
+			"abilities_used": {
+				"Basic Attack": 2
+			},
+			"attack_rolls": [
+				4,
+				8
+			],
+			"avg_attack_roll": 6.0,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 9.0,
+			"crits": 0,
+			"defense_rolls": [
+				8,
+				8,
+				10,
+				10
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 4,
+			"total_damage_dealt": 0,
+			"total_damage_received": 227,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Large Wind Slime 1": {
+			"abilities_used": {
+				"Basic Attack": 2
+			},
+			"attack_rolls": [
+				2,
+				5,
+				8
+			],
+			"avg_attack_roll": 5.0,
+			"avg_damage_per_hit": 0.0,
+			"avg_damage_per_turn": 0.0,
+			"avg_defense_roll": 3.0,
+			"crits": 0,
+			"defense_rolls": [
+				3
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 2,
+			"times_attacked": 1,
+			"total_damage_dealt": 0,
+			"total_damage_received": 173,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 0,
+			"turns_taken": 3,
+			"type": "Enemy"
+		},
+		"Yae Miko": {
+			"abilities_used": {
+				"Yae Miko – Charged Attack": 2,
+				"Yae Miko – Skill": 1
+			},
+			"attack_rolls": [
+				13
+			],
+			"avg_attack_roll": 13.0,
+			"avg_damage_per_hit": 2.05660377358491,
+			"avg_damage_per_turn": 36.3333333333333,
+			"avg_defense_roll": 10.0,
+			"crits": 0,
+			"defense_rolls": [
+				14,
+				6
+			],
+			"items_used": {
+
+			},
+			"kills": 0,
+			"shields_generated": 0,
+			"tiles_moved": 0,
+			"times_attacked": 2,
+			"total_damage_dealt": 109,
+			"total_damage_received": 1,
+			"total_healing_done": 0,
+			"total_healing_received": 0,
+			"total_hits": 53,
+			"turns_taken": 3,
+			"type": "Unknown"
+		}
+	},
+	"duration_seconds": 5334.672,
+	"end_time": "2026-06-06T05:32:45",
+	"start_time": "2026-06-06T04:03:50",
+	"total_damage": 1383,
+	"total_kills": 10,
+	"total_turns": 43
+}

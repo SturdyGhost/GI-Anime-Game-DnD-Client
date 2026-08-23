@@ -19,13 +19,19 @@ extends Node
 ##      their own offline_change_log.json, we compare each entry's ts against
 ##      ChangeLog.latest_for(table, record_id, field) to decide who wins.
 ##
-## Storage: user://change_log.json (append-only, atomic writes).
+## Storage: user://change_log.jsonl — JSON Lines (one JSON object per line),
+## append-only. Appending a new entry writes a single line at the end of the
+## file (O(1)) instead of re-serializing the whole array (O(history)). This
+## matters because every host-side mutation appends an entry, so the old
+## whole-file rewrite made each action cost grow with total campaign history.
+## Legacy user://change_log.json (a single JSON array) is migrated on first load.
 ## Retention: full history, never purged (user's call, this can grow but the
 ## per-field LWW index keeps lookups O(1) regardless of file size).
 
-const LOG_PATH   = "user://change_log.json"
-const LOG_TMP    = "user://change_log.json.tmp"
-const LOG_BACKUP = "user://change_log.json.bak"
+const LOG_PATH        = "user://change_log.jsonl"
+const LOG_TMP         = "user://change_log.jsonl.tmp"
+const LOG_BACKUP      = "user://change_log.jsonl.bak"
+const LEGACY_LOG_PATH = "user://change_log.json"      # old single-array format
 
 # All entries, append-only.
 var entries: Array = []
@@ -34,7 +40,28 @@ var entries: Array = []
 # load and maintained on every append. Used by latest_for() for O(1) lookups.
 var _latest_by_field: Dictionary = {}
 
+# Batch mode: while active, _append() defers the per-entry disk write and
+# accumulates entries in _batch_buffer, flushing them in a single file open when
+# end_batch() runs. Reconciling a returning player's offline changes appends one
+# entry per change; batching turns that into one disk write instead of many.
+var _batching: bool = false
+var _batch_buffer: Array = []
+
 signal entry_appended(entry: Dictionary)
+
+## Suspend per-append disk flushes. Pair with end_batch(). Not re-entrant across
+## awaits — reconciliation is synchronous, so a single begin/end pair is enough.
+func begin_batch() -> void:
+	_batching = true
+	_batch_buffer.clear()
+
+## Resume normal flushing and write all entries appended during the batch in a
+## single append to disk.
+func end_batch() -> void:
+	_batching = false
+	if not _batch_buffer.is_empty():
+		_append_entries_to_disk(_batch_buffer)
+		_batch_buffer.clear()
 
 func _ready() -> void:
 	# Load is explicit (triggered by NetworkManager.host_game / offline mode
@@ -45,19 +72,50 @@ func _ready() -> void:
 
 func load_from_disk() -> bool:
 	if FileAccess.file_exists(LOG_PATH):
-		if _load_file(LOG_PATH):
+		if _load_jsonl(LOG_PATH):
 			return true
 		push_warning("ChangeLog: main load failed, falling back to backup")
 	if FileAccess.file_exists(LOG_BACKUP):
-		if _load_file(LOG_BACKUP):
+		if _load_jsonl(LOG_BACKUP):
 			push_warning("ChangeLog: recovered from %s" % LOG_BACKUP)
+			return true
+	# One-time migration from the legacy single-array format.
+	if FileAccess.file_exists(LEGACY_LOG_PATH):
+		if _load_legacy_array(LEGACY_LOG_PATH):
+			save_to_disk()  # rewrite as JSONL so subsequent loads use the fast path
+			print("ChangeLog: migrated %d entries from legacy %s to JSONL" % [entries.size(), LEGACY_LOG_PATH])
 			return true
 	# No log on disk — start fresh.
 	entries = []
 	_latest_by_field.clear()
 	return false
 
-func _load_file(path: String) -> bool:
+## Read a JSON Lines file: one entry per line. Tolerates a torn final line (a
+## crash mid-append) by skipping any line that fails to parse.
+func _load_jsonl(path: String) -> bool:
+	var f = FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return false
+	entries = []
+	var skipped := 0
+	while not f.eof_reached():
+		var line := f.get_line()
+		if line.strip_edges() == "":
+			continue
+		var parsed = JSON.parse_string(line)
+		if parsed == null or typeof(parsed) != TYPE_DICTIONARY:
+			skipped += 1
+			continue
+		entries.append(parsed)
+	f.close()
+	_rebuild_index()
+	if skipped > 0:
+		push_warning("ChangeLog: skipped %d unparseable line(s) in %s" % [skipped, path])
+	print("ChangeLog: loaded %d entries from %s" % [entries.size(), path])
+	return true
+
+## Read the legacy single-JSON-array file (pre-JSONL format).
+func _load_legacy_array(path: String) -> bool:
 	var f = FileAccess.open(path, FileAccess.READ)
 	if f == null:
 		return false
@@ -69,11 +127,37 @@ func _load_file(path: String) -> bool:
 		return false
 	entries = parsed
 	_rebuild_index()
-	print("ChangeLog: loaded %d entries from %s" % [entries.size(), path])
 	return true
 
+## Append one or more entries to the JSONL file as new lines (O(entries added)),
+## without rewriting existing history. Opens in READ_WRITE and seeks to the end
+## so prior lines are preserved; creates the file if it does not yet exist.
+func _append_entries_to_disk(new_entries: Array) -> void:
+	if new_entries.is_empty():
+		return
+	var f: FileAccess
+	if FileAccess.file_exists(LOG_PATH):
+		f = FileAccess.open(LOG_PATH, FileAccess.READ_WRITE)
+		if f != null:
+			f.seek_end()
+	else:
+		f = FileAccess.open(LOG_PATH, FileAccess.WRITE)
+	if f == null:
+		push_error("ChangeLog: cannot open %s to append (error %d)" % [LOG_PATH, FileAccess.get_open_error()])
+		return
+	for entry in new_entries:
+		f.store_line(JSON.stringify(entry))  # no indent → guaranteed single line
+	f.close()
+
+## Full atomic rewrite of the entire log as JSONL. Used for legacy migration and
+## available for compaction; the hot append path uses _append_entries_to_disk.
 func save_to_disk() -> void:
-	var json_str := JSON.stringify(entries, "\t")
+	var lines: PackedStringArray = []
+	for entry in entries:
+		lines.append(JSON.stringify(entry))
+	var json_str := "\n".join(lines)
+	if not lines.is_empty():
+		json_str += "\n"
 	var tmp = FileAccess.open(LOG_TMP, FileAccess.WRITE)
 	if tmp == null:
 		push_error("ChangeLog: cannot open tmp file for write")
@@ -145,7 +229,10 @@ func append_raw(entry: Dictionary) -> void:
 func _append(entry: Dictionary) -> void:
 	entries.append(entry)
 	_index_entry(entry)
-	save_to_disk()
+	if _batching:
+		_batch_buffer.append(entry)  # flushed in one write by end_batch()
+	else:
+		_append_entries_to_disk([entry])
 	emit_signal("entry_appended", entry)
 
 # ── Query API ──────────────────────────────────────────────────────────────

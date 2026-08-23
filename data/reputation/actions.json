@@ -1,0 +1,319 @@
+{
+  "_comment": "ActionDef. One action emits a BUNDLE of trait deltas, each with its own Points (identity shift) and Severity (memory length 0-1; high severity decays slowly). Category 'Generic' = reusable verbs the DM tags to any situation; 'Campaign' = specific deeds from the 18-session log (with a Region hint for the eventual history bootstrap). The DM may override Points/Severity per instance.",
+  "actions": [
+
+    { "Id": "murder_innocent", "Label": "Murdered an innocent", "Category": "Generic", "Emissions": [
+      { "Trait": "Killer", "Points": 50, "Severity": 0.95 }, { "Trait": "Ruthless", "Points": 25, "Severity": 0.70 }, { "Trait": "Feared", "Points": 20, "Severity": 0.60 } ] },
+    { "Id": "slaughter_combatants", "Label": "Killed enemies in battle", "Category": "Generic", "Emissions": [
+      { "Trait": "Killer", "Points": 20, "Severity": 0.45 }, { "Trait": "Combat Expert", "Points": 20, "Severity": 0.45 }, { "Trait": "Ruthless", "Points": 12, "Severity": 0.40 } ] },
+    { "Id": "assassinate_target", "Label": "Assassinated a target", "Category": "Generic", "Emissions": [
+      { "Trait": "Killer", "Points": 35, "Severity": 0.80 }, { "Trait": "Cunning", "Points": 20, "Severity": 0.60 }, { "Trait": "Feared", "Points": 20, "Severity": 0.60 } ] },
+    { "Id": "execute_prisoner", "Label": "Executed a prisoner", "Category": "Generic", "Emissions": [
+      { "Trait": "Executioner", "Points": 30, "Severity": 0.70 }, { "Trait": "Merciless", "Points": 20, "Severity": 0.60 }, { "Trait": "Ruthless", "Points": 15, "Severity": 0.55 } ] },
+    { "Id": "torture_for_info", "Label": "Tortured someone for information", "Category": "Generic", "Emissions": [
+      { "Trait": "Torturer", "Points": 35, "Severity": 0.85 }, { "Trait": "Cruel", "Points": 25, "Severity": 0.70 }, { "Trait": "Vile", "Points": 15, "Severity": 0.60 } ] },
+    { "Id": "mercy_kill", "Label": "Mercy-killed a suffering victim", "Category": "Generic", "Emissions": [
+      { "Trait": "Merciful", "Points": 15, "Severity": 0.50 }, { "Trait": "Ghoulish", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "slay_monster", "Label": "Slew a monster / boss", "Category": "Generic", "Emissions": [
+      { "Trait": "Combat Expert", "Points": 25, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 }, { "Trait": "Protector", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "slay_a_god", "Label": "Slew a god or divine being", "Category": "Generic", "Emissions": [
+      { "Trait": "Feared", "Points": 40, "Severity": 0.90 }, { "Trait": "Killer", "Points": 30, "Severity": 0.85 }, { "Trait": "Blasphemous", "Points": 25, "Severity": 0.80 }, { "Trait": "Bold", "Points": 20, "Severity": 0.70 } ] },
+    { "Id": "win_duel", "Label": "Won a duel", "Category": "Generic", "Emissions": [
+      { "Trait": "Duelist", "Points": 25, "Severity": 0.50 }, { "Trait": "Combat Expert", "Points": 20, "Severity": 0.50 }, { "Trait": "Bold", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "win_duel_to_death", "Label": "Won a duel to the death", "Category": "Generic", "Emissions": [
+      { "Trait": "Duelist", "Points": 30, "Severity": 0.70 }, { "Trait": "Combat Expert", "Points": 25, "Severity": 0.60 }, { "Trait": "Feared", "Points": 15, "Severity": 0.55 }, { "Trait": "Ruthless", "Points": 10, "Severity": 0.50 } ] },
+    { "Id": "flee_battle", "Label": "Fled from battle", "Category": "Generic", "Emissions": [
+      { "Trait": "Cowardly", "Points": 30, "Severity": 0.50 }, { "Trait": "Craven", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "reckless_charge", "Label": "Charged in recklessly", "Category": "Generic", "Emissions": [
+      { "Trait": "Reckless", "Points": 20, "Severity": 0.30 }, { "Trait": "Bold", "Points": 15, "Severity": 0.30 }, { "Trait": "Brave", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "take_a_hit_for_someone", "Label": "Shielded someone with your own body", "Category": "Generic", "Emissions": [
+      { "Trait": "Selfless", "Points": 25, "Severity": 0.55 }, { "Trait": "Protector", "Points": 20, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 } ] },
+
+    { "Id": "save_life", "Label": "Saved someone's life", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 30, "Severity": 0.60 }, { "Trait": "Compassionate", "Points": 20, "Severity": 0.50 }, { "Trait": "Brave", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "heal_wounded", "Label": "Healed the wounded", "Category": "Generic", "Emissions": [
+      { "Trait": "Healer", "Points": 25, "Severity": 0.45 }, { "Trait": "Compassionate", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "nurse_to_health", "Label": "Nursed someone back to health", "Category": "Generic", "Emissions": [
+      { "Trait": "Healer", "Points": 20, "Severity": 0.45 }, { "Trait": "Nurturing", "Points": 20, "Severity": 0.45 } ] },
+    { "Id": "defend_settlement", "Label": "Defended a town or village", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 30, "Severity": 0.65 }, { "Trait": "Brave", "Points": 20, "Severity": 0.50 }, { "Trait": "Beloved", "Points": 15, "Severity": 0.55 } ] },
+    { "Id": "escort_protect", "Label": "Escorted / guarded someone safely", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 20, "Severity": 0.45 }, { "Trait": "Dependable", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "protect_child", "Label": "Protected a child", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.55 }, { "Trait": "Nurturing", "Points": 20, "Severity": 0.50 } ] },
+    { "Id": "cleanse_corruption", "Label": "Cleansed abyssal corruption", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.60 }, { "Trait": "Devout", "Points": 15, "Severity": 0.50 }, { "Trait": "Brave", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "free_prisoner", "Label": "Freed a prisoner / captive", "Category": "Generic", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.55 }, { "Trait": "Rebel", "Points": 15, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "comfort_counsel", "Label": "Comforted / counseled someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Compassionate", "Points": 20, "Severity": 0.40 }, { "Trait": "Wise", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "recruit_ally", "Label": "Won over a new ally", "Category": "Generic", "Emissions": [
+      { "Trait": "Charismatic", "Points": 20, "Severity": 0.50 }, { "Trait": "Inspiring", "Points": 15, "Severity": 0.45 }, { "Trait": "Beloved", "Points": 10, "Severity": 0.50 } ] },
+
+    { "Id": "steal", "Label": "Stole something", "Category": "Generic", "Emissions": [
+      { "Trait": "Thief", "Points": 30, "Severity": 0.50 }, { "Trait": "Cunning", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "rob_and_loot_site", "Label": "Ransacked and looted a site", "Category": "Generic", "Emissions": [
+      { "Trait": "Looter", "Points": 25, "Severity": 0.55 }, { "Trait": "Thief", "Points": 25, "Severity": 0.55 }, { "Trait": "Plunderer", "Points": 20, "Severity": 0.50 } ] },
+    { "Id": "loot_corpse", "Label": "Looted a corpse", "Category": "Generic", "Emissions": [
+      { "Trait": "Looter", "Points": 20, "Severity": 0.45 }, { "Trait": "Ghoulish", "Points": 12, "Severity": 0.40 } ] },
+    { "Id": "smuggle", "Label": "Smuggled goods or people", "Category": "Generic", "Emissions": [
+      { "Trait": "Smuggler", "Points": 25, "Severity": 0.45 }, { "Trait": "Outlaw", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "trespass", "Label": "Broke in / trespassed illegally", "Category": "Generic", "Emissions": [
+      { "Trait": "Outlaw", "Points": 18, "Severity": 0.40 }, { "Trait": "Bold", "Points": 12, "Severity": 0.30 } ] },
+    { "Id": "poach", "Label": "Poached protected wildlife", "Category": "Generic", "Emissions": [
+      { "Trait": "Poacher", "Points": 25, "Severity": 0.50 }, { "Trait": "Despoiler", "Points": 12, "Severity": 0.45 } ] },
+    { "Id": "arson", "Label": "Set fire to a building", "Category": "Generic", "Emissions": [
+      { "Trait": "Arsonist", "Points": 30, "Severity": 0.65 }, { "Trait": "Despoiler", "Points": 18, "Severity": 0.55 } ] },
+    { "Id": "bribe_official", "Label": "Bribed an official", "Category": "Generic", "Emissions": [
+      { "Trait": "Cunning", "Points": 15, "Severity": 0.35 }, { "Trait": "Con Artist", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "swindle", "Label": "Swindled / conned someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Con Artist", "Points": 30, "Severity": 0.50 }, { "Trait": "Deceitful", "Points": 20, "Severity": 0.45 }, { "Trait": "Manipulative", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "forge_counterfeit", "Label": "Forged or counterfeited", "Category": "Generic", "Emissions": [
+      { "Trait": "Forger", "Points": 25, "Severity": 0.50 }, { "Trait": "Deceitful", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "extort", "Label": "Extorted / shook someone down", "Category": "Generic", "Emissions": [
+      { "Trait": "Extortionist", "Points": 30, "Severity": 0.55 }, { "Trait": "Greedy", "Points": 15, "Severity": 0.45 }, { "Trait": "Exploitative", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "betray_ally", "Label": "Betrayed an ally", "Category": "Generic", "Emissions": [
+      { "Trait": "Treacherous", "Points": 40, "Severity": 0.85 }, { "Trait": "Backstabber", "Points": 30, "Severity": 0.75 }, { "Trait": "Faithless", "Points": 20, "Severity": 0.65 } ] },
+    { "Id": "break_oath", "Label": "Broke an oath / contract", "Category": "Generic", "Emissions": [
+      { "Trait": "Oathbreaker", "Points": 35, "Severity": 0.75 }, { "Trait": "Faithless", "Points": 20, "Severity": 0.60 } ] },
+    { "Id": "abandon_someone", "Label": "Abandoned someone in need", "Category": "Generic", "Emissions": [
+      { "Trait": "Faithless", "Points": 20, "Severity": 0.55 }, { "Trait": "Callous", "Points": 15, "Severity": 0.50 }, { "Trait": "Cowardly", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "spy_infiltrate", "Label": "Spied / infiltrated covertly", "Category": "Generic", "Emissions": [
+      { "Trait": "Spy", "Points": 25, "Severity": 0.50 }, { "Trait": "Cunning", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "vandalize_prank", "Label": "Vandalized / pulled a crude prank", "Category": "Generic", "Emissions": [
+      { "Trait": "Boorish", "Points": 15, "Severity": 0.25 }, { "Trait": "Vandal", "Points": 15, "Severity": 0.35 } ] },
+    { "Id": "destroy_property", "Label": "Destroyed property", "Category": "Generic", "Emissions": [
+      { "Trait": "Vandal", "Points": 25, "Severity": 0.45 }, { "Trait": "Despoiler", "Points": 20, "Severity": 0.50 }, { "Trait": "Reckless", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "desecrate_shrine", "Label": "Desecrated a shrine / holy site", "Category": "Generic", "Emissions": [
+      { "Trait": "Sacrilegious", "Points": 35, "Severity": 0.70 }, { "Trait": "Blasphemous", "Points": 25, "Severity": 0.60 }, { "Trait": "Despoiler", "Points": 15, "Severity": 0.55 } ] },
+    { "Id": "rob_a_grave", "Label": "Robbed a grave / corpse hoard", "Category": "Generic", "Emissions": [
+      { "Trait": "Grave-robber", "Points": 30, "Severity": 0.60 }, { "Trait": "Macabre", "Points": 20, "Severity": 0.50 }, { "Trait": "Ghoulish", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "blaspheme", "Label": "Blasphemed against a god", "Category": "Generic", "Emissions": [
+      { "Trait": "Blasphemous", "Points": 25, "Severity": 0.50 }, { "Trait": "Heretical", "Points": 20, "Severity": 0.50 } ] },
+    { "Id": "experiment_on_someone", "Label": "Performed cruel experiments on someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Depraved", "Points": 35, "Severity": 0.85 }, { "Trait": "Inventive", "Points": 15, "Severity": 0.55 }, { "Trait": "Cruel", "Points": 20, "Severity": 0.70 } ] },
+
+    { "Id": "charm_npc", "Label": "Charmed someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Charismatic", "Points": 25, "Severity": 0.40 }, { "Trait": "Charming", "Points": 15, "Severity": 0.35 } ] },
+    { "Id": "woo_romance", "Label": "Courted / romanced someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Charming", "Points": 20, "Severity": 0.45 }, { "Trait": "Charismatic", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "harass_npc", "Label": "Was creepy / harassed someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Creepy", "Points": 25, "Severity": 0.40 }, { "Trait": "Off-putting", "Points": 20, "Severity": 0.40 }, { "Trait": "Boorish", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "insult_authority", "Label": "Insulted / mouthed off to authority", "Category": "Generic", "Emissions": [
+      { "Trait": "Tactless", "Points": 20, "Severity": 0.30 }, { "Trait": "Bold", "Points": 15, "Severity": 0.35 }, { "Trait": "Abrasive", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "intimidate", "Label": "Intimidated someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Feared", "Points": 20, "Severity": 0.40 }, { "Trait": "Abrasive", "Points": 10, "Severity": 0.30 }, { "Trait": "Bold", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "give_inspiring_speech", "Label": "Gave an inspiring speech / rallied others", "Category": "Generic", "Emissions": [
+      { "Trait": "Inspiring", "Points": 25, "Severity": 0.45 }, { "Trait": "Charismatic", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "perform_entertain", "Label": "Performed / entertained a crowd", "Category": "Generic", "Emissions": [
+      { "Trait": "Performer", "Points": 25, "Severity": 0.35 }, { "Trait": "Charismatic", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "broker_peace", "Label": "Brokered peace / talked down a conflict", "Category": "Generic", "Emissions": [
+      { "Trait": "Diplomat", "Points": 25, "Severity": 0.50 }, { "Trait": "Peacemaker", "Points": 20, "Severity": 0.50 }, { "Trait": "Wise", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "mediate_dispute", "Label": "Mediated a dispute", "Category": "Generic", "Emissions": [
+      { "Trait": "Diplomat", "Points": 20, "Severity": 0.45 }, { "Trait": "Negotiator", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "keep_promise", "Label": "Kept a promise / honored a contract", "Category": "Generic", "Emissions": [
+      { "Trait": "Honorable", "Points": 20, "Severity": 0.45 }, { "Trait": "Trustworthy", "Points": 20, "Severity": 0.45 }, { "Trait": "Dependable", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "donate_generously", "Label": "Donated generously", "Category": "Generic", "Emissions": [
+      { "Trait": "Generous", "Points": 25, "Severity": 0.35 }, { "Trait": "Charitable", "Points": 15, "Severity": 0.35 }, { "Trait": "Beloved", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "haggle_hard", "Label": "Haggled hard for profit", "Category": "Generic", "Emissions": [
+      { "Trait": "Shrewd", "Points": 12, "Severity": 0.10 }, { "Trait": "Entrepreneurial", "Points": 10, "Severity": 0.10 } ] },
+    { "Id": "honor_the_dead", "Label": "Honored the dead", "Category": "Generic", "Emissions": [
+      { "Trait": "Reverent", "Points": 25, "Severity": 0.50 }, { "Trait": "Dutiful", "Points": 15, "Severity": 0.45 }, { "Trait": "Compassionate", "Points": 10, "Severity": 0.40 } ] },
+
+    { "Id": "complete_quest", "Label": "Completed a job for someone", "Category": "Generic", "Emissions": [
+      { "Trait": "Dependable", "Points": 20, "Severity": 0.35 }, { "Trait": "Civic-minded", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "solve_puzzle", "Label": "Solved a puzzle / outwitted a challenge", "Category": "Generic", "Emissions": [
+      { "Trait": "Wise", "Points": 20, "Severity": 0.35 }, { "Trait": "Insightful", "Points": 15, "Severity": 0.30 } ] },
+    { "Id": "investigate_mystery", "Label": "Cracked a mystery / investigation", "Category": "Generic", "Emissions": [
+      { "Trait": "Insightful", "Points": 20, "Severity": 0.40 }, { "Trait": "Shrewd", "Points": 15, "Severity": 0.35 } ] },
+    { "Id": "study_research", "Label": "Conducted study or research", "Category": "Generic", "Emissions": [
+      { "Trait": "Scholarly", "Points": 20, "Severity": 0.40 }, { "Trait": "Learned", "Points": 15, "Severity": 0.35 } ] },
+    { "Id": "craft_masterwork", "Label": "Crafted a masterwork", "Category": "Generic", "Emissions": [
+      { "Trait": "Master Craftsman", "Points": 25, "Severity": 0.45 }, { "Trait": "Inventive", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "hunt_game", "Label": "Hunted / foraged for the party", "Category": "Generic", "Emissions": [
+      { "Trait": "Skilled Hunter", "Points": 20, "Severity": 0.35 }, { "Trait": "Survivalist", "Points": 15, "Severity": 0.35 } ] },
+    { "Id": "tame_beast", "Label": "Tamed a wild creature", "Category": "Generic", "Emissions": [
+      { "Trait": "Beast-Tamer", "Points": 25, "Severity": 0.45 } ] },
+    { "Id": "explore_uncharted", "Label": "Explored uncharted territory", "Category": "Generic", "Emissions": [
+      { "Trait": "Explorer", "Points": 20, "Severity": 0.40 }, { "Trait": "Pathfinder", "Points": 15, "Severity": 0.40 }, { "Trait": "Bold", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "precision_nonlethal", "Label": "Subdued a foe non-lethally with precision", "Category": "Generic", "Emissions": [
+      { "Trait": "Marksman", "Points": 20, "Severity": 0.45 }, { "Trait": "Merciful", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "keep_composure", "Label": "Kept composure under pressure", "Category": "Generic", "Emissions": [
+      { "Trait": "Composed", "Points": 15, "Severity": 0.35 }, { "Trait": "Stoic", "Points": 10, "Severity": 0.30 } ] },
+
+    { "Id": "gamble", "Label": "Gambled recklessly", "Category": "Generic", "Emissions": [
+      { "Trait": "Reckless", "Points": 20, "Severity": 0.25 }, { "Trait": "Hedonistic", "Points": 10, "Severity": 0.20 } ] },
+    { "Id": "consume_dubious_substance", "Label": "Swallowed a sketchy substance", "Category": "Generic", "Emissions": [
+      { "Trait": "Reckless", "Points": 18, "Severity": 0.25 }, { "Trait": "Hedonistic", "Points": 12, "Severity": 0.20 } ] },
+    { "Id": "drunken_revelry", "Label": "Drank to excess / caroused", "Category": "Generic", "Emissions": [
+      { "Trait": "Drunkard", "Points": 18, "Severity": 0.25 }, { "Trait": "Hedonistic", "Points": 12, "Severity": 0.20 } ] },
+    { "Id": "join_rebellion", "Label": "Joined a rebellion / uprising", "Category": "Generic", "Emissions": [
+      { "Trait": "Rebel", "Points": 30, "Severity": 0.70 }, { "Trait": "Liberator", "Points": 20, "Severity": 0.60 }, { "Trait": "Bold", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "public_defiance", "Label": "Openly defied a ruler / authority", "Category": "Generic", "Emissions": [
+      { "Trait": "Bold", "Points": 20, "Severity": 0.50 }, { "Trait": "Rebel", "Points": 20, "Severity": 0.55 }, { "Trait": "Insurgent", "Points": 15, "Severity": 0.55 } ] },
+
+    { "Id": "defended_mondstadt_gates", "Label": "Fought monsters to defend Mondstadt", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.55 }, { "Trait": "Brave", "Points": 20, "Severity": 0.50 }, { "Trait": "Defender", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "purged_wind_temple", "Label": "Purged the abyss from the Wind Temple", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.55 }, { "Trait": "Devout", "Points": 15, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "courted_mona", "Label": "Won Mona over with coins", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Generous", "Points": 15, "Severity": 0.30 }, { "Trait": "Charismatic", "Points": 12, "Severity": 0.30 } ] },
+    { "Id": "saved_klee_treasure", "Label": "Saved Klee's stolen treasure", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 }, { "Trait": "Beloved", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "cleansed_dvalin", "Label": "Cleansed the corrupted dragon Dvalin", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Protector", "Points": 30, "Severity": 0.70 }, { "Trait": "Brave", "Points": 20, "Severity": 0.60 }, { "Trait": "Reverent", "Points": 10, "Severity": 0.50 } ] },
+    { "Id": "named_honorary_knight", "Label": "Named an Honorary Knight of Mondstadt", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Honorable", "Points": 25, "Severity": 0.75 }, { "Trait": "Beloved", "Points": 20, "Severity": 0.70 }, { "Trait": "Protector", "Points": 15, "Severity": 0.60 } ] },
+    { "Id": "recovered_field_tiller", "Label": "Recovered the First Field Tiller for Dainsleif", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Bold", "Points": 15, "Severity": 0.50 }, { "Trait": "Resourceful", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "cleansed_dragonspine", "Label": "Cleansed the corruption on Dragonspine", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Protector", "Points": 25, "Severity": 0.60 }, { "Trait": "Brave", "Points": 20, "Severity": 0.55 }, { "Trait": "Wise", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "counseled_mona", "Label": "Counseled Mona through a crisis of self-worth", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Compassionate", "Points": 18, "Severity": 0.45 }, { "Trait": "Wise", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "attacked_and_demeaned_mona", "Label": "Accidentally attacked Mona & tried to 'buy' Mona with coins", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Boorish", "Points": 18, "Severity": 0.45 }, { "Trait": "Off-putting", "Points": 14, "Severity": 0.45 }, { "Trait": "Reckless", "Points": 12, "Severity": 0.35 } ] },
+    { "Id": "brian_f_freed_dragonspine_predator", "Label": "Personally talked the Dragonspine predator into walking free (Brian F.)", "Category": "Campaign", "Region": "Mondstadt", "Actor": "Brian F.",
+      "Notes": "Brian F. opened on the man with a mock come-on and then degradation, then won the man over on a nat 20 - and the man walked away toward work on children's television. The party-wide released_dragonspine_predator record is unchanged; this is Brian F.'s own share of it.", "Emissions": [
+      { "Trait": "Callous", "Points": 21, "Severity": 0.60 }, { "Trait": "Off-putting", "Points": 16, "Severity": 0.45 },
+      { "Trait": "Reckless", "Points": 14, "Severity": 0.45 }, { "Trait": "Boorish", "Points": 12, "Severity": 0.40 } ] },
+    { "Id": "released_dragonspine_predator", "Label": "Let the Dragonspine predator walk free", "Category": "Campaign", "Region": "Mondstadt", "Emissions": [
+      { "Trait": "Callous", "Points": 32, "Severity": 0.65 }, { "Trait": "Reckless", "Points": 14, "Severity": 0.45 }, { "Trait": "Foolish", "Points": 10, "Severity": 0.35 } ] },
+
+    { "Id": "accused_of_morax_death", "Label": "Blamed for Morax's death; on the run", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Fugitive", "Points": 25, "Severity": 0.55 }, { "Trait": "Feared", "Points": 12, "Severity": 0.45 } ] },
+    { "Id": "talked_down_cloud_retainer", "Label": "Talked Cloud Retainer out of razing Liyue", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Diplomat", "Points": 25, "Severity": 0.55 }, { "Trait": "Wise", "Points": 20, "Severity": 0.50 } ] },
+    { "Id": "brian_f_liyue_librarians", "Label": "Courted Liyue's librarians and ended up on a list among them (Brian F.)", "Category": "Campaign", "Region": "Liyue", "Actor": "Brian F.",
+      "Notes": "Brian F. did charm one librarian into a date. Brian F. also accrued late fees Brian F. could not pay and was placed on a list among Liyue's librarians - the party ribs Brian F. for it. Logged as both.", "Emissions": [
+      { "Trait": "Charming", "Points": 12, "Severity": 0.40 }, { "Trait": "Charismatic", "Points": 8, "Severity": 0.35 },
+      { "Trait": "Off-putting", "Points": 20, "Severity": 0.50 }, { "Trait": "Unreliable", "Points": 16, "Severity": 0.45 },
+      { "Trait": "Creepy", "Points": 12, "Severity": 0.45 } ] },
+    { "Id": "sent_off_morax", "Label": "Helped send off Morax with honor", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Reverent", "Points": 25, "Severity": 0.55 }, { "Trait": "Dutiful", "Points": 15, "Severity": 0.50 }, { "Trait": "Compassionate", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "bribed_guards_for_password", "Label": "Bought guards drinks for the portal password", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Cunning", "Points": 15, "Severity": 0.35 }, { "Trait": "Affable", "Points": 10, "Severity": 0.30 } ] },
+    { "Id": "raided_fatui_research_liyue", "Label": "Killed the staff of the Fatui research lab and looted it (Liyue)", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Killer", "Points": 30, "Severity": 0.60 }, { "Trait": "Looter", "Points": 30, "Severity": 0.60 }, { "Trait": "Plunderer", "Points": 25, "Severity": 0.55 }, { "Trait": "Ruthless", "Points": 20, "Severity": 0.55 } ] },
+    { "Id": "investigated_for_qixing", "Label": "Investigated the Fatui for the Qixing", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Dependable", "Points": 18, "Severity": 0.45 }, { "Trait": "Civic-minded", "Points": 12, "Severity": 0.40 }, { "Trait": "Spy", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "befriended_childe", "Label": "Befriended Childe through battle", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Combat Expert", "Points": 25, "Severity": 0.50 }, { "Trait": "Bold", "Points": 20, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 } ] },
+    { "Id": "helped_repel_osial", "Label": "Helped Liyue repel the god Osial", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Protector", "Points": 30, "Severity": 0.70 }, { "Trait": "Brave", "Points": 20, "Severity": 0.60 }, { "Trait": "Beloved", "Points": 15, "Severity": 0.60 } ] },
+    { "Id": "refused_ningguang_deal", "Label": "Turned down Ningguang's terms", "Category": "Campaign", "Region": "Liyue", "Emissions": [
+      { "Trait": "Bold", "Points": 15, "Severity": 0.40 }, { "Trait": "Shrewd", "Points": 12, "Severity": 0.35 }, { "Trait": "Abrasive", "Points": 8, "Severity": 0.30 } ] },
+
+    { "Id": "smuggled_into_inazuma", "Label": "Smuggled into Inazuma past the blockade", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Outlaw", "Points": 22, "Severity": 0.45 }, { "Trait": "Bold", "Points": 11, "Severity": 0.40 } ] },
+    { "Id": "insulted_the_hiiragi", "Label": "Insulted the Hiiragi clan head", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Tactless", "Points": 22, "Severity": 0.35 }, { "Trait": "Bold", "Points": 11, "Severity": 0.35 }, { "Trait": "Abrasive", "Points": 13, "Severity": 0.35 } ] },
+    { "Id": "slew_hiiragi_guards", "Label": "Killed guards to reach Chisato", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Killer", "Points": 30, "Severity": 0.55 }, { "Trait": "Combat Expert", "Points": 14, "Severity": 0.45 }, { "Trait": "Ruthless", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "ran_chisatos_errand", "Label": "Delivered Chisato's love letter for a permit", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Dependable", "Points": 13, "Severity": 0.40 }, { "Trait": "Charming", "Points": 10, "Severity": 0.35 } ] },
+    { "Id": "restored_starving_village", "Label": "Restored a starving Inazuman village's crops", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Protector", "Points": 18, "Severity": 0.50 }, { "Trait": "Compassionate", "Points": 18, "Severity": 0.50 }, { "Trait": "Steward", "Points": 15, "Severity": 0.45 }, { "Trait": "Beloved", "Points": 9, "Severity": 0.50 } ] },
+    { "Id": "joined_watatsumi_rebellion", "Label": "Joined the Watatsumi rebellion as legion captains", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Rebel", "Points": 34, "Severity": 0.70 }, { "Trait": "Liberator", "Points": 23, "Severity": 0.65 }, { "Trait": "Master Tactician", "Points": 18, "Severity": 0.60 }, { "Trait": "Combat Expert", "Points": 14, "Severity": 0.55 } ] },
+    { "Id": "won_legion_battles", "Label": "Won the inter-legion war games", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Master Tactician", "Points": 18, "Severity": 0.55 }, { "Trait": "Combat Expert", "Points": 17, "Severity": 0.50 }, { "Trait": "Ruthless", "Points": 13, "Severity": 0.45 } ] },
+    { "Id": "looted_tepehs_corpse", "Label": "Looted the dead captain Tepeh", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Looter", "Points": 22, "Severity": 0.40 }, { "Trait": "Ghoulish", "Points": 12, "Severity": 0.35 } ] },
+    { "Id": "destroyed_delusion_factory", "Label": "Destroyed the Fatui delusion factory", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Despoiler", "Points": 29, "Severity": 0.55 }, { "Trait": "Killer", "Points": 24, "Severity": 0.55 }, { "Trait": "Bold", "Points": 14, "Severity": 0.50 } ] },
+    { "Id": "freed_thoma_from_decree", "Label": "Publicly freed Thoma from the Vision Hunt Decree", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Protector", "Points": 27, "Severity": 0.70 }, { "Trait": "Liberator", "Points": 28, "Severity": 0.65 }, { "Trait": "Rebel", "Points": 28, "Severity": 0.70 }, { "Trait": "Bold", "Points": 18, "Severity": 0.60 } ] },
+    { "Id": "challenged_raiden_shogun", "Label": "Challenged the Raiden Shogun head-on", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Bold", "Points": 27, "Severity": 0.60 }, { "Trait": "Reckless", "Points": 34, "Severity": 0.45 }, { "Trait": "Brave", "Points": 23, "Severity": 0.55 }, { "Trait": "Insurgent", "Points": 24, "Severity": 0.60 } ] },
+    { "Id": "executed_signora_by_duel", "Label": "Won the death-duel that ended Signora", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Duelist", "Points": 32, "Severity": 0.80 }, { "Trait": "Combat Expert", "Points": 23, "Severity": 0.70 }, { "Trait": "Feared", "Points": 25, "Severity": 0.65 }, { "Trait": "Bold", "Points": 18, "Severity": 0.60 } ] },
+    { "Id": "calmed_the_raiden", "Label": "Talked the Raiden into pausing the decree", "Category": "Campaign", "Region": "Inazuma", "Emissions": [
+      { "Trait": "Diplomat", "Points": 25, "Severity": 0.70 }, { "Trait": "Wise", "Points": 20, "Severity": 0.65 }, { "Trait": "Inspiring", "Points": 18, "Severity": 0.60 }, { "Trait": "Brave", "Points": 14, "Severity": 0.55 } ] },
+
+    { "Id": "organized_conrian_seals", "Label": "Solved the Khaenri'ah seals in the Chasm", "Category": "Campaign", "Region": "Khaenri'ah", "Emissions": [
+      { "Trait": "Wise", "Points": 18, "Severity": 0.40 }, { "Trait": "Insightful", "Points": 15, "Severity": 0.40 } ] },
+    { "Id": "eased_khaenriah_curse", "Label": "Eased the cursed Khaenri'ahns' pain", "Category": "Campaign", "Region": "Khaenri'ah", "Emissions": [
+      { "Trait": "Compassionate", "Points": 25, "Severity": 0.60 }, { "Trait": "Merciful", "Points": 20, "Severity": 0.55 } ] },
+
+    { "Id": "cleansed_withering_zone", "Label": "Cleansed a Sumeru Withering Zone", "Category": "Campaign", "Region": "Sumeru", "Emissions": [
+      { "Trait": "Protector", "Points": 22, "Severity": 0.55 }, { "Trait": "Steward", "Points": 18, "Severity": 0.50 }, { "Trait": "Brave", "Points": 12, "Severity": 0.45 } ] },
+    { "Id": "defended_dunyarzad", "Label": "Repeatedly defended Dunyarzad from kidnappers", "Category": "Campaign", "Region": "Sumeru", "Emissions": [
+      { "Trait": "Protector", "Points": 22, "Severity": 0.50 }, { "Trait": "Brave", "Points": 15, "Severity": 0.45 }, { "Trait": "Beloved", "Points": 10, "Severity": 0.45 } ] },
+    { "Id": "aided_alhaitham", "Label": "Aided Alhaitham & disarmed the egg-berserker (Brian F.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian F.", "Emissions": [
+      { "Trait": "Marksman", "Points": 18, "Severity": 0.45 }, { "Trait": "Merciful", "Points": 12, "Severity": 0.40 }, { "Trait": "Dependable", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "brian_f_scholarship", "Label": "Scholarly study & negotiation (Brian F.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian F.", "Emissions": [
+      { "Trait": "Scholarly", "Points": 18, "Severity": 0.40 }, { "Trait": "Wise", "Points": 14, "Severity": 0.40 }, { "Trait": "Negotiator", "Points": 10, "Severity": 0.35 } ] },
+    { "Id": "brian_c_gambling", "Label": "Gambled heavily and habitually in Liyue (Brian C.)", "Category": "Campaign", "Region": "Liyue", "Actor": "Brian C.", "Emissions": [
+      { "Trait": "Reckless", "Points": 22, "Severity": 0.35 }, { "Trait": "Hedonistic", "Points": 14, "Severity": 0.30 } ] },
+    { "Id": "brian_c_unwanted_advances", "Label": "Made persistent unwanted advances toward Dehya (Brian C.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian C.", "Emissions": [
+      { "Trait": "Creepy", "Points": 22, "Severity": 0.40 }, { "Trait": "Off-putting", "Points": 16, "Severity": 0.40 }, { "Trait": "Boorish", "Points": 12, "Severity": 0.35 } ] },
+    { "Id": "brian_c_dubious_substances", "Label": "Consumed untested Sleazy-family substances (Brian C.)", "Category": "Campaign", "Region": "Inazuma", "Actor": "Brian C.", "Emissions": [
+      { "Trait": "Reckless", "Points": 22, "Severity": 0.30 }, { "Trait": "Gluttonous", "Points": 12, "Severity": 0.25 } ] },
+    { "Id": "dylan_reckless_cloud_stunts", "Label": "High-risk cloud-riding stunts (Dylan)", "Category": "Campaign", "Region": "Inazuma", "Actor": "Dylan", "Emissions": [
+      { "Trait": "Reckless", "Points": 26, "Severity": 0.35 }, { "Trait": "Bold", "Points": 12, "Severity": 0.35 } ] },
+    { "Id": "dylan_devoted_father", "Label": "Took an active role raising Dylan's daughter Vivienne (Dylan)", "Category": "Campaign", "Region": "Inazuma", "Actor": "Dylan", "Emissions": [
+      { "Trait": "Nurturing", "Points": 15, "Severity": 0.55 }, { "Trait": "Loyal", "Points": 11, "Severity": 0.55 }, { "Trait": "Beloved", "Points": 8, "Severity": 0.50 } ] },
+    { "Id": "broke_sumeru_dream_loop", "Label": "Broke the Akademiya's Sumeru dream loop", "Category": "Campaign", "Region": "Sumeru", "Emissions": [
+      { "Trait": "Wise", "Points": 30, "Severity": 0.70 }, { "Trait": "Insightful", "Points": 25, "Severity": 0.65 }, { "Trait": "Protector", "Points": 20, "Severity": 0.60 }, { "Trait": "Beloved", "Points": 15, "Severity": 0.60 } ] },
+    { "Id": "uncovered_eremite_supplier", "Label": "Uncovered who armed the Deseret's Relics", "Category": "Campaign", "Region": "Sumeru", "Emissions": [
+      { "Trait": "Insightful", "Points": 18, "Severity": 0.45 }, { "Trait": "Just", "Points": 12, "Severity": 0.45 } ] },
+    { "Id": "slaughtered_deserets_relics", "Label": "Wiped out the Deseret's Relics raiders", "Category": "Campaign", "Region": "Sumeru", "Emissions": [
+      { "Trait": "Protector", "Points": 20, "Severity": 0.55 }, { "Trait": "Killer", "Points": 30, "Severity": 0.65 }, { "Trait": "Ruthless", "Points": 20, "Severity": 0.55 }, { "Trait": "Brutal", "Points": 15, "Severity": 0.50 } ] },
+    { "Id": "took_sleazy_family_deal", "Label": "Took a Sleazy-family back-alley deal", "Category": "Campaign", "Emissions": [
+      { "Trait": "Reckless", "Points": 15, "Severity": 0.20 }, { "Trait": "Hedonistic", "Points": 10, "Severity": 0.20 } ] },
+
+    { "Id": "refused_to_massacre_crowd", "Label": "Refused Dottore's ultimatum and freed the mind-controlled crowd", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Selfless", "Points": 32, "Severity": 0.75 }, { "Trait": "Protector", "Points": 28, "Severity": 0.70 },
+      { "Trait": "Merciful", "Points": 26, "Severity": 0.70 }, { "Trait": "Principled", "Points": 22, "Severity": 0.70 },
+      { "Trait": "Liberator", "Points": 20, "Severity": 0.65 }, { "Trait": "Brave", "Points": 15, "Severity": 0.60 } ] },
+    { "Id": "refused_to_kill_nahida", "Label": "Refused Dottore's demand to murder Lesser Lord Kusanali", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Honorable", "Points": 30, "Severity": 0.80 }, { "Trait": "Loyal", "Points": 26, "Severity": 0.80 },
+      { "Trait": "Steadfast", "Points": 22, "Severity": 0.75 }, { "Trait": "Reverent", "Points": 18, "Severity": 0.70 },
+      { "Trait": "Fearless", "Points": 14, "Severity": 0.60 } ] },
+    { "Id": "branded_outlaws_of_sumeru", "Label": "Branded outlaws by Dottore's mind-controlled Sumeru", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835,
+      "Notes": "TEMPORARY. Heavy points, low Severity so the brand fades in months once Dottore is dealt with. Delete this action (and the matching Region Sumeru standing record) when the truth surfaces.", "Emissions": [
+      { "Trait": "Outlaw", "Points": 60, "Severity": 0.20 }, { "Trait": "Fugitive", "Points": 50, "Severity": 0.20 },
+      { "Trait": "Insurgent", "Points": 32, "Severity": 0.20 } ] },
+    { "Id": "allied_with_desert_tribes", "Label": "Allied with the desert tribes against the city", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835,
+      "Notes": "TEMPORARY (party association only). Severity 0.0 = ~14-day half-life; delete outright once the next session or two reveal the truth and the party is disentangled from the rebellion. Dylan's own share of this is dylan_rallied_tribes_with_bloodshed and is NOT temporary.", "Emissions": [
+      { "Trait": "Warmonger", "Points": 42, "Severity": 0.00 }, { "Trait": "Insurgent", "Points": 36, "Severity": 0.00 },
+      { "Trait": "Ruthless", "Points": 26, "Severity": 0.00 } ] },
+    { "Id": "struck_deshret_relic_bargain", "Label": "Struck the King Deshret relic bargain with the desert tribes", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835,
+      "Notes": "Bargain made, relic NOT yet delivered - the session cut on the Ruin Guardian kill before they returned to the tribes.", "Emissions": [
+      { "Trait": "Negotiator", "Points": 18, "Severity": 0.45 }, { "Trait": "Resourceful", "Points": 14, "Severity": 0.40 },
+      { "Trait": "Treasure-Hunter", "Points": 12, "Severity": 0.40 } ] },
+    { "Id": "slew_epic_ruin_guardian", "Label": "Slew the epic Ruin Guardian in King Deshret's temple", "Category": "Campaign", "Region": "Sumeru", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Combat Expert", "Points": 28, "Severity": 0.50 }, { "Trait": "Brave", "Points": 22, "Severity": 0.50 },
+      { "Trait": "Fearless", "Points": 16, "Severity": 0.45 }, { "Trait": "Explorer", "Points": 10, "Severity": 0.40 } ] },
+    { "Id": "dylan_pyrrhic_hero_of_ayakas_death", "Label": "Conducted himself with honour after Ayaka's death (Dylan)", "Category": "Campaign", "Region": "Inazuma", "Actor": "Dylan", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Valiant", "Points": 29, "Severity": 0.85 }, { "Trait": "Honorable", "Points": 27, "Severity": 0.85 },
+      { "Trait": "Loyal", "Points": 23, "Severity": 0.85 }, { "Trait": "Steadfast", "Points": 20, "Severity": 0.80 },
+      { "Trait": "Beloved", "Points": 18, "Severity": 0.80 } ] },
+    { "Id": "dylan_called_inazuma_to_war", "Label": "Wrote to Ayato and the Raiden calling Inazuma to war (Dylan)", "Category": "Campaign", "Region": "Inazuma", "Actor": "Dylan", "Campaign_Day": 835,
+      "Notes": "Letter delivered with Ayaka's body; Inazuma has NOT answered yet. The Shogunate's standing is deliberately left unmoved until they decide.", "Emissions": [
+      { "Trait": "Bold", "Points": 23, "Severity": 0.60 }, { "Trait": "Loyal", "Points": 18, "Severity": 0.65 },
+      { "Trait": "Inspiring", "Points": 14, "Severity": 0.55 }, { "Trait": "Warmonger", "Points": 23, "Severity": 0.40 } ] },
+    { "Id": "brians_let_ayaka_fall", "Label": "Blamed for Ayaka's death at Suristana (Brian C., Brian F.)", "Category": "Campaign", "Region": "Inazuma", "Actors": [ "Brian C.", "Brian F." ], "Campaign_Day": 835,
+      "Notes": "Region-wide Inazuman fallout, symmetric between the two Brians per the DM's ruling; only Dylan is exempt. Traits chosen so the hit REACHES Inazuman factions and NPCs rather than sitting on the region view alone - each is weighted by a real Inazuman lens (Unreliable: Adventurers Guild; Callous: Commonfolk; Cowardly: Shogunate + Kujou Sara; Reckless: Kokomi). 'Cowardly' is the honour-culture PERCEPTION of Brian C. and Brian F. for walking away alive, not a finding of fact - Brian F. loosed the arrow at a Harbinger. Kept smallest for that reason.", "Emissions": [
+      { "Trait": "Unreliable", "Points": 29, "Severity": 0.65 }, { "Trait": "Callous", "Points": 22, "Severity": 0.60 },
+      { "Trait": "Reckless", "Points": 20, "Severity": 0.55 }, { "Trait": "Cowardly", "Points": 17, "Severity": 0.55 } ] },
+    { "Id": "dylan_rallied_tribes_with_bloodshed", "Label": "Won the desert tribes over by promising bloodshed (Dylan)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Dylan", "Campaign_Day": 835,
+      "Notes": "Dylan's pitch was 'blood spill causes rivers to flow'. Dylan personally raised a nation-wide rebellion among peoples the settled nations regard as barbarians - this one stays with Dylan even after the party is cleared.", "Emissions": [
+      { "Trait": "Warmonger", "Points": 48, "Severity": 0.60 }, { "Trait": "Ruthless", "Points": 36, "Severity": 0.60 },
+      { "Trait": "Charismatic", "Points": 35, "Severity": 0.60 }, { "Trait": "Silver-Tongued", "Points": 30, "Severity": 0.60 },
+      { "Trait": "Insurgent", "Points": 30, "Severity": 0.55 }, { "Trait": "Bold", "Points": 20, "Severity": 0.50 } ] },
+    { "Id": "dylan_warmonger_word_spreads_liyue", "Label": "Word of Dylan's desert war-promises reaches Liyue (Dylan)", "Category": "Campaign", "Region": "Liyue", "Actor": "Dylan", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Warmonger", "Points": 28, "Severity": 0.55 }, { "Trait": "Ruthless", "Points": 20, "Severity": 0.55 },
+      { "Trait": "Insurgent", "Points": 16, "Severity": 0.50 } ] },
+    { "Id": "dylan_warmonger_word_spreads_mondstadt", "Label": "Word of Dylan's desert war-promises reaches Mondstadt (Dylan)", "Category": "Campaign", "Region": "Mondstadt", "Actor": "Dylan", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Warmonger", "Points": 26, "Severity": 0.55 }, { "Trait": "Ruthless", "Points": 18, "Severity": 0.55 },
+      { "Trait": "Insurgent", "Points": 14, "Severity": 0.50 } ] },
+    { "Id": "brian_f_peace_appeal_rebuffed", "Label": "Made the peaceful case to the desert tribes and was rebuffed (Brian F.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian F.", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Peacemaker", "Points": 20, "Severity": 0.45 }, { "Trait": "Diplomat", "Points": 14, "Severity": 0.40 } ] },
+    { "Id": "brian_f_felled_ruin_guardian", "Label": "Killed the epic Ruin Guardian with a throat shot (Brian F.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian F.", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Marksman", "Points": 28, "Severity": 0.50 }, { "Trait": "Combat Expert", "Points": 20, "Severity": 0.45 } ] },
+    { "Id": "brian_c_struck_the_guardian", "Label": "Closed to melee against the epic Ruin Guardian (Brian C.)", "Category": "Campaign", "Region": "Sumeru", "Actor": "Brian C.", "Campaign_Day": 835, "Emissions": [
+      { "Trait": "Daring", "Points": 22, "Severity": 0.40 }, { "Trait": "Foolish", "Points": 20, "Severity": 0.40 },
+      { "Trait": "Bold", "Points": 14, "Severity": 0.35 } ] }
+  ]
+}

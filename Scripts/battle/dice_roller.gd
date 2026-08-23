@@ -43,6 +43,82 @@ static func difference_to_damage_dice(diff: int) -> Array[int]:
 		return []
 	return stat_to_dice(float(diff))
 
+
+# ============================================================================
+#  Enemy tier-based damage formula
+#  Enemies roll a tier accuracy die against the target's defense roll. The
+#  positive difference picks the CLOSEST damage die (ties round DOWN), which is
+#  rolled N times and added to a flat floor — both N and floor set by the tier.
+#  Non-standard "combo" dice are built from real dice: D16 = D10+D6,
+#  D24 = D20+D4, D30 = D20+D10, D32 (accuracy only) = D20+D12.
+# ============================================================================
+
+const _DMG_DIE_LADDER := [4, 6, 8, 10, 12, 16, 20, 24, 30]
+const _DMG_DIE_FACES := {
+	4: [4], 6: [6], 8: [8], 10: [10], 12: [12],
+	16: [10, 6], 20: [20], 24: [20, 4], 30: [20, 10],
+}
+
+## Component dice an enemy of the given tier rolls for accuracy.
+static func enemy_accuracy_dice(tier: String) -> Array:
+	match tier.to_lower():
+		"common": return [12]
+		"uncommon": return [10, 6]            # D16
+		"rare": return [20]
+		"epic": return [20, 4]                # D24
+		"story_boss": return [20]             # D20 — story bosses trade accuracy
+		                                      # for multi-target / multi-hit kits
+		"boss", "world_boss", "legendary":
+			return [20, 12]                   # D32
+	return [12]
+
+## Damage dice count + flat floor for an enemy of the given tier.
+static func enemy_damage_profile(tier: String) -> Dictionary:
+	match tier.to_lower():
+		"common": return {"count": 2, "floor": 3}
+		"uncommon": return {"count": 3, "floor": 6}
+		"rare": return {"count": 3, "floor": 9}
+		"epic": return {"count": 4, "floor": 12}
+		"story_boss": return {"count": 4, "floor": 15}
+		"boss", "world_boss", "legendary":
+			return {"count": 4, "floor": 15}
+	return {"count": 2, "floor": 3}
+
+## Roll a set of component dice and return the sum.
+static func roll_dice_array(dice: Array) -> int:
+	var total := 0
+	for d in dice:
+		total += roll(int(d))
+	return total
+
+## Map a positive roll difference to the closest damage-die SIZE (ties round down).
+## Returns 0 for a non-positive difference (a miss).
+static func closest_damage_die(diff: int) -> int:
+	if diff <= 0:
+		return 0
+	var best_size: int = int(_DMG_DIE_LADDER[0])
+	var best_dist: int = absi(int(_DMG_DIE_LADDER[0]) - diff)
+	for size in _DMG_DIE_LADDER:
+		var dist := absi(int(size) - diff)
+		if dist < best_dist:   # ascending ladder + strict < keeps the smaller die on a tie
+			best_dist = dist
+			best_size = int(size)
+	return best_size
+
+## Enemy damage for a confirmed hit (diff > 0): roll N copies of the closest
+## damage die to the difference, then add the tier's flat floor.
+static func roll_enemy_tier_damage(diff: int, tier: String) -> int:
+	var die_size := closest_damage_die(diff)
+	if die_size <= 0:
+		return 0
+	var faces: Array = _DMG_DIE_FACES[die_size]
+	var prof := enemy_damage_profile(tier)
+	var total := 0
+	for _i in range(int(prof["count"])):
+		for f in faces:
+			total += roll(int(f))
+	return total + int(prof["floor"])
+
 ## Roll a damage die from the difference, apply mods, handle multi-hit.
 ## Returns total damage dealt across all hits.
 static func roll_damage(diff: int, hits: int, flat_mod: float, mult_mod: float) -> int:

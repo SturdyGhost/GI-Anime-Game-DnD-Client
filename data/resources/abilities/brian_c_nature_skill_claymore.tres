@@ -29,7 +29,7 @@ script = ExtResource("1_7vdol")
 id = 397
 name = "Brian C. – Skill"
 element = "Nature"
-description = "Choose a tile within 3 tiles. Enemies on that tile and adjacent tiles take Nature damage.Escalation: d4 → d6 → d8 → d10 → d12 → d20 (must roll above half to succeed), Damage = cumulative result of success rolls (pre-multiplier). Failure results in 0 damage. Gain 1d4 burst charges × ER after. For each escalation roll done successfully above a D12 (i.e. D20, D20+D4, etc.), lower the crit threshold of that hit by 5, and add 0.5 to your Crit Damage for that specific hit."
+description = "Choose a tile within 3 tiles. Enemies on that tile and adjacent tiles take Nature damage.Escalation: d4 → d6 → d8 → d10 → d12 → d20 (must roll above half to succeed), Damage = cumulative result of success rolls (pre-multiplier). Failure results in 0 damage. Gain 1d4 burst charges × ER after. For every 2 successful escalation rolls, bank 1 failure reroll in that escalation set."
 dice_count = 1
 dice_die = 10
 dice_flat = 0
@@ -80,5 +80,3 @@ entity_name = "Brian C."
 weapon_type = "Claymore"
 ability_type = "Skill"
 kit_element = "Nature"
-active_ability_id = 47
-ability_cooldown = 0

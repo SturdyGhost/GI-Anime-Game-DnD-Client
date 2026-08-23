@@ -6,11 +6,21 @@ signal party_changed
 func get_party() -> PartySaveData:
 	return SaveManager.get_party()
 
+## Get party member names.
+## Reads the authoritative SYNCED Party record on BOTH host and client so the
+## membership list is identical everywhere. PartySaveData.members is populated
+## in exactly one place — migration.gd, during legacy save migration — and is
+## never updated afterwards: Global._set_party_field maps Current_Turn/Mora/
+## Active_Food_Buff/Buff_Battles_Left/Active_Battle_ID/Current_Region but NOT
+## Party_Member_1..4. So the typed field drifts from the synced table the moment
+## composition changes (or is empty entirely on a save that never migrated).
+## When it drifted, the host dropped that player from battler_data — they fell
+## through to the enemy branch in BattlerState — so their attack dropdown showed
+## only "None", AND NetworkManager._peer_owns_battler rejected their turn, so
+## End Turn did nothing. Same root cause as get_companion_names() below.
+## Safe offline: Global._party_to_dict synthesizes Party_Member_* from the typed
+## party, so Global.Current_Party always exposes these keys.
 func get_members() -> Array:
-	var party = get_party()
-	if party:
-		return party.members
-	# Client fallback: read from _synced Party record
 	var pd = Global.Current_Party
 	var members = []
 	for i in range(1, 5):

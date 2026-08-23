@@ -4,7 +4,7 @@
 
 [node name="SettingsPopup" type="AcceptDialog"]
 title = "Settings"
-size = Vector2i(500, 430)
+size = Vector2i(500, 520)
 script = ExtResource("1")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -75,6 +75,28 @@ step = 5.0
 value = 100.0
 
 [node name="FontValue" type="Label" parent="VBoxContainer/FontRow"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="DylanLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Dylan's Slider:"
+
+[node name="DylanRow" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DylanSlider" type="HSlider" parent="VBoxContainer/DylanRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 100.0
+max_value = 400.0
+step = 10.0
+value = 100.0
+
+[node name="DylanValue" type="Label" parent="VBoxContainer/DylanRow"]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 text = "100%"

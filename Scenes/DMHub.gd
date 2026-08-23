@@ -79,6 +79,16 @@ func _ready() -> void:
 	bal_btn.add_theme_font_size_override("font_size", 29)
 	bal_btn.pressed.connect(_open_encounter_balancer)
 	quick_hbox.add_child(bal_btn)
+	var rep_btn = Button.new()
+	rep_btn.text = "Reputation"
+	rep_btn.add_theme_font_size_override("font_size", 29)
+	rep_btn.pressed.connect(_open_reputation)
+	quick_hbox.add_child(rep_btn)
+	var quest_btn = Button.new()
+	quest_btn.text = "Quests"
+	quest_btn.add_theme_font_size_override("font_size", 29)
+	quest_btn.pressed.connect(_open_quests)
+	quick_hbox.add_child(quest_btn)
 	if Global.is_offline:
 		_show_offline_indicator()
 		# Disable item management tab — players self-manage in offline mode
@@ -603,6 +613,57 @@ func _wire_buttons() -> void:
 	BtnSituation.pressed.connect(_on_situation_pressed)
 	ObjectButton.item_selected.connect(_on_object_selected)
 	ConfirmButton.pressed.connect(_on_confirm_pressed)
+	_build_bypass_controls()
+
+# ---------------- Reputation encounter bypass ----------------
+var _bypass_faction_select: OptionButton
+
+## A DM tool: pick the faction this encounter belongs to; if the party stands
+## high enough with them (heroism OR a bad-loving faction admiring their cruelty),
+## the fight can be skipped instead of fought.
+func _build_bypass_controls() -> void:
+	if BtnSituation == null or not is_instance_valid(BtnSituation):
+		return
+	var parent = BtnSituation.get_parent()
+	if parent == null or parent.has_node("BypassRow"):
+		return
+	var row = HBoxContainer.new()
+	row.name = "BypassRow"
+	row.add_theme_constant_override("separation", 6)
+
+	var lbl = Label.new()
+	lbl.text = "Bypass vs:"
+	lbl.add_theme_font_size_override("font_size", 24)
+	lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(lbl)
+
+	_bypass_faction_select = OptionButton.new()
+	_bypass_faction_select.add_theme_font_size_override("font_size", 22)
+	_bypass_faction_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for fn in ReputationManager.faction_names():
+		_bypass_faction_select.add_item(str(fn))
+	row.add_child(_bypass_faction_select)
+
+	var btn = Button.new()
+	btn.text = "Bypass?"
+	btn.add_theme_font_size_override("font_size", 22)
+	btn.pressed.connect(_on_bypass_pressed)
+	row.add_child(btn)
+
+	parent.add_child(row)
+	parent.move_child(row, BtnSituation.get_index() + 1)
+
+func _on_bypass_pressed() -> void:
+	if _bypass_faction_select == null or _bypass_faction_select.selected < 0:
+		return
+	var faction := _bypass_faction_select.get_item_text(_bypass_faction_select.selected)
+	var standing := ReputationManager.faction_standing(faction)
+	var label := ReputationManager.disposition_label(standing)
+	if ReputationManager.can_bypass_encounter(faction):
+		_clear_encounter()
+		Toast.notify("%s (%s, %+.2f) lets the party pass — encounter bypassed." % [faction, label, standing], Toast.SUCCESS)
+	else:
+		Toast.notify("%s (%s, %+.2f) won't let you pass — you'll have to fight." % [faction, label, standing], Toast.WARNING)
 
 
 
@@ -1433,6 +1494,29 @@ func _dm_edit_challenge() -> void:
 func _open_encounter_balancer() -> void:
 	var s: PackedScene = preload("res://Scenes/UI/encounter_balancer.tscn")
 	var dlg = s.instantiate()
+
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+
+	dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	add_child(win)
+
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+func _open_reputation() -> void:
+	_open_scripted_window("res://Scenes/reputation_window.gd")
+
+func _open_quests() -> void:
+	_open_scripted_window("res://Scenes/quest_window.gd")
+
+func _open_scripted_window(script_path: String) -> void:
+	var dlg := Control.new()
+	dlg.set_script(load(script_path))
 
 	var win := Window.new()
 	win.exclusive = true

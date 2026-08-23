@@ -175,6 +175,12 @@ var CHARACTER_ITEMS: Dictionary:
 		for item in SaveManager.get_all_owned_items():
 			d[str(item.id)] = _item_to_dict(item)
 		return d
+var REPUTATION_EVENTS: Dictionary:
+	get:
+		return _synced.get("Reputation_Events", {})
+var QUESTS: Dictionary:
+	get:
+		return _synced.get("Quests", {})
 var PARTY: Dictionary:
 	get:
 		if _synced.has("Party"):
@@ -360,7 +366,6 @@ var PartyCompanions: Array:
 	set(value): pass
 
 var Current_Weapon = null
-var AverageHealth: int = 0
 var BATTLE_TURNS: Array = []
 var BATTLE_TURN_ORDER: Array = []
 var BATTLE_PARTICIPANTS: Array = []
@@ -577,6 +582,45 @@ func _queue_offline_snapshot_save() -> void:
 	# Restart the debounce countdown — coalesces bursts of sync calls into one write.
 	if _snapshot_debounce_timer != null:
 		_snapshot_debounce_timer.start()
+
+## Host boot: seed catalog-only companion flags into the synced table, and hold
+## the "deceased is never active" invariant.
+##
+## `deceased` lives in the .tres catalog (like `unlocked`/`met`), but the UI and
+## every client read Global.COMPANIONS — which is the SYNCED table loaded from
+## canonical_save.json, not the catalog. A save written before this field existed
+## has no "Deceased" key at all, so without this backfill a companion marked
+## deceased in the catalog would silently read as alive everywhere.
+##
+## Idempotent: only fills a MISSING key, never overwrites a value already set at
+## runtime. Must run after SaveManager.load_save() so the typed catalog is loaded.
+func backfill_companion_catalog_flags() -> void:
+	if SaveManager.data == null:
+		return
+	var rows: Dictionary = _synced.get("Companions", {})
+	if rows.is_empty():
+		return
+	var changed := false
+	for c in SaveManager.get_all_companions():
+		var rid := str(c.id)
+		if not rows.has(rid):
+			continue
+		var row: Dictionary = rows[rid]
+		if not row.has("Deceased"):
+			row["Deceased"] = c.deceased
+			changed = true
+		# The dead never fight: enforce on BOTH stores so stale save state can't
+		# resurrect a deceased companion into the party behind the UI's back.
+		if bool(row.get("Deceased", false)):
+			if row.get("Active", false) == true or row.get("Player_Chosen", false) == true:
+				row["Active"] = false
+				row["Player_Chosen"] = false
+				c.active = false
+				c.player_chosen = false
+				changed = true
+				print("Global: %s is deceased — cleared Active/Player_Chosen" % c.name)
+	if changed:
+		DataStore.persist_table("Companions")
 
 func _read_json_cached(filename: String) -> Array:
 	if _json_cache.has(filename):
@@ -859,81 +903,138 @@ func _apply_update_to_save(u: Dictionary) -> void:
 	if table == "BattleEnemies" and BattleManager.active and BattleManager.enemies.has(rid):
 		_set_battle_enemy_field(BattleManager.enemies[rid], field, value)
 
+# ─── Typed-resource field bridge (reflection-driven) ─────────────────────────
+#
+# Synced tables use Title_Case keys ("Current_Health"); typed save resources use
+# snake_case properties ("current_health"). That mapping is mechanical, so it is
+# derived by reflection rather than hand-written per resource.
+#
+# WHY: these used to be hand-maintained `match` statements, and 49 of the 85
+# exported fields across the five save resources were never mapped. An unmapped
+# field silently drifts between the typed store and the synced table — which is
+# exactly how PartySaveData.members went stale, dropping players out of
+# battler_data and rejecting their turns. Reflection makes a new @export field
+# work by default instead of requiring you to remember three separate edits.
+
+## Synced key -> typed property, only where the mechanical `to_lower()` rule
+## fails. Keyed by class so "Type" can mean weapon_type on a weapon and plain
+## type on an artifact.
+const _FIELD_ALIASES := {
+	"PlayerData":        {"AppliedElement": "applied_element", "UserType": "user_type"},
+	"CompanionSaveData": {"AppliedElement": "applied_element"},
+	"BattleEnemy":       {"AppliedElement": "applied_element", "EnemyName": "enemy_name"},
+	"OwnedWeapon":       {"Weapon": "weapon_name", "Type": "weapon_type"},
+	"OwnedItem":         {"Item": "item_name", "Name": "item_name"},
+}
+
+## Never auto-applied. Primary keys must not be rewritten by a field update, and
+## battle_label is a computed property with no setter.
+const _FIELD_DENY := ["id", "Id", "ID", "Battle_Label", "battle_label"]
+
+## One pristine instance per class, used to resolve a null update back to the
+## resource's declared default (e.g. applied_element -> "None", quantity -> 1)
+## instead of inventing a type-zero.
+var _pristine_cache: Dictionary = {}
+
+func _pristine_for(obj: Object) -> Object:
+	var scr = obj.get_script()
+	if scr == null:
+		return null
+	var key := str(scr.resource_path)
+	if not _pristine_cache.has(key):
+		_pristine_cache[key] = scr.new()
+	return _pristine_cache[key]
+
+## Apply one synced field onto a typed resource. Returns true if it landed.
+## Only declared script variables are touched — never invents properties.
+func _apply_typed_field(obj: Object, field: String, value) -> bool:
+	if obj == null or field in _FIELD_DENY:
+		return false
+	var scr = obj.get_script()
+	var cls: String = ""
+	if scr != null and scr.has_method("get_global_name"):
+		cls = str(scr.get_global_name())
+	if cls == "":
+		cls = str(obj.get_class())
+	var aliases: Dictionary = _FIELD_ALIASES.get(cls, {})
+	var prop: String = str(aliases.get(field, field.to_lower()))
+
+	var declared_type: int = TYPE_NIL
+	var found := false
+	for p in obj.get_property_list():
+		if str(p.get("name", "")) != prop:
+			continue
+		if int(p.get("usage", 0)) & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			declared_type = int(p.get("type", TYPE_NIL))
+			found = true
+		break
+	if not found:
+		return false
+
+	if value == null:
+		var pristine = _pristine_for(obj)
+		obj.set(prop, pristine.get(prop) if pristine != null else obj.get(prop))
+		return true
+
+	match declared_type:
+		TYPE_INT:    obj.set(prop, int(value))
+		TYPE_FLOAT:  obj.set(prop, float(value))
+		TYPE_BOOL:   obj.set(prop, bool(value))
+		TYPE_STRING: obj.set(prop, str(value))
+		_:           obj.set(prop, value)
+	return true
+
 func _set_player_field(p: PlayerData, field: String, value) -> void:
-	match field:
-		"Current_Health": p.current_health = int(value) if value != null else 0
-		"Max_Health": p.max_health = int(value) if value != null else 0
-		"Burst_Charges": p.burst_charges = int(value) if value != null else 0
-		"Shield_Health": p.shield_health = int(value) if value != null else 0
-		"Shield_Duration": p.shield_duration = int(value) if value != null else 0
-		"Applied_Element": p.applied_element = str(value) if value != null else "None"
-		"Skipped": p.skipped = bool(value) if value != null else false
-		"Skip_Duration": p.skip_duration = int(value) if value != null else 0
-		"Ready": p.ready = bool(value) if value != null else false
-		"Element": p.element = str(value) if value != null else ""
-		"Current_Region":
-			p.current_region = str(value) if value != null else ""
-			Current_Region = p.current_region
-		"Level": p.level = int(value) if value != null else 0
-		"Daily_Luck": p.daily_luck = int(value) if value != null else 50
+	if not _apply_typed_field(p, field, value):
+		return
+	# Side effect: region lives on the player but also drives a global.
+	if field == "Current_Region":
+		Current_Region = p.current_region
 
 func _set_companion_field(c: CompanionSaveData, field: String, value) -> void:
-	match field:
-		"Current_Health": c.current_health = int(value) if value != null else 0
-		"Max_Health": c.max_health = int(value) if value != null else 0
-		"Burst_Charges": c.burst_charges = int(value) if value != null else 0
-		"Applied_Element": c.applied_element = str(value) if value != null else "None"
-		"Active": c.active = bool(value) if value != null else false
-		"Player_Chosen": c.player_chosen = bool(value) if value != null else false
-		"Shield_Health": c.shield_health = int(value) if value != null else 0
-		"Shield_Duration": c.shield_duration = int(value) if value != null else 0
+	_apply_typed_field(c, field, value)
 
 func _set_party_field(party: PartySaveData, field: String, value) -> void:
-	match field:
-		"Current_Turn": party.current_turn = str(value) if value != null else ""
-		"Active_Food_Buff": party.active_food_buff = str(value) if value != null else "None"
-		"Buff_Battles_Left": party.buff_battles_left = int(value) if value != null else 0
-		"Mora": party.mora = int(value) if value != null else 0
-		"Active_Battle_ID": party.active_battle_id = str(value) if value != null else ""
-		"Current_Region":
-			var r = str(value) if value != null else ""
-			party.current_region = r
-			Current_Region = r
+	# Party_Member_1..4 is a FLATTENED view of PartySaveData.members — the shapes
+	# don't match, so reflection can't bridge it. This is the exact field that went
+	# stale and broke the battle scene, so map it explicitly.
+	if field.begins_with("Party_Member_"):
+		var idx := int(field.trim_prefix("Party_Member_")) - 1
+		if idx < 0:
+			return
+		var members: Array = party.members.duplicate()
+		while members.size() <= idx:
+			members.append("")
+		members[idx] = str(value) if value != null else ""
+		# Drop placeholders and trailing blanks so `members` stays a clean list of
+		# real player names, matching what PartyManager.get_members() returns.
+		var cleaned: Array = []
+		for m in members:
+			if str(m) != "" and str(m) != "COMPANION":
+				cleaned.append(str(m))
+		party.members = cleaned
+		return
+
+	if not _apply_typed_field(party, field, value):
+		return
+	if field == "Current_Region":
+		Current_Region = party.current_region
 
 func _set_owned_item_field(item, field: String, value) -> void:
-	match field:
-		"Quantity": item.quantity = int(value) if value != null else 0
-		"Owner": item.owner = str(value) if value != null else ""
+	_apply_typed_field(item, field, value)
 
 func _set_owned_weapon_field(w, field: String, value) -> void:
-	match field:
-		"Quantity": w.quantity = int(value) if value != null else 1
-		"Owner": w.owner = str(value) if value != null else ""
-		"Equipped": w.equipped = bool(value) if value != null else false
-		"Refinement": w.refinement = int(value) if value != null else 0
+	_apply_typed_field(w, field, value)
 
 func _set_owned_artifact_field(a, field: String, value) -> void:
-	match field:
-		"Owner": a.owner = str(value) if value != null else ""
-		"Equipped": a.equipped = bool(value) if value != null else false
+	_apply_typed_field(a, field, value)
 
 func _set_battle_enemy_field(e: BattleEnemy, field: String, value) -> void:
-	match field:
-		"Current_Health": e.current_health = int(value) if value != null else 0
-		"Max_Health": e.max_health = int(value) if value != null else 0
-		"AppliedElement": e.applied_element = str(value) if value != null else "None"
-		"Killed": e.killed = bool(value) if value != null else false
-		"Phase": e.phase = int(value) if value != null else 1
-		"Shield_Health": e.shield_health = int(value) if value != null else 0
-		"Shield_Duration": e.shield_duration = int(value) if value != null else 0
-		"Skipped": e.skipped = bool(value) if value != null else false
-		"Skip_Duration": e.skip_duration = int(value) if value != null else 0
-		"EnemyName": e.enemy_name = str(value) if value != null else ""
-		"Fog": e.fog = bool(value) if value != null else false
+	_apply_typed_field(e, field, value)
 
 # ── Data loading shim (used by NetworkManager) ──────────────────────────────
-var TABLES: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Active_Status_Effects","BattleEnemies","Game_Config","Minigames_Results"]
-var TABLES_TO_SAVE: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Game_Config","Minigames_Results","BattleEnemies","Active_Status_Effects"]
+var TABLES: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Active_Status_Effects","BattleEnemies","Game_Config","Minigames_Results","Reputation_Events","Quests"]
+var TABLES_TO_SAVE: Array = ["Characters","Companions","Character_Items","Character_Weapons","Character_Artifacts","Talents","Constellations","Party","Game_Config","Minigames_Results","BattleEnemies","Active_Status_Effects","Reputation_Events","Quests"]
 var TABLES_TO_SYNC_OFTEN: Array = ["Characters","BattleEnemies","Companions","Active_Status_Effects"]
 
 func _process_table(table_name: String, records: Array) -> void:
@@ -1141,7 +1242,8 @@ func _companion_to_dict(c: CompanionSaveData) -> Dictionary:
 	return {
 		"id": c.id, "Name": c.name, "Element": c.element, "Weapon": c.weapon,
 		"Region": c.region, "Lore": c.lore, "Unlocked": c.unlocked, "Active": c.active,
-		"Met": c.met, "Player_Chosen": c.player_chosen, "Owner": c.owner,
+		"Met": c.met, "Player_Chosen": c.player_chosen, "Deceased": c.deceased,
+		"Owner": c.owner,
 		"Current_Health": c.current_health, "Max_Health": c.max_health,
 		"Burst_Charges": c.burst_charges, "Shield_Health": c.shield_health,
 		"Shield_Duration": c.shield_duration, "Applied_Element": c.applied_element,
@@ -1151,6 +1253,7 @@ func _companion_to_dict(c: CompanionSaveData) -> Dictionary:
 func _weapon_to_dict(w: OwnedWeapon) -> Dictionary:
 	return {
 		"id": w.id, "Weapon": w.weapon_name, "Owner": w.owner, "Equipped": w.equipped,
+		"Owner_Type": w.owner_type,
 		"Refinement": w.refinement, "Quantity": w.quantity, "Rarity": w.rarity,
 		"Region": w.region, "Type": w.weapon_type,
 		"Stat_1_Type": w.stat_1_type, "Stat_1_Value": w.stat_1_value,
@@ -1161,6 +1264,7 @@ func _weapon_to_dict(w: OwnedWeapon) -> Dictionary:
 func _artifact_to_dict(a: OwnedArtifact) -> Dictionary:
 	return {
 		"id": a.id, "Artifact_Set": a.artifact_set, "Owner": a.owner,
+		"Owner_Type": a.owner_type,
 		"Type": a.type, "Equipped": a.equipped, "Rarity": a.rarity,
 		"Stat_1_Type": a.stat_1_type, "Stat_1_Value": a.stat_1_value,
 		"Stat_2_Type": a.stat_2_type, "Stat_2_Value": a.stat_2_value,

@@ -35,9 +35,14 @@ System="*res://Singletons/System.gd"
 Toast="*res://Singletons/Toast.gd"
 OfflineChanges="*res://Singletons/OfflineChanges.gd"
 ConnectionStatusOverlay="*res://Singletons/ConnectionStatusOverlay.gd"
+ReputationManager="*res://Singletons/ReputationManager.gd"
+QuestManager="*res://Singletons/QuestManager.gd"
+SessionLog="*res://Singletons/SessionLog.gd"
 
 [debug]
 
+file_logging/enable_file_logging=true
+file_logging/max_log_files=10
 gdscript/warnings/enable=false
 
 [display]

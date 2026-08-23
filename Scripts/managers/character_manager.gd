@@ -258,6 +258,127 @@ func _apply_effect_stat_mods(player_name: String, stat: String, value: float) ->
 	value *= mult_total
 	return value
 
+# ── Companion Stats ──────────────────────────────────────────────────────────
+
+## Calculate a companion's full stat block.
+## Base = average of all active party PLAYER base points (no skill points), scaled.
+## Then + the companion's OWN equipped weapon + artifacts + set/weapon/effect mods.
+func calculate_companion_stats(companion_name: String) -> CalculatedStats:
+	var comp_rec := _companion_record(companion_name)
+	if comp_rec.is_empty():
+		return null
+	var element: String = str(comp_rec.get("Element", ""))
+	var avg_base := _average_party_base()  # {stat: scaled avg base, skill excluded}
+	var calc = CalculatedStats.new()
+
+	for stat in EntityStats.stat_names():
+		var value: float = avg_base.get(stat, 0.0)
+
+		# Companion's own weapon
+		for w in Global.CHARACTER_WEAPONS.values():
+			if str(w.get("Owner", "")) == companion_name \
+					and str(w.get("Owner_Type", "Character")) == "Companion" \
+					and w.get("Equipped") == true:
+				for i in range(1, 4):
+					var wstat := str(w.get("Stat_%d_Type" % i, ""))
+					if wstat != "" and wstat.to_lower().replace(" ", "_") == stat:
+						value += _safe_float(w.get("Stat_%d_Value" % i, 0))
+				var wdef: WeaponData = GameDB.weapons_by_name.get(w.get("Weapon", ""), null)
+				if wdef and wdef.stat_modifier != "" and wdef.stat_modifier.to_lower().contains(stat):
+					value += wdef.stat_modifier_value
+				break
+
+		# Companion's own artifacts + set counting
+		var set_pieces := {}
+		for a in Global.CHARACTER_ARTIFACTS.values():
+			if str(a.get("Owner", "")) == companion_name \
+					and str(a.get("Owner_Type", "Character")) == "Companion" \
+					and a.get("Equipped") == true:
+				for i in range(1, 3):
+					var astat := str(a.get("Stat_%d_Type" % i, ""))
+					if astat != "" and astat.to_lower().replace(" ", "_") == stat:
+						value += _safe_float(a.get("Stat_%d_Value" % i, 0))
+				var sn = a.get("Artifact_Set", "")
+				if sn != "":
+					set_pieces[sn] = set_pieces.get(sn, 0) + 1
+
+		# Artifact set bonuses
+		for set_name in set_pieces:
+			var piece_count: int = set_pieces[set_name]
+			for bonus_type in [2, 4]:
+				if piece_count < bonus_type:
+					continue
+				var bonus: ArtifactSetData = GameDB.get_artifact_bonus(set_name, bonus_type)
+				if bonus == null or bonus.stat_modifier == "":
+					continue
+				if bonus.stat_modifier.to_lower().contains(stat):
+					if bonus.condition != "":
+						if bonus.condition == "Element" and element != bonus.condition_value:
+							continue
+					value += bonus.stat_modifier_value
+
+		value = _apply_effect_stat_mods(companion_name, stat, value)
+
+		match stat:
+			"health": calc.health = snapped(value, 0.01)
+			"attack": calc.attack = snapped(value, 0.01)
+			"defense": calc.defense = snapped(value, 0.01)
+			"elemental_mastery": calc.elemental_mastery = snapped(value, 0.01)
+			"energy_recharge": calc.energy_recharge = snapped(value, 0.01)
+			"critical_damage": calc.critical_damage = snapped(value, 0.01)
+
+	calc.current_health = _safe_int(comp_rec.get("Current_Health", 0))
+	calc.max_health = _safe_int(comp_rec.get("Max_Health", 0))
+	calc.burst_charges = _safe_int(comp_rec.get("Burst_Charges", 0))
+	calc.shield_health = _safe_int(comp_rec.get("Shield_Health", 0))
+	calc.shield_duration = _safe_int(comp_rec.get("Shield_Duration", 0))
+	calc.applied_element = str(comp_rec.get("Applied_Element", "None")) if comp_rec.get("Applied_Element") != null else "None"
+	calc.crit_threshold = 20
+
+	_calculated[companion_name] = calc
+	emit_signal("stats_recalculated", companion_name)
+	return calc
+
+## Average of all active party PLAYER characters' base points (skill excluded), scaled per stat.
+func _average_party_base() -> Dictionary:
+	# Same per-point scaling as players (Health 2.0) for consistency. The companion
+	# power cap comes from excluding skill points, not from a reduced Health scale.
+	var scaling := {
+		"health": 2.0, "attack": 1.0, "defense": 1.0,
+		"elemental_mastery": 1.0, "energy_recharge": 0.1, "critical_damage": 0.1,
+	}
+	var stat_map := {
+		"health": "Health", "attack": "Attack", "defense": "Defense",
+		"elemental_mastery": "Elemental_Mastery", "energy_recharge": "Energy_Recharge",
+		"critical_damage": "Critical_Damage",
+	}
+	var totals := {}
+	for stat in stat_map:
+		totals[stat] = 0.0
+	var count := 0
+	for pname in Global.PartyCharacters:
+		var cid: String = str(Global.CHARACTERS_NAME.get(pname, ""))
+		var pd: Dictionary = Global.CHARACTERS.get(cid, {})
+		if pd.is_empty():
+			continue
+		count += 1
+		for stat in stat_map:
+			totals[stat] += _safe_float(pd.get("%s_Base_Points" % stat_map[stat], 0))
+	var result := {}
+	for stat in stat_map:
+		result[stat] = (totals[stat] / maxf(float(count), 1.0)) * scaling[stat]
+	return result
+
+## Find a companion's synced record by name.
+func _companion_record(companion_name: String) -> Dictionary:
+	var cid: String = str(Global.COMPANIONS_NAME.get(companion_name, ""))
+	if cid != "" and Global.COMPANIONS.has(cid):
+		return Global.COMPANIONS[cid]
+	for rec in Global.COMPANIONS.values():
+		if str(rec.get("Name", "")) == companion_name:
+			return rec
+	return {}
+
 # ── Abilities ────────────────────────────────────────────────────────────────
 
 ## Get abilities available to a player based on their current element + weapon type.

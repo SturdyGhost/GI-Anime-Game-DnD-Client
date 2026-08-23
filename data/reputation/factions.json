@@ -1,0 +1,239 @@
+{
+  "_comment": "FactionDef. Cascade: the REGION sets the baseline view; a FACTION deviates from it via its Weights (and interaction standing); a SUB-FACTION (Parent set) deviates from its parent; an NPC deviates further. Region_Sensitivity (0-1) = how much the region's overall mood colors this faction (civilians ~0.9 follow the room; zealots/ancients ~0.2 are immovable). Region 'Global' = cross-nation; judged in whatever region the interaction happens (manager follow-up needed). Status 'defunct' = leaderless/destroyed but kept for history.",
+  "factions": [
+
+    {
+      "Name": "Knights of Favonius", "Region": "Mondstadt", "Parent": "", "Status": "active", "Region_Sensitivity": 0.6,
+      "Notes": "Mondstadt's protectors. The party were named Honorary Knights of Mondstadt.",
+      "Weights": {
+        "Protector": 3, "Honorable": 2, "Brave": 2, "Dutiful": 2, "Defender": 1, "Kind": 1, "Civic-minded": 1,
+        "Cruel": -2, "Callous": -2, "Treacherous": -2, "Tyrant": -1, "Cowardly": -1
+      }
+    },
+
+    {
+      "Name": "Liyue Qixing", "Region": "Liyue", "Parent": "", "Status": "active", "Region_Sensitivity": 0.5,
+      "Notes": "The human government of Liyue (the doc's 'Chiseng'). Pragmatic, image-conscious; will scapegoat for stability (Ningguang).",
+      "Weights": {
+        "Orderly": 2, "Civic-minded": 2, "Trustworthy": 2, "Dutiful": 2, "Industrious": 1, "Diplomat": 1, "Shrewd": 1,
+        "Anarchist": -2, "Treacherous": -2, "Unreliable": -1
+      }
+    },
+    {
+      "Name": "The Adepti", "Region": "Liyue", "Parent": "", "Status": "active", "Region_Sensitivity": 0.3,
+      "Notes": "Ancient illuminated beasts who guard Liyue. Long memory, easily roused to vengeance.",
+      "Weights": {
+        "Reverent": 3, "Honorable": 2, "Protector": 2, "Loyal": 1, "Wise": 1,
+        "Sacrilegious": -3, "Blasphemous": -2, "Despoiler": -2, "Treacherous": -1
+      }
+    },
+    {
+      "Name": "Wangsheng Funeral Parlor", "Region": "Liyue", "Parent": "", "Status": "active", "Region_Sensitivity": 0.4,
+      "Notes": "Hu Tao's parlor; keepers of Liyue's funerary rites and the balance of life and death (Zhongli works here).",
+      "Weights": {
+        "Reverent": 3, "Dutiful": 2, "Compassionate": 1, "Honorable": 1,
+        "Grave-robber": -3, "Sacrilegious": -2, "Macabre": -1
+      }
+    },
+    {
+      "Name": "Crux Fleet", "Region": "Liyue", "Parent": "", "Status": "active", "Region_Sensitivity": 0.4,
+      "Notes": "Beidou's free-roving sailors; loyal to crew, tolerant of smuggling, scornful of cowards.",
+      "Weights": {
+        "Brave": 2, "Loyal": 2, "Bold": 1, "Liberator": 1, "Smuggler": 1,
+        "Cowardly": -2, "Treacherous": -2
+      }
+    },
+
+    {
+      "Name": "Tenryou Commission", "Region": "Inazuma", "Parent": "", "Status": "active", "Region_Sensitivity": 0.4,
+      "Notes": "Military/police arm of the Tri-Commission (Kujou clan); enforces the Vision Hunt Decree.",
+      "Weights": {
+        "Loyal": 3, "Honorable": 2, "Dutiful": 2, "Disciplined": 1, "Protector": 1,
+        "Rebel": -3, "Insurgent": -3, "Treacherous": -3, "Oathbreaker": -2, "Ruthless": -1
+      }
+    },
+    {
+      "Name": "Kanjou Commission", "Region": "Inazuma", "Parent": "", "Status": "active", "Region_Sensitivity": 0.5,
+      "Notes": "Customs/finance/border arm (Hiiragi clan); gatekeepers who throttle information to the Raiden and distrust outsiders.",
+      "Weights": {
+        "Orderly": 2, "Disciplined": 2, "Lawful": 2, "Dutiful": 1,
+        "Insurgent": -3, "Rebel": -2, "Outlaw": -2, "Bold": -1, "Abrasive": -1
+      }
+    },
+    {
+      "Name": "Yashiro Commission", "Region": "Inazuma", "Parent": "", "Status": "active", "Region_Sensitivity": 0.5,
+      "Notes": "Festivals/shrines arm (Kamisato clan); believes people should keep their visions. Sympathetic to the party.",
+      "Weights": {
+        "Honorable": 2, "Gracious": 1, "Compassionate": 1, "Diplomat": 1, "Cunning": 1, "Protector": 1,
+        "Cruel": -2, "Treacherous": -2
+      }
+    },
+    {
+      "Name": "Watatsumi Army", "Region": "Inazuma", "Parent": "", "Status": "active", "Region_Sensitivity": 0.3,
+      "Notes": "Kokomi's resistance against the Vision Hunt Decree. The party served as legion captains.",
+      "Weights": {
+        "Protector": 3, "Compassionate": 2, "Liberator": 2, "Rebel": 2, "Brave": 1, "Beloved": 1,
+        "Tyrant": -3, "Oppressor": -3, "Ruthless": -1
+      }
+    },
+    {
+      "Name": "The Shogunate", "Region": "Inazuma", "Parent": "", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "The Raiden Shogun's direct divine authority and the Raiden's puppet's enforcement of eternity. Respects worthy challengers via duel; brands vision-holders enemies of eternity.",
+      "Weights": {
+        "Disciplined": 2, "Honorable": 2, "Brave": 1, "Combat Expert": 1, "Loyal": 1,
+        "Insurgent": -2, "Cowardly": -2, "Treacherous": -1
+      }
+    },
+
+    {
+      "Name": "The Akademiya", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.4,
+      "Notes": "Governs Sumeru in Kusanali's name (Grand Sage Azar). Worships knowledge, hoards information, dismisses arts/dreams as worthless.",
+      "Weights": {
+        "Scholarly": 3, "Learned": 2, "Erudite": 2, "Wise": 1, "Cunning": 1,
+        "Foolish": -2, "Superstitious": -2, "Performer": -1, "Reckless": -1
+      }
+    },
+    {
+      "Name": "Forest Watchers", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.5,
+      "Notes": "Avidya forest rangers (Tighnari, Collei); steward the rainforest and the withering, wary of reckless outsiders.",
+      "Weights": {
+        "Steward": 3, "Protector": 2, "Honest": 1, "Diligent": 1, "Skilled Hunter": 1,
+        "Despoiler": -3, "Poacher": -2, "Vandal": -2, "Reckless": -1
+      }
+    },
+    {
+      "Name": "Followers of Lesser Lord Kusanali", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.6,
+      "Notes": "The small faithful of Nahida (Dunyarzad, Nilou); keep festivals and the arts alive despite Akademiya scorn.",
+      "Weights": {
+        "Devout": 3, "Kind": 2, "Performer": 1, "Sincere": 1, "Compassionate": 1, "Beloved": 1,
+        "Cruel": -2, "Blasphemous": -2
+      }
+    },
+    {
+      "Name": "The Aranara", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "Hidden nature spirits with power over dreams; only a few can see them. Innocent, protective of the forest.",
+      "Weights": {
+        "Kind": 2, "Protector": 2, "Gentle": 1, "Steward": 1,
+        "Cruel": -2, "Despoiler": -2, "Vile": -2
+      }
+    },
+    {
+      "Name": "Eremites", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.3,
+      "Notes": "Desert mercenary bands. Respect strength and coin; despise weakness and broken contracts.",
+      "Weights": {
+        "Combat Expert": 2, "Survivalist": 1, "Resourceful": 1, "Bold": 1, "Loyal": 1,
+        "Cowardly": -2, "Faithless": -1
+      }
+    },
+    {
+      "Name": "Fatui", "Region": "Liyue", "Parent": "", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "Snezhnayan diplomatic/military order serving the Cryo Archon. Diplomacy as a mask for power-grabbing; ruthless means. Parent of the Harbinger cells below.",
+      "Weights": {
+        "Cunning": 2, "Ambitious": 2, "Shrewd": 2, "Manipulative": 1, "Combat Expert": 1, "Ruthless": 1,
+        "Cowardly": -2, "Foolish": -1
+      }
+    },
+    {
+      "Name": "Childe's Vanguard", "Region": "Liyue", "Parent": "Fatui", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "11th Harbinger Tartaglia's following. Lives for the fight; respects worthy opponents. Now warm to the party after their brawl.",
+      "Weights": {
+        "Combat Expert": 3, "Brave": 2, "Bold": 2, "Honorable": 1,
+        "Cowardly": -3, "Timid": -2
+      }
+    },
+    {
+      "Name": "Signora's Retinue", "Region": "Inazuma", "Parent": "Fatui", "Status": "defunct", "Region_Sensitivity": 0.2,
+      "Notes": "8th Harbinger La Signora's following. DEFUNCT — Signora was disintegrated by the Raiden after losing a death-duel to the party.",
+      "Weights": {
+        "Ruthless": 2, "Cruel": 1, "Disciplined": 1, "Loyal": 1,
+        "Merciful": -1
+      }
+    },
+    {
+      "Name": "Scaramouche's Unit", "Region": "Inazuma", "Parent": "Fatui", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "6th Harbinger the Balladeer's following; arrogant and contemptuous. (Scaramouche himself is a discarded puppet of the Raiden.)",
+      "Weights": {
+        "Disciplined": 2, "Ambitious": 1, "Arrogant": 1, "Cunning": 1,
+        "Humble": -1, "Kind": -1
+      }
+    },
+    {
+      "Name": "Dottore's Researchers", "Region": "Sumeru", "Parent": "Fatui", "Status": "active", "Region_Sensitivity": 0.1,
+      "Notes": "The Doctor's research arm; amoral experimentation ('questionable treatments', e.g. Collei's alazar).",
+      "Weights": {
+        "Scholarly": 2, "Inventive": 2, "Ruthless": 2, "Depraved": 1,
+        "Compassionate": -2, "Merciful": -1
+      }
+    },
+    {
+      "Name": "Fatui Skirmishers", "Region": "Liyue", "Parent": "Fatui", "Status": "active", "Region_Sensitivity": 0.2,
+      "Notes": "Rank-and-file delusion users; obedient, aggressive, expendable.",
+      "Weights": {
+        "Loyal": 1, "Disciplined": 1, "Brave": 1,
+        "Cowardly": -1
+      }
+    },
+
+    {
+      "Name": "Abyss Order", "Region": "Global", "Parent": "", "Status": "active", "Region_Sensitivity": 0.0,
+      "Notes": "Corrupt faction spreading chaos; tied to Khaenri'ah's fall and the Cataclysm. Enemy of every nation.",
+      "Weights": {
+        "Anarchist": 2, "Monstrous": 1, "Vile": 1, "Rebel": 1, "Ruthless": 1,
+        "Devout": -2, "Orderly": -2, "Protector": -1
+      }
+    },
+    {
+      "Name": "Khaenri'ah Remnants", "Region": "Khaenri'ah", "Parent": "", "Status": "scattered", "Region_Sensitivity": 0.2,
+      "Notes": "Survivors and ghosts of the fallen godless nation (Dainsleif, Halfdan, the cursed). Prize resilience, defiance, and restoring Khaenri'ah; internally split over how far that justifies going (the party's royal spouses take the extreme view).",
+      "Weights": {
+        "Resourceful": 2, "Steadfast": 2, "Rebel": 1, "Bold": 1, "Loyal": 1,
+        "Faithless": -1, "Cowardly": -1
+      }
+    },
+    {
+      "Name": "Celestia", "Region": "Global", "Parent": "", "Status": "active", "Region_Sensitivity": 0.0,
+      "Notes": "The heavenly overseers ('management'). Guardians of divine order and the gnosis contracts. The demon who cast the party down and took their spouses serves Celestia; the party are fallen gods who defied it.",
+      "Weights": {
+        "Devout": 2, "Loyal": 2, "Disciplined": 1, "Honorable": 1,
+        "Heretical": -3, "Blasphemous": -2, "Rebel": -2, "Ambitious": -1
+      }
+    },
+    {
+      "Name": "HexenZirkel", "Region": "Mondstadt", "Parent": "", "Status": "active", "Region_Sensitivity": 0.1,
+      "Notes": "Reclusive circle of witches who transcended mortality (Alice, Gold, Mona's master). Prize brilliance, curiosity, and audacity.",
+      "Weights": {
+        "Inventive": 2, "Wise": 2, "Learned": 1, "Bold": 1, "Eccentric": 1,
+        "Foolish": -2, "Timid": -1
+      }
+    },
+    {
+      "Name": "Adventurers' Guild", "Region": "Global", "Parent": "", "Status": "active", "Region_Sensitivity": 0.7,
+      "Notes": "Neutral service org present in every nation (the various Catherines). Transactional; rewards competence and reliability.",
+      "Weights": {
+        "Dependable": 2, "Brave": 1, "Resourceful": 1, "Civic-minded": 1, "Explorer": 1,
+        "Unreliable": -2, "Cowardly": -1
+      }
+    },
+    {
+      "Name": "Commonfolk", "Region": "Global", "Parent": "", "Status": "active", "Region_Sensitivity": 0.95,
+      "Notes": "Ordinary townspeople, shopkeepers, villagers. Almost entirely echo the regional mood; lightly favor kindness and protection, fear killers.",
+      "Weights": {
+        "Kind": 1, "Protector": 1, "Beloved": 1, "Generous": 1,
+        "Killer": -2, "Cruel": -2, "Ruthless": -1, "Callous": -1
+      }
+    },
+    { "Name": "Desert Tribes", "Region": "Sumeru", "Parent": "", "Status": "active", "Region_Sensitivity": 0.15,
+      "Notes": "The confederated peoples of the Great Red Sand, heirs of King Deshret. Scorn the rainforest cities, the Akademiya and Kusanali alike; answer to strength, grievance and blood-debt rather than law. Dylan raised them into a nation-wide rebellion on Day 20.",
+      "Weights": {
+        "Bold": 3, "Fearless": 2, "Warmonger": 2, "Ruthless": 2, "Survivalist": 2,
+        "Loyal": 1, "Charismatic": 1, "Silver-Tongued": 1, "Insurgent": 1,
+        "Cowardly": -3, "Faithless": -2, "Timid": -1, "Devout": -1
+      } },
+    { "Name": "Deseret's Relics", "Region": "Sumeru", "Parent": "Eremites", "Status": "defunct", "Region_Sensitivity": 0.1,
+      "Notes": "Eremite raider band that repeatedly went after Dunyarzad. DEFUNCT - the party wiped them out on Day 19 after uncovering who was arming them.",
+      "Weights": {
+        "Ruthless": 2, "Bandit": 2, "Bold": 1, "Greedy": 1,
+        "Merciful": -1, "Lawful": -2
+      } }
+  ]
+}

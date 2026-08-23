@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=6 format=3 uid="uid://qgdw2tpld6ae"]
 
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_1d6dm"]
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_m8vdx"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_1d6dm"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_m8vdx"]
 
 [sub_resource type="Resource" id="Resource_m8vdx"]
 script = ExtResource("1_m8vdx")
@@ -36,7 +36,7 @@ value_is_percent_of = ""
 effect_dice = ""
 effect_element = "Nature"
 target = "SELF"
-duration = 2
+duration = 4
 duration_actions = 0
 max_stacks = 0
 stack_value = 0.0
@@ -57,7 +57,7 @@ value_is_percent_of = ""
 effect_dice = ""
 effect_element = ""
 target = "TARGET"
-duration = 2
+duration = 1
 duration_actions = 0
 max_stacks = 0
 stack_value = 0.0
@@ -71,7 +71,7 @@ script = ExtResource("1_1d6dm")
 id = 390
 name = "Brian F. – Skill"
 element = "Nature"
-description = "Gain Root Beer for 2 turns. Gain 1d4 burst charges × ER. First enemy damaged each turn: +4 Nature damage and Root."
+description = "Gain Root Beer for 4 turns. Gain 1d4 burst charges × ER. First enemy damaged each turn: +4 Nature damage and Root. The root is applied to the enemy before any damage calculations."
 dice_count = 1
 dice_die = 12
 dice_flat = 0
@@ -122,5 +122,3 @@ entity_name = "Brian F."
 weapon_type = "Bow"
 ability_type = "Skill"
 kit_element = "Nature"
-active_ability_id = 24
-ability_cooldown = 0

@@ -732,6 +732,15 @@ func _sfx_no_win() -> void:
 
 # ── Close / save ─────────────────────────────────────────────────────────────
 
+## Reverse this session's net Mora effect (used when a battle turn force-closes
+## the game): leaves the party's Mora exactly as it was before they sat down.
+func wager_refund() -> void:
+	var refund: int = _session_spent - _session_winnings
+	if refund != 0:
+		_update_mora(int(Global.Current_Party.get("Mora", 0)) + refund)
+	_session_spent = 0
+	_session_winnings = 0
+
 func _on_close() -> void:
 	# Save session result
 	if _session_winnings > 0 and not Global.ACTIVE_USER_NAME.is_empty():

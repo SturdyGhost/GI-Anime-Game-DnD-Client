@@ -1,0 +1,829 @@
+[
+	{
+		"attack_roll": 17,
+		"attack_used": "Brian C. – Charged Attack",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 15,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 4,
+		"timestamp": "2026-06-06T01:32:06",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Dylan – Charged Attack",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": true,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 4,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:38:42",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 19,
+		"attack_used": "Brian F. – Charged Attack",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 36,
+				"defense_roll": 2,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 1",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:42:46",
+		"total_damage": 36,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 3,
+		"timestamp": "2026-06-06T01:46:21",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Sword - Default Charged Attack",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 11,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 1",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 6,
+				"defense_roll": 11,
+				"hits": 4,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:49:07",
+		"total_damage": 9,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Thrown Halberd",
+		"battler": "Eremite Ravenbeak Halberdier 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 11,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:50:40",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 5,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 18,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:51:28",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 7,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:51:53",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Charged Swing",
+		"battler": "Eremite Linebreaker 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 2,
+				"defense_roll": 7,
+				"hits": 1,
+				"name": "Ayaka",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:53:19",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 3,
+		"attack_used": "Brian C. – Charged Attack",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 7,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:54:25",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Dylan – Skill",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 3,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 8,
+				"defense_roll": 6,
+				"hits": 2,
+				"name": "Eremite Ravenbeak Halberdier 1",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T01:59:24",
+		"total_damage": 8,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 16,
+		"attack_used": "Brian F. – Charged Attack",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Ravenbeak Halberdier 1"
+		],
+		"targets": [
+			{
+				"damage": 31,
+				"defense_roll": 1,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 1",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:02:16",
+		"total_damage": 31,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 9,
+		"attack_used": "Yae Miko – Charged Attack",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:06:13",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Ayaka – Skill",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 6,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 5,
+				"defense_roll": 6,
+				"hits": 3,
+				"name": "Eremite Sword Dancer 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 6,
+				"defense_roll": 6,
+				"hits": 4,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:08:46",
+		"total_damage": 11,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Eremite Ravenbeak Halberdier 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Ravenbeak Halberdier 1"
+		],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 1",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:09:55",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 7,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 16,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:10:36",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 6,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 14,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:11:56",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 5,
+		"attack_used": "Overhead Smash",
+		"battler": "Eremite Linebreaker 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 14,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:13:23",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 7
+	},
+	{
+		"attack_roll": 7,
+		"attack_used": "Brian C. – Skill",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Sword Dancer 3"
+		],
+		"targets": [
+			{
+				"damage": 38,
+				"defense_roll": 4,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 76,
+				"defense_roll": 4,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 38,
+				"defense_roll": 4,
+				"hits": 1,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:30:32",
+		"total_damage": 152,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 16,
+		"attack_used": "Dylan – Charged Attack",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 4,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 12,
+				"defense_roll": 6,
+				"hits": 4,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 10,
+				"defense_roll": 6,
+				"hits": 2,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 1,
+		"timestamp": "2026-06-06T02:32:59",
+		"total_damage": 22,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 7,
+		"attack_used": "None",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 0,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:34:53",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 14,
+		"attack_used": "Yae Miko – Charged Attack",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:37:51",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 12,
+		"attack_used": "Sword - Default Charged Attack",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 6,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 2,
+				"defense_roll": 8,
+				"hits": 2,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 2,
+				"defense_roll": 8,
+				"hits": 2,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 1,
+		"timestamp": "2026-06-06T02:39:32",
+		"total_damage": 4,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Eremite Ravenbeak Halberdier 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:40:14",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 8
+	},
+	{
+		"attack_roll": 6,
+		"attack_used": "None",
+		"battler": "Eremite Sword Dancer 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 1,
+				"hits": 1,
+				"name": "Brian F.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 7,
+		"timestamp": "2026-06-06T02:42:13",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 9
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Eremite Sword Dancer 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:42:17",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 10
+	},
+	{
+		"attack_roll": 10,
+		"attack_used": "Overhead Smash",
+		"battler": "Eremite Linebreaker 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 5,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:43:15",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 11
+	},
+	{
+		"attack_roll": 18,
+		"attack_used": "Brian C. – Charged Attack",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Linebreaker 4"
+		],
+		"targets": [
+			{
+				"damage": 20,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Eremite Linebreaker 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:46:02",
+		"total_damage": 20,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 16,
+		"attack_used": "Dylan – Charged Attack",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 2,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 17,
+				"defense_roll": 7,
+				"hits": 4,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 1,
+		"timestamp": "2026-06-06T02:49:33",
+		"total_damage": 17,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 15,
+		"attack_used": "None",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Sword Dancer 2"
+		],
+		"targets": [
+			{
+				"damage": 9,
+				"defense_roll": 5,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T02:51:34",
+		"total_damage": 9,
+		"total_healing": 0,
+		"turn_no": 3
+	}
+]

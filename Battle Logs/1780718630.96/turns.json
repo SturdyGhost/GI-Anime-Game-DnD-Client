@@ -1,0 +1,1238 @@
+[
+	{
+		"attack_roll": 0,
+		"attack_used": "Brian C. – Charged Attack",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Eremite Linebreaker 5",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:08:18",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Dylan – Skill",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 2,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 7,
+				"defense_roll": 8,
+				"hits": 4,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 4,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Large Ice Slime 4",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 6,
+				"defense_roll": 8,
+				"hits": 3,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:12:28",
+		"total_damage": 17,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Brian F. – Charged Attack",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 50,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Large Ice Slime 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:16:31",
+		"total_damage": 50,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 6,
+		"attack_used": "Claymore - Default Charged Attack",
+		"battler": "Dehya",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 2,
+				"defense_roll": 4,
+				"hits": 1,
+				"name": "Large Earth Slime 2",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:21:05",
+		"total_damage": 2,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Yae Miko – Skill",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:22:15",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 15,
+		"attack_used": "Ayaka – Burst",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 33,
+				"defense_roll": 11,
+				"hits": 20,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 33,
+				"defense_roll": 11,
+				"hits": 20,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:27:20",
+		"total_damage": 66,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 2,
+		"attack_used": "Basic Attack",
+		"battler": "Large Wind Slime 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Brian F.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 2,
+		"timestamp": "2026-06-06T04:28:34",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 0
+	},
+	{
+		"attack_roll": 8,
+		"attack_used": "None",
+		"battler": "Large Earth Slime 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Dehya",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:29:18",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 13,
+		"attack_used": "None",
+		"battler": "Large Fire Slime 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 11,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 1,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Ayaka",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:30:36",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 4,
+		"attack_used": "Basic Attack",
+		"battler": "Large Ice Slime 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 0,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Ayaka",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:31:24",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 9,
+		"attack_used": "Overhead Smash",
+		"battler": "Eremite Linebreaker 5",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 17,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:33:11",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 5,
+		"attack_used": "Thrown Halberd",
+		"battler": "Eremite Ravenbeak Halberdier 6",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 5,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:33:43",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 13,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 7",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 6,
+				"hits": 2,
+				"name": "Brian F.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:35:24",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Brian C. – Skill",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:37:22",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 10,
+		"attack_used": "Dylan – Basic",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:40:24",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 7,
+		"timestamp": "2026-06-06T04:40:49",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 1
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Claymore - Default Charged Attack",
+		"battler": "Dehya",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Large Earth Slime 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 4,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 6",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:43:21",
+		"total_damage": 7,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Yae Miko – Charged Attack",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 8,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 7,
+				"defense_roll": 0,
+				"hits": 4,
+				"name": "Large Wind Slime 1",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 7,
+				"defense_roll": 0,
+				"hits": 4,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 7,
+				"defense_roll": 0,
+				"hits": 4,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:48:37",
+		"total_damage": 29,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 9,
+		"attack_used": "Ayaka – Skill",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 2,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 0,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Large Ice Slime 4",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 0,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:51:13",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 5,
+		"attack_used": "None",
+		"battler": "Large Wind Slime 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 9,
+				"hits": 1,
+				"name": "Brian F.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:51:40",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 7
+	},
+	{
+		"attack_roll": 3,
+		"attack_used": "None",
+		"battler": "Large Earth Slime 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 4,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:52:23",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 8
+	},
+	{
+		"attack_roll": 15,
+		"attack_used": "Basic Attack",
+		"battler": "Large Fire Slime 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 6,
+				"hits": 1,
+				"name": "Ayaka",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:53:15",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 9
+	},
+	{
+		"attack_roll": 8,
+		"attack_used": "Basic Attack",
+		"battler": "Large Ice Slime 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 14,
+				"hits": 1,
+				"name": "Ayaka",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:53:36",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 10
+	},
+	{
+		"attack_roll": 5,
+		"attack_used": "Overhead Smash",
+		"battler": "Eremite Linebreaker 5",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 19,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:54:05",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 11
+	},
+	{
+		"attack_roll": 2,
+		"attack_used": "Halberd Strike",
+		"battler": "Eremite Ravenbeak Halberdier 6",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 18,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:55:17",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 12
+	},
+	{
+		"attack_roll": 3,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 7",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 14,
+				"hits": 1,
+				"name": "Yae Miko",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:55:48",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 13
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:57:06",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Dylan – Burst",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T04:59:35",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 4
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "None",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 1,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Large Ice Slime 4"
+		],
+		"targets": [
+			{
+				"damage": 23,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Large Ice Slime 4",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:01:23",
+		"total_damage": 23,
+		"total_healing": 0,
+		"turn_no": 2
+	},
+	{
+		"attack_roll": 11,
+		"attack_used": "Claymore - Default Charged Attack",
+		"battler": "Dehya",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 9,
+				"hits": 2,
+				"name": "Eremite Ravenbeak Halberdier 6",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:03:38",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 7
+	},
+	{
+		"attack_roll": 13,
+		"attack_used": "Yae Miko – Charged Attack",
+		"battler": "Yae Miko",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 16,
+				"defense_roll": 3,
+				"hits": 9,
+				"name": "Large Wind Slime 1",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 16,
+				"defense_roll": 3,
+				"hits": 9,
+				"name": "Large Earth Slime 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 16,
+				"defense_roll": 3,
+				"hits": 9,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 16,
+				"defense_roll": 3,
+				"hits": 4,
+				"name": "Eremite Ravenbeak Halberdier 6",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 16,
+				"defense_roll": 3,
+				"hits": 9,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:10:08",
+		"total_damage": 80,
+		"total_healing": 0,
+		"turn_no": 8
+	},
+	{
+		"attack_roll": 17,
+		"attack_used": "Sword - Default Charged Attack",
+		"battler": "Ayaka",
+		"battler_type": "Unknown",
+		"burst_gained": 6,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Large Fire Slime 3"
+		],
+		"targets": [
+			{
+				"damage": 12,
+				"defense_roll": 9,
+				"hits": 4,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 10,
+				"defense_roll": 9,
+				"hits": 2,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:12:50",
+		"total_damage": 22,
+		"total_healing": 0,
+		"turn_no": 5
+	},
+	{
+		"attack_roll": 8,
+		"attack_used": "Basic Attack",
+		"battler": "Large Wind Slime 1",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Brian F.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:14:15",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 14
+	},
+	{
+		"attack_roll": 9,
+		"attack_used": "Basic Attack",
+		"battler": "Large Earth Slime 2",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 13,
+				"hits": 1,
+				"name": "Dylan",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:14:36",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 15
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Large Fire Slime 3",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:14:39",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 16
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Large Ice Slime 4",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:14:40",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 17
+	},
+	{
+		"attack_roll": 14,
+		"attack_used": "Overhead Smash",
+		"battler": "Eremite Linebreaker 5",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 3,
+				"defense_roll": 10,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:15:14",
+		"total_damage": 3,
+		"total_healing": 0,
+		"turn_no": 18
+	},
+	{
+		"attack_roll": 3,
+		"attack_used": "Halberd Strike",
+		"battler": "Eremite Ravenbeak Halberdier 6",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 0,
+				"defense_roll": 15,
+				"hits": 1,
+				"name": "Brian C.",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:15:38",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 19
+	},
+	{
+		"attack_roll": 12,
+		"attack_used": "Rapid Slashes",
+		"battler": "Eremite Sword Dancer 7",
+		"battler_type": "Enemy",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 1,
+				"defense_roll": 6,
+				"hits": 1,
+				"name": "Yae Miko",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:16:09",
+		"total_damage": 1,
+		"total_healing": 0,
+		"turn_no": 20
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "None",
+		"battler": "Brian C.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:24:45",
+		"total_damage": 0,
+		"total_healing": 0,
+		"turn_no": 11
+	},
+	{
+		"attack_roll": 20,
+		"attack_used": "Dylan – Charged Attack",
+		"battler": "Dylan",
+		"battler_type": "Unknown",
+		"burst_gained": 5,
+		"critical_hit": true,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Eremite Sword Dancer 7"
+		],
+		"targets": [
+			{
+				"damage": 9,
+				"defense_roll": 8,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:29:10",
+		"total_damage": 9,
+		"total_healing": 0,
+		"turn_no": 6
+	},
+	{
+		"attack_roll": 15,
+		"attack_used": "Brian F. – Basic",
+		"battler": "Brian F.",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [],
+		"targets": [
+			{
+				"damage": 18,
+				"defense_roll": 6,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 6",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:30:28",
+		"total_damage": 18,
+		"total_healing": 0,
+		"turn_no": 3
+	},
+	{
+		"attack_roll": 0,
+		"attack_used": "Claymore - Default Charged Attack",
+		"battler": "Dehya",
+		"battler_type": "Unknown",
+		"burst_gained": 0,
+		"critical_hit": false,
+		"item_target": "",
+		"item_used": "",
+		"kills": [
+			"Large Wind Slime 1",
+			"Large Earth Slime 2",
+			"Large Fire Slime 3",
+			"Large Ice Slime 4",
+			"Eremite Linebreaker 5",
+			"Eremite Ravenbeak Halberdier 6",
+			"Eremite Sword Dancer 7"
+		],
+		"targets": [
+			{
+				"damage": 150,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Large Wind Slime 1",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Large Earth Slime 2",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Large Fire Slime 3",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Large Ice Slime 4",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 1,
+				"hits": 1,
+				"name": "Eremite Linebreaker 5",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 1,
+				"hits": 1,
+				"name": "Eremite Ravenbeak Halberdier 6",
+				"shield_hit": false,
+				"type": "Damage"
+			},
+			{
+				"damage": 150,
+				"defense_roll": 0,
+				"hits": 1,
+				"name": "Eremite Sword Dancer 7",
+				"shield_hit": false,
+				"type": "Damage"
+			}
+		],
+		"tiles_moved": 0,
+		"timestamp": "2026-06-06T05:32:44",
+		"total_damage": 1050,
+		"total_healing": 0,
+		"turn_no": 12
+	}
+]

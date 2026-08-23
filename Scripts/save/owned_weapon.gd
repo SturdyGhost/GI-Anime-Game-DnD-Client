@@ -4,7 +4,8 @@ class_name OwnedWeapon extends Resource
 @export var id: int = 0
 @export var weapon_id: int = 0       # FK to WeaponData.id in GameDB
 @export var weapon_name: String = "" # Denormalized for display convenience
-@export var owner: String = ""       # Character name
+@export var owner: String = ""       # Character or companion name
+@export var owner_type: String = "Character"  # "Character" | "Companion"
 @export var equipped: bool = false
 @export var refinement: int = 0
 @export var quantity: int = 1

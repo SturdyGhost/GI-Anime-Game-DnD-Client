@@ -142,6 +142,9 @@ func _apply_overrides() -> void:
 		if state.has("applied_element"): c.applied_element = str(state["applied_element"])
 		if state.has("active"): c.active = bool(state["active"])
 		if state.has("player_chosen"): c.player_chosen = bool(state["player_chosen"])
+		# Absent in saves written before the field existed — the .tres catalog
+		# value then stands, which is what seeds Ayaka as deceased.
+		if state.has("deceased"): c.deceased = bool(state["deceased"])
 		if state.has("owner"): c.owner = str(state["owner"])
 
 	# Weapon overrides (equipped, owner)
@@ -231,6 +234,7 @@ func _sync_to_save() -> void:
 			"applied_element": c.applied_element,
 			"active": c.active,
 			"player_chosen": c.player_chosen,
+			"deceased": c.deceased,
 			"owner": c.owner,
 		}
 

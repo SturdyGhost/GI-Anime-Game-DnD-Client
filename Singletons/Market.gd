@@ -124,6 +124,13 @@ func _buy_price_with_luck(base_value: float, luck_value: int) -> int:
 		out_val = 1
 	return out_val
 
+## Apply the party's local reputation to a buy price. Single source of truth so
+## the MarketPanel display and Buy_Commit charge always agree. Poor standing
+## marks prices up (to 1.5x); good standing discounts them (to 0.75x).
+func buy_price_with_reputation(price: int) -> int:
+	var m: float = ReputationManager.market_price_modifier(Global.Current_Region, Global.ACTIVE_USER_NAME)
+	return max(1, int(round(float(price) * m)))
+
 # --------------------------
 # Public API
 # --------------------------
@@ -220,6 +227,9 @@ func Buy_Commit(shop_name: String, entry_index: int, quantity: int) -> bool:
 		if base_val <= 0:
 			base_val = int(_lookup_item_value(entry.get("Name")))
 		unit_price = int(round(_apply_region_markup(float(base_val), entry.get("Region"), Global.Current_Region)))
+
+	# Reputation: locals mark prices up for a hated party, down for a beloved one.
+	unit_price = buy_price_with_reputation(unit_price)
 
 	var total_cost: int = unit_price * buy_qty
 

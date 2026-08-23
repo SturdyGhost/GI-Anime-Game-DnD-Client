@@ -7,8 +7,22 @@ extends AcceptDialog
 @onready var sfx_label: Label = $VBoxContainer/SFXRow/SFXValue
 @onready var font_slider: HSlider = $VBoxContainer/FontRow/FontSlider
 @onready var font_label: Label = $VBoxContainer/FontRow/FontValue
+@onready var font_title: Label = $VBoxContainer/FontLabel
+@onready var dylan_slider: HSlider = $VBoxContainer/DylanRow/DylanSlider
+@onready var dylan_label: Label = $VBoxContainer/DylanRow/DylanValue
 
 const SETTINGS_PATH = "user://ui_settings.cfg"
+
+# Sizes Dylan's Slider multiplies from. The font base is read off the theme the
+# first time it's needed rather than hardcoded — hardcoding it made the row
+# render SMALLER than its neighbours at 100%.
+const DYLAN_BASE_SLIDER_H := 16.0
+const DYLAN_BASE_VALUE_W := 60.0
+var _row_base_font: int = 0
+
+## The unscaled grabber texture, cached the first time we enlarge it so we can
+## keep scaling from the original instead of compounding a resized copy.
+var _grabber_base: Texture2D = null
 
 func _ready() -> void:
 	title = "Settings"
@@ -49,6 +63,15 @@ func _ready() -> void:
 	font_slider.value = _load_setting("ui", "font_scale", 100.0)
 	_update_font_label(font_slider.value)
 	font_slider.value_changed.connect(_on_font_scale_changed)
+
+	# Dylan's Slider (100% to 400%, default 100%)
+	dylan_slider.min_value = 100.0
+	dylan_slider.max_value = 400.0
+	dylan_slider.step = 10.0
+	dylan_slider.value = _load_setting("ui", "dylan_scale", 100.0)
+	_update_dylan_label(dylan_slider.value)
+	_apply_dylan_scale(dylan_slider.value)
+	dylan_slider.value_changed.connect(_on_dylan_scale_changed)
 
 
 # ── Volume ──
@@ -126,6 +149,71 @@ func _on_font_scale_changed(value: float) -> void:
 
 func _update_font_label(value: float) -> void:
 	font_label.text = "%d%%" % int(value)
+
+
+# ── Dylan's Slider ──
+# The Text Size slider above only takes effect on UI built after it changes, so
+# from where Dylan sits it does nothing at all. This slider does something very
+# visible: it makes THAT slider bigger. That is its entire purpose.
+
+func _on_dylan_scale_changed(value: float) -> void:
+	_update_dylan_label(value)
+	_save_setting("ui", "dylan_scale", value)
+	_apply_dylan_scale(value)
+
+
+func _update_dylan_label(value: float) -> void:
+	dylan_label.text = "%d%%" % int(value)
+
+
+## Grow the Text Size row — its heading, its readout and the slider itself.
+func _apply_dylan_scale(value: float) -> void:
+	var s: float = clampf(value / 100.0, 1.0, 4.0)
+
+	if _row_base_font <= 0:
+		_row_base_font = font_title.get_theme_font_size("font_size")
+		if _row_base_font <= 0:
+			_row_base_font = ThemeDB.fallback_font_size
+
+	if is_equal_approx(s, 1.0):
+		# Back to untouched: let the row inherit the theme like every other row.
+		font_title.remove_theme_font_size_override("font_size")
+		font_label.remove_theme_font_size_override("font_size")
+	else:
+		var fs: int = maxi(int(_row_base_font * s), 8)
+		font_title.add_theme_font_size_override("font_size", fs)
+		font_label.add_theme_font_size_override("font_size", fs)
+
+	font_label.custom_minimum_size.x = DYLAN_BASE_VALUE_W * s
+	font_slider.custom_minimum_size.y = DYLAN_BASE_SLIDER_H * s
+	_scale_grabber(font_slider, s)
+
+
+## The default theme draws a slider's grabber from a texture, so the only way to
+## make it physically bigger is to hand it a bigger texture.
+func _scale_grabber(slider: HSlider, s: float) -> void:
+	if _grabber_base == null:
+		_grabber_base = slider.get_theme_icon("grabber", "HSlider")
+	if _grabber_base == null:
+		return
+
+	if is_equal_approx(s, 1.0):
+		slider.remove_theme_icon_override("grabber")
+		slider.remove_theme_icon_override("grabber_highlight")
+		return
+
+	var img: Image = _grabber_base.get_image()
+	if img == null:
+		return
+	img = img.duplicate()
+	img.resize(
+		maxi(int(img.get_width() * s), 1),
+		maxi(int(img.get_height() * s), 1),
+		Image.INTERPOLATE_LANCZOS
+	)
+	var tex := ImageTexture.create_from_image(img)
+	slider.add_theme_icon_override("grabber", tex)
+	slider.add_theme_icon_override("grabber_highlight", tex)
 
 
 static func apply_font_scale(scale_percent: float) -> void:

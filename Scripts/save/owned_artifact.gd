@@ -3,7 +3,8 @@ class_name OwnedArtifact extends Resource
 
 @export var id: int = 0
 @export var artifact_set: String = ""  # FK to ArtifactSetData.artifact_set in GameDB
-@export var owner: String = ""         # Character name
+@export var owner: String = ""         # Character or companion name
+@export var owner_type: String = "Character"  # "Character" | "Companion"
 @export var type: String = ""          # Flower of Life, Feather of Death, Sands of Time, Goblet of Space, Circlet of Principles
 @export var equipped: bool = false
 @export var rarity: int = 0

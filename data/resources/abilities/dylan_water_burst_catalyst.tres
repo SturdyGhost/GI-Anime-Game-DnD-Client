@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="AbilityData" load_steps=5 format=3 uid="uid://cunei2xnjqj7c"]
 
-[ext_resource type="Script" path="res://Scripts/resources/game_effect.gd" id="1_i81yi"]
-[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_ins5d"]
+[ext_resource type="Script" uid="uid://c8nou43b42knh" path="res://Scripts/resources/game_effect.gd" id="1_i81yi"]
+[ext_resource type="Script" uid="uid://bw75kcuo66uk8" path="res://Scripts/resources/ability_data.gd" id="1_ins5d"]
 
 [sub_resource type="Resource" id="Resource_i81yi"]
 script = ExtResource("1_i81yi")
@@ -101,5 +101,3 @@ entity_name = "Dylan"
 weapon_type = "Catalyst"
 ability_type = "Burst"
 kit_element = "Water"
-active_ability_id = 61
-ability_cooldown = 0

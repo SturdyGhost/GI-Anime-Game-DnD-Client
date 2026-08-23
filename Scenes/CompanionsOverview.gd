@@ -20,6 +20,9 @@ const COLOR_BADGE_GREEN = Color(0.08, 0.55, 0.25)
 const COLOR_BADGE_YELLOW = Color(0.60, 0.48, 0.05)
 const COLOR_BADGE_RED = Color(0.55, 0.12, 0.12)
 const COLOR_BADGE_GRAY = Color(0.25, 0.27, 0.32)
+const COLOR_DECEASED = Color(0.28, 0.20, 0.22)  # desaturated maroon for the dead
+
+const GRAYSCALE_SHADER_PATH = "res://UI/grayscale.gdshader"
 
 const FONT_SIZE_TITLE = 48
 const FONT_SIZE_NAME = 40
@@ -320,7 +323,9 @@ func _build_companion_card(comp_id: Variant, name_str: String, comp: Dictionary,
 	card.add_theme_stylebox_override("panel", sb)
 
 	# Opacity
-	if not met:
+	if comp.get("Deceased", false) == true:
+		card.modulate = Color(0.62, 0.60, 0.62)
+	elif not met:
 		card.modulate.a = 0.4
 	elif not unlocked:
 		card.modulate.a = 0.7
@@ -368,7 +373,9 @@ func _build_companion_card(comp_id: Variant, name_str: String, comp: Dictionary,
 	badge_row.add_theme_constant_override("separation", 4)
 	info_vbox.add_child(badge_row)
 
-	if not met:
+	if comp.get("Deceased", false) == true:
+		badge_row.add_child(_make_badge("Deceased", COLOR_BADGE_RED))
+	elif not met:
 		badge_row.add_child(_make_badge("Not Met", COLOR_BADGE_GRAY))
 	elif not unlocked:
 		badge_row.add_child(_make_badge("Locked", COLOR_BADGE_RED))
@@ -510,6 +517,7 @@ func _show_not_met_detail(name_str: String) -> void:
 
 func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 		unlocked: bool, active: bool, dm_set: bool = false) -> void:
+	var deceased: bool = (comp.get("Deceased", false) == true)
 	# Main profile split: top (name + portrait/lore) vs bottom (abilities + button)
 	_profile_split = VSplitContainer.new()
 	_profile_split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -577,7 +585,9 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 	status_row.add_theme_constant_override("separation", 8)
 	header_content.add_child(status_row)
 
-	if dm_set:
+	if deceased:
+		status_row.add_child(_make_badge("Deceased", COLOR_BADGE_RED))
+	elif dm_set:
 		status_row.add_child(_make_badge("Always Active", Color(0.4, 0.6, 0.9)))
 	elif active:
 		status_row.add_child(_make_badge("Active", COLOR_BADGE_GREEN))
@@ -622,6 +632,10 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_load_portrait(portrait, name_str)
+	# The dead are rendered in grayscale.
+	if deceased:
+		portrait.material = _grayscale_material()
+		portrait.modulate = Color(0.85, 0.85, 0.85)
 	portrait_frame.add_child(portrait)
 
 	# Lore in a scroll container next to the portrait
@@ -714,7 +728,17 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 	var use_btn = Button.new()
 	use_btn.custom_minimum_size.y = 44
 
-	if dm_set:
+	if deceased:
+		# Checked before every other state — a deceased companion can never be
+		# made active, regardless of unlocked/DM-set/chosen status.
+		use_btn.text = "Deceased"
+		use_btn.disabled = true
+		var btn_sb = _make_flat_button_sb(COLOR_DECEASED)
+		btn_sb.content_margin_top = 10
+		btn_sb.content_margin_bottom = 10
+		use_btn.add_theme_stylebox_override("normal", btn_sb)
+		use_btn.add_theme_stylebox_override("disabled", btn_sb)
+	elif dm_set:
 		use_btn.text = "Always Active (DM Set)"
 		use_btn.disabled = true
 		var btn_sb = _make_flat_button_sb(Color(0.2, 0.35, 0.55))
@@ -759,6 +783,100 @@ func _show_full_profile(comp: Dictionary, name_str: String, met: bool,
 	use_btn.add_theme_color_override("font_disabled_color", COLOR_TEXT_MUTED)
 	use_btn.pressed.connect(_on_use_companion)
 	btn_pad.add_child(use_btn)
+
+	# ── Gear Buttons (only for unlocked companions the active player owns) ──
+	if unlocked and owner == str(Global.ACTIVE_USER_NAME):
+		var gear_pad = MarginContainer.new()
+		gear_pad.add_theme_constant_override("margin_left", 24)
+		gear_pad.add_theme_constant_override("margin_right", 24)
+		gear_pad.add_theme_constant_override("margin_top", 0)
+		gear_pad.add_theme_constant_override("margin_bottom", 24)
+		_bottom_vbox.add_child(gear_pad)
+
+		var gear_row = HBoxContainer.new()
+		gear_row.add_theme_constant_override("separation", 12)
+		gear_pad.add_child(gear_row)
+
+		var arti_btn = Button.new()
+		arti_btn.text = "Artifacts"
+		arti_btn.custom_minimum_size.y = 40
+		arti_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		arti_btn.add_theme_font_size_override("font_size", FONT_SIZE_BODY)
+		arti_btn.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
+		arti_btn.add_theme_stylebox_override("normal", _make_flat_button_sb(COLOR_CARD))
+		arti_btn.add_theme_stylebox_override("hover", _make_flat_button_sb(COLOR_CARD_HOVER))
+		arti_btn.pressed.connect(_open_companion_artifacts.bind(name_str))
+		gear_row.add_child(arti_btn)
+
+		var weap_btn = Button.new()
+		weap_btn.text = "Weapon"
+		weap_btn.custom_minimum_size.y = 40
+		weap_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		weap_btn.add_theme_font_size_override("font_size", FONT_SIZE_BODY)
+		weap_btn.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
+		weap_btn.add_theme_stylebox_override("normal", _make_flat_button_sb(COLOR_CARD))
+		weap_btn.add_theme_stylebox_override("hover", _make_flat_button_sb(COLOR_CARD_HOVER))
+		weap_btn.pressed.connect(_open_companion_weapon.bind(name_str))
+		gear_row.add_child(weap_btn)
+
+		var items_btn = Button.new()
+		items_btn.text = "Items"
+		items_btn.custom_minimum_size.y = 40
+		items_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		items_btn.add_theme_font_size_override("font_size", FONT_SIZE_BODY)
+		items_btn.add_theme_color_override("font_color", COLOR_TEXT_PRIMARY)
+		items_btn.add_theme_stylebox_override("normal", _make_flat_button_sb(COLOR_CARD))
+		items_btn.add_theme_stylebox_override("hover", _make_flat_button_sb(COLOR_CARD_HOVER))
+		items_btn.pressed.connect(_open_companion_items.bind(name_str))
+		gear_row.add_child(items_btn)
+
+
+## Open the artifact detail scene scoped to a specific companion.
+func _open_companion_artifacts(companion_name: String) -> void:
+	var s: PackedScene = preload("res://Scenes/artifact_detail_scene.tscn")
+	var dlg = s.instantiate()
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dlg.open_for_subject(companion_name, "Companion")
+
+
+## Open the weapon detail scene scoped to a specific companion.
+func _open_companion_weapon(companion_name: String) -> void:
+	var s: PackedScene = preload("res://Scenes/weapon_detail_scene.tscn")
+	var dlg = s.instantiate()
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dlg.open_for_subject(companion_name, "Companion")
+
+
+## Open the items management scene scoped to a specific companion.
+func _open_companion_items(companion_name: String) -> void:
+	var dlg := Control.new()
+	dlg.set_script(load("res://Scenes/companion_items_scene.gd"))
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dlg.open_for_companion(companion_name)
 
 
 # ── Ability Card ─────────────────────────────────────────────────────────────
@@ -878,6 +996,25 @@ func _get_companion_abilities(comp: Dictionary) -> Dictionary:
 	return out
 
 
+## Shared grayscale material for deceased portraits. Built once and reused —
+## every TextureRect can point at the same material since it has no per-instance
+## uniforms. Returns null if the shader is missing, in which case the caller just
+## renders normally rather than erroring.
+var _grayscale_mat: ShaderMaterial = null
+
+func _grayscale_material() -> ShaderMaterial:
+	if _grayscale_mat != null:
+		return _grayscale_mat
+	if not ResourceLoader.exists(GRAYSCALE_SHADER_PATH):
+		push_warning("CompanionsOverview: grayscale shader missing at %s" % GRAYSCALE_SHADER_PATH)
+		return null
+	var sh = load(GRAYSCALE_SHADER_PATH)
+	if sh is Shader:
+		_grayscale_mat = ShaderMaterial.new()
+		_grayscale_mat.shader = sh
+	return _grayscale_mat
+
+
 func _load_portrait(tex_rect: TextureRect, companion_name: String) -> void:
 	# Try splash art first, then character portrait
 	var hyphenname = companion_name.to_lower().replace(" ", "-")
@@ -964,6 +1101,12 @@ func _on_use_companion() -> void:
 		return
 
 	var new_name = str(comp.get("Name", ""))
+
+	# The dead never fight. Guard here as well as on the button, so no future
+	# caller of this handler can activate a deceased companion.
+	if comp.get("Deceased", false) == true:
+		return
+
 	var unlocked = (comp.get("Unlocked", false) == true)
 	if not unlocked:
 		return

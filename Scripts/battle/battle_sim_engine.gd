@@ -180,31 +180,20 @@ func _init_battle(config: Dictionary) -> void:
 		_player_attack_stats.append(calc.get("attack", 10.0))
 		_player_em_stats.append(calc.get("elemental_mastery", 7.0))
 
-	# Compute average player stats for companions
-	var avg_atk := 0.0
-	var avg_def := 0.0
-	var avg_em := 0.0
-	var avg_er := 0.0
-	var avg_cd := 0.0
-	var avg_hp := 0.0
+	# Average player BASE points (skill excluded) — the companion stat floor.
+	var avg_base := {"Health": 0.0, "Attack": 0.0, "Defense": 0.0,
+		"Elemental_Mastery": 0.0, "Energy_Recharge": 0.0, "Critical_Damage": 0.0}
 	var pc_count := 0
 	for pname in player_names:
 		var pbd: Dictionary = _battler_data.get(pname, {})
 		if pbd.get("type") == "Character":
-			avg_atk += float(pbd.get("attack_stat", 0))
-			avg_def += float(pbd.get("defense_stat", 0))
-			avg_em += float(pbd.get("em_stat", 0))
-			avg_er += float(pbd.get("er_stat", 0))
-			avg_cd += float(pbd.get("crit_damage_stat", 0))
-			avg_hp += float(pbd.get("max_health", 0))
+			var ed: Dictionary = pbd.get("entity_data", {})
+			for k in avg_base:
+				avg_base[k] += _sf(ed.get("%s_Base_Points" % k, 0))
 			pc_count += 1
 	if pc_count > 0:
-		avg_atk /= pc_count
-		avg_def /= pc_count
-		avg_em /= pc_count
-		avg_er /= pc_count
-		avg_cd /= pc_count
-		avg_hp /= pc_count
+		for k in avg_base:
+			avg_base[k] /= float(pc_count)
 
 	# Build companion battlers — add ALL active companions from config + _synced
 	var added_companions: Dictionary = {}  # Track by name to avoid duplicates
@@ -234,25 +223,51 @@ func _init_battle(config: Dictionary) -> void:
 
 	for comp_name in added_companions:
 		var comp: Dictionary = added_companions[comp_name]
+		# Synthetic char_data: averaged player base points, zero skill points.
+		var synth := {"Element": str(comp.get("Element", ""))}
+		for k in avg_base:
+			synth["%s_Base_Points" % k] = avg_base[k]
+			synth["%s_Skill_Points" % k] = 0
+		# Companion's own equipped weapon + artifacts.
+		var comp_weapon := {}
+		for w in Global.CHARACTER_WEAPONS.values():
+			if str(w.get("Owner", "")) == comp_name \
+					and str(w.get("Owner_Type", "Character")) == "Companion" \
+					and w.get("Equipped") == true:
+				comp_weapon = w
+				break
+		var comp_arts: Array = []
+		for a in Global.CHARACTER_ARTIFACTS.values():
+			if str(a.get("Owner", "")) == comp_name \
+					and str(a.get("Owner_Type", "Character")) == "Companion" \
+					and a.get("Equipped") == true:
+				comp_arts.append(a)
+		# Companions build their own battler from averaged player base + own gear.
+		var ccalc := _calc_stats(synth, comp_weapon, comp_arts)
+		var comp_hp := int(ccalc.get("health", 20))
+		if comp_hp <= 0:
+			comp_hp = 20
 		var comp_bd := {
 			"id": int(comp.get("id", 0)),
 			"name": comp_name,
 			"type": "Companion",
 			"entity_data": comp.duplicate(true),
-			"entity_weapon_data": {},
+			"entity_weapon_data": comp_weapon,
+			"equipped_artifacts": comp_arts,
+			"equipped_weapon": comp_weapon,
 			"entity_current_ability_data": _get_companion_abilities(int(comp.get("id", 0))),
-			"current_health": int(avg_hp) if avg_hp > 0 else 20,
-			"max_health": int(avg_hp) if avg_hp > 0 else 20,
+			"current_health": comp_hp,
+			"max_health": comp_hp,
 			"burst_charges": 0,
 			"applied_element": "None",
 			"killed_status": false,
 			"skipped_status": false,
 			"skipped_duration": 0,
-			"attack_stat": avg_atk if avg_atk > 0 else 8.0,
-			"defense_stat": avg_def if avg_def > 0 else 8.0,
-			"em_stat": avg_em if avg_em > 0 else 5.0,
-			"er_stat": avg_er if avg_er > 0 else 1.0,
-			"crit_damage_stat": avg_cd,
+			"attack_stat": ccalc.get("attack", 8.0),
+			"defense_stat": ccalc.get("defense", 8.0),
+			"em_stat": ccalc.get("elemental_mastery", 5.0),
+			"er_stat": ccalc.get("energy_recharge", 1.0),
+			"crit_damage_stat": ccalc.get("critical_damage", 0.0),
 			"crit_threshold": 20,
 		}
 		_battler_data[comp_name] = comp_bd
@@ -392,6 +407,34 @@ func _register_effects(config: Dictionary) -> void:
 				if passive_effects.size() > 0:
 					_effect_processor.register_battler(name, passive_effects)
 
+	# Register companion gear effects (weapon + artifact set bonuses)
+	for name in _battler_data:
+		var bd: Dictionary = _battler_data[name]
+		if bd.get("type") != "Companion":
+			continue
+		var cw: Dictionary = bd.get("equipped_weapon", {})
+		var cw_name: String = str(cw.get("Weapon", cw.get("Name", "")))
+		if cw_name != "":
+			var weffects := WeaponEffects.get_effects(cw_name)
+			if weffects.is_empty():
+				var wdef = GameDB.weapons_by_name.get(cw_name, null)
+				if wdef and wdef.effects.size() > 0:
+					weffects = wdef.effects
+			if weffects.size() > 0:
+				_effect_processor.register_battler(name, weffects)
+		var carts: Array = bd.get("equipped_artifacts", [])
+		var set_counts: Dictionary = {}
+		for a in carts:
+			var sn: String = str(a.get("Artifact_Set", a.get("Set_Name", "")))
+			if sn != "":
+				set_counts[sn] = set_counts.get(sn, 0) + 1
+		for sn in set_counts:
+			for bonus_type in [2, 4]:
+				if set_counts[sn] >= bonus_type:
+					var bonus = GameDB.get_artifact_bonus(sn, bonus_type)
+					if bonus != null and bonus.effects.size() > 0:
+						_effect_processor.register_battler(name, bonus.effects)
+
 	# Register enemy ability passives
 	for name in _battler_data:
 		var bd: Dictionary = _battler_data[name]
@@ -431,21 +474,13 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 	# Roll accuracy
 	var attack_roll: int
 	if attacker_bd.get("type") == "Companion":
-		# Companions: each player rolls their own dice, companion uses the average
-		var use_em := (ability_element != "Physical" and ability_element != "None")
-		var stat_list: Array = _player_em_stats if use_em else _player_attack_stats
-		var roll_total := 0
-		for stat_val in stat_list:
-			roll_total += DiceRoller.roll_stat(stat_val)
-		attack_roll = int(float(roll_total) / maxf(float(stat_list.size()), 1.0))
+		# Companions: N players each roll the COMPANION's stat die; take the best (max).
+		attack_roll = _best_of_n_roll(accuracy_stat)
 	elif attacker_bd.get("type") == "Enemy":
-		# Enemies: use ability dice if specified, otherwise tier-based
+		# Enemies roll their tier accuracy die (combo dice, e.g. uncommon = D16 = D10+D6).
+		# Accuracy is purely tier-driven now; abilities only flavor the hit, not the roll.
 		var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
-		var enemy_dice: int = _tier_to_attack_die(tier)
-		var ab_dice: int = int(ability.get("dice_die", 0))
-		if ab_dice > 0:
-			enemy_dice = ab_dice
-		attack_roll = DiceRoller.roll(enemy_dice)
+		attack_roll = DiceRoller.roll_dice_array(DiceRoller.enemy_accuracy_dice(tier))
 	else:
 		# Players: roll based on accuracy stat
 		attack_roll = DiceRoller.roll_stat(accuracy_stat)
@@ -505,6 +540,9 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 		if target_bd.get("type") == "Enemy":
 			var tier: String = str(target_bd.get("entity_data", {}).get("Tier", "Common"))
 			defense_roll = DiceRoller.roll(_tier_to_defense_die(tier))
+		elif target_bd.get("type") == "Companion":
+			# Companions: N players each roll the companion's defense die; take the best.
+			defense_roll = _best_of_n_roll(defense_stat)
 		else:
 			defense_roll = DiceRoller.roll_stat(defense_stat)
 
@@ -540,8 +578,15 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 
 		var attacker_type: String = str(attacker_bd.get("type", ""))
 		var ab_dice_die := int(ability.get("dice_die", 0))
-		var use_ability_dice := (attacker_type == "Enemy" or attacker_type == "Companion") and ab_dice_die > 0
-		if use_ability_dice:
+		if attacker_type == "Enemy":
+			# Enemy damage (tier formula): roll N tier dice of the closest die to the
+			# attack-defense difference, plus the tier's flat floor. The ability's own
+			# dice_count/dice_die/dice_flat are ignored for enemy damage.
+			var enemy_tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
+			var enemy_base := DiceRoller.roll_enemy_tier_damage(diff, enemy_tier)
+			total_damage = int((float(enemy_base) + flat_mod) * mult_mod)
+			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
+		elif attacker_type == "Companion" and ab_dice_die > 0:
 			# Enemy/Companion damage: roll ability's dice directly (dice_count * d(dice_die) + dice_flat)
 			# The hit check (attack > defense) already passed — damage uses ability dice, not difference
 			var ab_dice_count := maxi(int(ability.get("dice_count", 1)), 1)
@@ -552,14 +597,6 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			raw_roll += ab_dice_flat
 			total_damage = int((float(raw_roll) + flat_mod) * mult_mod)
 			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
-		elif attacker_type == "Enemy" and ab_dice_die <= 0:
-			# Enemy with no dice specified — use tier-based default
-			var tier: String = str(attacker_bd.get("entity_data", {}).get("Tier", "Common"))
-			var default_die := _tier_to_attack_die(tier)
-			var raw_roll := DiceRoller.roll(default_die) + int(ability.get("dice_flat", 0))
-			total_damage = int((float(raw_roll) + flat_mod) * mult_mod)
-			total_damage = DiceRoller.multi_hit_total(maxi(total_damage, 1), hits_count)
-
 		elif _is_escalation_ability(ability_name, ability_element):
 			# Check for talent modifiers
 			var has_push_further := _has_effect_type(attacker_name, "ESCALATION_THRESHOLD_REDUCTION")
@@ -677,6 +714,16 @@ func _execute_attack(attacker_name: String, attacker_bd: Dictionary, decision: D
 			int(attacker_bd.get("burst_charges", 0)) + burst_gained,
 			burst_cap
 		)
+
+
+## Best-of-N roll of a stat die. N = number of player characters — each rolls the
+## companion's die and the highest result is used (mirrors the table best-of-N rule).
+func _best_of_n_roll(stat_value: float) -> int:
+	var n := maxi(_player_attack_stats.size(), 1)
+	var best := 0
+	for _i in range(n):
+		best = maxi(best, DiceRoller.roll_stat(stat_value))
+	return best
 
 
 func _apply_damage(target_name: String, damage: int, attacker_name: String) -> void:
@@ -1039,5 +1086,13 @@ static func _tier_to_defense_die(tier: String) -> int:
 
 
 static func _tier_to_attack_die(tier: String) -> int:
-	# Default attack dice when ability doesn't specify
-	return _tier_to_defense_die(tier)
+	# Nominal accuracy die size by tier (display/stat only — enemies actually roll
+	# combo accuracy dice via DiceRoller.enemy_accuracy_dice during an attack).
+	match tier.to_lower():
+		"common": return 12
+		"uncommon": return 16
+		"rare": return 20
+		"epic": return 24
+		"story_boss": return 20
+		"boss", "world_boss", "legendary": return 32
+	return 12

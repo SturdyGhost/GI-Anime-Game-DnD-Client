@@ -113,5 +113,11 @@ static func generate_all_loot(enemies: Array, region: String) -> Dictionary:
 			continue
 		var name: String = str(char.get("Name", ""))
 		var luck: int = Global.get_effective_luck(name)
-		all_loot[name] = generate_player_loot(score, region, luck)
+		var player_loot: Dictionary = generate_player_loot(score, region, luck)
+		# Reputation: locals reward a beloved member more, a resented one less.
+		var rep_mult: float = ReputationManager.reward_modifier(region, name)
+		if rep_mult != 1.0:
+			for mat in player_loot:
+				player_loot[mat] = max(1, int(round(float(player_loot[mat]) * rep_mult)))
+		all_loot[name] = player_loot
 	return all_loot

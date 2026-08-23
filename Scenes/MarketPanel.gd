@@ -804,7 +804,7 @@ func _build_item_row(r: Dictionary, idx: int) -> PanelContainer:
 		var price_lbl = Label.new()
 		var base_val = int(r.get("Value", 0))
 		var luck = Market.Get_Daily_Luck()
-		var eff_price = Market._buy_price_with_luck(base_val, luck)
+		var eff_price = Market.buy_price_with_reputation(Market._buy_price_with_luck(base_val, luck))
 		price_lbl.text = str(eff_price) + " Mora"
 		price_lbl.add_theme_color_override("font_color", ACCENT)
 		price_lbl.add_theme_font_size_override("font_size", 25)
@@ -1093,7 +1093,7 @@ func _update_price_display() -> void:
 	var luck = Market.Get_Daily_Luck()
 
 	if _buy_mode:
-		var unit_price = Market._buy_price_with_luck(unit_base, luck)
+		var unit_price = Market.buy_price_with_reputation(Market._buy_price_with_luck(unit_base, luck))
 		var total = unit_price * qty
 		_preview_total_label.text = "Total: %s Mora" % _format_number(total)
 		_preview_confirm_btn.text = "Buy for %s Mora" % _format_number(total)
@@ -1118,7 +1118,7 @@ func _on_confirm_pressed() -> void:
 	if _buy_mode:
 		var unit_base = int(_selected_entry.get("Value", 0))
 		var luck = Market.Get_Daily_Luck()
-		var unit_price = Market._buy_price_with_luck(unit_base, luck)
+		var unit_price = Market.buy_price_with_reputation(Market._buy_price_with_luck(unit_base, luck))
 		var total = unit_price * qty
 		action_text = "Buy %d x %s for %s Mora?" % [qty, _get_row_display_name(_selected_entry), _format_number(total)]
 	else:

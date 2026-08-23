@@ -42,6 +42,20 @@ var _element_icon: TextureRect
 var _effects_label: Label
 
 
+## Enemy-name colour by tier. Common reads as regular text; rarer tiers and the
+## two boss tiers each get a distinct tint. Tolerant of casing/underscores in the
+## raw tier string (data uses "common", "Epic", "story_boss", etc.).
+func _name_color_for_tier(tier_raw: String) -> Color:
+	match tier_raw.strip_edges().to_lower():
+		"uncommon":   return Color(0.40, 0.91, 0.56)   # light green
+		"rare":       return Color(0.46, 0.71, 1.00)   # light blue
+		"epic":       return Color(0.80, 0.58, 1.00)   # light purple
+		"legendary":  return Color(0.96, 0.80, 0.40)   # light gold/orange
+		"story_boss": return Color(0.98, 0.46, 0.46)   # crimson
+		"world_boss": return Color(0.36, 0.93, 0.92)   # cyan
+		_:            return COLOR_TEXT_PRIMARY         # common / unknown = regular text
+
+
 func _ready() -> void:
 	if _enemy_id != "":
 		_build_ui()
@@ -69,8 +83,9 @@ func refresh() -> void:
 	var enemy_def_id = e.get("EnemyID")
 	var edata: EnemyData = GameDB.get_enemy(int(enemy_def_id)) if enemy_def_id != null else null
 
-	# Name
+	# Name — colour-coded by the enemy's tier
 	_name_label.text = "%s %d" % [ename, eid]
+	_name_label.add_theme_color_override("font_color", _name_color_for_tier(str(edata.tier) if edata else ""))
 
 	# Tier
 	var tier_name: String = str(edata.tier).capitalize() if edata else ""

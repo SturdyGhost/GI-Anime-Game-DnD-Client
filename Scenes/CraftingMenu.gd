@@ -26,6 +26,8 @@ var _selected_product = ""
 var _slot_to_item_id = {}        # slot_idx -> inventory item Id
 var _slot_requirements = []      # current product requirements array
 var _inventory_snapshot_before = {}
+var _pending_craft_corr_id: String = ""   # non-empty while a craft is awaiting the host
+var _pending_craft_summary: Dictionary = {}
 
 # --- UI REFS (set in _ready) ---
 var search_input: LineEdit
@@ -1615,150 +1617,103 @@ func _on_confirm_pressed() -> void:
 		return
 	if _selected_product == "":
 		return
+	if _pending_craft_corr_id != "":
+		return  # a craft is already in flight — don't double-submit
 
 	var craft_count = _as_int(qty_spin.value)
 	# output_quantity: how many items produced per craft (e.g., downgrade 1 gem → 3 gems)
 	var output_qty = int(_grouped_recipes.get(_selected_product, {}).get("meta", {}).get("output_quantity", 1))
 	var qty_to_make = craft_count * maxi(output_qty, 1)
-	var target = target_select.get_item_text(target_select.selected) \
-		if target_select != null and target_select.selected >= 0 else "Unknown"
+	var target = _get_selected_target()
+	if target == "":
+		_show_toast("Pick who this is for")
+		return
 
-	# Build consumption plan
+	# Build the consumption plan. Slot quantities scale with the number of
+	# crafts, not with the output quantity — a recipe that yields 3 gems still
+	# only eats one set of materials.
 	var consumption = []
 	for i in range(_slot_requirements.size()):
 		var need_per = _as_int(_slot_requirements[i].get("quantity", 1))
-		var total_need = need_per * qty_to_make
-		var raw_id = _slot_to_item_id.get(i, null)
-		var rid = _as_int_id(raw_id)
+		var total_need = need_per * craft_count
+		var rid = _as_int_id(_slot_to_item_id.get(i, null))
+		if rid <= 0 or total_need <= 0:
+			_show_toast("Ingredient slot %d is not set" % (i + 1))
+			return
 		consumption.append({"id": rid, "take": total_need})
 
-	# Decrement inventory
-	var updates = []
-	for c in consumption:
-		var rid = c["id"]
-		var current_amount = _as_int(Global.CHARACTER_ITEMS[str(int(rid))].get("Quantity", 0))
-		var new_qty = current_amount - _as_int(c["take"])
-		updates.append({
-			"table": "Character_Items",
-			"record_id": rid,
-			"field": "Quantity",
-			"value": _as_int(new_qty)
-		})
+	var table = "Character_Items" if _get_active_role() == "Artisan" else "Character_Weapons"
 
-	# Grant product
-	var has_item = false
-	var product_amount = 0
-	var product_record = 0
-	if _get_active_role() == "Artisan":
-		for item_key in Global.CHARACTER_ITEMS:
-			var it = Global.CHARACTER_ITEMS[item_key]
-			if it.get("Name") == _selected_product and it.get("Owner") == target:
-				has_item = true
-				product_amount = _as_int(it.get("Quantity", 0))
-				product_record = _as_int_id(item_key)
-				break
+	# Ship ONE request. The host validates the whole thing before touching any
+	# record, then consumes the materials and grants the product together, so a
+	# rejected craft never leaves the player short. The result comes back on
+	# NetworkManager.craft_result.
+	_pending_craft_corr_id = "craft-%d-%d" % [Time.get_ticks_msec(), randi() % 10000]
+	_pending_craft_summary = {
+		"product": _selected_product,
+		"qty": qty_to_make,
+		"target": target,
+		"consumed": consumption.duplicate(true),
+	}
+	craft_button.disabled = true
+	if not NetworkManager.craft_result.is_connected(_on_craft_result):
+		NetworkManager.craft_result.connect(_on_craft_result)
+	NetworkManager.request_craft(_pending_craft_corr_id, {
+		"product": _selected_product,
+		"target": target,
+		"table": table,
+		"qty": qty_to_make,
+		"consume": consumption,
+	})
 
-		if has_item:
-			updates.append({
-				"table": "Character_Items",
-				"record_id": product_record,
-				"field": "Quantity",
-				"value": _as_int(qty_to_make + product_amount)
-			})
-		else:
-			var Type = ""
-			var Rarity = ""
-			var Description = ""
-			for item in Global.ITEMS.values():
-				if item.get("Item") == _selected_product:
-					Type = str(item.get("Type", ""))
-					Rarity = str(item.get("Rarity", ""))
-					Description = str(item.get("Description", ""))
-			Global.Insert(
-				"Character_Items",
-				["Owner", "Name", "Type", "Rarity", "Quantity", "Description"],
-				[target, _selected_product, Type, Rarity, _as_int(qty_to_make), Description]
-			)
-	else:
-		for item_key in Global.CHARACTER_WEAPONS:
-			var it = Global.CHARACTER_WEAPONS[item_key]
-			if it.get("Weapon") == _selected_product and it.get("Owner") == target:
-				has_item = true
-				product_amount = _as_int(it.get("Quantity", 0))
-				product_record = _as_int_id(item_key)
-				break
 
-		if has_item:
-			updates.append({
-				"table": "Character_Weapons",
-				"record_id": product_record,
-				"field": "Quantity",
-				"value": _as_int(qty_to_make + product_amount)
-			})
-		else:
-			var Type = ""
-			var Rarity = ""
-			var Effect = ""
-			var Region = ""
-			var Stat1Type = ""
-			var Stat2Type = ""
-			var Stat3Type = ""
-			var Stat1Value = ""
-			var Stat2Value = ""
-			var Stat3Value = ""
-			for item in Global.WEAPONS.values():
-				if item.get("Name") == _selected_product:
-					Type = str(item.get("Weapon_Type", ""))
-					Rarity = str(item.get("Rarity", ""))
-					if item.get("Effect", "") != null:
-						Effect = str(item.get("Effect", ""))
-					else:
-						Effect = ""
-					Region = str(item.get("Region", ""))
-					Stat1Type = str(item.get("Stat_1_Type", ""))
-					Stat1Value = item.get("Stat_1_Value", "")
-					if item.get("Stat_2_Type") != null:
-						Stat2Type = str(item.get("Stat_2_Type", ""))
-						Stat2Value = item.get("Stat_2_Value", "")
-					else:
-						Stat2Type = null
-						Stat2Value = null
-					if item.get("Stat_3_Type") != null:
-						Stat3Type = str(item.get("Stat_3_Type", ""))
-						Stat3Value = item.get("Stat_3_Value", "")
-					else:
-						Stat3Type = null
-						Stat3Value = null
-			Global.Insert(
-				"Character_Weapons",
-				["Owner", "Weapon", "Type", "Rarity", "Region", "Quantity", "Effect", "Stat_1_Type", "Stat_2_Type", "Stat_3_Type", "Stat_1_Value", "Stat_2_Value", "Stat_3_Value", "Refinement", "Equipped"],
-				[target, _selected_product, Type, Rarity, Region, _as_int(qty_to_make), Effect, Stat1Type, Stat2Type, Stat3Type, Stat1Value, Stat2Value, Stat3Value, 0, false]
-			)
+## Host verdict for the craft we submitted. Only close the menu on success —
+## on failure the player keeps their materials and can try again.
+func _on_craft_result(corr_id: String, success: bool, message: String) -> void:
+	if corr_id != _pending_craft_corr_id:
+		return
+	_pending_craft_corr_id = ""
+	if NetworkManager.craft_result.is_connected(_on_craft_result):
+		NetworkManager.craft_result.disconnect(_on_craft_result)
 
-	# Ship updates
-	if updates.size() > 0:
-		Global.Update_Records(updates)
+	if not success:
+		_log("Craft rejected: %s" % message)
+		_refresh_confirm_enabled()
+		return
 
-	# Log
 	if "Log" in Global:
 		var old_values = {"inventory_before": _inventory_snapshot_before.duplicate()}
 		var new_values = {
-			"crafted_product": _selected_product,
-			"quantity": qty_to_make,
-			"target": target,
-			"consumed": consumption
+			"crafted_product": _pending_craft_summary.get("product", ""),
+			"quantity": _pending_craft_summary.get("qty", 0),
+			"target": _pending_craft_summary.get("target", ""),
+			"consumed": _pending_craft_summary.get("consumed", []),
 		}
 		var metadata = {"screen": "CraftingMenu"}
-		Global.Log("crafting", "Craft %s" % _selected_product, "Recipe", _selected_product, old_values, new_values, metadata, "success", "audit")
+		Global.Log("crafting", "Craft %s" % str(_pending_craft_summary.get("product", "")), "Recipe",
+			str(_pending_craft_summary.get("product", "")), old_values, new_values, metadata, "success", "audit")
 
-	_show_toast("Crafted %d x %s for %s" % [qty_to_make, _selected_product, target])
-
-	# Close
+	# NetworkManager already toasted the result; just close.
 	var p = get_parent()
 	if p is Window:
 		p.queue_free()
 	else:
 		queue_free()
+
+
+## The dropdown shows the active player as "Name (me)" for readability, so read
+## the real name from item metadata rather than the label.
+func _get_selected_target() -> String:
+	if target_select == null or target_select.selected < 0:
+		return ""
+	var meta = target_select.get_item_metadata(target_select.selected)
+	if meta != null and str(meta).strip_edges() != "":
+		return str(meta)
+	# Fallback for any entry added without metadata.
+	var text = target_select.get_item_text(target_select.selected)
+	if text.ends_with(" (me)"):
+		return Global.ACTIVE_USER_NAME
+	return text
 
 
 # ============================================================

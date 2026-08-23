@@ -168,6 +168,11 @@ func host_game(port: int = DEFAULT_PORT) -> Error:
 	SaveManager.set_host(true)
 	SaveManager.load_save()
 
+	# Seed catalog-only companion flags (Deceased) into the synced table for saves
+	# written before the field existed, and clear Active on any deceased companion.
+	# Must follow load_save() — it needs the typed .tres catalog populated.
+	Global.backfill_companion_catalog_flags()
+
 	if Global.ACTIVE_USER_TYPE == "Player":
 		Global.calculate_all_stats()
 
@@ -930,6 +935,12 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 	var applied: int = 0
 	var discarded: int = 0
 
+	# Batch ChangeLog disk writes: without this, each append re-serializes the
+	# entire (ever-growing) history to disk, turning reconciliation into an
+	# O(changes x history) synchronous I/O storm that freezes the host — and
+	# therefore every client — until a hard restart.
+	ChangeLog.begin_batch()
+
 	for change in changes:
 		# Tolerate either the new (op/ts/value) or legacy (action/timestamp/data) keys.
 		var op: String = str(change.get("op", change.get("action", "")))
@@ -990,9 +1001,14 @@ func _submit_offline_changes(player_name: String, changes_json: String) -> void:
 				changed_tables[table] = true
 				applied += 1
 
-	# Persist + broadcast tables that changed during reconciliation.
+	# Flush the batched ChangeLog once, then persist the canonical save once
+	# (persist_table writes the whole save regardless of table, so calling it
+	# per-table just re-wrote the entire file N times). Broadcast each changed
+	# table to clients afterward.
+	ChangeLog.end_batch()
+	if not changed_tables.is_empty():
+		DataStore.persist_table("")
 	for table_name in changed_tables.keys():
-		DataStore.persist_table(table_name)
 		broadcast_table_update(table_name)
 
 	print("NetworkManager: Reconciliation done — %d applied, %d discarded" % [applied, discarded])
@@ -1071,17 +1087,29 @@ func request_process_turn(input_json: String) -> void:
 	var input = JSON.parse_string(input_json)
 	if input == null or typeof(input) != TYPE_DICTIONARY:
 		push_error("NetworkManager: failed to parse request_process_turn")
+		_rpc_turn_rejected.rpc_id(sender_peer, "the host could not read your submitted turn")
 		return
 	# Authority guard: the sender must own the acting battler and it must be its turn.
 	var battler_name: String = str(input.get("battler_name", ""))
 	if not _peer_owns_battler(actor, battler_name):
 		push_warning("NetworkManager: rejected turn from %s for '%s' (not owner / not their turn)" % [actor, battler_name])
+		_rpc_turn_rejected.rpc_id(sender_peer, "the host does not list you as the active battler")
 		return
 	var scene = get_tree().get_first_node_in_group("battle_scene")
 	if scene == null:
 		push_error("NetworkManager: request_process_turn received but no battle scene on host")
+		_rpc_turn_rejected.rpc_id(sender_peer, "the host is not in the battle scene")
 		return
 	scene.host_resolve_turn(input)
+
+## Host -> acting client: their submitted turn was refused, and why. Without this
+## every rejection above is invisible to the player (host-side push_warning only)
+## and the End Turn button simply looks broken — exactly the failure mode that
+## made the party-membership drift bug so expensive to find. Channel 1 (UI/log)
+## so it never head-of-line-blocks state sync on channel 0.
+@rpc("authority", "reliable", "call_remote", 1)
+func _rpc_turn_rejected(reason: String) -> void:
+	Toast.notify("Turn refused: %s" % reason, Toast.ERROR, 6.0)
 
 ## True if `actor_name` is allowed to act `battler_name` right now: it must be that
 ## battler's turn, and the actor must own it (own character, or owner of the
@@ -1251,6 +1279,349 @@ func _rpc_request_item_transfer(corr_id: String, receiver_name: String, item_nam
 		return
 	var sender_peer: int = multiplayer.get_remote_sender_id()
 	_handle_transfer_request(sender_peer, corr_id, receiver_name, item_name, qty)
+
+# ─── OWNED-ENTITY ITEM MOVES (player ↔ their companions) ───
+# Unlike request_item_transfer (which resolves the giver from the peer and awaits
+# a receiver ack), this moves an item between two owners the requesting player
+# already controls — themselves or a companion they own. No remote receiver is
+# involved, so the host moves both records authoritatively in one shot. Powers
+# giving items to / taking items from companions.
+
+## Move `qty` of `item_name` from `from_owner` to `to_owner`. Both owners must be
+## the requesting player or a companion they own. Host-authoritative.
+func request_owned_item_move(corr_id: String, from_owner: String, to_owner: String, item_name: String, qty: int) -> void:
+	if is_host:
+		_handle_owned_item_move(1, corr_id, from_owner, to_owner, item_name, qty)
+	else:
+		_rpc_request_owned_item_move.rpc_id(1, corr_id, from_owner, to_owner, item_name, qty)
+
+@rpc("any_peer", "reliable")
+func _rpc_request_owned_item_move(corr_id: String, from_owner: String, to_owner: String, item_name: String, qty: int) -> void:
+	if not is_host:
+		return
+	_handle_owned_item_move(multiplayer.get_remote_sender_id(), corr_id, from_owner, to_owner, item_name, qty)
+
+## True if `player` controls `owner`: it's the player themselves, or a companion
+## the player owns. Gates owned-item moves so a player can only shuffle items
+## between themselves and companions they own.
+func _player_controls_owner(player: String, owner: String) -> bool:
+	if owner == player:
+		return true
+	for c in Global._synced.get("Companions", {}).values():
+		if str(c.get("Name", "")) == owner:
+			return str(c.get("Owner", "")) == player
+	return false
+
+func _handle_owned_item_move(requester_peer: int, corr_id: String, from_owner: String, to_owner: String, item_name: String, qty: int) -> void:
+	var requester: String = Global.ACTIVE_USER_NAME if requester_peer == 1 else connected_players.get(requester_peer, {}).get("name", "")
+
+	# ── Validate ────────────────────────────────────────────────────────
+	if requester == "" or str(from_owner).strip_edges() == "" or str(to_owner).strip_edges() == "" or str(item_name).strip_edges() == "":
+		_send_transfer_result(requester_peer, corr_id, false, "Invalid move arguments")
+		return
+	if qty <= 0:
+		_send_transfer_result(requester_peer, corr_id, false, "Quantity must be at least 1")
+		return
+	if from_owner == to_owner:
+		_send_transfer_result(requester_peer, corr_id, false, "Source and destination are the same")
+		return
+	if not _player_controls_owner(requester, from_owner) or not _player_controls_owner(requester, to_owner):
+		_send_transfer_result(requester_peer, corr_id, false, "You don't control that owner")
+		return
+
+	var from_record = _find_item_record(from_owner, item_name)
+	if from_record == null:
+		_send_transfer_result(requester_peer, corr_id, false, "%s doesn't have %s" % [from_owner, item_name])
+		return
+	var from_qty: int = int(from_record.get("Quantity", 0))
+	if from_qty < qty:
+		_send_transfer_result(requester_peer, corr_id, false, "%s only has %d %s" % [from_owner, from_qty, item_name])
+		return
+
+	var actor_for_log: String = _actor_for_peer(requester_peer)
+
+	# ── Add to destination (existing stack or new record) ───────────────
+	var to_record = _find_item_record(to_owner, item_name)
+	if to_record != null:
+		var to_id: int = int(to_record.get("id"))
+		var to_old: int = int(to_record.get("Quantity", 0))
+		var to_new: int = to_old + qty
+		Global._apply_local_update("Character_Items", str(to_id), "Quantity", to_new)
+		ChangeLog.append_update(actor_for_log, "Character_Items", to_id, "Quantity", to_new, to_old)
+		broadcast_field_updates([{"table": "Character_Items", "record_id": to_id, "field": "Quantity", "value": to_new}])
+	else:
+		var to_id: int = _next_id_for_table("Character_Items")
+		var new_record := {
+			"id": to_id,
+			"Owner": to_owner,
+			"Name": item_name,
+			"Quantity": qty,
+			"Type": from_record.get("Type", ""),
+			"Rarity": from_record.get("Rarity", ""),
+			"Description": from_record.get("Description", ""),
+		}
+		Global._insert_record("Character_Items", str(to_id), new_record)
+		ChangeLog.append_insert(actor_for_log, "Character_Items", to_id, new_record)
+		broadcast_record_update("Character_Items", str(to_id), new_record)
+
+	# ── Subtract from source ────────────────────────────────────────────
+	var from_id: int = int(from_record.get("id"))
+	var from_new: int = max(0, from_qty - qty)
+	Global._apply_local_update("Character_Items", str(from_id), "Quantity", from_new)
+	ChangeLog.append_update(actor_for_log, "Character_Items", from_id, "Quantity", from_new, from_qty)
+	broadcast_field_updates([{"table": "Character_Items", "record_id": from_id, "field": "Quantity", "value": from_new}])
+
+	DataStore.persist_table("Character_Items")
+	_send_transfer_result(requester_peer, corr_id, true, "Moved %d %s: %s → %s" % [qty, item_name, from_owner, to_owner])
+
+
+# ─── CRAFTING (host-authoritative, single transaction) ─────────────────────
+# The client is a pure shell: it picks the recipe, the ingredient records and
+# the target, then ships ONE request. The host validates everything BEFORE it
+# mutates anything, so a rejected craft consumes nothing. Once validation
+# passes the mutations are plain dictionary writes that cannot fail, which
+# makes consume + grant effectively atomic.
+#
+# Ordering is grant-then-consume on purpose: if a later step somehow died, the
+# player would be up an item rather than down their materials.
+#
+# Crafting for another player is still one request — the host writes two record
+# operations (subtract from the crafter, add to the target) inside the same
+# transaction and broadcasts both, so each player's UI updates from the host's
+# echo rather than from a local guess.
+#
+# Payload shape:
+#   { "product": String, "target": String, "table": String,
+#     "qty": int, "consume": [ {"id": int, "take": int}, ... ] }
+
+signal craft_result(corr_id: String, success: bool, message: String)
+
+const CRAFT_TABLES: Array = ["Character_Items", "Character_Weapons"]
+
+## Public entry: called by CraftingMenu. Routes correctly whether the crafter is
+## the host, a client, or offline.
+func request_craft(corr_id: String, payload: Dictionary) -> void:
+	if Global.is_offline or is_host:
+		_handle_craft_request(1, corr_id, payload)
+	else:
+		_rpc_request_craft.rpc_id(1, corr_id, JSON.stringify(payload))
+
+@rpc("any_peer", "reliable")
+func _rpc_request_craft(corr_id: String, payload_json: String) -> void:
+	if not is_host:
+		return
+	var payload = JSON.parse_string(payload_json)
+	if payload == null or typeof(payload) != TYPE_DICTIONARY:
+		_send_craft_result(multiplayer.get_remote_sender_id(), corr_id, false, "Malformed craft request")
+		return
+	_handle_craft_request(multiplayer.get_remote_sender_id(), corr_id, payload)
+
+func _handle_craft_request(requester_peer: int, corr_id: String, payload: Dictionary) -> void:
+	# Resolve the crafter from the peer id, never from the payload — the
+	# ingredients always come out of the requesting player's own inventory.
+	var requester: String = Global.ACTIVE_USER_NAME if requester_peer == 1 else str(connected_players.get(requester_peer, {}).get("name", ""))
+
+	var product: String = str(payload.get("product", "")).strip_edges()
+	var target: String = str(payload.get("target", "")).strip_edges()
+	var table: String = str(payload.get("table", ""))
+	var qty: int = int(payload.get("qty", 0))
+	var consume = payload.get("consume", [])
+
+	# ── Validate (nothing is mutated until every check has passed) ──────
+	if requester == "":
+		_send_craft_result(requester_peer, corr_id, false, "Could not identify the crafting player")
+		return
+	if product == "" or target == "":
+		_send_craft_result(requester_peer, corr_id, false, "Invalid craft arguments")
+		return
+	if not (table in CRAFT_TABLES):
+		_send_craft_result(requester_peer, corr_id, false, "Unknown craft destination '%s'" % table)
+		return
+	if qty <= 0:
+		_send_craft_result(requester_peer, corr_id, false, "Craft quantity must be at least 1")
+		return
+	if typeof(consume) != TYPE_ARRAY or (consume as Array).is_empty():
+		_send_craft_result(requester_peer, corr_id, false, "Craft request had no ingredients")
+		return
+	if not _is_known_character(target):
+		_send_craft_result(requester_peer, corr_id, false, "'%s' is not a party member" % target)
+		return
+	if not _recipe_exists(product):
+		_send_craft_result(requester_peer, corr_id, false, "No recipe for '%s'" % product)
+		return
+
+	# Aggregate by record id first. A recipe can fill two slots from the same
+	# stack; checking each slot on its own would let the pair overdraw it.
+	var needed: Dictionary = {}
+	for c in consume:
+		if typeof(c) != TYPE_DICTIONARY:
+			_send_craft_result(requester_peer, corr_id, false, "Malformed ingredient entry")
+			return
+		var rid: int = int(c.get("id", 0))
+		var take: int = int(c.get("take", 0))
+		if rid <= 0 or take <= 0:
+			_send_craft_result(requester_peer, corr_id, false, "Malformed ingredient entry")
+			return
+		needed[rid] = int(needed.get(rid, 0)) + take
+
+	var items: Dictionary = Global._synced.get("Character_Items", {})
+	for rid in needed.keys():
+		var rec = items.get(str(rid), null)
+		if rec == null:
+			_send_craft_result(requester_peer, corr_id, false, "Ingredient record %d no longer exists" % rid)
+			return
+		if str(rec.get("Owner", "")) != requester:
+			_send_craft_result(requester_peer, corr_id, false, "You don't own '%s'" % str(rec.get("Name", "that ingredient")))
+			return
+		var have: int = int(rec.get("Quantity", 0))
+		if have < int(needed[rid]):
+			_send_craft_result(requester_peer, corr_id, false, "Not enough %s — need %d, have %d" % [str(rec.get("Name", "material")), int(needed[rid]), have])
+			return
+
+	# ── Apply — grant first, then consume ───────────────────────────────
+	# Offline there is no host to broadcast to and DataStore.persist_table is a
+	# no-op, so every mutation also goes into the OfflineChanges log for replay
+	# on the next connect.
+	var offline: bool = Global.is_offline
+	var actor_for_log: String = _actor_for_peer(requester_peer)
+	if not _craft_grant_product(actor_for_log, table, target, product, qty, offline):
+		# Catalog lookup failed. Nothing has been consumed, so this is a clean abort.
+		_send_craft_result(requester_peer, corr_id, false, "'%s' is missing from the item catalog" % product)
+		return
+
+	var consume_updates: Array = []
+	for rid in needed.keys():
+		var rec = items[str(rid)]
+		var old_qty: int = int(rec.get("Quantity", 0))
+		var new_qty: int = max(0, old_qty - int(needed[rid]))
+		Global._apply_local_update("Character_Items", str(rid), "Quantity", new_qty)
+		if offline:
+			OfflineChanges.log_update("Character_Items", int(rid), "Quantity", new_qty)
+		else:
+			ChangeLog.append_update(actor_for_log, "Character_Items", int(rid), "Quantity", new_qty, old_qty)
+		consume_updates.append({"table": "Character_Items", "record_id": int(rid), "field": "Quantity", "value": new_qty})
+	broadcast_field_updates(consume_updates)
+
+	DataStore.persist_table("Character_Items")
+	if table != "Character_Items":
+		DataStore.persist_table(table)
+
+	# The host doesn't receive its own broadcasts — refresh local UI directly.
+	CharacterManager.recalculate_all()
+	Global._queue_offline_snapshot_save()
+	Global.emit_signal("data_load_complete")
+
+	var who: String = "you" if target == requester else target
+	_send_craft_result(requester_peer, corr_id, true, "Crafted %d x %s for %s" % [qty, product, who])
+
+## Add `qty` of `product` to `target`'s inventory: bump an existing stack or
+## insert a fresh record built from the host's own catalog. Returns false only
+## when a brand-new record can't be built because the catalog has no entry.
+func _craft_grant_product(actor_for_log: String, table: String, target: String, product: String, qty: int, offline: bool) -> bool:
+	var name_field: String = "Name" if table == "Character_Items" else "Weapon"
+	var existing = _find_owned_record(table, target, product, name_field)
+
+	if existing != null:
+		var rid: int = int(existing.get("id"))
+		var old_qty: int = int(existing.get("Quantity", 0))
+		var new_qty: int = old_qty + qty
+		Global._apply_local_update(table, str(rid), "Quantity", new_qty)
+		if offline:
+			OfflineChanges.log_update(table, rid, "Quantity", new_qty)
+		else:
+			ChangeLog.append_update(actor_for_log, table, rid, "Quantity", new_qty, old_qty)
+		broadcast_field_updates([{"table": table, "record_id": rid, "field": "Quantity", "value": new_qty}])
+		return true
+
+	var record: Dictionary = {}
+	if table == "Character_Items":
+		var item_def = _find_master_item_def(product)
+		if item_def == null:
+			return false
+		record = {
+			"Owner": target,
+			"Name": product,
+			"Type": str(item_def.get("Type", "")),
+			"Rarity": str(item_def.get("Rarity", "")),
+			"Quantity": qty,
+			"Description": str(item_def.get("Description", "")),
+		}
+	else:
+		var weapon_def = _find_master_weapon_def(product)
+		if weapon_def == null:
+			return false
+		record = {
+			"Owner": target,
+			"Weapon": product,
+			"Type": str(weapon_def.get("Weapon_Type", "")),
+			"Rarity": str(weapon_def.get("Rarity", "")),
+			"Region": str(weapon_def.get("Region", "")),
+			"Quantity": qty,
+			"Effect": str(weapon_def.get("Effect", "")) if weapon_def.get("Effect") != null else "",
+			"Stat_1_Type": weapon_def.get("Stat_1_Type"),
+			"Stat_2_Type": weapon_def.get("Stat_2_Type"),
+			"Stat_3_Type": weapon_def.get("Stat_3_Type"),
+			"Stat_1_Value": weapon_def.get("Stat_1_Value"),
+			"Stat_2_Value": weapon_def.get("Stat_2_Value"),
+			"Stat_3_Value": weapon_def.get("Stat_3_Value"),
+			"Refinement": 0,
+			"Equipped": false,
+		}
+
+	var new_id: int = _next_id_for_table(table)
+	record["id"] = new_id
+	Global._insert_record(table, str(new_id), record)
+	if offline:
+		OfflineChanges.log_insert(table, new_id, record)
+	else:
+		ChangeLog.append_insert(actor_for_log, table, new_id, record)
+	broadcast_record_update(table, str(new_id), record)
+	return true
+
+func _send_craft_result(peer_id: int, corr_id: String, success: bool, message: String) -> void:
+	if peer_id == 1:
+		_show_craft_result(corr_id, success, message)
+	else:
+		_rpc_craft_result.rpc_id(peer_id, corr_id, success, message)
+
+@rpc("authority", "reliable")
+func _rpc_craft_result(corr_id: String, success: bool, message: String) -> void:
+	_show_craft_result(corr_id, success, message)
+
+func _show_craft_result(corr_id: String, success: bool, message: String) -> void:
+	craft_result.emit(corr_id, success, message)
+	Toast.notify(message, Toast.SUCCESS if success else Toast.ERROR)
+
+## Find an owned record (item or weapon) by owner + product name.
+func _find_owned_record(table: String, owner_name: String, product: String, name_field: String) -> Variant:
+	var rows: Dictionary = Global._synced.get(table, {})
+	for rid in rows:
+		var rec = rows[rid]
+		if rec.get("Owner") == owner_name and rec.get(name_field) == product:
+			return rec
+	return null
+
+## True if `name` matches a Characters row. Reads _synced rather than the typed
+## SaveManager data so host and client agree on who exists.
+func _is_known_character(name: String) -> bool:
+	for c in Global._synced.get("Characters", {}).values():
+		if str(c.get("Name", "")) == name:
+			return true
+	return false
+
+## True if any crafting recipe produces `product`.
+func _recipe_exists(product: String) -> bool:
+	for r in GameDB.crafting_recipes.values():
+		if r.product == product:
+			return true
+	return false
+
+## Find a master weapon definition in Global.WEAPONS.
+func _find_master_weapon_def(weapon_name: String) -> Variant:
+	for w in Global.WEAPONS.values():
+		if w.get("Name") == weapon_name:
+			return w
+	return null
 
 ## Host-side: validate, stage on receiver, expect ack (or skip ack if offline/self).
 func _handle_transfer_request(giver_peer: int, corr_id: String, receiver_name: String, item_name: String, qty: int) -> void:

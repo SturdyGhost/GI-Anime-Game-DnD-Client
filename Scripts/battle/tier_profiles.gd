@@ -15,7 +15,8 @@ static func get_profile(tier: String) -> Dictionary:
 				"items_needed_rate": 1.0,
 				"defense_die": 12,
 				"attack_die": 12,
-				"description": "Trivial. Players win easily, no resources needed.",
+				"damage_formula": "2d + 3",
+				"description": "Trivial. Players win easily; a revive is needed only on a freak roll.",
 			}
 		"uncommon":
 			return {
@@ -23,12 +24,13 @@ static func get_profile(tier: String) -> Dictionary:
 				"win_rate": 95.0,
 				"wipe_rate": 2.0,
 				"rounds_per_enemy": [3, 5],
-				"revives_needed_rate": 5.0,
+				"revives_needed_rate": 50.0,
 				"perma_death_rate": 2.0,
-				"items_needed_rate": 10.0,
+				"items_needed_rate": 30.0,
 				"defense_die": 16,
 				"attack_die": 16,
-				"description": "Easy. Occasional item use, revives almost never.",
+				"damage_formula": "3d + 6",
+				"description": "Easy but real. A handful of these force a revive in ~half of fights.",
 			}
 		"rare":
 			return {
@@ -36,12 +38,13 @@ static func get_profile(tier: String) -> Dictionary:
 				"win_rate": 85.0,
 				"wipe_rate": 8.0,
 				"rounds_per_enemy": [5, 8],
-				"revives_needed_rate": 30.0,
+				"revives_needed_rate": 90.0,
 				"perma_death_rate": 8.0,
-				"items_needed_rate": 40.0,
+				"items_needed_rate": 60.0,
 				"defense_die": 16,
-				"attack_die": 16,
-				"description": "Moderate. Items likely, someone downed in ~30% of fights.",
+				"attack_die": 20,
+				"damage_formula": "3d + 9",
+				"description": "Moderate. A revive is almost always needed; a full wipe is rare.",
 			}
 		"epic":
 			return {
@@ -49,12 +52,13 @@ static func get_profile(tier: String) -> Dictionary:
 				"win_rate": 80.0,
 				"wipe_rate": 15.0,
 				"rounds_per_enemy": [8, 12],
-				"revives_needed_rate": 80.0,
+				"revives_needed_rate": 99.0,
 				"perma_death_rate": 10.0,
-				"items_needed_rate": 70.0,
+				"items_needed_rate": 80.0,
 				"defense_die": 20,
-				"attack_die": 20,
-				"description": "Hard. All revives burned in most fights, permanent deaths rare.",
+				"attack_die": 24,
+				"damage_formula": "4d + 12",
+				"description": "Hard single boss. Always forces a revive; a small chance to wipe the party.",
 			}
 		"boss":
 			return {
@@ -62,12 +66,27 @@ static func get_profile(tier: String) -> Dictionary:
 				"win_rate": 75.0,
 				"wipe_rate": 25.0,
 				"rounds_per_enemy": [12, 20],
-				"revives_needed_rate": 50.0,  # of wins
+				"revives_needed_rate": 95.0,  # of wins
 				"perma_death_rate": 25.0,     # of wins
-				"items_needed_rate": 80.0,
+				"items_needed_rate": 90.0,
 				"defense_die": 20,
-				"attack_die": 0,  # Ability-specified
-				"description": "Boss. Full wipe ~25%, all revives burned in half of wins.",
+				"attack_die": 32,
+				"damage_formula": "4d + 15",
+				"description": "Boss. Full wipe ~25%; nearly all revives burned in a win.",
+			}
+		"story_boss":
+			return {
+				"tier": "Story Boss",
+				"win_rate": 50.0,
+				"wipe_rate": 40.0,
+				"rounds_per_enemy": [8, 12],
+				"revives_needed_rate": 100.0,
+				"perma_death_rate": 60.0,  # of wins
+				"items_needed_rate": 95.0,
+				"defense_die": 20,
+				"attack_die": 20,
+				"damage_formula": "4d + 15",
+				"description": "Multi-phase story boss. D20 accuracy traded for multi-target kits; ~50/50 to wipe the party.",
 			}
 		"legendary":
 			return {
@@ -75,19 +94,20 @@ static func get_profile(tier: String) -> Dictionary:
 				"win_rate": 50.0,
 				"wipe_rate": 40.0,
 				"rounds_per_enemy": [15, 30],
-				"revives_needed_rate": 95.0,
+				"revives_needed_rate": 100.0,
 				"perma_death_rate": 80.0,  # of wins
 				"items_needed_rate": 95.0,
 				"defense_die": 20,
-				"attack_die": 0,  # Ability-specified
-				"description": "Brutal. ~50% win rate, clean wins rare (~10%).",
+				"attack_die": 32,
+				"damage_formula": "4d + 15",
+				"description": "Brutal legendary boss. All revives always burned; ~75% chance to wipe the party.",
 			}
 	# Default to common
 	return get_profile("common")
 
 
 static func get_all_tiers() -> Array:
-	return ["Common", "Uncommon", "Rare", "Epic", "Boss", "Legendary"]
+	return ["Common", "Uncommon", "Rare", "Epic", "Boss", "Story Boss", "Legendary"]
 
 
 ## Scale profile expectations based on enemy count.

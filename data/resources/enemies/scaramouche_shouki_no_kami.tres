@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/enemy_data.gd" id="1_sc128"]
+
+[resource]
+script = ExtResource("1_sc128")
+id = 128
+name = "Shouki no Kami, the Prodigal"
+tier = "story_boss"
+size_tiles = 3
+phase_count = 2
+hp_per_phase = 0
+phase1_hp = 350
+phase2_hp = 450
+phase3_hp = 0
+phase4_hp = 0
+phase1_name = "Divine Ingenuity"
+phase2_name = "Nirvana Engines"
+phase3_name = ""
+phase4_name = ""
+turn_structure = "players_all_then_boss"
+defense_scale_per_asc = 0.5
+res_pyro = 1.0
+res_hydro = 1.0
+res_electro = 0.0
+res_cryo = 1.0
+res_anemo = 1.0
+res_geo = 1.0
+res_dendro = 1.0
+notes = "Accuracy D20 (story_boss). 3 PERMANENT PASSIVES: (1) ARCANE ABSORPTION - immune to Electric and absorbs it; Electric damage HEALS him instead, and no Electric element is ever applied to him, so Electric/Nature reactions cannot fire either direction. An Electro companion heals the boss every hit. (2) DIVINE THRESHOLD - no single action/ability may deal more than 100 damage; excess lost. (3) RETRIBUTIVE CIRCUIT - reflects 10% of damage dealt to him back at the dealer, unblockable. TWO INSTA-KILL GATES, one per phase - both are 'fail = every player dies, no save': (A) P1 ARCANE ANNIHILATION - a 2-round telegraphed charge starting when he first drops below 60% of Phase 1 HP (210); the party must deal 140 damage to him across those 2 rounds. Succeeding shatters the charge and STUNS him for 1 round. (B) P2 SETSUNA SHOUMETSU - summons a wave of 3 Nirvana Engine minions; the party has ONE round to destroy all 3, then a fresh wave spawns and it repeats. P1 Divine Ingenuity: upper body, 5 Elemental Matrices + stacking Remnant Flame / Raw Frost hazards; acts twice per round below 50% HP. P2 Nirvana Engines: 6 rotation abilities plus Setsuna. Boss is untargetable until the minion wave is cleared. The minions themselves (no HP - one Fire, one Ice, one Nature, each killed outright by a matching-element hit) are configured SEPARATELY and are not part of this record. Boss abilities carry cosmetic dice - enemy damage resolves as 4 x closest_die(diff) + 15."

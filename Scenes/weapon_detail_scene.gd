@@ -49,6 +49,23 @@ var search_text: String = ""
 var column_filters: Dictionary = {}
 var _confirm_locked = false
 
+# Subject: whose weapons this scene manages. Defaults to active player.
+var _subject_owner: String = ""
+var _subject_type: String = "Character"   # "Character" | "Companion"
+var _receiver_types: Dictionary = {}       # receiver name -> "Character" | "Companion"
+
+## The owner name this scene is currently managing.
+func _subject() -> String:
+	return _subject_owner if _subject_owner != "" else Global.ACTIVE_USER_NAME
+
+## Open the scene scoped to a specific subject (player or companion).
+func open_for_subject(owner: String, owner_type: String = "Character") -> void:
+	_subject_owner = owner
+	_subject_type = owner_type
+	_populate_weapons()
+	_populate_receivers()
+	_refresh_previews()
+
 # ---- Nodes ----
 var search_bar: LineEdit
 var header_hbox: HBoxContainer
@@ -60,6 +77,7 @@ var card_selected: PanelContainer
 var receiver_option: OptionButton
 var give_btn: Button
 var equip_btn: Button
+var unequip_btn: Button
 var exit_btn: Button
 var close_btn: Button
 var _main_split: VSplitContainer
@@ -229,6 +247,13 @@ func _build_ui() -> void:
 	exit_btn.pressed.connect(_close_scene)
 	footer.add_child(exit_btn)
 
+	unequip_btn = Button.new()
+	unequip_btn.text = "Unequip"
+	unequip_btn.custom_minimum_size.x = 120
+	_style_btn(unequip_btn, false)
+	unequip_btn.pressed.connect(_on_unequip_pressed)
+	footer.add_child(unequip_btn)
+
 	equip_btn = Button.new()
 	equip_btn.text = "Equip Selected"
 	equip_btn.custom_minimum_size.x = 150
@@ -308,11 +333,16 @@ func _populate_weapons() -> void:
 	selected_weapon = {}
 	equipped_weapon = {}
 
+	var subj := _subject()
 	for data in Global.CHARACTER_WEAPONS.values():
-		if data.get("Owner") == Global.ACTIVE_USER_NAME and data.get("Quantity", 0) > 0:
-			_add_row(data)
-			if data.get("Equipped", false):
-				equipped_weapon = data
+		if data.get("Owner") != subj or data.get("Quantity", 0) <= 0:
+			continue
+		# Companion subject must additionally match Owner_Type (player gear lacks it in old saves).
+		if _subject_type == "Companion" and str(data.get("Owner_Type", "Character")) != "Companion":
+			continue
+		_add_row(data)
+		if data.get("Equipped", false):
+			equipped_weapon = data
 
 	_apply_filters()
 	_refresh_previews()
@@ -836,9 +866,13 @@ func _update_stat_comparison() -> void:
 		if sel_type != null and str(sel_type) != "":
 			stat_changes[str(sel_type)] = stat_changes.get(str(sel_type), 0) + sel_val
 
-	# Get current character stats for reference
+	# Get current stats for reference (subject may be a companion)
 	CharacterManager.recalculate_all()
-	var calc = CharacterManager.get_stats(Global.ACTIVE_USER_NAME)
+	var calc
+	if _subject_type == "Companion":
+		calc = CharacterManager.calculate_companion_stats(_subject())
+	else:
+		calc = CharacterManager.get_stats(Global.ACTIVE_USER_NAME)
 
 	# Map stat types to display names and current values
 	var stat_map = {
@@ -893,12 +927,36 @@ func _update_stat_comparison() -> void:
 # =============================================================================
 # RECEIVERS (Give weapon)
 # =============================================================================
+
+## The weapon type a companion can wield (its Companions record's "Weapon" field,
+## e.g. "Sword"). Returns "" if the companion or field can't be found.
+func _companion_weapon_type(companion_name: String) -> String:
+	for c in Global.COMPANIONS.values():
+		if str(c.get("Name", "")) == companion_name:
+			return str(c.get("Weapon", ""))
+	return ""
+
 func _populate_receivers() -> void:
 	receiver_option.clear()
 	receiver_option.add_item("Nobody")
+	_receiver_types.clear()
+	var subj := _subject()
 	for character in Global.PartyCharacters:
-		if character != Global.ACTIVE_USER_NAME:
+		if character != subj:
 			receiver_option.add_item(character)
+			_receiver_types[character] = "Character"
+	# Companions the active player owns (and has unlocked) are valid receivers.
+	for rid in Global.COMPANIONS.keys():
+		var c: Dictionary = Global.COMPANIONS[rid]
+		var cname := str(c.get("Name", ""))
+		if cname == "" or cname == subj:
+			continue
+		if str(c.get("Owner", "")) != Global.ACTIVE_USER_NAME:
+			continue
+		if not c.get("Unlocked", false):
+			continue
+		receiver_option.add_item(cname)
+		_receiver_types[cname] = "Companion"
 
 # =============================================================================
 # EQUIP
@@ -913,23 +971,25 @@ func _on_equip_pressed() -> void:
 		_confirm_locked = false
 		return
 
-	var wtype = selected_weapon.get("Type")
-	var char_id = Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]
-	var element = Global.CHARACTERS[char_id].get("Element", null)
+	# Companion abilities are not weapon-gated — skip the kit-fit validation for them.
+	if _subject_type == "Character":
+		var wtype = selected_weapon.get("Type")
+		var char_id = Global.CHARACTERS_NAME[Global.ACTIVE_USER_NAME]
+		var element = Global.CHARACTERS[char_id].get("Element", null)
 
-	var ability_count = 0
-	for ability in Global.ACTIVE_ABILITIES.values():
-		if ability.get("Weapon_Type") == wtype and ability.get("Element") == element and ability.get("Entity_Type") == "Character" and ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID:
-			ability_count += 1
+		var ability_count = 0
+		for ability in Global.ACTIVE_ABILITIES.values():
+			if ability.get("Weapon_Type") == wtype and ability.get("Element") == element and ability.get("Entity_Type") == "Character" and ability.get("Entity_ID") == Global.ACTIVE_USER_RECORD_ID:
+				ability_count += 1
 
-	if ability_count < 1:
-		_show_error("There is no valid kit that fits that element and weapon type. Please choose a valid weapon type or update your element.")
-		_confirm_locked = false
-		return
+		if ability_count < 1:
+			_show_error("There is no valid kit that fits that element and weapon type. Please choose a valid weapon type or update your element.")
+			_confirm_locked = false
+			return
 
 	error_label.text = ""
 
-	var owner = Global.ACTIVE_USER_NAME
+	var owner = _subject()
 	var target_weapon_name = selected_weapon.get("Weapon")
 
 	var equipped_ids: Array = []
@@ -971,6 +1031,59 @@ func _on_equip_pressed() -> void:
 	_confirm_locked = false
 	return  # The rest happens in the confirm callback
 
+# =============================================================================
+# UNEQUIP
+# =============================================================================
+func _on_unequip_pressed() -> void:
+	if _confirm_locked:
+		return
+	if equipped_weapon.is_empty():
+		_show_error("No weapon is currently equipped.")
+		return
+	error_label.text = ""
+	var old_name = str(equipped_weapon.get("Weapon", equipped_weapon.get("Name", "current weapon")))
+	_show_confirm_popup(
+		"Unequip Weapon",
+		"Remove %s? %s will have no weapon equipped." % [old_name, _subject()],
+		_do_unequip_weapon
+	)
+
+func _do_unequip_weapon() -> void:
+	var owner = _subject()
+	var updates: Array = []
+	var previous_equipped: String = ""
+
+	for rec_id in Global.CHARACTER_WEAPONS.keys():
+		var cw: Dictionary = Global.CHARACTER_WEAPONS[rec_id]
+		if str(cw.get("Owner", "")) != owner:
+			continue
+		if cw.get("Equipped", false) != true:
+			continue
+		previous_equipped = str(rec_id)
+		updates.append({
+			"table": "Character_Weapons",
+			"record_id": int(rec_id),
+			"field": "Equipped",
+			"value": false
+		})
+		Global.CHARACTER_WEAPONS[rec_id]["Equipped"] = false
+
+	if updates.size() > 0:
+		Global.Update_Records(updates)
+
+	if previous_equipped != "":
+		Global.Log(
+			"equipment",
+			"unequip_weapon",
+			"Weapon",
+			previous_equipped,
+			{"type": equipped_weapon.get("Type", ""), "previous": equipped_weapon},
+			{"type": "", "current": null}
+		)
+
+	Global.calculate_all_stats()
+	_close_scene()
+
 func _do_post_equip(target_id: String) -> void:
 	Global.Log(
 		"equipment",
@@ -996,16 +1109,33 @@ func _on_give_pressed() -> void:
 		return
 	var weapon_name = str(selected_weapon.get("Weapon", selected_weapon.get("Name", "Unknown")))
 	var target_name = receiver_option.get_item_text(receiver_option.get_selected_id())
+
+	# Companions can only wield their own weapon type — block mismatched gives.
+	if _receiver_types.get(target_name, "Character") == "Companion":
+		var allowed := _companion_weapon_type(target_name)
+		var wtype := str(selected_weapon.get("Type", ""))
+		if allowed != "" and wtype != "" and wtype != allowed:
+			_show_error("%s can only wield %s weapons — cannot give a %s." % [target_name, allowed, wtype])
+			return
+
 	_show_confirm_popup(
 		"Give Weapon",
 		"Give %s to %s? This cannot be undone." % [weapon_name, target_name],
 		func():
+			var rec_id := int(selected_weapon.get("id", 0))
+			var rtype: String = _receiver_types.get(target_name, "Character")
 			var updates: Array = []
 			updates.append({
 				"table": "Character_Weapons",
-				"record_id": int(selected_weapon.get("id", 0)),
+				"record_id": rec_id,
 				"field": "Owner",
 				"value": target_name
+			})
+			updates.append({
+				"table": "Character_Weapons",
+				"record_id": rec_id,
+				"field": "Owner_Type",
+				"value": rtype
 			})
 			Global.Update_Records(updates)
 			_close_scene()

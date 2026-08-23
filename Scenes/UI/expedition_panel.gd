@@ -73,8 +73,16 @@ func _load_state() -> void:
 
 	_available_companions = []
 	for comp in Global.COMPANIONS.values():
+		# The dead don't run errands: a deceased companion is never idle-available,
+		# even though clearing Active on death would otherwise qualify them.
+		if comp.get("Deceased", false) == true:
+			continue
 		if comp.get("Unlocked", false) and not comp.get("Active", false):
 			_available_companions.append(comp)
+
+	# Drop any expedition slot still holding a companion who has since died, so a
+	# pre-existing assignment can't keep them working past their death.
+	_release_deceased_assignments()
 
 	_max_slots = 2
 	for char in Global.CHARACTERS.values():
@@ -480,6 +488,55 @@ func _get_assigned_names(index: int) -> Array:
 	if val is String and val != "":
 		return [val]
 	return []
+
+## Drop deceased companions from existing expedition assignments.
+##
+## Filtering the idle list is not enough on its own: a companion can die while
+## already deployed, and that stale assignment would otherwise keep them working
+## an expedition indefinitely (and counting against _max_slots).
+##
+## Runs on host and client so the panel renders correctly everywhere, but only
+## the HOST persists the correction — clients are pure shells and must not write
+## Party state. The client's local copy is corrected in memory and the host's
+## broadcast overwrites it on the next sync anyway.
+func _release_deceased_assignments() -> void:
+	var dead: Dictionary = {}
+	for comp in Global.COMPANIONS.values():
+		if comp.get("Deceased", false) == true:
+			dead[str(comp.get("Name", ""))] = true
+	if dead.is_empty():
+		return
+
+	var changed := false
+	for key in _assignments.keys():
+		var val = _assignments[key]
+		var names: Array = []
+		if val is Array:
+			names = val
+		elif val is String and val != "":
+			names = [val]
+
+		var kept: Array = []
+		var removed := false
+		for n in names:
+			if dead.has(str(n)):
+				removed = true
+				print("ExpeditionPanel: released deceased companion %s from expedition %s" % [str(n), str(key)])
+			else:
+				kept.append(n)
+		if not removed:
+			continue
+
+		changed = true
+		if kept.is_empty():
+			_assignments.erase(key)
+		else:
+			_assignments[key] = kept
+
+	if changed:
+		Global._expedition_assignments = _assignments.duplicate()
+		if NetworkManager.is_host:
+			_save_state()
 
 ## Total number of companions deployed across all expeditions.
 func _total_deployed() -> int:

@@ -29,6 +29,11 @@ var _background: TextureRect
 var _turn_list: ItemList
 var _round_label: Label
 var _turn_badge: Label
+var _hub_btn: Button                 # opens the off-turn partial hub overlay
+var _battle_hub_overlay: Control     # the partial-hub popup (null when closed)
+var _party_stats_btn: Button         # opens the party stats table (always available)
+var _party_stats_overlay: Control    # the party stats popup (null when closed)
+var _party_stats_grid: GridContainer # table body, rebuilt on every data refresh
 var _enemy_grid: HFlowContainer
 var _action_dock: PanelContainer
 var _attack_select: OptionButton
@@ -415,10 +420,33 @@ func _build_ui():
 	top_sep.add_theme_stylebox_override("separator", _sb(BORDER_SUBTLE, Color.TRANSPARENT, 0, 0, Vector4(0, 1, 0, 0)))
 	center.add_child(top_sep)
 
+	var top_row = HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 10)
+	top_bar.add_child(top_row)
+
+	# Off-turn hub button: lets a player dip into minigames/companions/etc while
+	# they wait. Hidden on their own turn (see _update_dock_visibility).
+	_hub_btn = Button.new()
+	_hub_btn.text = "☰ Hub"
+	_hub_btn.add_theme_font_size_override("font_size", preload("res://Scenes/settings_popup.gd").scaled_font(15))
+	_hub_btn.tooltip_text = "Open the hub while you wait. Closes automatically when your turn begins."
+	_hub_btn.visible = false
+	_hub_btn.pressed.connect(_open_battle_hub)
+	top_row.add_child(_hub_btn)
+
+	# Party stats: available at ALL times, including on your own turn and on
+	# someone else's. Deliberately not gated by _update_dock_visibility.
+	_party_stats_btn = Button.new()
+	_party_stats_btn.text = "📊 Party Stats"
+	_party_stats_btn.add_theme_font_size_override("font_size", preload("res://Scenes/settings_popup.gd").scaled_font(15))
+	_party_stats_btn.tooltip_text = "View every party member's and companion's stats — needed to roll defense for a companion an enemy targets."
+	_party_stats_btn.pressed.connect(_on_party_stats_pressed)
+	top_row.add_child(_party_stats_btn)
+
 	_turn_badge = _lbl("", 15, TEXT_PRIMARY)
 	_turn_badge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_turn_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	top_bar.add_child(_turn_badge)
+	top_row.add_child(_turn_badge)
 
 	# ── VSplitContainer: drag to resize enemy area vs action dock ──
 	_center_split = VSplitContainer.new()
@@ -930,6 +958,29 @@ func _sync_health_with_effects() -> void:
 		print("[DMG-DIAG] sync_health %s: stored_max=%d calc_max=%d cur=%d -> new=%d (THIS OVERWRITES Current_Health)" % [pname, stored_max, calc_max, cur_hp, new_cur])
 		updates.append({"table": "Characters", "record_id": int(cid), "field": "Max_Health", "value": calc_max})
 		updates.append({"table": "Characters", "record_id": int(cid), "field": "Current_Health", "value": new_cur})
+
+	# Companions: derive Max_Health from the new companion formula (avg player base + gear).
+	for cname in Global.PartyCompanions:
+		var ccalc = CharacterManager.calculate_companion_stats(cname)
+		if ccalc == null:
+			continue
+		var ccid = Global.COMPANIONS_NAME.get(cname, "")
+		if ccid == "":
+			continue
+		var cdata = Global.COMPANIONS.get(ccid, {})
+		var cstored_max = int(cdata.get("Max_Health", 0))
+		var ccalc_max = int(ccalc.health)
+		if ccalc_max <= 0 or ccalc_max == cstored_max:
+			continue
+		var cnew_cur: int
+		if cstored_max > 0:
+			cnew_cur = int(cdata.get("Current_Health", cstored_max)) + (ccalc_max - cstored_max)
+		else:
+			cnew_cur = ccalc_max
+		cnew_cur = clampi(cnew_cur, 0, ccalc_max)
+		updates.append({"table": "Companions", "record_id": int(ccid), "field": "Max_Health", "value": ccalc_max})
+		updates.append({"table": "Companions", "record_id": int(ccid), "field": "Current_Health", "value": cnew_cur})
+
 	if updates.size() > 0:
 		Global.Update_Records(updates)
 
@@ -1004,6 +1055,16 @@ func _update_dock_visibility():
 
 	_stun_overlay.visible = false
 	_action_dock.visible = should_show
+
+	# Off-turn hub: a player may browse minigames/companions/etc while waiting, but
+	# the moment it's their turn to act, force everything closed (refunding any
+	# wagered minigame) so they're cleanly back in the battle.
+	var is_player := str(Global.ACTIVE_USER_TYPE) == "Player"
+	if _hub_btn:
+		_hub_btn.visible = is_player and not should_show
+	if should_show and _battle_hub_overlay != null:
+		_close_battle_hub(true)
+
 	if should_show:
 		_refresh_action_dock()
 		_check_focus_alert()
@@ -1059,6 +1120,126 @@ func _flash_red() -> void:
 
 
 # =============================================================================
+#  Off-turn Battle Hub (partial player-hub popup)
+# =============================================================================
+## A lightweight popup the player can open while waiting for their turn. The
+## battle keeps running underneath; the moment it's their turn the overlay (and
+## anything nested in it, incl. minigames) is torn down — refunding any wager.
+func _open_battle_hub() -> void:
+	if _battle_hub_overlay != null or str(Global.ACTIVE_USER_TYPE) != "Player":
+		return
+	var settings = preload("res://Scenes/settings_popup.gd")
+
+	var overlay = Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 90
+	var dim = ColorRect.new()
+	dim.color = Color(0.02, 0.03, 0.05, 0.78)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(dim)
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var panel = PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _sb(BG_PANEL, BORDER_SUBTLE, 1, 10, Vector4(32, 26, 32, 26)))
+	center.add_child(panel)
+	var v = VBoxContainer.new()
+	v.add_theme_constant_override("separation", 14)
+	panel.add_child(v)
+
+	var title = _lbl("While You Wait", 22, ACCENT, true)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(title)
+	var note = _lbl("The battle keeps running. This closes automatically when it's your turn.", 12, TEXT_MUTED)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(note)
+
+	var entries = [
+		{"label": "🎲  Minigames", "scene": "res://Scenes/MinigamesMenu.tscn"},
+		{"label": "👥  Companions", "scene": "res://Scenes/CompanionsOverview.tscn"},
+		{"label": "⚖  Reputation", "script": "res://Scenes/reputation_window.gd"},
+		{"label": "📜  Quests", "script": "res://Scenes/quest_window.gd"},
+	]
+	for e in entries:
+		var b = Button.new()
+		b.text = str(e["label"])
+		b.custom_minimum_size = Vector2(440, 60)
+		b.add_theme_font_size_override("font_size", settings.scaled_font(18))
+		if e.has("scene"):
+			var p: String = str(e["scene"])
+			b.pressed.connect(func(): _hub_open_scene(p))
+		else:
+			var sp: String = str(e["script"])
+			b.pressed.connect(func(): _hub_open_script(sp))
+		v.add_child(b)
+
+	var close = Button.new()
+	close.text = "Close"
+	close.custom_minimum_size = Vector2(440, 50)
+	close.add_theme_font_size_override("font_size", settings.scaled_font(16))
+	close.pressed.connect(func(): _close_battle_hub(true))
+	v.add_child(close)
+
+	add_child(overlay)
+	_battle_hub_overlay = overlay
+
+## Open a packed scene as a modal window nested UNDER the hub overlay, so closing
+## the overlay (e.g. when the turn starts) tears it down too.
+func _hub_open_scene(scene_path: String) -> void:
+	if _battle_hub_overlay == null:
+		return
+	var ps: PackedScene = load(scene_path)
+	if ps == null:
+		return
+	var dlg = ps.instantiate()
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	win.add_child(dlg)
+	_battle_hub_overlay.add_child(win)
+	if dlg is Control:
+		dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+## Same, for script-only windows (reputation/quests build their own UI + emit panel_closed).
+func _hub_open_script(script_path: String) -> void:
+	if _battle_hub_overlay == null:
+		return
+	var dlg := Control.new()
+	dlg.set_script(load(script_path))
+	var win := Window.new()
+	win.exclusive = true
+	win.transparent = true
+	win.unresizable = true
+	win.size = get_viewport_rect().size
+	win.position = Vector2.ZERO
+	if dlg.has_signal("panel_closed"):
+		dlg.panel_closed.connect(func(): win.queue_free())
+	win.add_child(dlg)
+	_battle_hub_overlay.add_child(win)
+	dlg.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+## Tear down the hub overlay and everything nested in it. When `refund` is true,
+## any open wagering minigame returns the player's Mora first (their cost back).
+func _close_battle_hub(refund: bool) -> void:
+	if _battle_hub_overlay == null:
+		return
+	if refund:
+		_refund_wagers(_battle_hub_overlay)
+	_battle_hub_overlay.queue_free()
+	_battle_hub_overlay = null
+
+## Recursively call wager_refund() on any descendant that exposes it.
+func _refund_wagers(node: Node) -> void:
+	if node.has_method("wager_refund"):
+		node.wager_refund()
+	for c in node.get_children():
+		_refund_wagers(c)
+
+
+# =============================================================================
 #  Refresh All
 # =============================================================================
 
@@ -1068,6 +1249,7 @@ func _refresh_all():
 	_refresh_party()
 	_refresh_my_stats()
 	_refresh_my_effects()
+	_refresh_party_stats()
 	_turn_badge.text = "%s's Turn" % str(Current_Turn) if Current_Turn else ""
 
 
@@ -1129,35 +1311,31 @@ func _refresh_my_stats():
 	# Force recalculate so effect bonuses (weapon passives, artifact sets, etc.) are included
 	CharacterManager.recalculate_all()
 
-	# Use CharacterManager.get_stats() which includes base + gear + artifacts + effect bonuses
-	var calc_stats = CharacterManager.get_stats(my_name)
+	# On a turn belonging to a companion this player owns, show that companion's
+	# (gear-derived) stats instead of the player's own.
+	var is_companion := false
+	if Global.PartyCompanions.has(str(Current_Turn)):
+		var _coid = Global.COMPANIONS_NAME.get(str(Current_Turn), "")
+		var _cdata = Global.COMPANIONS.get(_coid, {})
+		if str(_cdata.get("Owner", "")) == Global.ACTIVE_USER_NAME:
+			my_name = str(Current_Turn)
+			is_companion = true
 
-	var cid = Global.CHARACTERS_NAME.get(my_name, "")
-	var data = Global.CHARACTERS.get(cid, {}) if cid != "" else {}
-
-	if calc_stats == null and data.is_empty():
+	# Same numbers the Party Stats table shows — one calculation, two views. Any
+	# change to how a stat is derived lands in both at once.
+	var stats: Dictionary = _ps_collect(my_name, is_companion)
+	if stats.is_empty():
 		_my_stats_container.add_child(_lbl("No data", 13, TEXT_MUTED))
 		return
 
-	# Prefer calculated stats (includes effects), fall back to raw data
-	var hp_cur = int(data.get("Current_Health", 0))
-	# Use calculated health stat (includes effect bonuses like +30% HP from weapon)
-	var hp_max = int(calc_stats.health) if calc_stats and calc_stats.health > 0 else int(data.get("Max_Health", 0))
-	var atk = int(calc_stats.attack) if calc_stats else int(data.get("Attack", 0))
-	var def_val = int(calc_stats.defense) if calc_stats else int(data.get("Defense", 0))
-	var em = int(calc_stats.elemental_mastery) if calc_stats else int(data.get("Elemental_Mastery", 0))
-	var cd = float(calc_stats.critical_damage) if calc_stats else float(data.get("Critical_Damage", 0))
-	var er = float(calc_stats.energy_recharge) if calc_stats else float(data.get("Energy_Recharge", 0))
-	var bc = int(data.get("Burst_Charges", 0))
-
 	var stats_to_show = [
-		["HP", "%d / %d" % [hp_cur, hp_max]],
-		["ATK", str(atk)],
-		["DEF", str(def_val)],
-		["EM", str(em)],
-		["Crit DMG", str(cd)],
-		["ER", str(er)],
-		["Burst", "%d / %d" % [bc, _get_max_burst_cost(my_name)]],
+		["HP", stats["hp"]],
+		["ATK", stats["atk"]],
+		["DEF", stats["def"]],
+		["EM", stats["em"]],
+		["Crit DMG", stats["critdmg"]],
+		["ER", stats["er"]],
+		["Burst", stats["burst"]],
 	]
 
 	for stat in stats_to_show:
@@ -1607,9 +1785,16 @@ func _setup_effects_display():
 		return str(a.get("name", "")).to_lower() < str(b.get("name", "")).to_lower()
 	)
 
+	# Kit passives pin to the top of the list, above the timed effect rows.
+	# They're standing traits with long rules text, so they get a collapsible row
+	# rather than being lumped in with the one-line effect entries.
+	var passive_count := _add_kit_passive_rows(b_name)
+
 	if entries.size() == 0:
-		var none_lbl = _lbl("No active effects", 13, TEXT_MUTED)
-		_effects_tab.add_child(none_lbl)
+		if passive_count == 0:
+			_effects_tab.add_child(_lbl("No active effects", 13, TEXT_MUTED))
+		else:
+			_effects_tab.add_child(_lbl("No other active effects", 13, TEXT_MUTED))
 		return
 
 	for e in entries:
@@ -1626,6 +1811,77 @@ func _setup_effects_display():
 		]
 		lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 		_effects_tab.add_child(lbl)
+
+
+## Expansion state for kit-passive rows, keyed by ability id. _setup_effects_display
+## rebuilds the whole tab on every dock refresh, so this has to live outside it or
+## the row would snap shut every turn.
+var _expanded_passives: Dictionary = {}
+
+## Add a collapsible row for each Passive ability in this battler's kit.
+## Returns how many were added.
+##
+## Only players and companions get this treatment — enemy passives (Iron Plating,
+## Shock Absorbers) carry real GameEffects and already render as normal effect
+## rows, and their text is short enough not to need it. Player kit passives often
+## carry no GameEffect at all (e.g. Brian C's Nature escalation rule, which
+## AbilityEffects returns [] for), so without this they'd be invisible in battle.
+func _add_kit_passive_rows(battler_name: String) -> int:
+	if battler_name == "" or not Global.BattlerData.has(battler_name):
+		return 0
+	var battler: Dictionary = Global.BattlerData[battler_name]
+	var b_type := str(battler.get("type", ""))
+	if b_type != "Character" and b_type != "Companion":
+		return 0
+
+	var added := 0
+	for item in battler.get("entity_current_active_ability_data", {}).values():
+		var raw_aid = item.get("Ability_ID")
+		if raw_aid == null:
+			continue
+		var aid := int(raw_aid)
+		var ability: AbilityData = GameDB.get_ability(aid)
+		if ability == null:
+			continue
+		if str(ability.ability_type).to_lower() != "passive":
+			continue
+
+		var desc := str(ability.description)
+		if desc.strip_edges() == "":
+			continue
+
+		var is_open: bool = _expanded_passives.get(aid, false)
+
+		var header := Button.new()
+		header.flat = true
+		header.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		header.text = "%s ★ %s" % ["▼" if is_open else "▶", str(ability.name)]
+		header.add_theme_color_override("font_color", ACCENT)
+		header.add_theme_color_override("font_hover_color", ACCENT.lightened(0.25))
+		header.add_theme_font_size_override("font_size", preload("res://Scenes/settings_popup.gd").scaled_font(13))
+		header.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		header.tooltip_text = "Kit passive — always active"
+		header.pressed.connect(func():
+			_expanded_passives[aid] = not bool(_expanded_passives.get(aid, false))
+			_setup_effects_display()
+		)
+		_effects_tab.add_child(header)
+
+		if is_open:
+			var body := _lbl("", 13, TEXT_MUTED)
+			body.text = desc
+			body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var indent := MarginContainer.new()
+			indent.add_theme_constant_override("margin_left", 18)
+			indent.add_theme_constant_override("margin_bottom", 4)
+			indent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			indent.add_child(body)
+			_effects_tab.add_child(indent)
+
+		added += 1
+
+	return added
 
 
 # =============================================================================
@@ -2267,6 +2523,12 @@ func _process_expedition_returns() -> void:
 			if not str(k).begins_with("_"):
 				clean_loot[k] = exp_loot[k]
 
+		# Reputation: the region's regard for the owner scales the expedition haul.
+		var rep_mult: float = ReputationManager.reward_modifier(str(exp.region), owner_name)
+		if rep_mult != 1.0:
+			for mat_name in clean_loot:
+				clean_loot[mat_name] = max(1, int(round(float(clean_loot[mat_name]) * rep_mult)))
+
 		var result_entry = {
 			"expedition": exp.expedition_name,
 			"companion": ", ".join(companion_labels),
@@ -2280,6 +2542,9 @@ func _process_expedition_returns() -> void:
 		if not failed:
 			for mat_name in clean_loot:
 				_persist_expedition_item(owner_name if owner_name != "" else companion_labels[0], mat_name, clean_loot[mat_name])
+			# Reputation consequence of the choice: who it pleases/angers (divisive).
+			if owner_name != "":
+				ReputationManager.apply_expedition(owner_name, str(exp.region), str(exp.expedition_type))
 	Global._expedition_results = results
 	Global._expedition_assignments = {}
 
@@ -2679,3 +2944,235 @@ func _load_layout() -> void:
 		_attack_hsplit_r.split_offset = cfg.get_value("splits", "atk_h_r", 0)
 	if cfg.has_section_key("splits", "target_v"):
 		_target_vsplit.split_offset = cfg.get_value("splits", "target_v", 0)
+
+# =============================================================================
+#  Party Stats Table (always available)
+# =============================================================================
+## A full readout of every player and companion in the party, opened from the
+## top bar at any point in the battle — including on someone else's turn.
+##
+## The reason it can't be turn-gated: when an enemy targets a companion, whoever
+## rolls that companion's defense needs its DEF right then, and the sidebar
+## "My Stats" panel only ever shows the battler whose turn it is.
+
+const PS_COLUMNS: Array = [
+	{"key": "name",    "label": "Name"},
+	{"key": "kind",    "label": "Type"},
+	{"key": "hp",      "label": "HP"},
+	{"key": "shield",  "label": "Shield"},
+	{"key": "atk",     "label": "ATK"},
+	{"key": "def",     "label": "DEF"},
+	{"key": "em",      "label": "EM"},
+	{"key": "critdmg", "label": "Crit DMG"},
+	{"key": "er",      "label": "ER"},
+	{"key": "burst",   "label": "Burst"},
+	{"key": "element", "label": "Element"},
+]
+
+
+## Every stat the table shows for one battler, already formatted. Mirrors the
+## sources _refresh_my_stats uses: calculated stats (base + gear + artifacts +
+## active effects) with the synced row as the fallback.
+func _ps_collect(bname: String, is_companion: bool) -> Dictionary:
+	var calc = null
+	var data: Dictionary = {}
+
+	if is_companion:
+		var cid = Global.COMPANIONS_NAME.get(bname, "")
+		data = Global.COMPANIONS.get(cid, {}) if cid != "" else {}
+		calc = CharacterManager.calculate_companion_stats(bname)
+	else:
+		var pid = Global.CHARACTERS_NAME.get(bname, "")
+		data = Global.CHARACTERS.get(pid, {}) if pid != "" else {}
+		calc = CharacterManager.get_stats(bname)
+
+	if calc == null and data.is_empty():
+		return {}
+
+	var hp_cur: int = int(data.get("Current_Health", 0))
+	var hp_max: int = int(calc.health) if calc and calc.health > 0 else int(data.get("Max_Health", 0))
+	var shield: int = int(data.get("Shield_Health", 0))
+	var elem: String = str(data.get("Applied_Element", "None"))
+	var burst_max: int = _get_max_burst_cost(bname)
+
+	return {
+		"name": bname,
+		"kind": "Companion" if is_companion else "Player",
+		"hp": "%d / %d" % [hp_cur, hp_max],
+		"shield": str(shield) if shield > 0 else "—",
+		"atk": str(int(calc.attack)) if calc else str(int(data.get("Attack", 0))),
+		"def": str(int(calc.defense)) if calc else str(int(data.get("Defense", 0))),
+		"em": str(int(calc.elemental_mastery)) if calc else str(int(data.get("Elemental_Mastery", 0))),
+		"critdmg": str(float(calc.critical_damage)) if calc else str(float(data.get("Critical_Damage", 0))),
+		"er": str(float(calc.energy_recharge)) if calc else str(float(data.get("Energy_Recharge", 0))),
+		"burst": "%d / %d" % [int(data.get("Burst_Charges", 0)), burst_max],
+		"element": elem if elem != "" and elem != "None" else "—",
+		"_down": hp_cur <= 0,
+	}
+
+
+## Party roster in reading order: players first, then companions. Companions of
+## every player are included, not just this player's — an enemy can target any
+## of them, and whoever rolls the defense needs the numbers.
+func _ps_roster() -> Array:
+	var rows: Array = []
+	for pname in Global.PartyCharacters:
+		rows.append({"name": str(pname), "companion": false})
+	for cname in Global.PartyCompanions:
+		rows.append({"name": str(cname), "companion": true})
+	return rows
+
+
+func _on_party_stats_pressed() -> void:
+	if _party_stats_overlay != null:
+		_close_party_stats()
+		return
+
+	var settings = preload("res://Scenes/settings_popup.gd")
+
+	var overlay = Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Above the battle, below the stun overlay and the off-turn hub (z 90).
+	overlay.z_index = 80
+
+	var dim = ColorRect.new()
+	dim.color = Color(0.02, 0.03, 0.05, 0.78)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Click anywhere outside the panel to dismiss.
+	dim.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			_close_party_stats())
+	overlay.add_child(dim)
+
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(center)
+
+	var panel = PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _sb(BG_PANEL, BORDER_SUBTLE, 1, 10, Vector4(28, 22, 28, 22)))
+	center.add_child(panel)
+
+	var v = VBoxContainer.new()
+	v.add_theme_constant_override("separation", 12)
+	panel.add_child(v)
+
+	var title = _lbl("Party Stats", 22, ACCENT, true)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(title)
+
+	var note = _lbl("Live values including gear, artifacts and active effects.", 12, TEXT_MUTED)
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(note)
+
+	# The grid is rebuilt in place on every data refresh, so keep a handle to it
+	# rather than to the whole overlay.
+	var scroll = ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	v.add_child(scroll)
+
+	_party_stats_grid = GridContainer.new()
+	_party_stats_grid.columns = PS_COLUMNS.size()
+	_party_stats_grid.add_theme_constant_override("h_separation", 22)
+	_party_stats_grid.add_theme_constant_override("v_separation", 8)
+	scroll.add_child(_party_stats_grid)
+
+	var close = Button.new()
+	close.text = "Close"
+	close.custom_minimum_size = Vector2(0, 46)
+	close.add_theme_font_size_override("font_size", settings.scaled_font(16))
+	close.pressed.connect(_close_party_stats)
+	v.add_child(close)
+
+	add_child(overlay)
+	_party_stats_overlay = overlay
+	_refresh_party_stats()
+
+
+func _close_party_stats() -> void:
+	if _party_stats_overlay == null:
+		return
+	_party_stats_overlay.queue_free()
+	_party_stats_overlay = null
+	_party_stats_grid = null
+
+
+## Rebuild the table body. Safe to call when the panel isn't open — it no-ops.
+func _refresh_party_stats() -> void:
+	if _party_stats_grid == null or not is_instance_valid(_party_stats_grid):
+		return
+
+	for c in _party_stats_grid.get_children():
+		c.queue_free()
+
+	# Pull in effect-derived bonuses so the numbers match what the battle uses.
+	CharacterManager.recalculate_all()
+
+	for col in PS_COLUMNS:
+		var h = _lbl(str(col["label"]), 24, TEXT_MUTED, true)
+		if str(col["key"]) != "name":
+			h.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		_party_stats_grid.add_child(h)
+
+	var any_rows := false
+	for entry in _ps_roster():
+		var row: Dictionary = _ps_collect(str(entry["name"]), bool(entry["companion"]))
+		if row.is_empty():
+			continue
+		any_rows = true
+
+		# The battler taking the turn is highlighted; anyone at 0 HP is dimmed.
+		var tint: Color = TEXT_PRIMARY
+		if str(entry["name"]) == str(Current_Turn):
+			tint = ACCENT
+		elif bool(row.get("_down", false)):
+			tint = TEXT_MUTED
+
+		for col in PS_COLUMNS:
+			var key := str(col["key"])
+			var cell = _lbl(str(row.get(key, "—")), 24, tint, key == "name")
+			if key != "name":
+				cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			_party_stats_grid.add_child(cell)
+
+	if not any_rows:
+		# GridContainer has no colspan, so pad the row out to keep the columns aligned.
+		_party_stats_grid.add_child(_lbl("No party data", 24, TEXT_MUTED))
+		for _i in range(PS_COLUMNS.size() - 1):
+			_party_stats_grid.add_child(_lbl("", 24, TEXT_MUTED))
+
+	_ps_fit_to_content()
+
+
+## Size the scroll viewport to the table, clamped to the window.
+## Without this the CenterContainer collapses the ScrollContainer to its (zero)
+## minimum width and every column past the third is silently clipped — the table
+## looked like it only had Name/Type/HP.
+##
+## The grid's minimum size is over-reported on the frame the cells are created
+## (fonts haven't resolved yet), so re-measure on following frames until it
+## settles. Bounded, because a layout that never converges must not spin.
+func _ps_fit_to_content(pass_no: int = 0) -> void:
+	if _party_stats_grid == null or not is_instance_valid(_party_stats_grid):
+		return
+	var scroll := _party_stats_grid.get_parent() as ScrollContainer
+	if scroll == null:
+		return
+
+	# get_viewport() is null while the screen is off-tree (unit tests build the
+	# overlay that way), so fall back to a sane desktop size.
+	var vp := Vector2(1920, 1080)
+	var view := get_viewport()
+	if view != null:
+		vp = view.get_visible_rect().size
+
+	var want: Vector2 = _party_stats_grid.get_combined_minimum_size()
+	var target := Vector2(
+		minf(want.x + 24.0, vp.x * 0.9),
+		clampf(want.y + 12.0, 160.0, vp.y * 0.6)
+	)
+	if scroll.custom_minimum_size.distance_to(target) <= 1.0:
+		return
+	scroll.custom_minimum_size = target
+	if pass_no < 3:
+		_ps_fit_to_content.call_deferred(pass_no + 1)

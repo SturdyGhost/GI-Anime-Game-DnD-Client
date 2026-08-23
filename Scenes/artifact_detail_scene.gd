@@ -65,6 +65,16 @@ var _selected_row: Dictionary = {}
 var _original_row: Dictionary = {}
 var _confirm_locked = false
 
+# Subject: whose artifacts this scene manages. Defaults to the active player;
+# set to a companion via open_for_subject().
+var _subject_owner: String = ""
+var _subject_type: String = "Character"   # "Character" | "Companion"
+var _receiver_types: Dictionary = {}       # receiver name -> "Character" | "Companion"
+
+## The owner name this scene is currently managing.
+func _subject() -> String:
+	return _subject_owner if _subject_owner != "" else Global.ACTIVE_USER_NAME
+
 var search_query: String = ""
 var current_sort_column: String = "Name"
 var sort_ascending: bool = true
@@ -109,6 +119,17 @@ func open_for_type(full_name: String) -> void:
 	_slot_type = full_name
 	_activate_chip_for_type(_slot_type)
 	_rebuild_and_refresh()
+
+## Open the scene scoped to a specific subject (player or companion).
+func open_for_subject(owner: String, owner_type: String = "Character", slot: String = "") -> void:
+	_subject_owner = owner
+	_subject_type = owner_type
+	if slot != "":
+		_slot_type = slot
+		_activate_chip_for_type(_slot_type)
+	_populate_receivers()
+	_rebuild_and_refresh()
+	_update_current_preview()
 
 # =============================================================================
 # READY
@@ -765,8 +786,22 @@ func _update_preview_card(card: Panel, data: Dictionary, is_current: bool) -> vo
 	else:
 		_fill_stats_comparison(card, data)
 
-func _fill_stats_current(card: Panel) -> void:
-	var stats = {
+## Current full stat block for the scene's subject. For a companion this derives
+## from CharacterManager.calculate_companion_stats so the preview reflects the
+## companion's own stats; for a player it mirrors Global.Current_* (active player).
+func _subject_current_stats() -> Dictionary:
+	if _subject_type == "Companion":
+		var calc = CharacterManager.calculate_companion_stats(_subject())
+		if calc != null:
+			return {
+				"Health": calc.health,
+				"Attack": calc.attack,
+				"Defense": calc.defense,
+				"Elemental_Mastery": calc.elemental_mastery,
+				"Energy_Recharge": calc.energy_recharge,
+				"Critical_Damage": calc.critical_damage,
+			}
+	return {
 		"Health": Global.Current_Health,
 		"Attack": Global.Current_Attack,
 		"Defense": Global.Current_Defense,
@@ -774,6 +809,9 @@ func _fill_stats_current(card: Panel) -> void:
 		"Energy_Recharge": Global.Current_Energy_Recharge,
 		"Critical_Damage": Global.Current_Critical_Damage,
 	}
+
+func _fill_stats_current(card: Panel) -> void:
+	var stats = _subject_current_stats()
 	var stats_grid: GridContainer = card.find_child("StatsGrid", true, false)
 	if stats_grid == null:
 		return
@@ -785,14 +823,7 @@ func _fill_stats_current(card: Panel) -> void:
 
 func _fill_stats_comparison(card: Panel, data: Dictionary) -> void:
 	var stat_keys = ["Health", "Attack", "Defense", "Elemental_Mastery", "Energy_Recharge", "Critical_Damage"]
-	var current_vals = {
-		"Health": Global.Current_Health,
-		"Attack": Global.Current_Attack,
-		"Defense": Global.Current_Defense,
-		"Elemental_Mastery": Global.Current_Elemental_Mastery,
-		"Energy_Recharge": Global.Current_Energy_Recharge,
-		"Critical_Damage": Global.Current_Critical_Damage,
-	}
+	var current_vals = _subject_current_stats()
 
 	var new_vals = current_vals.duplicate()
 	# Remove old artifact stats (if one is equipped — _original_row may be empty)
@@ -963,7 +994,7 @@ func _update_selected_preview() -> void:
 # =============================================================================
 func _build_data_rows() -> Array:
 	var rows: Array = []
-	var owner = Global.ACTIVE_USER_NAME
+	var owner = _subject()
 
 	# Index set bonuses from Global.ARTIFACTS
 	var two_by_set = {}
@@ -981,6 +1012,9 @@ func _build_data_rows() -> Array:
 	for record_id in Global.CHARACTER_ARTIFACTS.keys():
 		var a: Dictionary = Global.CHARACTER_ARTIFACTS[record_id]
 		if str(a.get("Owner", "")) != owner:
+			continue
+		# Companion subject must additionally match Owner_Type (player gear has none in old saves).
+		if _subject_type == "Companion" and str(a.get("Owner_Type", "Character")) != "Companion":
 			continue
 		if _slot_type != "" and str(a.get("Type", "")) != _slot_type:
 			continue
@@ -1258,9 +1292,24 @@ func _update_title() -> void:
 func _populate_receivers() -> void:
 	receiver_option.clear()
 	receiver_option.add_item("Nobody")
+	_receiver_types.clear()
+	var subj := _subject()
 	for character in Global.PartyCharacters:
-		if character != Global.ACTIVE_USER_NAME:
+		if character != subj:
 			receiver_option.add_item(character)
+			_receiver_types[character] = "Character"
+	# Companions the active player owns (and has unlocked) are valid receivers.
+	for rid in Global.COMPANIONS.keys():
+		var c: Dictionary = Global.COMPANIONS[rid]
+		var cname := str(c.get("Name", ""))
+		if cname == "" or cname == subj:
+			continue
+		if str(c.get("Owner", "")) != Global.ACTIVE_USER_NAME:
+			continue
+		if not c.get("Unlocked", false):
+			continue
+		receiver_option.add_item(cname)
+		_receiver_types[cname] = "Companion"
 
 # =============================================================================
 # EQUIP / UNEQUIP / GIVE
@@ -1290,7 +1339,7 @@ func _do_equip_artifact() -> void:
 		_confirm_locked = false
 		return
 
-	var owner = Global.ACTIVE_USER_NAME
+	var owner = _subject()
 	var slot = str(_selected_row.get("Type", ""))
 	var updates: Array = []
 	var previous_equipped: String = ""
@@ -1321,22 +1370,23 @@ func _do_equip_artifact() -> void:
 		"value": true
 	})
 
-	# Handle Universal_Added_Damage_Bonus
-	var current_uadb = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
-	var changed = 0
-	if _selected_row.get("Stat1") == "Universal_Added_Damage_Bonus":
-		current_uadb += float(_selected_row.get("Stat1Value", 0))
-		changed = 1
-	elif _selected_row.get("Stat2") == "Universal_Added_Damage_Bonus":
-		current_uadb += float(_selected_row.get("Stat2Value", 0))
-		changed = 1
-	if changed == 1:
-		updates.append({
-			"table": "Characters",
-			"record_id": Global.ACTIVE_USER_RECORD_ID,
-			"field": "Universal_Added_Damage_Bonus",
-			"value": current_uadb
-		})
+	# Handle Universal_Added_Damage_Bonus (player characters only — companions have none)
+	if _subject_type == "Character":
+		var current_uadb = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
+		var changed = 0
+		if _selected_row.get("Stat1") == "Universal_Added_Damage_Bonus":
+			current_uadb += float(_selected_row.get("Stat1Value", 0))
+			changed = 1
+		elif _selected_row.get("Stat2") == "Universal_Added_Damage_Bonus":
+			current_uadb += float(_selected_row.get("Stat2Value", 0))
+			changed = 1
+		if changed == 1:
+			updates.append({
+				"table": "Characters",
+				"record_id": Global.ACTIVE_USER_RECORD_ID,
+				"field": "Universal_Added_Damage_Bonus",
+				"value": current_uadb
+			})
 
 	Global.Update_Records(updates)
 
@@ -1373,7 +1423,7 @@ func _on_unequip_pressed() -> void:
 	)
 
 func _do_unequip_artifact() -> void:
-	var owner = Global.ACTIVE_USER_NAME
+	var owner = _subject()
 	var slot = _slot_type
 	var updates: Array = []
 	var previous_equipped: String = ""
@@ -1392,21 +1442,22 @@ func _do_unequip_artifact() -> void:
 				"field": "Equipped",
 				"value": false
 			})
-			var current_uadb = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
-			var uadb_changed = 0
-			if rec.get("Stat_1_Type") == "Universal_Added_Damage_Bonus":
-				current_uadb -= float(rec.get("Stat_1_Value", 0))
-				uadb_changed = 1
-			if rec.get("Stat_2_Type") == "Universal_Added_Damage_Bonus":
-				current_uadb -= float(rec.get("Stat_2_Value", 0))
-				uadb_changed = 1
-			if uadb_changed == 1:
-				updates.append({
-					"table": "Characters",
-					"record_id": Global.ACTIVE_USER_RECORD_ID,
-					"field": "Universal_Added_Damage_Bonus",
-					"value": current_uadb
-				})
+			if _subject_type == "Character":
+				var current_uadb = float(Global.CHARACTERS.get(str(Global.ACTIVE_USER_RECORD_ID), {}).get("Universal_Added_Damage_Bonus", 0))
+				var uadb_changed = 0
+				if rec.get("Stat_1_Type") == "Universal_Added_Damage_Bonus":
+					current_uadb -= float(rec.get("Stat_1_Value", 0))
+					uadb_changed = 1
+				if rec.get("Stat_2_Type") == "Universal_Added_Damage_Bonus":
+					current_uadb -= float(rec.get("Stat_2_Value", 0))
+					uadb_changed = 1
+				if uadb_changed == 1:
+					updates.append({
+						"table": "Characters",
+						"record_id": Global.ACTIVE_USER_RECORD_ID,
+						"field": "Universal_Added_Damage_Bonus",
+						"value": current_uadb
+					})
 
 	if updates.size() > 0:
 		Global.Update_Records(updates)
@@ -1437,12 +1488,20 @@ func _on_give_confirm_button_pressed() -> void:
 		"Give Artifact",
 		"Give %s to %s? This cannot be undone." % [artifact_name, receiver],
 		func():
+			var rec_id := int(_selected_row.get("RecordID", 0))
+			var rtype: String = _receiver_types.get(receiver, "Character")
 			var updates = []
 			updates.append({
 				"table": "Character_Artifacts",
-				"record_id": int(_selected_row.get("RecordID", 0)),
+				"record_id": rec_id,
 				"field": "Owner",
 				"value": receiver
+			})
+			updates.append({
+				"table": "Character_Artifacts",
+				"record_id": rec_id,
+				"field": "Owner_Type",
+				"value": rtype
 			})
 			Global.Update_Records(updates)
 			_close_scene()

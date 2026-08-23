@@ -65,6 +65,10 @@ var _rarity_chips: Array = [] # [{btn: Button, label: String}]
 var _active_types: Array = ["All"]
 var _active_rarities: Array = ["Any Rarity"]
 
+# Receiver names that are companions (vs players) — routes gives through the
+# owned-item-move path instead of the peer-acked player transfer.
+var _companion_receivers: Dictionary = {}
+
 # ---------- bulk transfer tab ----------
 var _bulk_type_container: HFlowContainer
 var _bulk_list: ItemList
@@ -528,6 +532,23 @@ func _populate_bulk_dropdown() -> void:
 	for pname in Global.CHARACTERS_NAME.keys():
 		if pname != Global.ACTIVE_USER_NAME and pname != "Chase":
 			_bulk_player_dropdown.add_item(pname)
+	for cname in _eligible_companion_names():
+		_bulk_player_dropdown.add_item(cname)
+		_companion_receivers[cname] = true
+
+## Unlocked companions the active player owns — eligible item recipients.
+func _eligible_companion_names() -> Array:
+	var out: Array = []
+	for c in Global.COMPANIONS.values():
+		var cname := str(c.get("Name", ""))
+		if cname == "" or out.has(cname):
+			continue
+		if str(c.get("Owner", "")) != Global.ACTIVE_USER_NAME:
+			continue
+		if not c.get("Unlocked", false):
+			continue
+		out.append(cname)
+	return out
 
 func _on_bulk_transfer_pressed() -> void:
 	if _bulk_player_dropdown == null or _bulk_player_dropdown.selected < 0:
@@ -550,8 +571,21 @@ func _on_bulk_transfer_pressed() -> void:
 	popup.add_cancel_button("Cancel")
 	popup.confirmed.connect(func():
 		var my_peer: int = multiplayer.get_unique_id() if multiplayer.multiplayer_peer != null else 0
-		var corr_id: String = "%d-%d-bulk" % [my_peer, Time.get_ticks_msec()]
-		NetworkManager.request_bulk_item_transfer(corr_id, receiver, names)
+		if _companion_receivers.has(receiver):
+			# Companion recipient: move each full stack via the owned-item path.
+			for nm in names:
+				var full_qty := 0
+				for it in Global.CHARACTER_ITEMS.values():
+					if it.get("Owner") == Global.ACTIVE_USER_NAME and it.get("Name") == nm:
+						full_qty = int(it.get("Quantity", 0))
+						break
+				if full_qty <= 0:
+					continue
+				var c_id: String = "%d-%d-%s-citem" % [my_peer, Time.get_ticks_msec(), nm]
+				NetworkManager.request_owned_item_move(c_id, Global.ACTIVE_USER_NAME, receiver, nm, full_qty)
+		else:
+			var corr_id: String = "%d-%d-bulk" % [my_peer, Time.get_ticks_msec()]
+			NetworkManager.request_bulk_item_transfer(corr_id, receiver, names)
 		popup.queue_free()
 	)
 	popup.canceled.connect(func(): popup.queue_free())
@@ -1064,9 +1098,13 @@ func _populate_player_dropdown() -> void:
 	if _player_dropdown == null:
 		return
 	_player_dropdown.clear()
+	_companion_receivers.clear()
 	for pname in Global.CHARACTERS_NAME.keys():
 		if pname != Global.ACTIVE_USER_NAME and pname != "Chase":
 			_player_dropdown.add_item(pname)
+	for cname in _eligible_companion_names():
+		_player_dropdown.add_item(cname)
+		_companion_receivers[cname] = true
 
 func _on_give_button_pressed() -> void:
 	var idx = _player_dropdown.selected
@@ -1142,7 +1180,11 @@ func transfer_item(giver, receiver, item_name, quantity):
 		"audit"
 	)
 
-	NetworkManager.request_item_transfer(corr_id, receiver, item_name, qty)
+	# Companions aren't peers — move via the owned-item path (no ack roundtrip).
+	if _companion_receivers.has(receiver):
+		NetworkManager.request_owned_item_move(corr_id, giver, receiver, item_name, qty)
+	else:
+		NetworkManager.request_item_transfer(corr_id, receiver, item_name, qty)
 
 # ============================================================
 #  CLOSE

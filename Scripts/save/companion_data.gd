@@ -11,6 +11,12 @@ class_name CompanionSaveData extends Resource
 @export var active: bool = false
 @export var met: bool = false
 @export var player_chosen: bool = false
+## Story-death flag. A deceased companion can never be made active and renders
+## grayscaled in the companions screen. Defaults false; set per-companion in the
+## .tres catalog (Ayaka is deceased). Runtime-mutable and persisted via
+## SaveManager.companion_state, so a DM can mark a death mid-campaign without a
+## rebuild — the .tres value is the default until the save overrides it.
+@export var deceased: bool = false
 @export var owner: String = ""
 
 # ── Stats ────────────────────────────────────────────────────────────────────

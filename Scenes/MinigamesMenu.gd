@@ -14,6 +14,30 @@ const GAMES: Array = [
 		"description": "Try your luck at the slot machine. Bet Mora, win big.",
 		"scene": "res://Scenes/NinguangSlots.tscn",
 	},
+	{
+		"key": "Yelan Blackjack",
+		"title": "Yelan's Table — 21",
+		"description": "Real casino blackjack vs Yelan. 6-deck shoe, 3:2 payouts, double, split & insurance. Wager your Mora.",
+		"scene": "res://Scenes/YelanBlackjack.tscn",
+	},
+	{
+		"key": "Exterminator Hunt",
+		"title": "The Exterminator",
+		"description": "A theatrical Fontainian exterminator hunts you through the aqueducts. Break his line of sight, stay quiet, and survive as long as you can.",
+		"scene": "res://Scenes/ExterminatorHunt.tscn",
+	},
+	{
+		"key": "Genshin Hold'em",
+		"title": "Genshin Hold'em",
+		"description": "No-limit Texas Hold'em against companions you've met. Blinds, side pots, bluffs and trash talk. Cash out with more chips than you sat down with.",
+		"scene": "res://Scenes/GenshinHoldem.tscn",
+	},
+	{
+		"key": "Ningguang Roulette",
+		"title": "Ningguang's Wheel of Fortune",
+		"description": "American roulette in the Golden Parlor. Spread your Mora across numbers, dozens, columns and red/black, then spin. Straight-up pays 35:1.",
+		"scene": "res://Scenes/NingguangRoulette.tscn",
+	},
 ]
 
 var _cards_container: GridContainer
@@ -56,13 +80,20 @@ func _ready() -> void:
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
 
-	# Cards grid
+	# Cards grid — wrapped in a scroll container so rows past the first stay
+	# reachable (the Play buttons were getting clipped off the bottom).
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
 	_cards_container = GridContainer.new()
 	_cards_container.columns = 3
 	_cards_container.add_theme_constant_override("h_separation", 24)
 	_cards_container.add_theme_constant_override("v_separation", 24)
-	_cards_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(_cards_container)
+	_cards_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_cards_container)
 
 	_build_cards()
 

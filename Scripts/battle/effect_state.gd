@@ -11,14 +11,29 @@ var actions_remaining: int = 0    # For DOT_PER_ACTION
 var stack_categories: Array = []  # For unique_per tracking (e.g., ["Normal", "Charged"])
 var is_active: bool = true
 
+## Source types that describe a STANDING TRAIT rather than an applied instance.
+## Gear, passive abilities and food buffs are registered once at battle start and
+## must last the whole battle — they should never leave the effects tab. Status
+## effects and move-applied ability effects (stuns, roots, temporary buffs) are
+## instances and keep their authored duration instead.
+## "gear" is what EffectProcessor.register_battler tags bulk registrations with.
+const PERMANENT_SOURCES := ["weapon", "artifact", "passive", "food", "gear"]
+
 ## Create an EffectState from a GameEffect rule.
 static func from_effect(eff: GameEffect, src_type: String = "", src_name: String = "") -> EffectState:
 	var s = EffectState.new()
 	s.effect = eff
 	s.source_type = src_type
 	s.source_name = src_name
-	# PASSIVE effects with duration=0 are permanent (not instant)
-	if eff.trigger == "PASSIVE" and eff.duration == 0:
+	# `duration` is overloaded: 0 means "instant" for an applied instance, but
+	# "lasts the battle" for a standing trait. Disambiguate by SOURCE, not by
+	# trigger — a passive is still a passive when it uses ON_DAMAGE_TAKEN to
+	# describe when it applies (e.g. the Ruin Grader's Shock Absorbers). Judging
+	# by trigger alone silently expired every weapon effect and most artifact set
+	# bonuses at the holder's first turn end.
+	# An explicit non-zero duration is always honoured, so deliberately timed gear
+	# buffs still tick down as authored.
+	if eff.duration == 0 and (eff.trigger == "PASSIVE" or src_type in PERMANENT_SOURCES):
 		s.turns_remaining = -1
 	else:
 		s.turns_remaining = eff.duration

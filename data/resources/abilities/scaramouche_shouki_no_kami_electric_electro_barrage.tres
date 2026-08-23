@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="AbilityData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/resources/ability_data.gd" id="1_sc012"]
+
+[resource]
+script = ExtResource("1_sc012")
+id = 12
+name = "Electro Barrage"
+element = "Electric"
+description = "Marks 4 tiles that detonate at the start of the next round. Overlapping markers STACK as separate hits - no multi-hit reduction between them."
+dice_count = 3
+dice_die = 12
+dice_flat = 10
+defense_threshold = 16
+blockable = true
+bypass_defense = false
+targeting_type = "timed_radials"
+targeting_radius = 0
+targeting_length = 0
+targeting_width = 0
+targeting_targets = 3
+selector = ""
+selector_radius = 0
+tiles_locked_count = 0
+trigger_type = ""
+trigger_threshold_int = 0
+trigger_window_rounds = 1
+hits_count = 1
+effect_mark_name = ""
+effect_mark_duration_rnds = 0
+effect_mark_consumed_on_hit = false
+effect_guaranteed_crit = false
+effect_silence_skill_rnds = 0
+effect_immobilize = false
+effect_tile_dmg_dice_cnt = 0
+effect_tile_dmg_dice_die = 0
+effect_tile_dmg_dice_flat = 0
+effect_tile_dmg_when = ""
+effect_resource_name = ""
+effect_res_dice_cnt = 0
+effect_res_dice_die = 0
+effect_res_flat = 0
+effect_res_sign = ""
+effect_status = 0
+effect_status_duration_rounds = 0
+effect_status_target = "target"
+status_effects = ""
+movement = 0
+charge_cost = 0
+cooldown = 2
+phase_idx = 2
+order = 6
+weight = 1.0
+effects = []
+entity_type = "Enemy"
+entity_id = 128
+entity_name = "Shouki no Kami, the Prodigal"
+weapon_type = ""
+ability_type = ""
+kit_element = "Electric"

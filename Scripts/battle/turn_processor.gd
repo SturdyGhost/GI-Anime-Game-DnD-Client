@@ -88,7 +88,9 @@ static func process_turn(input: Dictionary) -> Array:
 			"Companions": t_entity_type = "Companion"
 			"BattleEnemies": t_entity_type = "Enemy"
 
-		if t_type.to_lower() == "healed":
+		var t_type_lower: String = t_type.to_lower()
+
+		if t_type_lower == "healed":
 			t_damage = -t_raw_dmg
 
 		# ── 4a. Get ability element and apply ────────────────────────────────
@@ -97,7 +99,28 @@ static func process_turn(input: Dictionary) -> Array:
 			t_elem = ability_element
 
 		# ── 4b. Element application ──────────────────────────────────────────
-		if t_elem != "None":
+		# An action applies its element only if it actually did something to the
+		# target. Nothing landed means nothing is applied — which also means no
+		# reaction fires and any aura already on the target survives untouched.
+		#
+		#   Attacks   — damage has to REACH HP. A miss, a 0-damage hit, or a hit
+		#               the shield swallows whole applies nothing. A shield that
+		#               only partially absorbs still lets the element through,
+		#               because some damage got in.
+		#   Heals /   — apply their element whenever the amount is non-zero.
+		#   Shields
+		#
+		# Measured on the rolled damage (raw_damage), not the post-modifier
+		# total: a reaction or ON_HIT bonus applied later must not retroactively
+		# turn a whiff into an element application.
+		var t_landed: bool = false
+		match t_type_lower:
+			"damage", "true damage":
+				t_landed = t_hits >= 1 and _hp_damage_after_shield(t_table, t_id, t_raw_dmg, t_shield_hit) >= 1
+			"healed", "shielded":
+				t_landed = t_raw_dmg >= 1
+
+		if t_elem != "None" and t_landed:
 			elements_unique[t_elem] = true
 			var elem_result = _apply_element(t_table, t_id, t_elem, updates)
 			t_reaction = elem_result.get("reaction", false)
@@ -134,7 +157,6 @@ static func process_turn(input: Dictionary) -> Array:
 			t_damage = int((t_damage + flat_mod) * mult_mod)
 
 		# ── 4e. Resolve HP / shield ──────────────────────────────────────────
-		var t_type_lower: String = t_type.to_lower()
 		if t_table != "" and t_id != null and str(t_id) != "" and t_type_lower in ["damage", "true damage", "healed", "shielded"]:
 			var record_id: int = int(t_id) if t_id != null else 0
 			var key: String = str(record_id)
@@ -334,6 +356,35 @@ static func process_turn(input: Dictionary) -> Array:
 # =============================================================================
 #  Helper Methods
 # =============================================================================
+
+
+## The synced row for a battler, or {} for an unknown table/id.
+static func _record_for(t_table: String, key: String) -> Dictionary:
+	match t_table:
+		"Characters": return Global.CHARACTERS.get(key, {})
+		"Companions": return Global.COMPANIONS.get(key, {})
+		"BattleEnemies": return Global.BATTLEENEMIES.get(key, {})
+	return {}
+
+
+## How much of `damage` actually reaches HP once the target's shield is taken
+## into account. Mirrors the routing in _resolve_damage, and is what decides
+## whether an attack connected hard enough to apply its element:
+##   - shield not involved      -> all of it lands
+##   - shield covers it all     -> 0 lands (fully absorbed)
+##   - shield partially covers  -> the overflow lands
+static func _hp_damage_after_shield(t_table: String, t_id, damage: int, shield_hit: bool) -> int:
+	if damage <= 0:
+		return 0
+	if not shield_hit:
+		return damage
+
+	var rec: Dictionary = _record_for(t_table, str(t_id))
+	var sh_val = rec.get("Shield_Health")
+	var cur_shield: int = int(sh_val) if sh_val != null else 0
+	if cur_shield <= 0:
+		return damage
+	return maxi(damage - cur_shield, 0)
 
 
 ## Apply element to a target. Returns { "reaction": bool, "current_element": String }.
